@@ -95,8 +95,10 @@ Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, d
       messages: [{ role: 'user', content: prompt }]
     });
 
-    const rawContent = completion.content[0].text.trim();
+    let rawContent = completion.content[0].text.trim();
     console.log('AI response length:', rawContent.length, '| Last 100 chars:', rawContent.slice(-100));
+    // Strip markdown code blocks if present
+    rawContent = rawContent.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
     let mealPlan;
 
     try {
