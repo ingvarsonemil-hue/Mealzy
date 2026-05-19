@@ -22,18 +22,18 @@ app.post('/api/generate-meal', async (req, res) => {
       return res.status(400).json({ error: 'Profile is required' });
     }
 
-    const {
-      name = 'User',
-      goal = 'eat healthier',
-      dietaryPrefs = [],
-      allergies = [],
-      cookingSkill = 'intermediate',
-      dailyCalories = 2000,
-      macros = { protein: 150, carbs: 200, fat: 67 },
-      budget = 50,
-      currency = 'USD',
-      cookingTimeMinutes = 30
-    } = profile;
+    const name = profile.name || 'User';
+    const goal = profile.fitness_goal || profile.goal || 'eat healthier';
+    const dietaryPrefs = profile.dietary_preferences || profile.dietaryPrefs || [];
+    const allergies = profile.allergies || [];
+    const cookingSkill = profile.cooking_skill || profile.cookingSkill || 'intermediate';
+    const dailyCalories = profile.daily_calories || profile.dailyCalories || 2000;
+    const dailyProtein = profile.daily_protein || (profile.macros && profile.macros.protein) || 150;
+    const dailyCarbs = profile.daily_carbs || (profile.macros && profile.macros.carbs) || 200;
+    const dailyFat = profile.daily_fat || (profile.macros && profile.macros.fat) || 65;
+    const budget = profile.budget_weekly || profile.budget || 100;
+    const currency = profile.currency || 'USD';
+    const cookingTimeMinutes = profile.cooking_time_minutes || profile.cookingTimeMinutes || 30;
 
     const dietaryInfo = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}.` : '';
     const allergyInfo = allergies.length > 0 ? `Allergies/restrictions: ${allergies.join(', ')}.` : '';
@@ -53,7 +53,7 @@ You MUST use ${todayCuisine} cuisine as inspiration. Do NOT use generic salads o
 User profile:
 - Goal: ${goal}
 - Daily calorie target: ${dailyCalories} kcal
-- Macro targets: Protein ${macros.protein}g, Carbs ${macros.carbs}g, Fat ${macros.fat}g
+- Macro targets: Protein ${dailyProtein}g, Carbs ${dailyCarbs}g, Fat ${dailyFat}g
 - Cooking skill: ${cookingSkill}
 - Max cooking time per meal: ${cookingTimeMinutes} minutes
 - Weekly budget: ${currency} ${budget}
