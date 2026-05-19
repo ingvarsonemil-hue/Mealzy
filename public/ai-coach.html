@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — AI Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { overflow: hidden; }
+    .app-layout { height: 100vh; overflow: hidden; }
+    .main-content { padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    @media (max-width: 900px) {
+      .main-content { height: calc(100vh - 4rem); margin-top: 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <a href="dashboard.html" class="logo" style="font-size:1rem;">
+    <span class="logo-icon" style="width:30px;height:30px;font-size:14px;">🥗</span>
+    Mealzy
+  </a>
+  <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+</div>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+  <div class="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      Mealzy
+    </a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
+      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
+      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
+      <a href="ai-coach.html" class="active"><span class="nav-icon">💬</span> AI Coach</a>
+      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="mobileUserAvatar">A</div>
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;" id="mobileUserName">User</div>
+          <div class="text-muted text-sm">Free Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      Mealzy
+    </a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
+      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
+      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
+      <a href="ai-coach.html" class="active"><span class="nav-icon">💬</span> AI Coach</a>
+      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="userAvatar">A</div>
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;" id="userName">User</div>
+          <div class="text-muted text-sm">Free Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT: CHAT -->
+  <main class="main-content">
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-avatar">🤖</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:0.95rem;">Mia — AI Nutritionist</div>
+        <div class="chat-status">
+          <span class="chat-status-dot"></span>
+          Online · Powered by GPT
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="clearConversation()" title="Clear conversation">🗑️ Clear</button>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages rendered here -->
+    </div>
+
+    <!-- Quick Prompts (shown when no messages) -->
+    <div class="quick-prompts" id="quickPrompts">
+      <span style="font-size:0.8rem;font-weight:600;color:var(--clr-muted-fg);width:100%;margin-bottom:0.25rem;">Suggested questions:</span>
+      <button class="chip quick-prompt" onclick="useQuickPrompt(this)">What should I eat for breakfast?</button>
+      <button class="chip quick-prompt" onclick="useQuickPrompt(this)">How can I hit my protein goal?</button>
+      <button class="chip quick-prompt" onclick="useQuickPrompt(this)">Best foods for weight loss?</button>
+      <button class="chip quick-prompt" onclick="useQuickPrompt(this)">How much water should I drink?</button>
+      <button class="chip quick-prompt" onclick="useQuickPrompt(this)">Healthy snack ideas under 200 calories?</button>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="chat-input-bar">
+      <textarea
+        class="chat-input"
+        id="chatInput"
+        placeholder="Ask Mia anything about nutrition, recipes, or your meal plan..."
+        rows="1"
+        onkeydown="handleKeydown(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" style="flex-shrink:0;">
+        Send ↑
+      </button>
+    </div>
+  </main>
+</div>
+
+<script>
+  let profile = null;
+  let conversation = [];
+
+  const WELCOME_MESSAGE = {
+    role: 'assistant',
+    content: "Hi! I'm Mia, your personal AI nutritionist 🌿 I'm here to help you with meal ideas, nutrition advice, and anything related to your health goals. What can I help you with today?",
+    timestamp: new Date().toISOString()
+  };
+
+  function init() {
+    const profileData = localStorage.getItem('mealzy_profile');
+    if (!profileData) { window.location.href = 'onboarding.html'; return; }
+    profile = JSON.parse(profileData);
+
+    const initial = (profile.name || 'U')[0].toUpperCase();
+    document.getElementById('userAvatar').textContent = initial;
+    document.getElementById('mobileUserAvatar').textContent = initial;
+    document.getElementById('userName').textContent = profile.name || 'User';
+    document.getElementById('mobileUserName').textContent = profile.name || 'User';
+
+    const saved = localStorage.getItem('mealzy_coach_conversation');
+    if (saved) {
+      conversation = JSON.parse(saved);
+    } else {
+      conversation = [WELCOME_MESSAGE];
+    }
+
+    renderMessages();
+    scrollToBottom();
+  }
+
+  function renderMessages() {
+    const container = document.getElementById('chatMessages');
+    const quickPrompts = document.getElementById('quickPrompts');
+
+    if (conversation.length <= 1) {
+      quickPrompts.style.display = 'flex';
+    } else {
+      quickPrompts.style.display = 'none';
+    }
+
+    container.innerHTML = conversation.map(msg => `
+      <div class="chat-msg ${msg.role}">
+        ${msg.role === 'assistant' ? '<div class="chat-header-avatar" style="width:34px;height:34px;font-size:1rem;flex-shrink:0;">🤖</div>' : ''}
+        <div class="chat-bubble">${formatMessage(msg.content)}</div>
+      </div>
+    `).join('');
+  }
+
+  function formatMessage(text) {
+    // Convert basic markdown-like formatting
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\n\n/g, '</p><p style="margin-top:0.5rem;">')
+      .replace(/\n/g, '<br/>')
+      .replace(/^(.+)$/, '<p>$1</p>');
+  }
+
+  function scrollToBottom() {
+    const container = document.getElementById('chatMessages');
+    setTimeout(() => container.scrollTop = container.scrollHeight, 50);
+  }
+
+  function showTyping() {
+    const container = document.getElementById('chatMessages');
+    const typing = document.createElement('div');
+    typing.className = 'chat-msg assistant';
+    typing.id = 'typingIndicator';
+    typing.innerHTML = `
+      <div class="chat-header-avatar" style="width:34px;height:34px;font-size:1rem;flex-shrink:0;">🤖</div>
+      <div class="chat-bubble">
+        <div class="chat-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>`;
+    container.appendChild(typing);
+    scrollToBottom();
+  }
+
+  function hideTyping() {
+    const typing = document.getElementById('typingIndicator');
+    if (typing) typing.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const userMsg = { role: 'user', content: text, timestamp: new Date().toISOString() };
+    conversation.push(userMsg);
+    input.value = '';
+    input.style.height = 'auto';
+
+    document.getElementById('quickPrompts').style.display = 'none';
+    renderMessages();
+    showTyping();
+    scrollToBottom();
+    document.getElementById('sendBtn').disabled = true;
+
+    try {
+      const apiMessages = conversation
+        .filter(m => m.role !== 'system')
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const response = await fetch('/api/ai-coach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: apiMessages, profile })
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.message) {
+        conversation.push(data.message);
+      } else {
+        throw new Error('Invalid response');
+      }
+    } catch (err) {
+      console.error(err);
+      const fallbackResponses = [
+        "I'd love to help! Unfortunately I'm having trouble connecting right now. Please make sure the server is running and your OpenAI API key is configured in the .env file. In the meantime, try to focus on whole foods, lean proteins, and plenty of vegetables!",
+        "It looks like I'm offline at the moment. Once the server is connected, I can give you personalized advice based on your profile. For now, remember: hydration is key — aim for 8 glasses of water daily!",
+        "Connection issue detected! Once we're back online I can answer all your nutrition questions. Quick tip while you wait: aim to fill half your plate with vegetables at every meal!"
+      ];
+      conversation.push({
+        role: 'assistant',
+        content: fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)],
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    hideTyping();
+    localStorage.setItem('mealzy_coach_conversation', JSON.stringify(conversation));
+    renderMessages();
+    scrollToBottom();
+    document.getElementById('sendBtn').disabled = false;
+  }
+
+  function useQuickPrompt(el) {
+    document.getElementById('chatInput').value = el.textContent;
+    sendMessage();
+  }
+
+  function clearConversation() {
+    if (!confirm('Clear conversation history?')) return;
+    conversation = [WELCOME_MESSAGE];
+    localStorage.removeItem('mealzy_coach_conversation');
+    renderMessages();
+  }
+
+  function handleKeydown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  // Mobile menu
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('mobileSidebarOverlay')) {
+      document.getElementById('mobileSidebarOverlay').classList.remove('open');
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

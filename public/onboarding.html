@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Get Started</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="onboarding-wrap">
+  <div class="onboarding-card">
+    <!-- Progress Bar -->
+    <div style="margin-bottom:1.5rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+        <a href="index.html" class="logo" style="font-size:1rem;">
+          <span class="logo-icon" style="width:28px;height:28px;font-size:14px;">🥗</span>
+          Mealzy
+        </a>
+        <span class="step-counter" id="stepCounter">Step 1 of 5</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressBar" style="width:20%;"></div>
+      </div>
+    </div>
+
+    <!-- STEP 1: Body Stats -->
+    <div class="step-content" id="step1">
+      <div class="onboarding-top">
+        <div class="step-title">👋 Let's get to know you</div>
+        <div class="step-sub">Tell us a bit about yourself so we can personalize your meal plan perfectly.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-input" id="inputAge" placeholder="25" min="14" max="100" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <div class="gender-chips" id="genderChips">
+            <button class="chip" data-gender="male" onclick="selectGender(this)">Male</button>
+            <button class="chip" data-gender="female" onclick="selectGender(this)">Female</button>
+            <button class="chip" data-gender="other" onclick="selectGender(this)">Other</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Weight (kg)</label>
+          <input type="number" class="form-input" id="inputWeight" placeholder="70" min="30" max="300" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Height (cm)</label>
+          <input type="number" class="form-input" id="inputHeight" placeholder="175" min="100" max="250" />
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Fitness Goal -->
+    <div class="step-content hidden" id="step2">
+      <div class="onboarding-top">
+        <div class="step-title">🎯 What's your main goal?</div>
+        <div class="step-sub">Choose the goal that best describes what you want to achieve.</div>
+      </div>
+      <div class="goal-grid">
+        <div class="goal-card" data-goal="build_muscle" onclick="selectGoal(this)">
+          <div class="goal-emoji">💪</div>
+          <div class="goal-label">Build Muscle</div>
+        </div>
+        <div class="goal-card" data-goal="lose_weight" onclick="selectGoal(this)">
+          <div class="goal-emoji">⬇️</div>
+          <div class="goal-label">Lose Weight</div>
+        </div>
+        <div class="goal-card" data-goal="maintain_weight" onclick="selectGoal(this)">
+          <div class="goal-emoji">⚖️</div>
+          <div class="goal-label">Maintain Weight</div>
+        </div>
+        <div class="goal-card" data-goal="eat_healthier" onclick="selectGoal(this)">
+          <div class="goal-emoji">🥗</div>
+          <div class="goal-label">Eat Healthier</div>
+        </div>
+        <div class="goal-card" data-goal="gain_weight" onclick="selectGoal(this)">
+          <div class="goal-emoji">⬆️</div>
+          <div class="goal-label">Gain Weight</div>
+        </div>
+        <div class="goal-card" data-goal="improve_energy" onclick="selectGoal(this)">
+          <div class="goal-emoji">⚡</div>
+          <div class="goal-label">Improve Energy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Activity Level -->
+    <div class="step-content hidden" id="step3">
+      <div class="onboarding-top">
+        <div class="step-title">🏃 How active are you?</div>
+        <div class="step-sub">Be honest — this helps us calculate the right calorie intake for your goals.</div>
+      </div>
+      <div class="activity-card" data-activity="sedentary" data-multiplier="1.2" onclick="selectActivity(this)">
+        <div class="activity-emoji">🛋️</div>
+        <div class="activity-info">
+          <div class="activity-title">Sedentary</div>
+          <div class="activity-desc">Little or no exercise, desk job</div>
+        </div>
+      </div>
+      <div class="activity-card" data-activity="lightly_active" data-multiplier="1.375" onclick="selectActivity(this)">
+        <div class="activity-emoji">🚶</div>
+        <div class="activity-info">
+          <div class="activity-title">Lightly Active</div>
+          <div class="activity-desc">Light exercise 1-3 days/week</div>
+        </div>
+      </div>
+      <div class="activity-card" data-activity="moderately_active" data-multiplier="1.55" onclick="selectActivity(this)">
+        <div class="activity-emoji">🏊</div>
+        <div class="activity-info">
+          <div class="activity-title">Moderately Active</div>
+          <div class="activity-desc">Moderate exercise 3-5 days/week</div>
+        </div>
+      </div>
+      <div class="activity-card" data-activity="very_active" data-multiplier="1.725" onclick="selectActivity(this)">
+        <div class="activity-emoji">🏋️</div>
+        <div class="activity-info">
+          <div class="activity-title">Very Active</div>
+          <div class="activity-desc">Hard exercise 6-7 days/week</div>
+        </div>
+      </div>
+      <div class="activity-card" data-activity="extra_active" data-multiplier="1.9" onclick="selectActivity(this)">
+        <div class="activity-emoji">🔥</div>
+        <div class="activity-info">
+          <div class="activity-title">Extra Active</div>
+          <div class="activity-desc">Very hard exercise, physical job, or training twice a day</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Dietary Preferences & Allergies -->
+    <div class="step-content hidden" id="step4">
+      <div class="onboarding-top">
+        <div class="step-title">🥦 Dietary preferences</div>
+        <div class="step-sub">Select all that apply. We'll make sure every meal respects your choices.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Diet Style</label>
+        <div class="chips-group" id="dietChips">
+          <button class="chip" data-pref="vegetarian" onclick="toggleChip(this, 'dietChips')">🌿 Vegetarian</button>
+          <button class="chip" data-pref="vegan" onclick="toggleChip(this, 'dietChips')">🌱 Vegan</button>
+          <button class="chip" data-pref="keto" onclick="toggleChip(this, 'dietChips')">🥑 Keto</button>
+          <button class="chip" data-pref="paleo" onclick="toggleChip(this, 'dietChips')">🦴 Paleo</button>
+          <button class="chip" data-pref="mediterranean" onclick="toggleChip(this, 'dietChips')">🫒 Mediterranean</button>
+          <button class="chip" data-pref="halal" onclick="toggleChip(this, 'dietChips')">☪️ Halal</button>
+          <button class="chip" data-pref="kosher" onclick="toggleChip(this, 'dietChips')">✡️ Kosher</button>
+          <button class="chip" data-pref="low_carb" onclick="toggleChip(this, 'dietChips')">📉 Low Carb</button>
+          <button class="chip" data-pref="high_protein" onclick="toggleChip(this, 'dietChips')">💪 High Protein</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Allergies & Restrictions</label>
+        <div class="chips-group" id="allergyChips">
+          <button class="chip" data-allergy="gluten" onclick="toggleChip(this, 'allergyChips')">🌾 Gluten-Free</button>
+          <button class="chip" data-allergy="dairy" onclick="toggleChip(this, 'allergyChips')">🥛 Dairy-Free</button>
+          <button class="chip" data-allergy="nuts" onclick="toggleChip(this, 'allergyChips')">🥜 Nut-Free</button>
+          <button class="chip" data-allergy="eggs" onclick="toggleChip(this, 'allergyChips')">🥚 Egg-Free</button>
+          <button class="chip" data-allergy="shellfish" onclick="toggleChip(this, 'allergyChips')">🦐 Shellfish-Free</button>
+          <button class="chip" data-allergy="soy" onclick="toggleChip(this, 'allergyChips')">🫘 Soy-Free</button>
+          <button class="chip" data-allergy="fish" onclick="toggleChip(this, 'allergyChips')">🐟 Fish-Free</button>
+          <button class="chip" data-allergy="pork" onclick="toggleChip(this, 'allergyChips')">🐷 No Pork</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Cooking & Budget -->
+    <div class="step-content hidden" id="step5">
+      <div class="onboarding-top">
+        <div class="step-title">🍳 Cooking preferences</div>
+        <div class="step-sub">Help us match meals to your cooking ability and budget.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cooking Skill Level</label>
+        <div class="skill-grid" id="skillGrid">
+          <div class="skill-card" data-skill="beginner" onclick="selectSkill(this)">
+            <div style="font-size:1.5rem;margin-bottom:0.4rem;">🥚</div>
+            <div style="font-weight:600;font-size:0.88rem;">Beginner</div>
+            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">Simple recipes only</div>
+          </div>
+          <div class="skill-card" data-skill="intermediate" onclick="selectSkill(this)">
+            <div style="font-size:1.5rem;margin-bottom:0.4rem;">🍳</div>
+            <div style="font-weight:600;font-size:0.88rem;">Intermediate</div>
+            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">Comfortable cooking</div>
+          </div>
+          <div class="skill-card" data-skill="advanced" onclick="selectSkill(this)">
+            <div style="font-size:1.5rem;margin-bottom:0.4rem;">👨‍🍳</div>
+            <div style="font-weight:600;font-size:0.88rem;">Advanced</div>
+            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">Complex techniques</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Max cooking time per meal</label>
+        <div class="range-wrap">
+          <input type="range" id="cookTimeRange" min="5" max="90" step="5" value="30" oninput="updateRangeVal('cookTimeRange', 'cookTimeVal', ' min')" />
+          <span class="range-val" id="cookTimeVal">30 min</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Weekly Food Budget</label>
+          <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-select" id="selectCurrency">
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="GBP">£ GBP</option>
+            <option value="CAD">$ CAD</option>
+            <option value="AUD">$ AUD</option>
+            <option value="JPY">¥ JPY</option>
+            <option value="INR">₹ INR</option>
+            <option value="BRL">R$ BRL</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Macro Results Box -->
+      <div class="results-box" id="resultsBox">
+        <div class="results-title">📊 Your Calculated Nutrition Plan</div>
+        <div class="macro-row">
+          <span class="macro-name">Daily Calories</span>
+          <span class="macro-val" id="resultCalories">— kcal</span>
+        </div>
+        <div class="macro-row">
+          <span class="macro-name">Protein</span>
+          <span class="macro-val" id="resultProtein">— g</span>
+        </div>
+        <div class="macro-row">
+          <span class="macro-name">Carbohydrates</span>
+          <span class="macro-val" id="resultCarbs">— g</span>
+        </div>
+        <div class="macro-row">
+          <span class="macro-name">Fat</span>
+          <span class="macro-val" id="resultFat">— g</span>
+        </div>
+        <div class="macro-row">
+          <span class="macro-name">Water Goal</span>
+          <span class="macro-val" id="resultWater">— glasses</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="onboarding-nav">
+      <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;">← Back</button>
+      <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentStep = 1;
+  const totalSteps = 5;
+
+  const userData = {
+    name: '',
+    age: null,
+    gender: 'male',
+    weight: null,
+    height: null,
+    goal: '',
+    activityLevel: 'moderately_active',
+    activityMultiplier: 1.55,
+    dietaryPrefs: [],
+    allergies: [],
+    cookingSkill: 'intermediate',
+    cookingTimeMinutes: 30,
+    budget: 100,
+    currency: 'USD',
+    dailyCalories: 0,
+    macros: { protein: 0, carbs: 0, fat: 0 }
+  };
+
+  function showStep(step) {
+    document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+    document.getElementById('step' + step).classList.remove('hidden');
+    document.getElementById('stepCounter').textContent = `Step ${step} of ${totalSteps}`;
+    document.getElementById('progressBar').style.width = `${(step / totalSteps) * 100}%`;
+    document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
+    document.getElementById('btnNext').textContent = step === totalSteps ? '🚀 Create My Plan' : 'Continue →';
+
+    if (step === totalSteps) {
+      calculateNutrition();
+    }
+  }
+
+  function nextStep() {
+    if (!validateStep(currentStep)) return;
+    if (currentStep < totalSteps) {
+      currentStep++;
+      showStep(currentStep);
+    } else {
+      finishOnboarding();
+    }
+  }
+
+  function prevStep() {
+    if (currentStep > 1) {
+      currentStep--;
+      showStep(currentStep);
+    }
+  }
+
+  function validateStep(step) {
+    if (step === 1) {
+      userData.name = document.getElementById('inputName').value.trim();
+      userData.age = parseInt(document.getElementById('inputAge').value);
+      userData.weight = parseFloat(document.getElementById('inputWeight').value);
+      userData.height = parseFloat(document.getElementById('inputHeight').value);
+      if (!userData.name) { alert('Please enter your name.'); return false; }
+      if (!userData.age || userData.age < 14 || userData.age > 100) { alert('Please enter a valid age (14-100).'); return false; }
+      if (!userData.weight || userData.weight < 30) { alert('Please enter a valid weight.'); return false; }
+      if (!userData.height || userData.height < 100) { alert('Please enter a valid height.'); return false; }
+    }
+    if (step === 2 && !userData.goal) { alert('Please select a goal.'); return false; }
+    if (step === 3 && !userData.activityLevel) { alert('Please select your activity level.'); return false; }
+    if (step === 5) {
+      userData.cookingTimeMinutes = parseInt(document.getElementById('cookTimeRange').value);
+      userData.budget = parseFloat(document.getElementById('inputBudget').value) || 100;
+      userData.currency = document.getElementById('selectCurrency').value;
+    }
+    return true;
+  }
+
+  function selectGender(el) {
+    document.querySelectorAll('#genderChips .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    userData.gender = el.dataset.gender;
+  }
+
+  function selectGoal(el) {
+    document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    userData.goal = el.dataset.goal;
+  }
+
+  function selectActivity(el) {
+    document.querySelectorAll('.activity-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    userData.activityLevel = el.dataset.activity;
+    userData.activityMultiplier = parseFloat(el.dataset.multiplier);
+  }
+
+  function toggleChip(el, groupId) {
+    el.classList.toggle('active');
+    updateChipsData();
+  }
+
+  function updateChipsData() {
+    userData.dietaryPrefs = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.dataset.pref);
+    userData.allergies = Array.from(document.querySelectorAll('#allergyChips .chip.active')).map(c => c.dataset.allergy);
+  }
+
+  function selectSkill(el) {
+    document.querySelectorAll('.skill-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    userData.cookingSkill = el.dataset.skill;
+  }
+
+  function updateRangeVal(rangeId, valId, suffix) {
+    document.getElementById(valId).textContent = document.getElementById(rangeId).value + suffix;
+  }
+
+  function calculateNutrition() {
+    const { weight, height, age, gender, activityMultiplier, goal } = userData;
+    if (!weight || !height || !age) return;
+
+    // Mifflin-St Jeor BMR
+    let bmr;
+    if (gender === 'male') {
+      bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+    } else {
+      bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+    }
+
+    let tdee = bmr * activityMultiplier;
+
+    // Adjust for goal
+    let calories;
+    switch (goal) {
+      case 'lose_weight': calories = Math.round(tdee - 500); break;
+      case 'gain_weight':
+      case 'build_muscle': calories = Math.round(tdee + 300); break;
+      default: calories = Math.round(tdee);
+    }
+
+    calories = Math.max(calories, 1200);
+
+    const protein = Math.round(2 * weight); // 2g per kg
+    const carbs = Math.round((calories * 0.4) / 4);
+    const fat = Math.round((calories * 0.3) / 9);
+    const water = Math.round(weight * 0.033 * 1000 / 240); // glasses
+
+    userData.dailyCalories = calories;
+    userData.macros = { protein, carbs, fat };
+
+    document.getElementById('resultCalories').textContent = calories + ' kcal';
+    document.getElementById('resultProtein').textContent = protein + 'g';
+    document.getElementById('resultCarbs').textContent = carbs + 'g';
+    document.getElementById('resultFat').textContent = fat + 'g';
+    document.getElementById('resultWater').textContent = water + ' glasses';
+  }
+
+  function finishOnboarding() {
+    updateChipsData();
+    userData.cookingTimeMinutes = parseInt(document.getElementById('cookTimeRange').value);
+    userData.budget = parseFloat(document.getElementById('inputBudget').value) || 100;
+    userData.currency = document.getElementById('selectCurrency').value;
+    calculateNutrition();
+
+    const profile = {
+      ...userData,
+      createdAt: new Date().toISOString(),
+      streak: 1,
+      lastActiveDate: new Date().toISOString().split('T')[0]
+    };
+
+    localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+    window.location.href = 'dashboard.html';
+  }
+
+  // Initialize default selections
+  document.querySelector('[data-gender="male"]').classList.add('active');
+  document.querySelector('[data-activity="moderately_active"]').classList.add('selected');
+  document.querySelector('[data-skill="intermediate"]').classList.add('selected');
+</script>
+</body>
+</html>

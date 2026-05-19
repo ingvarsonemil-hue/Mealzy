@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Pricing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    @keyframes pricePop { 0% { transform: scale(0.95); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+    .price-animated { animation: pricePop 0.25s ease; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav-fixed">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🥗</span>
+      Mealzy
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#testimonials">Reviews</a></li>
+      <li><a href="pricing.html" style="color:var(--clr-primary);font-weight:600;">Pricing</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started Free</a>
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <div class="mobile-nav-panel" id="mobileNavPanel">
+    <button class="mobile-nav-close" id="mobileNavClose">✕</button>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#testimonials">Reviews</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="dashboard.html">Sign In</a></li>
+      <li><a href="onboarding.html" style="color:var(--clr-primary);font-weight:700;">Get Started Free →</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- HERO -->
+<section style="background:var(--gradient-hero);padding:8rem 0 4rem;">
+  <div class="container" style="text-align:center;">
+    <span class="section-label">Simple Pricing</span>
+    <h1 style="font-size:2.5rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.75rem;">
+      Plans for every goal
+    </h1>
+    <p style="font-size:1.05rem;color:var(--clr-muted-fg);max-width:480px;margin:0 auto 2.5rem;">
+      Start free and upgrade when you're ready. No credit card required to begin.
+    </p>
+
+    <!-- BILLING TOGGLE -->
+    <div class="pricing-toggle" id="billingToggle">
+      <button class="active" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
+      <button id="btnYearly" onclick="setBilling('yearly')">Yearly <span class="badge badge-accent" style="margin-left:0.25rem;font-size:0.72rem;">Save 33%</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING CARDS -->
+<section style="padding:3rem 0 5rem;background:var(--clr-background);">
+  <div class="container">
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="pricing-card" id="cardFree">
+        <div class="pricing-card-top">
+          <div style="font-size:2rem;margin-bottom:0.5rem;">🌱</div>
+          <div class="pricing-plan-name">Free</div>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">Perfect for getting started</p>
+          <div class="pricing-price">
+            <span class="amount" id="priceFreeMo">$0</span>
+            <span class="period">/month</span>
+          </div>
+          <div class="pricing-billed" id="billedFree">&nbsp;</div>
+        </div>
+        <a href="onboarding.html" class="btn btn-outline btn-full">Get Started Free</a>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> 7 AI meal plans per week</li>
+          <li><span class="check">✓</span> Basic calorie tracking</li>
+          <li><span class="check">✓</span> Grocery list (manual)</li>
+          <li><span class="check">✓</span> AI Coach (10 msgs/day)</li>
+          <li><span class="check">✓</span> 1 dietary preference</li>
+          <li><span class="cross">✗</span> <span class="feat-disabled">Advanced analytics</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled">Auto grocery generation</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled">Unlimited AI coach</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled">Multiple profiles</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled">Priority support</span></li>
+        </ul>
+      </div>
+
+      <!-- PREMIUM (POPULAR) -->
+      <div class="pricing-card popular" id="cardPremium">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+          <span style="font-size:2rem;">⚡</span>
+          <span class="badge badge-primary">Most Popular</span>
+        </div>
+        <div class="pricing-card-top">
+          <div class="pricing-plan-name">Premium</div>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">For serious health goals</p>
+          <div class="pricing-price">
+            <span class="amount" id="pricePremiumMo">$12</span>
+            <span class="period">/month</span>
+          </div>
+          <div class="pricing-billed" id="billedPremium">&nbsp;</div>
+        </div>
+        <a href="onboarding.html" class="btn btn-primary btn-full">Start Free Trial</a>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> <strong>Unlimited</strong> AI meal plans</li>
+          <li><span class="check">✓</span> Advanced macro tracking</li>
+          <li><span class="check">✓</span> <strong>Auto</strong> grocery list generation</li>
+          <li><span class="check">✓</span> <strong>Unlimited</strong> AI Coach</li>
+          <li><span class="check">✓</span> All dietary preferences</li>
+          <li><span class="check">✓</span> Full analytics dashboard</li>
+          <li><span class="check">✓</span> Weekly nutrition reports</li>
+          <li><span class="check">✓</span> Recipe customization</li>
+          <li><span class="check">✓</span> Budget optimization</li>
+          <li><span class="check">✓</span> Email support</li>
+        </ul>
+      </div>
+
+      <!-- FAMILY -->
+      <div class="pricing-card" id="cardFamily">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">👨‍👩‍👧‍👦</div>
+        <div class="pricing-card-top">
+          <div class="pricing-plan-name">Family</div>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">Up to 5 family members</p>
+          <div class="pricing-price">
+            <span class="amount" id="priceFamilyMo">$24</span>
+            <span class="period">/month</span>
+          </div>
+          <div class="pricing-billed" id="billedFamily">&nbsp;</div>
+        </div>
+        <a href="onboarding.html" class="btn btn-outline btn-full">Start Free Trial</a>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Everything in Premium</li>
+          <li><span class="check">✓</span> Up to 5 profiles</li>
+          <li><span class="check">✓</span> Family meal planner</li>
+          <li><span class="check">✓</span> Shared grocery lists</li>
+          <li><span class="check">✓</span> Individual goal tracking</li>
+          <li><span class="check">✓</span> Family nutrition insights</li>
+          <li><span class="check">✓</span> Kid-friendly meal options</li>
+          <li><span class="check">✓</span> Allergen management</li>
+          <li><span class="check">✓</span> Priority support</li>
+          <li><span class="check">✓</span> Early access to features</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- FAQ / Guarantee -->
+    <div style="text-align:center;margin-top:3rem;padding:2rem;background:var(--clr-muted-bg);border-radius:1rem;">
+      <div style="font-size:2rem;margin-bottom:0.75rem;">🛡️</div>
+      <h3 style="margin-bottom:0.5rem;">30-Day Money Back Guarantee</h3>
+      <p style="color:var(--clr-muted-fg);font-size:0.9rem;max-width:480px;margin:0 auto;">
+        Not satisfied? Contact us within 30 days of your first payment for a full refund — no questions asked.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section class="section" style="background:var(--clr-muted-bg);">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Compare Plans</h2>
+    </div>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;background:var(--clr-card);border-radius:0.75rem;overflow:hidden;box-shadow:var(--shadow-sm);">
+        <thead>
+          <tr style="background:var(--clr-muted-bg);">
+            <th style="padding:1rem 1.25rem;text-align:left;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);">Feature</th>
+            <th style="padding:1rem;text-align:center;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);">Free</th>
+            <th style="padding:1rem;text-align:center;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);">Premium</th>
+            <th style="padding:1rem;text-align:center;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);">Family</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">AI Meal Plans</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">7/week</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">Unlimited</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Unlimited</td>
+          </tr>
+          <tr style="background:var(--clr-muted-bg);">
+            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">AI Coach Messages</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">10/day</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">Unlimited</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Unlimited</td>
+          </tr>
+          <tr>
+            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">Auto Grocery Lists</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);">✗</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);font-weight:700;">✓</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;">✓</td>
+          </tr>
+          <tr style="background:var(--clr-muted-bg);">
+            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">Analytics Dashboard</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);">Basic</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);font-weight:600;">Advanced</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-weight:600;">Advanced</td>
+          </tr>
+          <tr>
+            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">Profiles</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">1</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">1</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Up to 5</td>
+          </tr>
+          <tr style="background:var(--clr-muted-bg);">
+            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;">Priority Support</td>
+            <td style="padding:0.85rem;text-align:center;">✗</td>
+            <td style="padding:0.85rem;text-align:center;">Email</td>
+            <td style="padding:0.85rem;text-align:center;color:var(--clr-primary);font-weight:700;">Priority</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <span style="font-size:2.5rem;display:block;margin-bottom:0.75rem;">🚀</span>
+      <h2>Start for Free Today</h2>
+      <p>No credit card required. Upgrade whenever you're ready.</p>
+      <a href="onboarding.html" class="btn btn-accent btn-lg">Get Started — It's Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="index.html" class="logo" style="color:white;">
+        <span class="logo-icon">🥗</span>
+        Mealzy
+      </a>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  let billingMode = 'monthly';
+
+  const prices = {
+    monthly: { free: '$0', premium: '$12', family: '$24' },
+    yearly:  { free: '$0', premium: '$8',  family: '$16' }
+  };
+
+  const billedText = {
+    monthly: { free: '', premium: '', family: '' },
+    yearly:  {
+      free: '',
+      premium: 'Billed $96/year (save $48)',
+      family:  'Billed $192/year (save $96)'
+    }
+  };
+
+  function setBilling(mode) {
+    billingMode = mode;
+
+    document.getElementById('btnMonthly').classList.toggle('active', mode === 'monthly');
+    document.getElementById('btnYearly').classList.toggle('active', mode === 'yearly');
+
+    const p = prices[mode];
+    const b = billedText[mode];
+
+    function updatePrice(id, billedId, price, billed) {
+      const el = document.getElementById(id);
+      el.textContent = price;
+      el.classList.remove('price-animated');
+      void el.offsetWidth;
+      el.classList.add('price-animated');
+      document.getElementById(billedId).textContent = billed;
+    }
+
+    updatePrice('priceFreeMo', 'billedFree', p.free, b.free);
+    updatePrice('pricePremiumMo', 'billedPremium', p.premium, b.premium);
+    updatePrice('priceFamilyMo', 'billedFamily', p.family, b.family);
+
+    // Subtle pulse on premium card when switching to yearly
+    if (mode === 'yearly') {
+      const card = document.getElementById('cardPremium');
+      card.style.animation = 'none';
+      void card.offsetWidth;
+      card.style.animation = 'pricingPulse 0.5s ease';
+      setTimeout(() => card.style.animation = '', 500);
+    }
+  }
+
+  // Hamburger
+  const hamburger = document.getElementById('hamburger');
+  const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+  const mobileNavPanel = document.getElementById('mobileNavPanel');
+  const mobileNavClose = document.getElementById('mobileNavClose');
+
+  hamburger.addEventListener('click', () => {
+    mobileNavOverlay.classList.add('open');
+    mobileNavPanel.classList.add('open');
+  });
+  mobileNavClose.addEventListener('click', () => {
+    mobileNavOverlay.classList.remove('open');
+    mobileNavPanel.classList.remove('open');
+  });
+  mobileNavOverlay.addEventListener('click', (e) => {
+    if (e.target === mobileNavOverlay) {
+      mobileNavOverlay.classList.remove('open');
+      mobileNavPanel.classList.remove('open');
+    }
+  });
+</script>
+</body>
+</html>

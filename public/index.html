@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Your AI Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav-fixed">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon">🥗</span>
+      Mealzy
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="dashboard.html" class="btn btn-ghost btn-sm">Sign In</a>
+      <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started Free</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <div class="mobile-nav-panel" id="mobileNavPanel">
+    <button class="mobile-nav-close" id="mobileNavClose">✕</button>
+    <ul class="mobile-nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#testimonials">Reviews</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="dashboard.html">Sign In</a></li>
+      <li><a href="onboarding.html" style="color:var(--clr-primary);font-weight:700;">Get Started Free →</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="section-label">AI-Powered Nutrition</span>
+      <h1 class="hero-headline">Your Personal<br>AI Nutritionist</h1>
+      <p class="hero-sub">Mealzy creates personalized meal plans tailored to your goals, preferences, and schedule. Get weekly grocery lists, calorie tracking, and one-on-one AI coaching — all in one beautiful app.</p>
+      <div class="hero-actions">
+        <a href="onboarding.html" class="btn btn-primary btn-lg">🚀 Start Free — No Credit Card</a>
+        <a href="#features" class="btn btn-outline btn-lg">View Demo</a>
+      </div>
+      <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:1rem;">✓ Free forever plan &nbsp; ✓ Setup in 2 minutes &nbsp; ✓ Cancel anytime</p>
+    </div>
+    <div class="hero-image-wrap">
+      <img
+        src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80"
+        alt="Healthy food bowl"
+        class="hero-img"
+        loading="eager"
+      />
+      <div class="hero-badge top-left green">
+        🍽️ 50K+ meals planned today
+      </div>
+      <div class="hero-badge top-right">
+        ⭐ 4.9 rating
+      </div>
+      <div class="hero-badge bottom-right">
+        💰 Save $180/year on groceries
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF BAR -->
+<div class="social-proof-bar">
+  <div class="social-proof-inner">
+    <div class="avatar-stack">
+      <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=40&q=80" alt="User" />
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&q=80" alt="User" />
+      <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=40&q=80" alt="User" />
+      <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&q=80" alt="User" />
+    </div>
+    <div>
+      <strong>Trusted by 50,000+ users</strong>
+      <span style="color:var(--clr-accent);margin-left:0.5rem;">★★★★★</span>
+    </div>
+    <div class="badge badge-primary">🏆 #1 Meal Planning App</div>
+    <div style="font-size:0.88rem;color:var(--clr-muted-fg);">2M+ meals planned &bull; 4.9 average rating</div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div>
+        <div class="stat-num">50K+</div>
+        <div class="stat-lbl">Active Users</div>
+      </div>
+      <div>
+        <div class="stat-num">2M+</div>
+        <div class="stat-lbl">Meals Planned</div>
+      </div>
+      <div>
+        <div class="stat-num">4.9★</div>
+        <div class="stat-lbl">Average Rating</div>
+      </div>
+      <div>
+        <div class="stat-num">$180</div>
+        <div class="stat-lbl">Avg. Annual Savings</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">Everything You Need</span>
+      <h2 class="section-title">Smart Meal Planning Made Simple</h2>
+      <p class="section-sub">From personalized plans to automatic grocery lists — Mealzy does the heavy lifting so you can focus on enjoying food.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Meal Planning</h3>
+        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Our GPT-powered AI creates personalized meal plans based on your calories, macros, preferences, and cooking time in seconds.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">🛒</div>
+        <h3>Smart Grocery Lists</h3>
+        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Automatically generate organized grocery lists from your week's meal plan, sorted by category with estimated costs.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Nutrition Analytics</h3>
+        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Track calories, macros, and nutrition trends over time with beautiful charts and weekly progress reports.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>AI Nutrition Coach</h3>
+        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Chat with your personal AI nutritionist 24/7 for recipe ideas, nutrition advice, and healthy eating tips tailored to you.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>One-Click Regenerate</h3>
+        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Don't like a meal? Regenerate your entire plan or swap individual meals with a single click. No more decision fatigue.</p>
+      </div>
+      <div class="card feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Goal-Based Planning</h3>
+        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Whether you're losing weight, building muscle, or eating healthier — your meal plan adapts perfectly to your specific goals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" style="background:var(--clr-muted-bg);">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-title">Set Up in Under 2 Minutes</h2>
+      <p class="section-sub">No complicated setup. Just answer a few questions and get your personalized plan instantly.</p>
+    </div>
+    <div class="grid-3">
+      <div style="text-align:center;padding:1.5rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--clr-primary);color:white;font-weight:900;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">1</div>
+        <h3 style="margin-bottom:0.5rem;">Tell Us About You</h3>
+        <p class="text-muted" style="font-size:0.9rem;">Share your health goals, dietary preferences, allergies, and cooking skills in our 5-step onboarding wizard.</p>
+      </div>
+      <div style="text-align:center;padding:1.5rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:var(--clr-accent);color:white;font-weight:900;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">2</div>
+        <h3 style="margin-bottom:0.5rem;">AI Generates Your Plan</h3>
+        <p class="text-muted" style="font-size:0.9rem;">Our AI instantly creates a full day or week of meals perfectly balanced for your calorie and macro targets.</p>
+      </div>
+      <div style="text-align:center;padding:1.5rem;">
+        <div style="width:56px;height:56px;border-radius:50%;background:hsl(260,60%,55%);color:white;font-weight:900;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">3</div>
+        <h3 style="margin-bottom:0.5rem;">Cook, Track, Improve</h3>
+        <p class="text-muted" style="font-size:0.9rem;">Follow your plan, log meals, get your grocery list, and watch your progress improve week after week.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" id="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-label">What Users Say</span>
+      <h2 class="section-title">Real People, Real Results</h2>
+      <p class="section-sub">Join thousands of people who've transformed their eating habits with Mealzy.</p>
+    </div>
+    <div class="grid-3">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I've tried every meal planning app out there but Mealzy is the first one that actually works for my lifestyle. The AI understood my vegan diet and gluten sensitivity perfectly. I lost 12 lbs in 2 months!"</p>
+        <div class="testimonial-author">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&q=80" alt="Sarah" class="author-avatar" />
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">Sarah M.</div>
+            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Lost 12 lbs in 2 months</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"As someone who's always struggled with meal prep, Mealzy has been a game changer. The AI coach answers my nutrition questions instantly and the grocery lists save me so much time and money every week."</p>
+        <div class="testimonial-author">
+          <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=40&q=80" alt="Marcus" class="author-avatar" />
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">Marcus T.</div>
+            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Fitness enthusiast</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I was skeptical at first but the personalization is incredible. My meals hit my exact macro targets for muscle building and the recipes are genuinely delicious. My whole family loves the dinners it suggests!"</p>
+        <div class="testimonial-author">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&q=80" alt="Emily" class="author-avatar" />
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">Emily R.</div>
+            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Gained 8 lbs of muscle</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq" style="background:var(--clr-muted-bg);">
+  <div class="container" style="max-width:720px;">
+    <div class="section-header">
+      <span class="section-label">FAQ</span>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="card card-sm">
+        <h3 style="margin-bottom:0.4rem;">Is Mealzy really free?</h3>
+        <p class="text-muted" style="font-size:0.88rem;">Yes! Our free plan includes up to 7 AI-generated meals per week, basic nutrition tracking, and access to the AI coach with 10 messages/day. Premium unlocks unlimited meals, advanced analytics, and more.</p>
+      </div>
+      <div class="card card-sm">
+        <h3 style="margin-bottom:0.4rem;">Can Mealzy handle my dietary restrictions?</h3>
+        <p class="text-muted" style="font-size:0.88rem;">Absolutely. Mealzy supports vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and many more dietary preferences and allergies. Just tell us in onboarding!</p>
+      </div>
+      <div class="card card-sm">
+        <h3 style="margin-bottom:0.4rem;">How accurate are the calorie calculations?</h3>
+        <p class="text-muted" style="font-size:0.88rem;">We use the scientifically validated Mifflin-St Jeor equation combined with your activity level to calculate your TDEE. Our AI then generates meals that hit your targets within ±50 calories per day.</p>
+      </div>
+      <div class="card card-sm">
+        <h3 style="margin-bottom:0.4rem;">Do I need to cook every meal myself?</h3>
+        <p class="text-muted" style="font-size:0.88rem;">No! You can set your cooking time preference (even 5 minutes!) and Mealzy will suggest meals that fit your schedule, including quick options and no-cook meals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <span style="font-size:2.5rem;display:block;margin-bottom:0.75rem;">🥗</span>
+      <h2>Ready to Transform Your Eating?</h2>
+      <p>Join 50,000+ people eating healthier, saving money, and reaching their goals with Mealzy's AI meal planner.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="onboarding.html" class="btn btn-accent btn-lg">Start Free — Takes 2 Minutes</a>
+        <a href="pricing.html" class="btn btn-outline btn-lg" style="background:rgba(255,255,255,0.15);color:white;border-color:rgba(255,255,255,0.3);">See Pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="index.html" class="logo" style="color:white;">
+        <span class="logo-icon">🥗</span>
+        Mealzy
+      </a>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+        <a href="#">Blog</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Check if already logged in
+  const profile = localStorage.getItem('mealzy_profile');
+  if (profile) {
+    // User is logged in, could add a "Go to Dashboard" banner but keep landing page visible
+  }
+
+  // Hamburger toggle
+  const hamburger = document.getElementById('hamburger');
+  const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+  const mobileNavPanel = document.getElementById('mobileNavPanel');
+  const mobileNavClose = document.getElementById('mobileNavClose');
+
+  function openMobileNav() {
+    mobileNavOverlay.classList.add('open');
+    mobileNavPanel.classList.add('open');
+  }
+  function closeMobileNav() {
+    mobileNavOverlay.classList.remove('open');
+    mobileNavPanel.classList.remove('open');
+  }
+
+  hamburger.addEventListener('click', openMobileNav);
+  mobileNavClose.addEventListener('click', closeMobileNav);
+  mobileNavOverlay.addEventListener('click', (e) => {
+    if (e.target === mobileNavOverlay) closeMobileNav();
+  });
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeMobileNav();
+      }
+    });
+  });
+</script>
+</body>
+</html>

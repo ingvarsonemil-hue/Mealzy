@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Meal Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <a href="dashboard.html" class="logo" style="font-size:1rem;">
+    <span class="logo-icon" style="width:30px;height:30px;font-size:14px;">🥗</span>
+    Mealzy
+  </a>
+  <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+</div>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+  <div class="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      Mealzy
+    </a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="meal-planner.html" class="active"><span class="nav-icon">📅</span> Meal Planner</a>
+      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
+      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
+      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
+      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="mobileUserAvatar">A</div>
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;" id="mobileUserName">User</div>
+          <div class="text-muted text-sm">Free Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <a href="dashboard.html" class="sidebar-logo">
+      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      Mealzy
+    </a>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
+      <a href="meal-planner.html" class="active"><span class="nav-icon">📅</span> Meal Planner</a>
+      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
+      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
+      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
+      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" id="userAvatar">A</div>
+        <div>
+          <div style="font-weight:700;font-size:0.88rem;" id="userName">User</div>
+          <div class="text-muted text-sm">Free Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" style="padding-bottom:120px;">
+    <div class="page-header">
+      <h1>📅 Meal Planner</h1>
+      <p class="text-muted" style="margin-top:0.25rem;">Plan and manage your meals day by day</p>
+    </div>
+
+    <!-- DATE NAVIGATOR -->
+    <div class="date-navigator">
+      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)">← Prev</button>
+      <div class="date-display" id="dateDisplay">Today</div>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(1)">Next →</button>
+      <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()">✨ Generate AI Plan</button>
+    </div>
+
+    <!-- MEALS GRID -->
+    <div id="mealsContainer">
+      <div class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="text-muted">Loading meals...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- STICKY TOTALS BAR -->
+  <div class="totals-bar" id="totalsBar">
+    <div class="total-item">
+      <div class="total-val" id="totalCals">0</div>
+      <div class="total-lbl">Calories</div>
+    </div>
+    <div class="total-item">
+      <div class="total-val" id="totalProtein">0g</div>
+      <div class="total-lbl">Protein</div>
+    </div>
+    <div class="total-item">
+      <div class="total-val" id="totalCarbs">0g</div>
+      <div class="total-lbl">Carbs</div>
+    </div>
+    <div class="total-item">
+      <div class="total-val" id="totalCost">$0</div>
+      <div class="total-lbl">Est. Cost</div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="modal-overlay" id="loadingOverlay">
+  <div class="modal" style="max-width:300px;text-align:center;padding:2.5rem;">
+    <div class="spinner" style="margin-bottom:1rem;"></div>
+    <h3>Generating meal plan...</h3>
+    <p class="text-muted text-sm" style="margin-top:0.5rem;">Our AI is crafting your meals</p>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  let profile = null;
+  let currentDate = new Date();
+  let currentDateStr = '';
+  let currentMeals = [];
+
+  const mealImages = {
+    breakfast: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80',
+    lunch: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80',
+    dinner: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
+    snack: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'
+  };
+
+  function init() {
+    const profileData = localStorage.getItem('mealzy_profile');
+    if (!profileData) { window.location.href = 'onboarding.html'; return; }
+    profile = JSON.parse(profileData);
+
+    const initial = (profile.name || 'U')[0].toUpperCase();
+    document.getElementById('userAvatar').textContent = initial;
+    document.getElementById('mobileUserAvatar').textContent = initial;
+    document.getElementById('userName').textContent = profile.name || 'User';
+    document.getElementById('mobileUserName').textContent = profile.name || 'User';
+
+    setDateStr();
+    loadMeals();
+  }
+
+  function setDateStr() {
+    currentDateStr = currentDate.toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const diff = Math.round((currentDate - today) / 86400000);
+
+    let label = currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    if (diff === 0) label = 'Today — ' + label;
+    else if (diff === 1) label = 'Tomorrow — ' + label;
+    else if (diff === -1) label = 'Yesterday — ' + label;
+
+    document.getElementById('dateDisplay').textContent = label;
+  }
+
+  function changeDate(delta) {
+    currentDate.setDate(currentDate.getDate() + delta);
+    setDateStr();
+    loadMeals();
+  }
+
+  function loadMeals() {
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    currentMeals = (plans[currentDateStr] && plans[currentDateStr].meals) ? plans[currentDateStr].meals : [];
+    renderMeals();
+    updateTotals();
+  }
+
+  function renderMeals() {
+    const container = document.getElementById('mealsContainer');
+    if (!currentMeals || currentMeals.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📅</div>
+          <h3>No meals planned for this day</h3>
+          <p>Generate an AI meal plan or navigate to a different day.</p>
+          <button class="btn btn-primary" onclick="generateMealPlan()">✨ Generate AI Plan</button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => `
+      <div class="meal-card ${meal.completed ? 'completed' : ''}">
+        <img src="${mealImages[meal.type] || mealImages.lunch}" alt="${meal.name}" class="meal-img" loading="lazy" />
+        <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
+        <div class="meal-name">${meal.name}</div>
+        <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
+        <div class="meal-macros">
+          <span class="macro-pill">🔥 ${meal.calories} kcal</span>
+          <span class="macro-pill">💪 ${meal.protein}g protein</span>
+          <span class="macro-pill">🌾 ${meal.carbs}g carbs</span>
+          <span class="macro-pill">🥑 ${meal.fat}g fat</span>
+          ${meal.cookTime ? `<span class="macro-pill">⏱️ ${meal.cookTime} min</span>` : ''}
+        </div>
+        <div class="meal-actions" style="margin-bottom:0.75rem;">
+          <label class="meal-checkbox">
+            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" />
+            Mark done
+          </label>
+        </div>
+        <div>
+          <button class="expand-btn" onclick="toggleSection('ingredients${i}', this)">
+            ▶ Ingredients (${(meal.ingredients || []).length})
+          </button>
+          <div class="expandable" id="ingredients${i}" style="max-height:0;transition:max-height 0.3s ease;">
+            <ul class="ingredients-list">
+              ${(meal.ingredients || []).map(ing =>
+                `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` · $${ing.cost.toFixed(2)}` : ''}</span></li>`
+              ).join('')}
+            </ul>
+          </div>
+        </div>
+        <div style="margin-top:0.75rem;">
+          <button class="expand-btn" onclick="toggleSection('instructions${i}', this)">
+            ▶ Instructions (${(meal.instructions || []).length} steps)
+          </button>
+          <div class="expandable" id="instructions${i}" style="max-height:0;transition:max-height 0.3s ease;">
+            <ol class="instructions-list">
+              ${(meal.instructions || []).map(step => `<li>${step}</li>`).join('')}
+            </ol>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  function toggleSection(id, btn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const isOpen = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
+    if (isOpen) {
+      el.style.maxHeight = '0';
+      btn.textContent = btn.textContent.replace('▼', '▶');
+    } else {
+      el.style.maxHeight = el.scrollHeight + 'px';
+      btn.textContent = btn.textContent.replace('▶', '▼');
+    }
+  }
+
+  function toggleMealDone(index, checked) {
+    currentMeals[index].completed = checked;
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    if (plans[currentDateStr]) {
+      plans[currentDateStr].meals = currentMeals;
+      localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+    }
+    renderMeals();
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const meals = currentMeals || [];
+    const totalCals = meals.reduce((s, m) => s + (m.calories || 0), 0);
+    const totalProtein = meals.reduce((s, m) => s + (m.protein || 0), 0);
+    const totalCarbs = meals.reduce((s, m) => s + (m.carbs || 0), 0);
+    const totalCost = meals.reduce((s, m) => s + (m.estimatedCost || 0), 0);
+    const currency = profile?.currency || 'USD';
+    const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'CA$', AUD: 'A$', JPY: '¥', INR: '₹', BRL: 'R$' };
+    const sym = symbols[currency] || '$';
+
+    document.getElementById('totalCals').textContent = totalCals;
+    document.getElementById('totalProtein').textContent = totalProtein + 'g';
+    document.getElementById('totalCarbs').textContent = totalCarbs + 'g';
+    document.getElementById('totalCost').textContent = sym + totalCost.toFixed(2);
+  }
+
+  async function generateMealPlan() {
+    document.getElementById('loadingOverlay').classList.add('open');
+    document.getElementById('generateBtn').disabled = true;
+    try {
+      const response = await fetch('/api/generate-meal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile, date: currentDateStr })
+      });
+      const data = await response.json();
+      let meals = [];
+      if (data.success && data.mealPlan) {
+        meals = data.mealPlan.meals.map(m => ({ ...m, completed: false }));
+      } else if (data.fallback) {
+        meals = data.fallback.meals.map(m => ({ ...m, completed: false }));
+        showToast('Using offline meal suggestions', 'success');
+      }
+      const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+      plans[currentDateStr] = { meals, generatedAt: new Date().toISOString() };
+      localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+      currentMeals = meals;
+      renderMeals();
+      updateTotals();
+      showToast('✨ Meal plan generated!', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Could not connect to server', 'error');
+    } finally {
+      document.getElementById('loadingOverlay').classList.remove('open');
+      document.getElementById('generateBtn').disabled = false;
+    }
+  }
+
+  function showToast(msg, type = '') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+
+  // Mobile menu
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('mobileSidebarOverlay')) {
+      document.getElementById('mobileSidebarOverlay').classList.remove('open');
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>
