@@ -403,12 +403,23 @@
 
     function getMealImage(meal) {
       const keyword = encodeURIComponent((meal.imageKeyword || meal.name || meal.type) + ' food');
-      return `https://source.unsplash.com/400x300/?${keyword}`;
+      return `https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80&auto=format&fit=crop`;
+    }
+
+    const mealFallbacks = {
+      breakfast: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80',
+      lunch: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80',
+      dinner: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
+      snack: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'
+    };
+
+    function getMealImageByType(meal) {
+      return mealFallbacks[meal.type] || mealFallbacks.lunch;
     }
 
     container.innerHTML = `<div class="grid-2">${todayMeals.map((meal, i) => `
       <div class="meal-card ${meal.completed ? 'completed' : ''}" id="mealCard${i}">
-        <img src="${getMealImage(meal)}" alt="${meal.name}" class="meal-img" loading="lazy" />
+        <img src="${getMealImageByType(meal)}" alt="${meal.name}" class="meal-img" loading="lazy" />
         <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
         <div class="meal-name">${meal.name}</div>
         <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
