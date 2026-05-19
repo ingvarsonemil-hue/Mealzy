@@ -299,7 +299,7 @@
     const name = input.value.trim();
     if (!name) return;
     if (!groceryList) {
-      groceryList = { categories: { produce:{}, protein:{}, dairy:{}, grains:{}, pantry:{}, frozen:{}, beverages:{}, other:[] }, generatedAt: new Date().toISOString() };
+      groceryList = { categories: { produce:[], protein:[], dairy:[], grains:[], pantry:[], frozen:[], beverages:[], other:[] }, generatedAt: new Date().toISOString() };
     }
     if (!groceryList.categories.other) groceryList.categories.other = [];
     groceryList.categories.other.push({ name, amount: '', checked: false });

@@ -333,7 +333,23 @@
   }
 
   function updateStreak() {
-    const streak = profile.streak || 1;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const last = profile.lastActiveDate;
+    let streak = profile.streak || 1;
+
+    if (last && last !== todayStr) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      streak = last === yesterdayStr ? streak + 1 : 1;
+      profile.streak = streak;
+      profile.lastActiveDate = todayStr;
+      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+    } else if (!last) {
+      profile.lastActiveDate = todayStr;
+      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+    }
+
     document.getElementById('streakBadge').textContent = `🔥 ${streak} day${streak !== 1 ? 's' : ''} streak`;
   }
 
