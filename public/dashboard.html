@@ -12,6 +12,8 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
+  <script src="/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
 </head>
 <body>
@@ -48,6 +50,7 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
     </div>
   </div>
 </div>
@@ -75,6 +78,7 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
     </div>
   </div>
 
@@ -288,18 +292,40 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
+  // ── Supabase auth & sync ──
+  const _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+  async function cloudLoad(uid) {
+    try {
+      const { data } = await _sb.from('user_data').select('*').eq('id', uid).single();
+      if (!data) return;
+      const map = { profile:'mealzy_profile', meal_plans:'mealzy_meal_plans', grocery_lists:'mealzy_grocery_lists', nutrition_logs:'mealzy_nutrition_logs', coach_conversation:'mealzy_coach_conversation', ratings:'mealzy_ratings' };
+      for (const [col, key] of Object.entries(map)) {
+        if (data[col] != null) localStorage.setItem(key, JSON.stringify(data[col]));
+      }
+    } catch(e) {}
+  }
+  async function cloudSave() {
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (!session) return;
+      await _sb.from('user_data').upsert({ id: session.user.id, profile: JSON.parse(localStorage.getItem('mealzy_profile')||'null'), meal_plans: JSON.parse(localStorage.getItem('mealzy_meal_plans')||'{}'), grocery_lists: JSON.parse(localStorage.getItem('mealzy_grocery_lists')||'{}'), nutrition_logs: JSON.parse(localStorage.getItem('mealzy_nutrition_logs')||'{}'), coach_conversation: JSON.parse(localStorage.getItem('mealzy_coach_conversation')||'[]'), ratings: JSON.parse(localStorage.getItem('mealzy_ratings')||'{}') }, { onConflict: 'id' });
+    } catch(e) {}
+  }
+  async function signOut() { await _sb.auth.signOut(); localStorage.clear(); window.location.href = 'login.html'; }
+  // ─────────────────────────
+
   let profile = null;
   let todayMeals = [];
   let waterCount = 0;
   const today = new Date().toISOString().split('T')[0];
   let calorieChart = null;
 
-  function init() {
+  async function init() {
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) { window.location.href = 'login.html'; return; }
+    await cloudLoad(session.user.id);
     const profileData = localStorage.getItem('mealzy_profile');
-    if (!profileData) {
-      window.location.href = 'onboarding.html';
-      return;
-    }
+    if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);
 
     updateUserUI();
@@ -701,6 +727,7 @@
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
       renderMeals();
       updateStats();
+      cloudSave();
       showToast('✨ Meal plan generated!', 'success');
     } catch (err) {
       console.error(err);

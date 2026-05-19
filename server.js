@@ -13,6 +13,14 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '1.0.0' }));
 
+// Serve Supabase public config to the browser (anon key is safe to expose)
+app.get('/supabase-config.js', (req, res) => {
+  res.type('js').send(
+    `window.SUPABASE_URL=${JSON.stringify(process.env.SUPABASE_URL||'')};` +
+    `window.SUPABASE_KEY=${JSON.stringify(process.env.SUPABASE_ANON_KEY||'')};`
+  );
+});
+
 // POST /api/generate-meal — generate daily meal plan or swap a single meal
 app.post('/api/generate-meal', async (req, res) => {
   try {

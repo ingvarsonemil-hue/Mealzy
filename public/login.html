@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <style>
+    body { background: var(--clr-bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+    .auth-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); }
+    .auth-logo { display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 1.75rem; font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: var(--clr-text); text-decoration: none; }
+    .auth-tabs { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.75rem; }
+    .auth-tab { flex: 1; padding: 0.65rem; font-size: 0.9rem; font-weight: 600; text-align: center; cursor: pointer; border: none; background: none; color: var(--clr-muted-fg); transition: all .15s; }
+    .auth-tab.active { background: var(--clr-primary); color: #fff; }
+    .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.875rem; margin-bottom: 1rem; display: none; }
+    .auth-error.show { display: block; }
+    .auth-note { font-size: 0.8rem; color: var(--clr-muted-fg); text-align: center; margin-top: 1.25rem; }
+    .auth-note a { color: var(--clr-primary); text-decoration: none; }
+    .divider { text-align: center; color: var(--clr-muted-fg); font-size: 0.8rem; margin: 1.25rem 0; position: relative; }
+    .divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--border); }
+    .divider::before { left:0; } .divider::after { right:0; }
+    .pw-wrap { position: relative; }
+    .pw-toggle { position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:var(--clr-muted-fg); padding:0; }
+    .reset-link { font-size:0.82rem; color:var(--clr-primary); text-decoration:none; display:block; text-align:right; margin-top:0.35rem; }
+    .reset-link:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+<div class="auth-card">
+  <a href="index.html" class="auth-logo">
+    <span class="logo-icon" style="width:34px;height:34px;font-size:16px;">🥗</span>
+    Mealzy
+  </a>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
+    <button class="auth-tab" id="tabSignUp" onclick="switchTab('signup')">Create Account</button>
+  </div>
+
+  <div class="auth-error" id="authError"></div>
+
+  <!-- SIGN IN -->
+  <form id="formSignIn" onsubmit="handleSignIn(event)">
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" id="siEmail" placeholder="you@example.com" required autocomplete="email" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="pw-wrap">
+        <input type="password" class="form-input" id="siPassword" placeholder="••••••••" required autocomplete="current-password" />
+        <button type="button" class="pw-toggle" onclick="togglePw('siPassword',this)">👁</button>
+      </div>
+      <a href="#" class="reset-link" onclick="handleReset(event)">Forgot password?</a>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" id="btnSignIn">Sign In</button>
+  </form>
+
+  <!-- SIGN UP -->
+  <form id="formSignUp" onsubmit="handleSignUp(event)" style="display:none;">
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-input" id="suName" placeholder="Your name" required />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" id="suEmail" placeholder="you@example.com" required autocomplete="email" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="pw-wrap">
+        <input type="password" class="form-input" id="suPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" />
+        <button type="button" class="pw-toggle" onclick="togglePw('suPassword',this)">👁</button>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" id="btnSignUp">Create Account</button>
+  </form>
+
+  <p class="auth-note">By continuing you agree to Mealzy's <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+</div>
+
+<script>
+  if (localStorage.getItem('mealzy_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+  const _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+
+  // If already logged in, redirect
+  _sb.auth.getSession().then(({ data: { session } }) => {
+    if (session) redirectAfterAuth();
+  });
+
+  function switchTab(tab) {
+    const isSignIn = tab === 'signin';
+    document.getElementById('tabSignIn').classList.toggle('active', isSignIn);
+    document.getElementById('tabSignUp').classList.toggle('active', !isSignIn);
+    document.getElementById('formSignIn').style.display = isSignIn ? '' : 'none';
+    document.getElementById('formSignUp').style.display = isSignIn ? 'none' : '';
+    hideError();
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('authError');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function hideError() {
+    document.getElementById('authError').classList.remove('show');
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.textContent = loading ? 'Please wait…' : (btnId === 'btnSignIn' ? 'Sign In' : 'Create Account');
+  }
+
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    btn.textContent = isText ? '👁' : '🙈';
+  }
+
+  async function handleSignIn(e) {
+    e.preventDefault();
+    hideError();
+    setLoading('btnSignIn', true);
+    const email = document.getElementById('siEmail').value.trim();
+    const password = document.getElementById('siPassword').value;
+    const { error } = await _sb.auth.signInWithPassword({ email, password });
+    if (error) { showError(error.message); setLoading('btnSignIn', false); return; }
+    redirectAfterAuth();
+  }
+
+  async function handleSignUp(e) {
+    e.preventDefault();
+    hideError();
+    setLoading('btnSignUp', true);
+    const name = document.getElementById('suName').value.trim();
+    const email = document.getElementById('suEmail').value.trim();
+    const password = document.getElementById('suPassword').value;
+    const { data, error } = await _sb.auth.signUp({ email, password, options: { data: { full_name: name } } });
+    if (error) { showError(error.message); setLoading('btnSignUp', false); return; }
+    if (data.session) {
+      // Auto-confirmed, go to onboarding
+      window.location.href = 'onboarding.html';
+    } else {
+      // Email confirmation required
+      showError('');
+      document.getElementById('authError').style.background = '#f0fdf4';
+      document.getElementById('authError').style.borderColor = '#86efac';
+      document.getElementById('authError').style.color = '#16a34a';
+      document.getElementById('authError').textContent = '✅ Check your email to confirm your account, then sign in.';
+      document.getElementById('authError').classList.add('show');
+      setLoading('btnSignUp', false);
+    }
+  }
+
+  async function handleReset(e) {
+    e.preventDefault();
+    const email = document.getElementById('siEmail').value.trim();
+    if (!email) { showError('Enter your email address first.'); return; }
+    const { error } = await _sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/login.html' });
+    if (error) { showError(error.message); return; }
+    document.getElementById('authError').style.background = '#f0fdf4';
+    document.getElementById('authError').style.borderColor = '#86efac';
+    document.getElementById('authError').style.color = '#16a34a';
+    document.getElementById('authError').textContent = '✅ Password reset email sent — check your inbox.';
+    document.getElementById('authError').classList.add('show');
+  }
+
+  async function redirectAfterAuth() {
+    // Pull cloud data into localStorage
+    const { data: { session } } = await _sb.auth.getSession();
+    if (!session) return;
+    try {
+      const { data } = await _sb.from('user_data').select('profile').eq('id', session.user.id).single();
+      if (data?.profile) {
+        localStorage.setItem('mealzy_profile', JSON.stringify(data.profile));
+        // Load rest of data
+        const { data: full } = await _sb.from('user_data').select('*').eq('id', session.user.id).single();
+        if (full) {
+          const map = { meal_plans:'mealzy_meal_plans', grocery_lists:'mealzy_grocery_lists', nutrition_logs:'mealzy_nutrition_logs', coach_conversation:'mealzy_coach_conversation', ratings:'mealzy_ratings' };
+          for (const [col, key] of Object.entries(map)) {
+            if (full[col] != null) localStorage.setItem(key, JSON.stringify(full[col]));
+          }
+        }
+        window.location.href = 'dashboard.html';
+      } else {
+        window.location.href = 'onboarding.html';
+      }
+    } catch(err) {
+      window.location.href = 'onboarding.html';
+    }
+  }
+</script>
+</body>
+</html>

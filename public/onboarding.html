@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
+  <script src="/supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -473,7 +475,16 @@
     };
 
     localStorage.setItem('mealzy_profile', JSON.stringify(profile));
-    window.location.href = 'dashboard.html';
+    // Sync to cloud before navigating
+    const _sb2 = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+    _sb2.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        try {
+          await _sb2.from('user_data').upsert({ id: session.user.id, profile }, { onConflict: 'id' });
+        } catch(e) {}
+      }
+      window.location.href = 'dashboard.html';
+    });
   }
 
   // Initialize default selections
