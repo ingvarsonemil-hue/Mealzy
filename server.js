@@ -123,6 +123,22 @@ Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, d
       }
     }
 
+    // Fetch matching images for each meal from Unsplash
+    if (process.env.UNSPLASH_ACCESS_KEY && mealPlan.meals) {
+      await Promise.all(mealPlan.meals.map(async (meal) => {
+        try {
+          const query = encodeURIComponent(meal.imageKeyword || meal.name);
+          const imgRes = await fetch(`https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape`, {
+            headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` }
+          });
+          const imgData = await imgRes.json();
+          if (imgData.results && imgData.results[0]) {
+            meal.image_url = imgData.results[0].urls.small;
+          }
+        } catch (e) { /* keep default image if fetch fails */ }
+      }));
+    }
+
     res.json({ success: true, date, mealPlan });
   } catch (error) {
     console.error('Error generating meal plan:', error);

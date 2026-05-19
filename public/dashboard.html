@@ -414,7 +414,7 @@
     };
 
     function getMealImageByType(meal) {
-      return mealFallbacks[meal.type] || mealFallbacks.lunch;
+      return meal.image_url || mealFallbacks[meal.type] || mealFallbacks.lunch;
     }
 
     container.innerHTML = `<div class="grid-2">${todayMeals.map((meal, i) => `
