@@ -340,8 +340,24 @@ app.post('/api/ai-coach', async (req, res) => {
       allergies = [],
       weight = 70,
       height = 170,
-      age = 30
+      age = 30,
+      currency = 'USD',
+      preferred_cuisine = ''
     } = profile || {};
+
+    const currencyToCountry = {
+      USD: 'United States', GBP: 'United Kingdom', EUR: 'Europe',
+      SEK: 'Sweden', NOK: 'Norway', DKK: 'Denmark',
+      CAD: 'Canada', AUD: 'Australia', NZD: 'New Zealand',
+      CHF: 'Switzerland', JPY: 'Japan', CNY: 'China',
+      KRW: 'South Korea', INR: 'India', BRL: 'Brazil',
+      MXN: 'Mexico', ARS: 'Argentina', ZAR: 'South Africa',
+      AED: 'United Arab Emirates', SAR: 'Saudi Arabia',
+      SGD: 'Singapore', HKD: 'Hong Kong', PLN: 'Poland',
+      CZK: 'Czech Republic', HUF: 'Hungary', TRY: 'Turkey',
+      THB: 'Thailand', MYR: 'Malaysia', IDR: 'Indonesia', PHP: 'Philippines'
+    };
+    const userCountry = currencyToCountry[currency] || 'their country';
 
     const systemPrompt = `You are Mia, a friendly, knowledgeable AI nutritionist and wellness coach for the Mealzy app. You are talking with ${name}.
 
@@ -352,6 +368,8 @@ User profile:
 - Weight: ${weight}kg, Height: ${height}cm, Age: ${age}
 - Dietary preferences: ${dietaryPrefs.length > 0 ? dietaryPrefs.join(', ') : 'None specified'}
 - Allergies: ${allergies.length > 0 ? allergies.join(', ') : 'None'}
+- Country / region: ${userCountry} (currency: ${currency})
+- Preferred cuisine: ${preferred_cuisine || 'No preference'}
 
 Your personality:
 - Warm, encouraging, and science-based
@@ -367,6 +385,7 @@ Topics you can help with:
 - Weight management strategies
 - Cooking tips and techniques
 - Grocery shopping and budget tips
+- Local grocery store and supermarket recommendations — you know the user is in ${userCountry}, so recommend real stores and brands available there; if they mention a specific city, recommend stores in that city
 - Motivation and habit building
 - Reading nutrition labels
 - Healthy swaps and substitutions`;
