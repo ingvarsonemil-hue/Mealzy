@@ -80,7 +80,7 @@ Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, d
         { "name": "ingredient", "amount": "1 cup", "cost": 1.20 }
       ],
       "instructions": ["Step 1", "Step 2", "Step 3"],
-      "imageKeyword": "breakfast bowl"
+      "imageKeyword": "simple english food keyword for image search e.g. scrambled eggs"
     }
   ],
   "totalCalories": 1950,
@@ -127,7 +127,7 @@ Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, d
     if (process.env.UNSPLASH_ACCESS_KEY && mealPlan.meals) {
       await Promise.all(mealPlan.meals.map(async (meal) => {
         try {
-          const query = encodeURIComponent(meal.imageKeyword || meal.name);
+          const query = encodeURIComponent((meal.imageKeyword || meal.name) + ' dish plated food photography');
           const imgRes = await fetch(`https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape`, {
             headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` }
           });
