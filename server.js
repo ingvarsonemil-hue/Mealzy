@@ -13,10 +13,10 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '1.0.0' }));
 
-// POST /api/generate-meal — generate daily meal plan
+// POST /api/generate-meal — generate daily meal plan or swap a single meal
 app.post('/api/generate-meal', async (req, res) => {
   try {
-    const { profile, date } = req.body;
+    const { profile, date, swap_meal_type } = req.body;
 
     if (!profile) {
       return res.status(400).json({ error: 'Profile is required' });
@@ -41,10 +41,77 @@ app.post('/api/generate-meal', async (req, res) => {
     const cuisines = ['Mediterranean','Asian','Mexican','Middle Eastern','Japanese','Indian','Thai','Italian','Greek','American','Korean','Vietnamese','Moroccan','Turkish','Spanish'];
     const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines'];
     const todayCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
-    const tomorrowCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
     const todayProtein = proteins[Math.floor(Math.random() * proteins.length)];
     const randomSeed = Math.floor(Math.random() * 99999);
 
+    // === SINGLE MEAL SWAP ===
+    if (swap_meal_type) {
+      const mealCalories = {
+        breakfast: Math.round(dailyCalories * 0.25),
+        lunch: Math.round(dailyCalories * 0.35),
+        dinner: Math.round(dailyCalories * 0.30),
+        snack: Math.round(dailyCalories * 0.10)
+      };
+      const targetCals = mealCalories[swap_meal_type] || Math.round(dailyCalories * 0.25);
+
+      const swapPrompt = `You are a professional chef and nutritionist. Generate ONE creative ${swap_meal_type} meal for ${name}.
+
+Cuisine inspiration: ${todayCuisine}, featured protein: ${todayProtein}. Random ID: ${randomSeed}.
+Target calories: ~${targetCals} kcal.
+Cooking skill: ${cookingSkill}. Max time: ${cookingTimeMinutes} min.
+${dietaryInfo}
+${allergyInfo}
+
+Respond ONLY with this JSON (no markdown):
+{
+  "type": "${swap_meal_type}",
+  "name": "Meal Name",
+  "description": "Short description under 10 words",
+  "calories": ${targetCals},
+  "protein": 25,
+  "carbs": 35,
+  "fat": 12,
+  "cookTime": 20,
+  "servings": 1,
+  "estimatedCost": 5.00,
+  "ingredients": [
+    { "name": "ingredient", "amount": "1 cup", "cost": 1.20 }
+  ],
+  "instructions": ["Step 1", "Step 2", "Step 3"],
+  "imageKeyword": "food keyword for image search"
+}`;
+
+      const completion = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
+        system: 'You are a professional nutritionist and chef. Always respond with valid JSON only, no markdown, no explanation.',
+        messages: [{ role: 'user', content: swapPrompt }]
+      });
+
+      let rawContent = completion.content[0].text.trim();
+      rawContent = rawContent.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+      const jsonStart = rawContent.indexOf('{');
+      if (jsonStart > 0) rawContent = rawContent.slice(jsonStart);
+      const meal = JSON.parse(rawContent);
+
+      // Fetch image if Unsplash key available
+      if (process.env.UNSPLASH_ACCESS_KEY) {
+        try {
+          const query = encodeURIComponent((meal.imageKeyword || meal.name) + ' dish plated food photography');
+          const imgRes = await fetch(`https://api.unsplash.com/search/photos?query=${query}&per_page=1&orientation=landscape`, {
+            headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` }
+          });
+          const imgData = await imgRes.json();
+          if (imgData.results && imgData.results[0]) {
+            meal.image_url = imgData.results[0].urls.small;
+          }
+        } catch (e) { /* keep default */ }
+      }
+
+      return res.json({ success: true, meal });
+    }
+
+    // === FULL DAILY MEAL PLAN ===
     const prompt = `You are a Michelin-star trained nutritionist and chef. Generate a UNIQUE, restaurant-quality daily meal plan for ${name} for ${date}.
 
 MANDATORY THEME FOR TODAY: Primary cuisine = ${todayCuisine}, featured protein = ${todayProtein}. Random ID: ${randomSeed}.

@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4a8a6f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mealzy">
 </head>
 <body>
 
@@ -80,8 +84,17 @@
       <p class="text-muted" style="margin-top:0.25rem;">Plan and manage your meals day by day</p>
     </div>
 
-    <!-- DATE NAVIGATOR -->
-    <div class="date-navigator">
+    <!-- VIEW TOGGLE -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+      <div class="view-toggle">
+        <button class="view-toggle-btn active" id="dayViewBtn" onclick="setView('day')">Day View</button>
+        <button class="view-toggle-btn" id="weekViewBtn" onclick="setView('week')">Week View</button>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="window.print()" title="Print meal plan">🖨️ Print</button>
+    </div>
+
+    <!-- DATE NAVIGATOR (day view only) -->
+    <div class="date-navigator" id="dateNavigator">
       <button class="btn btn-outline btn-sm" onclick="changeDate(-1)">← Prev</button>
       <div class="date-display" id="dateDisplay">Today</div>
       <button class="btn btn-outline btn-sm" onclick="changeDate(1)">Next →</button>
@@ -96,6 +109,9 @@
         <p class="text-muted">Loading meals...</p>
       </div>
     </div>
+
+    <!-- WEEK VIEW -->
+    <div id="weekViewContainer" style="display:none;"></div>
   </main>
 
   <!-- STICKY TOTALS BAR -->
@@ -132,10 +148,16 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+  // Dark mode
+  if (localStorage.getItem('mealzy_theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
   let profile = null;
   let currentDate = new Date();
   let currentDateStr = '';
   let currentMeals = [];
+  let currentView = 'day';
 
   const mealFallbacks = {
     breakfast: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80',
@@ -333,6 +355,78 @@
     toast.textContent = msg;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3500);
+  }
+
+  // === VIEW TOGGLE ===
+  function setView(view) {
+    currentView = view;
+    document.getElementById('dayViewBtn').classList.toggle('active', view === 'day');
+    document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
+    document.getElementById('dateNavigator').style.display = view === 'day' ? 'flex' : 'none';
+    document.getElementById('mealsContainer').style.display = view === 'day' ? 'block' : 'none';
+    document.getElementById('weekViewContainer').style.display = view === 'week' ? 'block' : 'none';
+    document.getElementById('totalsBar').style.display = view === 'day' ? 'grid' : 'none';
+    if (view === 'week') renderWeekView();
+  }
+
+  function renderWeekView() {
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    const container = document.getElementById('weekViewContainer');
+    const todayStr = new Date().toISOString().split('T')[0];
+    const days = [];
+    // Build Mon–Sun of the week containing currentDate
+    const ref = new Date(currentDate);
+    const dow = ref.getDay(); // 0=Sun
+    const monday = new Date(ref);
+    monday.setDate(ref.getDate() - ((dow + 6) % 7));
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
+    }
+
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    const cols = days.map((d, idx) => {
+      const dateStr = d.toISOString().split('T')[0];
+      const plan = plans[dateStr];
+      const meals = plan && plan.meals ? plan.meals : [];
+      const isToday = dateStr === todayStr;
+
+      const mealChips = meals.map(m =>
+        `<span class="week-meal-chip ${m.type}" title="${m.name}">${m.name}</span>`
+      ).join('');
+
+      const generateBtn = meals.length === 0
+        ? `<button class="week-generate-btn" onclick="switchToDayAndGenerate('${dateStr}')">+ Generate</button>`
+        : '';
+
+      return `
+        <div class="week-day-col${isToday ? ' today' : ''}" onclick="switchToDay('${dateStr}')">
+          <div class="week-day-label">${dayNames[idx]}</div>
+          <div class="week-day-date">${d.getDate()}</div>
+          ${mealChips}
+          ${generateBtn}
+        </div>`;
+    });
+
+    container.innerHTML = `<div class="week-grid">${cols.join('')}</div>`;
+  }
+
+  function switchToDay(dateStr) {
+    currentDate = new Date(dateStr + 'T12:00:00');
+    setView('day');
+    setDateStr();
+    loadMeals();
+  }
+
+  function switchToDayAndGenerate(dateStr) {
+    currentDate = new Date(dateStr + 'T12:00:00');
+    setView('day');
+    setDateStr();
+    loadMeals();
+    generateMealPlan();
   }
 
   // Mobile menu

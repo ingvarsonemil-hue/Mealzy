@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4a8a6f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mealzy">
 </head>
 <body>
 
@@ -78,6 +82,20 @@
     <div class="page-header">
       <h1>⚙️ Settings</h1>
       <p class="text-muted" style="margin-top:0.25rem;">Manage your profile, preferences, and account</p>
+    </div>
+
+    <!-- DARK MODE TOGGLE -->
+    <div class="card settings-section" style="margin-bottom:1.5rem;">
+      <div class="dark-mode-section">
+        <div>
+          <div class="dark-mode-label">🌙 Dark Mode</div>
+          <div class="dark-mode-sub">Switch between light and dark appearance</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)" />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
     </div>
 
     <!-- SECTION 1: Body Stats -->
@@ -317,6 +335,21 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+  // Dark mode
+  if (localStorage.getItem('mealzy_theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  function toggleDarkMode(enabled) {
+    if (enabled) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('mealzy_theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('mealzy_theme', 'light');
+    }
+  }
+
   let profile = null;
   let selectedGender = 'male';
   let selectedGoal = '';
@@ -328,6 +361,10 @@
     const profileData = localStorage.getItem('mealzy_profile');
     if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);
+
+    // Set dark mode toggle state
+    const toggle = document.getElementById('darkModeToggle');
+    if (toggle) toggle.checked = localStorage.getItem('mealzy_theme') === 'dark';
 
     const initial = (profile.name || 'U')[0].toUpperCase();
     document.getElementById('userAvatar').textContent = initial;

@@ -8,6 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4a8a6f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mealzy">
 </head>
 <body>
 
@@ -285,6 +289,20 @@
   </div>
 </section>
 
+<!-- EMAIL CAPTURE POPUP -->
+<div class="email-popup-overlay" id="emailPopupOverlay">
+  <div class="email-popup-card">
+    <span class="popup-icon">🥗</span>
+    <h2>Get your free 7-day meal plan</h2>
+    <p>Join 50,000+ users eating healthier with AI</p>
+    <div class="email-popup-form" id="emailPopupForm">
+      <input type="email" class="email-popup-input" id="popupEmailInput" placeholder="Enter your email address" />
+      <button class="email-popup-btn" onclick="submitEmailPopup()">Send My Plan</button>
+    </div>
+    <button class="email-popup-dismiss" onclick="closeEmailPopup()">No thanks</button>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="container">
@@ -311,6 +329,42 @@
   if (profile) {
     // User is logged in, could add a "Go to Dashboard" banner but keep landing page visible
   }
+
+  // === EMAIL POPUP ===
+  function openEmailPopup() {
+    document.getElementById('emailPopupOverlay').classList.add('open');
+  }
+  function closeEmailPopup() {
+    document.getElementById('emailPopupOverlay').classList.remove('open');
+  }
+  function submitEmailPopup() {
+    const emailInput = document.getElementById('popupEmailInput');
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+      emailInput.style.outline = '2px solid rgba(255,80,80,0.8)';
+      emailInput.focus();
+      return;
+    }
+    emailInput.style.outline = '';
+    // Save to localStorage
+    const list = JSON.parse(localStorage.getItem('mealzy_email_list') || '[]');
+    list.push({ email, ts: new Date().toISOString() });
+    localStorage.setItem('mealzy_email_list', JSON.stringify(list));
+    localStorage.setItem('mealzy_email_submitted', '1');
+    // Show thank you
+    const form = document.getElementById('emailPopupForm');
+    form.innerHTML = '<div class="email-popup-success">Thank you! Check your inbox 🎉</div>';
+    document.querySelector('.email-popup-dismiss').style.display = 'none';
+    setTimeout(() => closeEmailPopup(), 2000);
+  }
+  // Show popup after 8 seconds if not already submitted
+  if (!localStorage.getItem('mealzy_email_submitted')) {
+    setTimeout(openEmailPopup, 8000);
+  }
+  // Close on overlay click
+  document.getElementById('emailPopupOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeEmailPopup();
+  });
 
   // Hamburger toggle
   const hamburger = document.getElementById('hamburger');
