@@ -137,12 +137,10 @@
   let currentDateStr = '';
   let currentMeals = [];
 
-  const mealImages = {
-    breakfast: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80',
-    lunch: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80',
-    dinner: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
-    snack: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'
-  };
+  function getMealImage(meal) {
+    const keyword = encodeURIComponent((meal.imageKeyword || meal.name || meal.type) + ' food');
+    return `https://source.unsplash.com/400x300/?${keyword}`;
+  }
 
   function init() {
     const profileData = localStorage.getItem('mealzy_profile');
@@ -201,7 +199,7 @@
 
     container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => `
       <div class="meal-card ${meal.completed ? 'completed' : ''}">
-        <img src="${mealImages[meal.type] || mealImages.lunch}" alt="${meal.name}" class="meal-img" loading="lazy" />
+        <img src="${getMealImage(meal)}" alt="${meal.name}" class="meal-img" loading="lazy" />
         <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
         <div class="meal-name">${meal.name}</div>
         <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
