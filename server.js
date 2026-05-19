@@ -38,7 +38,8 @@ app.post('/api/generate-meal', async (req, res) => {
     const dietaryInfo = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}.` : '';
     const allergyInfo = allergies.length > 0 ? `Allergies/restrictions: ${allergies.join(', ')}.` : '';
 
-    const prompt = `You are a professional nutritionist and chef. Generate a complete daily meal plan for ${name}.
+    const randomSeed = Math.floor(Math.random() * 10000);
+    const prompt = `You are a professional nutritionist and chef. Generate a UNIQUE and VARIED daily meal plan for ${name} for ${date}.
 
 User profile:
 - Goal: ${goal}
@@ -50,6 +51,7 @@ User profile:
 ${dietaryInfo}
 ${allergyInfo}
 
+IMPORTANT: Every meal plan must be different. Use diverse cuisines (Mediterranean, Asian, Mexican, Middle Eastern, American, etc.), different proteins, different cooking methods. Seed: ${randomSeed}.
 Generate exactly 4 meals: breakfast, lunch, dinner, and one snack.
 
 Respond ONLY with valid JSON in this exact format:
