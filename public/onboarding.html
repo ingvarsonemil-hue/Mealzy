@@ -186,6 +186,22 @@
         <div class="step-sub">Help us match meals to your cooking ability and budget.</div>
       </div>
       <div class="form-group">
+        <label class="form-label">Favourite Cuisine Style</label>
+        <select class="form-select" id="selectCuisine">
+          <option value="">🌍 Surprise me (random each day)</option>
+          <option value="mediterranean">🫒 Mediterranean</option>
+          <option value="asian">🍜 Asian</option>
+          <option value="indian">🍛 Indian</option>
+          <option value="middleeastern">🧆 Middle Eastern</option>
+          <option value="american">🍔 American</option>
+          <option value="mexican">🌮 Mexican</option>
+          <option value="scandinavian">🐟 Scandinavian</option>
+          <option value="african">🌍 African</option>
+          <option value="european">🥐 European</option>
+          <option value="latin">🥩 Latin American</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label class="form-label">Cooking Skill Level</label>
         <div class="skill-grid" id="skillGrid">
           <div class="skill-card" data-skill="beginner" onclick="selectSkill(this)">
@@ -446,6 +462,7 @@
     userData.cookingTimeMinutes = parseInt(document.getElementById('cookTimeRange').value);
     userData.budget = parseFloat(document.getElementById('inputBudget').value) || 100;
     userData.currency = document.getElementById('selectCurrency').value;
+    userData.preferred_cuisine = document.getElementById('selectCuisine').value;
     calculateNutrition();
 
     const profile = {

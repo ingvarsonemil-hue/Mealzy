@@ -38,9 +38,32 @@ app.post('/api/generate-meal', async (req, res) => {
     const dietaryInfo = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}.` : '';
     const allergyInfo = allergies.length > 0 ? `Allergies/restrictions: ${allergies.join(', ')}.` : '';
 
-    const cuisines = ['Mediterranean','Asian','Mexican','Middle Eastern','Japanese','Indian','Thai','Italian','Greek','American','Korean','Vietnamese','Moroccan','Turkish','Spanish'];
-    const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines'];
-    const todayCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+    const cuisineGroups = {
+      mediterranean: ['Greek','Italian','Spanish','Moroccan','Turkish','Lebanese','Tunisian'],
+      asian: ['Japanese','Chinese','Korean','Vietnamese','Thai','Filipino','Malaysian','Indonesian'],
+      indian: ['North Indian','South Indian','Bengali','Punjabi','Goan'],
+      middleeastern: ['Lebanese','Persian','Israeli','Egyptian','Jordanian'],
+      american: ['American','Tex-Mex','Southern BBQ','New England','Californian'],
+      mexican: ['Mexican','Oaxacan','Yucatecan','Street Food Mexican'],
+      scandinavian: ['Swedish','Norwegian','Danish','Finnish'],
+      african: ['Ethiopian','West African','South African','Moroccan'],
+      european: ['French','German','British','Polish','Portuguese'],
+      latin: ['Brazilian','Argentinian','Peruvian','Colombian']
+    };
+    const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines','halloumi','duck','venison'];
+
+    // Use user's preferred cuisine if set, otherwise pick random
+    const preferredCuisine = profile.preferred_cuisine || null;
+    let todayCuisine;
+    if (preferredCuisine && cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')]) {
+      const group = cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')];
+      todayCuisine = group[Math.floor(Math.random() * group.length)];
+    } else if (preferredCuisine) {
+      todayCuisine = preferredCuisine;
+    } else {
+      const allCuisines = Object.values(cuisineGroups).flat();
+      todayCuisine = allCuisines[Math.floor(Math.random() * allCuisines.length)];
+    }
     const todayProtein = proteins[Math.floor(Math.random() * proteins.length)];
     const randomSeed = Math.floor(Math.random() * 99999);
 

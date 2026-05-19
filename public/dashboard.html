@@ -445,6 +445,11 @@
       snack: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'
     };
 
+    function getCurrencySymbol(currency) {
+      const symbols = { USD:'$',EUR:'€',GBP:'£',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',KRW:'₩',INR:'₹',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'د.إ',SAR:'﷼',SGD:'$',HKD:'$',PLN:'zł',CZK:'Kč',HUF:'Ft',TRY:'₺',THB:'฿',MYR:'RM',IDR:'Rp',PHP:'₱' };
+      return symbols[currency] || currency || '$';
+    }
+
     function getMealImageByType(meal) {
       return meal.image_url || mealFallbacks[meal.type] || mealFallbacks.lunch;
     }
@@ -588,7 +593,7 @@
     `;
     const ingList = meal.ingredients || [];
     document.getElementById('modalIngredients').innerHTML = ingList.map(ing =>
-      `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` · $${ing.cost.toFixed(2)}` : ''}</span></li>`
+      `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` · ${getCurrencySymbol(profile.currency)}${ing.cost.toFixed(2)}` : ''}</span></li>`
     ).join('');
     const instList = meal.instructions || [];
     document.getElementById('modalInstructions').innerHTML = instList.map(step =>
