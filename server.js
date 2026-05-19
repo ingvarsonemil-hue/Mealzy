@@ -96,6 +96,7 @@ Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, d
     });
 
     const rawContent = completion.content[0].text.trim();
+    console.log('AI response length:', rawContent.length, '| Last 100 chars:', rawContent.slice(-100));
     let mealPlan;
 
     try {
