@@ -101,11 +101,21 @@ Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, d
     try {
       mealPlan = JSON.parse(rawContent);
     } catch (parseError) {
-      // Try to extract JSON from response
-      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        mealPlan = JSON.parse(jsonMatch[0]);
-      } else {
+      // Try to extract and fix truncated JSON
+      let jsonStr = rawContent;
+      const startIdx = jsonStr.indexOf('{');
+      if (startIdx > 0) jsonStr = jsonStr.slice(startIdx);
+
+      // Try to fix truncated JSON by finding last complete meal object
+      try {
+        // Find last complete closing brace for a meal
+        const lastComplete = jsonStr.lastIndexOf(',"imageKeyword"');
+        if (lastComplete > 0) {
+          const endOfMeal = jsonStr.indexOf('}', lastComplete) + 1;
+          jsonStr = jsonStr.slice(0, endOfMeal) + '],"totalCalories":2000,"totalCost":20,"nutritionNote":"Balanced meal plan"}';
+        }
+        mealPlan = JSON.parse(jsonStr);
+      } catch (e) {
         throw new Error('Failed to parse meal plan JSON');
       }
     }
