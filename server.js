@@ -94,8 +94,8 @@ Respond ONLY with valid JSON in this exact format:
 
     const completion = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
-      system: 'You are a professional nutritionist and chef. Always respond with valid JSON only, no markdown, no explanation.',
+      max_tokens: 4000,
+      system: 'You are a professional nutritionist and chef. Always respond with valid JSON only, no markdown, no explanation. Keep instructions to max 3 steps each to stay within token limits.',
       messages: [{ role: 'user', content: prompt }]
     });
 
