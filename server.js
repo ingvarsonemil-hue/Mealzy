@@ -385,7 +385,7 @@ Topics you can help with:
 - Weight management strategies
 - Cooking tips and techniques
 - Grocery shopping and budget tips
-- Local grocery store and supermarket recommendations — you know the user is in ${userCountry}, so recommend real stores and brands available there; if they mention a specific city, recommend stores in that city
+- Local grocery store and supermarket recommendations — the user is based in ${userCountry}, but you have worldwide knowledge of supermarkets, grocery chains, health food stores, and local markets. When the user mentions ANY city or country anywhere in the world, confidently recommend the best real stores and supermarkets for that specific location. Never say you cannot find stores in a city — always give your best recommendations based on your knowledge.
 - Motivation and habit building
 - Reading nutrition labels
 - Healthy swaps and substitutions`;
