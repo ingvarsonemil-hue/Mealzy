@@ -38,8 +38,17 @@ app.post('/api/generate-meal', async (req, res) => {
     const dietaryInfo = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}.` : '';
     const allergyInfo = allergies.length > 0 ? `Allergies/restrictions: ${allergies.join(', ')}.` : '';
 
-    const randomSeed = Math.floor(Math.random() * 10000);
-    const prompt = `You are a professional nutritionist and chef. Generate a UNIQUE and VARIED daily meal plan for ${name} for ${date}.
+    const cuisines = ['Mediterranean','Asian','Mexican','Middle Eastern','Japanese','Indian','Thai','Italian','Greek','American','Korean','Vietnamese','Moroccan','Turkish','Spanish'];
+    const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines'];
+    const todayCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+    const tomorrowCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+    const todayProtein = proteins[Math.floor(Math.random() * proteins.length)];
+    const randomSeed = Math.floor(Math.random() * 99999);
+
+    const prompt = `You are a professional nutritionist and chef. Generate a UNIQUE daily meal plan for ${name} for ${date}.
+
+MANDATORY THEME FOR TODAY: Primary cuisine = ${todayCuisine}, featured protein = ${todayProtein}. Random ID: ${randomSeed}.
+You MUST use ${todayCuisine} cuisine as inspiration. Do NOT use generic salads or basic oatmeal. Be creative and specific.
 
 User profile:
 - Goal: ${goal}
@@ -51,8 +60,7 @@ User profile:
 ${dietaryInfo}
 ${allergyInfo}
 
-IMPORTANT: Every meal plan must be different. Use diverse cuisines (Mediterranean, Asian, Mexican, Middle Eastern, American, etc.), different proteins, different cooking methods. Seed: ${randomSeed}.
-Generate exactly 4 meals: breakfast, lunch, dinner, and one snack.
+Generate exactly 4 DIFFERENT meals: breakfast, lunch, dinner, and one snack. Each meal must be unique and specifically inspired by ${todayCuisine} cuisine.
 
 Respond ONLY with valid JSON in this exact format:
 {
