@@ -86,6 +86,7 @@
       <div class="date-display" id="dateDisplay">Today</div>
       <button class="btn btn-outline btn-sm" onclick="changeDate(1)">Next →</button>
       <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()">✨ Generate AI Plan</button>
+      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" title="Generate a completely different plan">🔄 Regenerate</button>
     </div>
 
     <!-- MEALS GRID -->
@@ -280,6 +281,13 @@
     document.getElementById('totalProtein').textContent = totalProtein + 'g';
     document.getElementById('totalCarbs').textContent = totalCarbs + 'g';
     document.getElementById('totalCost').textContent = sym + totalCost.toFixed(2);
+  }
+
+  function regenerateMealPlan() {
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    delete plans[currentDateStr];
+    localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+    generateMealPlan();
   }
 
   async function generateMealPlan() {
