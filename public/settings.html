@@ -275,6 +275,22 @@
           <span class="range-val" id="settingCookTimeVal">30 min</span>
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Preferred Cuisine</label>
+        <select class="form-select" id="settingCuisine">
+          <option value="">🌍 Surprise me (random each day)</option>
+          <option value="mediterranean">🫒 Mediterranean</option>
+          <option value="asian">🍜 Asian</option>
+          <option value="indian">🍛 Indian</option>
+          <option value="middleeastern">🧆 Middle Eastern</option>
+          <option value="american">🍔 American</option>
+          <option value="mexican">🌮 Mexican</option>
+          <option value="scandinavian">🐟 Scandinavian</option>
+          <option value="african">🌍 African</option>
+          <option value="european">🥐 European</option>
+          <option value="latin">🥩 Latin American</option>
+        </select>
+      </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weekly Food Budget</label>
@@ -286,11 +302,33 @@
             <option value="USD">$ USD</option>
             <option value="EUR">€ EUR</option>
             <option value="GBP">£ GBP</option>
+            <option value="SEK">kr SEK</option>
+            <option value="NOK">kr NOK</option>
+            <option value="DKK">kr DKK</option>
             <option value="CAD">$ CAD</option>
             <option value="AUD">$ AUD</option>
+            <option value="NZD">$ NZD</option>
+            <option value="CHF">Fr CHF</option>
             <option value="JPY">¥ JPY</option>
+            <option value="CNY">¥ CNY</option>
+            <option value="KRW">₩ KRW</option>
             <option value="INR">₹ INR</option>
             <option value="BRL">R$ BRL</option>
+            <option value="MXN">$ MXN</option>
+            <option value="ARS">$ ARS</option>
+            <option value="ZAR">R ZAR</option>
+            <option value="AED">د.إ AED</option>
+            <option value="SAR">﷼ SAR</option>
+            <option value="SGD">$ SGD</option>
+            <option value="HKD">$ HKD</option>
+            <option value="PLN">zł PLN</option>
+            <option value="CZK">Kč CZK</option>
+            <option value="HUF">Ft HUF</option>
+            <option value="TRY">₺ TRY</option>
+            <option value="THB">฿ THB</option>
+            <option value="MYR">RM MYR</option>
+            <option value="IDR">Rp IDR</option>
+            <option value="PHP">₱ PHP</option>
           </select>
         </div>
       </div>
@@ -425,6 +463,7 @@
 
     const currency = profile.currency || 'USD';
     document.getElementById('settingCurrency').value = currency;
+    document.getElementById('settingCuisine').value = profile.preferred_cuisine || '';
   }
 
   function selectSettingGender(el) {
@@ -534,6 +573,7 @@
     profile.cookingTimeMinutes = parseInt(document.getElementById('settingCookTime').value);
     profile.budget = budget;
     profile.currency = document.getElementById('settingCurrency').value;
+    profile.preferred_cuisine = document.getElementById('settingCuisine').value;
     saveProfile();
     showToast('✅ Cooking preferences saved!', 'success');
   }

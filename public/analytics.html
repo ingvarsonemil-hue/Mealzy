@@ -192,19 +192,7 @@
 
   function getLogOrSample(dateStr, index) {
     if (logs[dateStr]) return logs[dateStr];
-    // Generate realistic sample data based on profile goals
-    const goalCals = profile?.dailyCalories || 2000;
-    const goalProtein = profile?.macros?.protein || 150;
-    const goalCarbs = profile?.macros?.carbs || 200;
-    const goalFat = profile?.macros?.fat || 67;
-    const variance = 0.85 + Math.random() * 0.3;
-    return {
-      calories: Math.round(goalCals * variance),
-      protein: Math.round(goalProtein * variance),
-      carbs: Math.round(goalCarbs * variance),
-      fat: Math.round(goalFat * variance),
-      goalCals
-    };
+    return { calories: 0, protein: 0, carbs: 0, fat: 0, goalCals: profile?.dailyCalories || 2000 };
   }
 
   function buildCharts() {

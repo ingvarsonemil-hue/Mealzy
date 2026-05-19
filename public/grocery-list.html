@@ -115,6 +115,12 @@
       </div>
     </div>
 
+    <!-- MANUAL ADD -->
+    <div style="display:flex;gap:0.6rem;margin-bottom:1rem;">
+      <input type="text" class="form-input" id="manualItemInput" placeholder="Add item manually…" style="flex:1;" onkeydown="if(event.key==='Enter')addManualItem()" />
+      <button class="btn btn-outline" onclick="addManualItem()">+ Add</button>
+    </div>
+
     <!-- GROCERY LIST -->
     <div id="groceryContainer">
       <div class="empty-state">
@@ -147,6 +153,11 @@
 
   let profile = null;
   let groceryList = null;
+
+  function getCurrencySymbol(c) {
+    const s = { USD:'$',EUR:'€',GBP:'£',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',KRW:'₩',INR:'₹',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'د.إ',SAR:'﷼',SGD:'$',HKD:'$',PLN:'zł',CZK:'Kč',HUF:'Ft',TRY:'₺',THB:'฿',MYR:'RM',IDR:'Rp',PHP:'₱' };
+    return s[c] || c || '$';
+  }
   let weekStart = '';
 
   const categoryConfig = {
@@ -214,8 +225,7 @@
 
     const container = document.getElementById('groceryContainer');
     const currency = profile?.currency || 'USD';
-    const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'CA$', AUD: 'A$', JPY: '¥', INR: '₹', BRL: 'R$' };
-    const sym = symbols[currency] || '$';
+    const sym = getCurrencySymbol(currency);
 
     let html = '';
     for (const [catKey, config] of Object.entries(categoryConfig)) {
@@ -276,13 +286,28 @@
 
     const budget = profile?.budget || 100;
     const currency = profile?.currency || 'USD';
-    const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'CA$', AUD: 'A$', JPY: '¥', INR: '₹', BRL: 'R$' };
-    const sym = symbols[currency] || '$';
+    const sym = getCurrencySymbol(currency);
 
     document.getElementById('totalCostDisplay').textContent = `${sym}${totalCost.toFixed(2)}`;
     document.getElementById('budgetDisplay').textContent = `${sym}${totalCost.toFixed(2)} / ${sym}${budget}`;
     const budgetPct = Math.min(100, (totalCost / budget) * 100);
     document.getElementById('budgetFill').style.width = budgetPct + '%';
+  }
+
+  function addManualItem() {
+    const input = document.getElementById('manualItemInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!groceryList) {
+      groceryList = { categories: { produce:{}, protein:{}, dairy:{}, grains:{}, pantry:{}, frozen:{}, beverages:{}, other:[] }, generatedAt: new Date().toISOString() };
+    }
+    if (!groceryList.categories.other) groceryList.categories.other = [];
+    groceryList.categories.other.push({ name, amount: '', checked: false });
+    saveLists();
+    renderGroceryList();
+    updateProgress();
+    input.value = '';
+    showToast(`"${name}" added to list`);
   }
 
   function saveLists() {
