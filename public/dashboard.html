@@ -303,14 +303,10 @@
 
     waterCount = water[today] || 0;
 
-    if (plans[today]) {
-      todayMeals = plans[today].meals || [];
+    if (plans[today] && plans[today].meals && plans[today].meals.length > 0) {
+      todayMeals = plans[today].meals;
     } else {
-      // Use sample data on first load
-      todayMeals = getSampleMeals();
-      const samplePlan = { meals: todayMeals, generatedAt: new Date().toISOString() };
-      plans[today] = samplePlan;
-      localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+      todayMeals = [];
     }
 
     renderMeals();
