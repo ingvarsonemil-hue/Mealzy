@@ -45,10 +45,10 @@ app.post('/api/generate-meal', async (req, res) => {
     const todayProtein = proteins[Math.floor(Math.random() * proteins.length)];
     const randomSeed = Math.floor(Math.random() * 99999);
 
-    const prompt = `You are a professional nutritionist and chef. Generate a UNIQUE daily meal plan for ${name} for ${date}.
+    const prompt = `You are a Michelin-star trained nutritionist and chef. Generate a UNIQUE, restaurant-quality daily meal plan for ${name} for ${date}.
 
 MANDATORY THEME FOR TODAY: Primary cuisine = ${todayCuisine}, featured protein = ${todayProtein}. Random ID: ${randomSeed}.
-You MUST use ${todayCuisine} cuisine as inspiration. Do NOT use generic salads or basic oatmeal. Be creative and specific.
+You MUST create impressive, specific dishes inspired by ${todayCuisine} cuisine. Think like a professional chef — use proper cooking techniques, bold flavors, and specific ingredients. NO generic salads, plain oatmeal, or boring meals. Every dish should sound exciting and delicious. Include specific spices, sauces, and preparation methods.
 
 User profile:
 - Goal: ${goal}
