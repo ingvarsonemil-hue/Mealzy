@@ -60,15 +60,15 @@ User profile:
 ${dietaryInfo}
 ${allergyInfo}
 
-Generate exactly 4 DIFFERENT meals: breakfast, lunch, dinner, and one snack. Each meal must be unique and specifically inspired by ${todayCuisine} cuisine.
+Generate exactly 4 meals: breakfast, lunch, dinner, snack. Inspired by ${todayCuisine} cuisine using ${todayProtein}.
 
-Respond ONLY with valid JSON in this exact format:
+Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, descriptions under 10 words):
 {
   "meals": [
     {
       "type": "breakfast",
       "name": "Meal Name",
-      "description": "Brief appetizing description",
+      "description": "Short description",
       "calories": 450,
       "protein": 25,
       "carbs": 45,
@@ -79,17 +79,13 @@ Respond ONLY with valid JSON in this exact format:
       "ingredients": [
         { "name": "ingredient", "amount": "1 cup", "cost": 1.20 }
       ],
-      "instructions": [
-        "Step 1 instruction",
-        "Step 2 instruction",
-        "Step 3 instruction"
-      ],
-      "imageKeyword": "oatmeal breakfast bowl"
+      "instructions": ["Step 1", "Step 2", "Step 3"],
+      "imageKeyword": "breakfast bowl"
     }
   ],
   "totalCalories": 1950,
   "totalCost": 18.50,
-  "nutritionNote": "Brief note about this meal plan"
+  "nutritionNote": "Short note"
 }`;
 
     const completion = await anthropic.messages.create({
