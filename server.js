@@ -341,6 +341,26 @@ Respond ONLY with valid JSON:
   }
 });
 
+// POST /api/email-leads — capture email from landing page popup
+app.post('/api/email-leads', async (req, res) => {
+  try {
+    const { email, source = 'unknown' } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+    const { createClient } = require('@supabase/supabase-js');
+    const sb = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY);
+    await sb.from('email_leads').upsert(
+      { email: email.toLowerCase().trim(), source, created_at: new Date().toISOString() },
+      { onConflict: 'email' }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Email lead error:', err);
+    res.json({ success: true }); // fail silently to the client
+  }
+});
+
 // POST /api/ai-coach — AI nutritionist chat
 app.post('/api/ai-coach', async (req, res) => {
   try {

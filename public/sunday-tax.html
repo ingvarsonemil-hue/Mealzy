@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stop wasting 2 hours on meal planning every Sunday — Mealzy</title>
+  <meta name="description" content="Mealzy builds a full week of meals in 30 seconds. Hits your macros. Stays within your grocery budget. Grocery list included. Free." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: hsl(152,52%,36%);
+      --green-dark: hsl(152,52%,26%);
+      --green-light: hsl(152,52%,94%);
+      --orange: hsl(32,88%,54%);
+      --bg: hsl(46,30%,97%);
+      --fg: hsl(150,25%,10%);
+      --card: #fff;
+      --muted-bg: hsl(40,20%,95%);
+      --muted-fg: hsl(150,10%,44%);
+      --border: hsl(40,20%,88%);
+    }
+    html { font-size: 15px; scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.65; }
+
+    /* NAV — minimal, no distractions */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(245,251,247,0.92); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.25rem; height: 3.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-weight: 800; font-size: 1.1rem; text-decoration: none; color: var(--fg); display: flex; align-items: center; gap: 0.5rem; }
+    .nav-logo-icon { width: 30px; height: 30px; border-radius: 0.5rem; background: var(--green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; }
+    .nav-cta { background: var(--green); color: white; font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1.1rem; border-radius: 0.55rem; text-decoration: none; border: none; cursor: pointer; transition: background 0.15s; }
+    .nav-cta:hover { background: var(--green-dark); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 5rem 1.25rem 3rem;
+      background: linear-gradient(160deg, hsl(152,52%,94%) 0%, hsl(46,40%,96%) 60%, #fff 100%);
+    }
+    .hero-inner {
+      max-width: 1100px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: var(--green-light); color: var(--green);
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 2rem; margin-bottom: 1.25rem;
+    }
+    .hero-headline {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 4.5vw, 3rem);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+    .hero-headline em { font-style: italic; color: var(--green); }
+    .hero-sub {
+      margin-top: 1.25rem;
+      font-size: 1.05rem; color: var(--muted-fg); line-height: 1.7;
+      max-width: 440px;
+    }
+    .hero-sub strong { color: var(--fg); }
+    .hero-cta-group { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .btn-primary-lg {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--green); color: white;
+      font-weight: 700; font-size: 1.05rem; padding: 0.9rem 2rem;
+      border-radius: 0.75rem; text-decoration: none; border: none; cursor: pointer;
+      transition: all 0.2s; box-shadow: 0 4px 14px hsl(152,52%,36%,0.35);
+    }
+    .btn-primary-lg:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .hero-trust { font-size: 0.82rem; color: var(--muted-fg); }
+
+    /* APP MOCKUP */
+    .mockup {
+      background: var(--card); border-radius: 1.25rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(60,80,40,0.15);
+      overflow: hidden;
+    }
+    .mockup-bar {
+      background: var(--green); padding: 0.85rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mockup-bar-title { color: white; font-weight: 700; font-size: 0.92rem; }
+    .mockup-bar-badge {
+      background: rgba(255,255,255,0.2); color: white;
+      font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.65rem;
+      border-radius: 2rem;
+    }
+    .mockup-body { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .mockup-row {
+      background: var(--muted-bg); border-radius: 0.65rem;
+      padding: 0.65rem 0.85rem;
+      display: flex; align-items: center; gap: 0.65rem;
+    }
+    .mockup-day { font-size: 0.68rem; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.05em; width: 26px; flex-shrink: 0; }
+    .mockup-meal { flex: 1; }
+    .mockup-meal-name { font-size: 0.8rem; font-weight: 600; }
+    .mockup-meal-cal { font-size: 0.68rem; color: var(--muted-fg); margin-top: 0.1rem; }
+    .mockup-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .mockup-footer {
+      border-top: 1px solid var(--border); padding: 0.7rem 1rem;
+      display: flex; justify-content: space-between;
+    }
+    .mockup-stat { text-align: center; }
+    .mockup-stat-num { font-size: 0.88rem; font-weight: 800; color: var(--green); }
+    .mockup-stat-label { font-size: 0.65rem; color: var(--muted-fg); }
+
+    /* TRUST STRIP */
+    .trust-strip {
+      background: var(--fg); padding: 1rem 1.25rem;
+      display: flex; align-items: center; justify-content: center;
+      gap: 2rem; flex-wrap: wrap;
+    }
+    .trust-item { color: rgba(255,255,255,0.8); font-size: 0.82rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
+    .trust-check { color: var(--green); font-weight: 800; }
+
+    /* HOW IT WORKS */
+    .section { padding: 5rem 1.25rem; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .section-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase; color: var(--green);
+      margin-bottom: 0.75rem;
+    }
+    .section-h2 {
+      font-family: 'Fraunces', serif; font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 900; letter-spacing: -0.025em; line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+    .section-sub { color: var(--muted-fg); font-size: 0.95rem; max-width: 560px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    .step { text-align: center; }
+    .step-num {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.1rem; color: white; margin: 0 auto 1rem;
+    }
+    .step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step p { font-size: 0.85rem; color: var(--muted-fg); line-height: 1.6; }
+
+    /* BEFORE / AFTER */
+    .before-after {
+      background: var(--fg); border-radius: 1.25rem; padding: 3rem;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+      margin-top: 3rem;
+    }
+    .ba-col h3 { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1.25rem; }
+    .ba-before h3 { color: hsl(0,60%,70%); }
+    .ba-after h3 { color: hsl(152,52%,60%); }
+    .ba-item { display: flex; align-items: flex-start; gap: 0.65rem; margin-bottom: 0.85rem; }
+    .ba-icon { font-size: 0.9rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .ba-item p { color: rgba(255,255,255,0.75); font-size: 0.88rem; line-height: 1.5; }
+    .ba-item p strong { color: white; }
+
+    /* TESTIMONIALS */
+    .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 3rem; }
+    .tcard {
+      background: var(--card); border-radius: 1rem; padding: 1.5rem;
+      border: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.85rem;
+    }
+    .tcard-stars { color: var(--orange); font-size: 0.85rem; letter-spacing: 0.05em; }
+    .tcard-text { font-size: 0.88rem; color: var(--muted-fg); line-height: 1.65; flex: 1; }
+    .tcard-author { display: flex; align-items: center; gap: 0.65rem; }
+    .tcard-initial {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green-light); color: var(--green);
+      font-weight: 800; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .tcard-name { font-weight: 700; font-size: 0.85rem; }
+    .tcard-meta { font-size: 0.75rem; color: var(--muted-fg); }
+
+    /* FINAL CTA */
+    .final-cta {
+      background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+      padding: 5rem 1.25rem; text-align: center;
+    }
+    .final-cta h2 {
+      font-family: 'Fraunces', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 900; color: white; letter-spacing: -0.025em; margin-bottom: 1rem;
+    }
+    .final-cta p { color: rgba(255,255,255,0.8); font-size: 0.95rem; max-width: 420px; margin: 0 auto 2rem; line-height: 1.65; }
+    .final-cta-trust { margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+      .steps { grid-template-columns: 1fr; gap: 1.5rem; }
+      .testimonials { grid-template-columns: 1fr; }
+      .before-after { grid-template-columns: 1fr; padding: 2rem; }
+      .trust-strip { gap: 1rem; }
+      .section { padding: 3.5rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">
+    <span class="nav-logo-icon">M</span>
+    Mealzy
+  </a>
+  <a href="login.html" class="nav-cta">Start Free</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="hero-tag">Free AI Meal Planner</span>
+      <h1 class="hero-headline">
+        Stop spending<br>
+        <em>2 hours every Sunday</em><br>
+        on meal planning.
+      </h1>
+      <p class="hero-sub">
+        Tell Mealzy your goals and your weekly grocery budget. It builds the whole week —
+        <strong>meals, macros, grocery list</strong> — in about 30 seconds.
+        Then you shop, cook, and repeat. That's the whole system.
+      </p>
+      <div class="hero-cta-group">
+        <a href="login.html" class="btn-primary-lg">Start Free — Takes 2 Minutes</a>
+        <p class="hero-trust">Free to start. No credit card. No catch.</p>
+      </div>
+    </div>
+
+    <!-- APP MOCKUP -->
+    <div class="mockup">
+      <div class="mockup-bar">
+        <div class="mockup-bar-title">This week's plan — 1,800 kcal/day</div>
+        <div class="mockup-bar-badge">Done in 28s</div>
+      </div>
+      <div class="mockup-body">
+        <div class="mockup-row">
+          <div class="mockup-day">Mon</div>
+          <div class="mockup-meal">
+            <div class="mockup-meal-name">Chicken rice bowl</div>
+            <div class="mockup-meal-cal">480 kcal · 38g protein · $3.20</div>
+          </div>
+          <div class="mockup-dot"></div>
+        </div>
+        <div class="mockup-row">
+          <div class="mockup-day">Tue</div>
+          <div class="mockup-meal">
+            <div class="mockup-meal-name">Pasta with tomato and tuna</div>
+            <div class="mockup-meal-cal">510 kcal · 34g protein · $2.80</div>
+          </div>
+          <div class="mockup-dot"></div>
+        </div>
+        <div class="mockup-row">
+          <div class="mockup-day">Wed</div>
+          <div class="mockup-meal">
+            <div class="mockup-meal-name">Lentil soup with bread</div>
+            <div class="mockup-meal-cal">440 kcal · 22g protein · $2.10</div>
+          </div>
+          <div class="mockup-dot"></div>
+        </div>
+        <div class="mockup-row" style="opacity:0.55;">
+          <div class="mockup-day">Thu</div>
+          <div class="mockup-meal">
+            <div class="mockup-meal-name">Stir-fried beef and vegetables</div>
+            <div class="mockup-meal-cal">520 kcal · 41g protein · $3.80</div>
+          </div>
+          <div class="mockup-dot" style="background:var(--border);"></div>
+        </div>
+        <div class="mockup-row" style="opacity:0.3;">
+          <div class="mockup-day">Fri</div>
+          <div class="mockup-meal">
+            <div class="mockup-meal-name">Salmon with roasted potatoes</div>
+            <div class="mockup-meal-cal">490 kcal · 36g protein · $4.20</div>
+          </div>
+          <div class="mockup-dot" style="background:var(--border);"></div>
+        </div>
+      </div>
+      <div class="mockup-footer">
+        <div class="mockup-stat"><div class="mockup-stat-num">1,794</div><div class="mockup-stat-label">avg kcal/day</div></div>
+        <div class="mockup-stat"><div class="mockup-stat-num">34g</div><div class="mockup-stat-label">avg protein</div></div>
+        <div class="mockup-stat"><div class="mockup-stat-num">$83</div><div class="mockup-stat-label">est. weekly cost</div></div>
+        <div class="mockup-stat"><div class="mockup-stat-num">28s</div><div class="mockup-stat-label">to generate</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="trust-item"><span class="trust-check">+</span> Full week in 30 seconds</div>
+  <div class="trust-item"><span class="trust-check">+</span> Hits your exact calorie targets</div>
+  <div class="trust-item"><span class="trust-check">+</span> Stays within your grocery budget</div>
+  <div class="trust-item"><span class="trust-check">+</span> Grocery list included</div>
+  <div class="trust-item"><span class="trust-check">+</span> Free — no credit card</div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" style="background: var(--muted-bg);">
+  <div class="container">
+    <span class="section-tag">How it works</span>
+    <h2 class="section-h2">Three steps. Under 2 minutes total.</h2>
+    <p class="section-sub">No spreadsheets. No recipe hunting. No calculating calories by hand.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="background: var(--green);">1</div>
+        <h3>Tell Mealzy about you</h3>
+        <p>Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes, once.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background: var(--orange);">2</div>
+        <h3>Get your week in 30 seconds</h3>
+        <p>Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like a meal — swap it in one click.</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background: hsl(260,60%,55%);">3</div>
+        <h3>Shop the list, cook, done</h3>
+        <p>The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section class="section">
+  <div class="container">
+    <span class="section-tag">Before and after</span>
+    <h2 class="section-h2">What changes when you stop planning by hand.</h2>
+    <div class="before-after">
+      <div class="ba-col ba-before">
+        <h3>Before Mealzy</h3>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>60–90 minutes every Sunday</strong> opening tabs, writing lists, checking what's in the fridge</p></div>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>Buying too much</strong> at the supermarket — things that don't go together, half of it going bad</p></div>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>7pm, fridge open, no idea</strong> what to make because there was never a real plan</p></div>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>Missing calorie and protein targets</strong> most days because tracking everything manually is exhausting</p></div>
+      </div>
+      <div class="ba-col ba-after">
+        <h3>After Mealzy</h3>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>30 seconds on Sunday.</strong> The whole week is planned before you've finished your coffee</p></div>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>One grocery run</strong> with a list that already has everything and nothing extra</p></div>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>You know what's for dinner</strong> every night of the week. There's a plan. It's already in your fridge.</p></div>
+        <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>Hitting your targets consistently</strong> because the plan exists before the week starts, not during it</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" style="background: var(--muted-bg);">
+  <div class="container">
+    <span class="section-tag">Early users</span>
+    <h2 class="section-h2">What people say after the first week.</h2>
+    <div class="testimonials">
+      <div class="tcard">
+        <div class="tcard-stars">★★★★★</div>
+        <p class="tcard-text">"I spent maybe 90 minutes on meal planning every Sunday. Now I do it in under a minute. The grocery list alone is worth it — I stopped buying things I didn't need."</p>
+        <div class="tcard-author">
+          <div class="tcard-initial">S</div>
+          <div>
+            <div class="tcard-name">S. M.</div>
+            <div class="tcard-meta">Using Mealzy for 6 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard">
+        <div class="tcard-stars">★★★★★</div>
+        <p class="tcard-text">"I was tracking macros in a spreadsheet before this. It was taking more time than my actual workouts. Mealzy handles it in 30 seconds. I hit my protein goal more consistently now."</p>
+        <div class="tcard-author">
+          <div class="tcard-initial">M</div>
+          <div>
+            <div class="tcard-name">M. T.</div>
+            <div class="tcard-meta">Using Mealzy for 3 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard">
+        <div class="tcard-stars">★★★★★</div>
+        <p class="tcard-text">"I set a $90 weekly budget and it actually stays under it. I'd been overspending at the supermarket for years — buying stuff that didn't go together and half of it going bad."</p>
+        <div class="tcard-author">
+          <div class="tcard-initial">E</div>
+          <div>
+            <div class="tcard-name">E. R.</div>
+            <div class="tcard-meta">Using Mealzy for 4 weeks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2>Your Sunday just got 90 minutes back.</h2>
+  <p>Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
+  <a href="login.html" class="btn-primary-lg" style="display:inline-flex;background:white;color:var(--green);box-shadow:0 4px 20px rgba(0,0,0,0.15);">Start Free — Takes 2 Minutes</a>
+  <p class="final-cta-trust">Free to start. No credit card. No catch.</p>
+</section>
+
+</body>
+</html>
