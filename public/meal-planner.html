@@ -347,6 +347,7 @@
   }
 
   async function generateMealPlan() {
+    if (!profile) { window.location.href = 'onboarding.html'; return; }
     document.getElementById('loadingOverlay').classList.add('open');
     document.getElementById('generateBtn').disabled = true;
     try {
@@ -355,6 +356,14 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile, date: currentDateStr })
       });
+
+      // Freemium limit reached
+      if (response.status === 402) {
+        const data = await response.json();
+        showUpgradePrompt(data.message || 'You have used all 3 free plans this month.');
+        return;
+      }
+
       const data = await response.json();
       let meals = [];
       if (data.success && data.mealPlan) {
@@ -370,14 +379,39 @@
       renderMeals();
       updateTotals();
       cloudSave();
-      showToast('✨ Meal plan generated!', 'success');
+      showToast('Meal plan generated!', 'success');
     } catch (err) {
       console.error(err);
-      showToast('Could not connect to server', 'error');
+      showToast('Could not connect to server. Is the server running?', 'error');
     } finally {
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;
     }
+  }
+
+  function showUpgradePrompt(message) {
+    // Remove existing prompt if any
+    const existing = document.getElementById('upgradePrompt');
+    if (existing) existing.remove();
+
+    const prompt = document.createElement('div');
+    prompt.id = 'upgradePrompt';
+    prompt.style.cssText = `
+      position:fixed;top:0;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,0.5);
+      display:flex;align-items:center;justify-content:center;
+      z-index:9999;padding:1.5rem;
+    `;
+    prompt.innerHTML = `
+      <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <div style="font-size:2rem;margin-bottom:0.75rem;">M</div>
+        <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;">Free plan limit reached</h2>
+        <p style="color:#666;font-size:0.9rem;margin-bottom:1.5rem;line-height:1.5;">${message}<br><br>Upgrade to Pro for unlimited meal plans — $8/month, cancel anytime.</p>
+        <a href="pricing.html" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">See Pro Plan — $8/month</a>
+        <button onclick="document.getElementById('upgradePrompt').remove()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;">Maybe later</button>
+      </div>
+    `;
+    document.body.appendChild(prompt);
   }
 
   function showToast(msg, type = '') {

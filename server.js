@@ -9,6 +9,28 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ── Simple in-memory usage tracker (resets on server restart) ──
+// Key: IP address  Value: { count, month }
+const usageTracker = new Map();
+const FREE_PLAN_LIMIT = 3; // plans per calendar month
+
+function getUsage(ip) {
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+  const record = usageTracker.get(ip);
+  if (!record || record.month !== monthKey) {
+    return { count: 0, month: monthKey };
+  }
+  return record;
+}
+
+function incrementUsage(ip) {
+  const usage = getUsage(ip);
+  usage.count += 1;
+  usageTracker.set(ip, usage);
+  return usage;
+}
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '1.0.0' }));
@@ -24,10 +46,26 @@ app.get('/supabase-config.js', (req, res) => {
 // POST /api/generate-meal — generate daily meal plan or swap a single meal
 app.post('/api/generate-meal', async (req, res) => {
   try {
-    const { profile, date, swap_meal_type } = req.body;
+    const { profile, date, swap_meal_type, plan_token } = req.body;
 
     if (!profile) {
       return res.status(400).json({ error: 'Profile is required' });
+    }
+
+    // ── Freemium gate (skip for swaps and pro users) ──
+    const isPro = plan_token === process.env.PRO_TOKEN;
+    if (!swap_meal_type && !isPro) {
+      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+      const usage = getUsage(ip);
+      if (usage.count >= FREE_PLAN_LIMIT) {
+        return res.status(402).json({
+          error: 'free_limit_reached',
+          message: `You've used all ${FREE_PLAN_LIMIT} free plans this month.`,
+          upgrade_url: '/pricing.html',
+          resets_in: 'Start of next month'
+        });
+      }
+      incrementUsage(ip);
     }
 
     const name = profile.name || 'User';
