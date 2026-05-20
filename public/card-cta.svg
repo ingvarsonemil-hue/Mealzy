@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <rect width="1080" height="1080" fill="#3d8b5e"/>
+  <text x="540" y="220" font-family="Georgia, serif" font-size="80" font-weight="900" fill="#fff" text-anchor="middle">Mealzy</text>
+  <line x1="140" y1="270" x2="940" y2="270" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+  <text x="540" y="390" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#fff" text-anchor="middle">Stop planning</text>
+  <text x="540" y="465" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#fff" text-anchor="middle">meals by hand.</text>
+  <text x="540" y="590" font-family="Arial, sans-serif" font-size="34" fill="rgba(255,255,255,0.85)" text-anchor="middle">Your full week in 30 seconds.</text>
+  <text x="540" y="645" font-family="Arial, sans-serif" font-size="34" fill="rgba(255,255,255,0.85)" text-anchor="middle">Macros. Grocery list. Done.</text>
+  <rect x="240" y="750" width="600" height="80" rx="40" fill="#fff"/>
+  <text x="540" y="800" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#3d8b5e" text-anchor="middle">Try it free — mealzy.org</text>
+</svg>

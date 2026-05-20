@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <rect width="1080" height="1080" fill="#f9f6f1"/>
+  <rect width="1080" height="8" fill="#3d8b5e"/>
+  <text x="540" y="200" font-family="Georgia, serif" font-size="72" font-weight="900" fill="#1a1a1a" text-anchor="middle">Mealzy</text>
+  <text x="540" y="260" font-family="Arial, sans-serif" font-size="28" fill="#3d8b5e" text-anchor="middle" letter-spacing="4">MEAL PLANNING TIP</text>
+  <line x1="140" y1="310" x2="940" y2="310" stroke="#e0d9d0" stroke-width="2"/>
+  <text x="540" y="420" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#1a1a1a" text-anchor="middle">Plan around</text>
+  <text x="540" y="500" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#1a1a1a" text-anchor="middle">3 proteins,</text>
+  <text x="540" y="580" font-family="Georgia, serif" font-size="58" font-weight="700" fill="#1a1a1a" text-anchor="middle">not 7 meals.</text>
+  <text x="540" y="680" font-family="Arial, sans-serif" font-size="30" fill="#666" text-anchor="middle">Save 45 minutes every week.</text>
+  <rect x="290" y="780" width="500" height="72" rx="36" fill="#3d8b5e"/>
+  <text x="540" y="826" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#fff" text-anchor="middle">Free at mealzy.org</text>
+</svg>
