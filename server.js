@@ -42,6 +42,11 @@ app.post('/api/generate-meal', async (req, res) => {
     const budget = profile.budget_weekly || profile.budget || 100;
     const currency = profile.currency || 'USD';
     const cookingTimeMinutes = profile.cooking_time_minutes || profile.cookingTimeMinutes || 30;
+    const language = profile.language || 'en';
+    const languageNames = { en:'English', sv:'Swedish', no:'Norwegian', da:'Danish', de:'German', fr:'French', es:'Spanish', it:'Italian', pt:'Portuguese', nl:'Dutch', ja:'Japanese', fi:'Finnish', pl:'Polish', tr:'Turkish', ko:'Korean', zh:'Chinese', ar:'Arabic', hi:'Hindi', ru:'Russian' };
+    const languageName = languageNames[language] || 'English';
+    const dailyBudget = (budget / 7).toFixed(2);
+    const perMealBudget = (budget / 7 / 4).toFixed(2);
 
     const dietaryInfo = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}.` : '';
     const allergyInfo = allergies.length > 0 ? `Allergies/restrictions: ${allergies.join(', ')}.` : '';
@@ -85,13 +90,14 @@ app.post('/api/generate-meal', async (req, res) => {
       };
       const targetCals = mealCalories[swap_meal_type] || Math.round(dailyCalories * 0.25);
 
-      const swapPrompt = `You are a professional chef and nutritionist. Generate ONE creative ${swap_meal_type} meal for ${name}.
+      const swapPrompt = `Generate ONE practical home-cooked ${swap_meal_type} meal for ${name}.
 
-Cuisine inspiration: ${todayCuisine}, featured protein: ${todayProtein}. Random ID: ${randomSeed}.
-Target calories: ~${targetCals} kcal.
-Cooking skill: ${cookingSkill}. Max time: ${cookingTimeMinutes} min.
+Cuisine: ${todayCuisine}, protein: ${todayProtein}. Seed: ${randomSeed}.
+Calories: ~${targetCals} kcal. Skill: ${cookingSkill}. Max time: ${cookingTimeMinutes} min.
+Budget: max ${currency} ${perMealBudget} for this meal. Use common supermarket ingredients.
 ${dietaryInfo}
 ${allergyInfo}
+LANGUAGE: All meal name, description, and ingredient names must be in ${languageName}.
 
 Respond ONLY with this JSON (no markdown):
 {
@@ -143,22 +149,23 @@ Respond ONLY with this JSON (no markdown):
     }
 
     // === FULL DAILY MEAL PLAN ===
-    const prompt = `You are a Michelin-star trained nutritionist and chef. Generate a UNIQUE, restaurant-quality daily meal plan for ${name} for ${date}.
+    const prompt = `Generate a practical, delicious daily meal plan for ${name} on ${date}.
 
-MANDATORY THEME FOR TODAY: Primary cuisine = ${todayCuisine}, featured protein = ${todayProtein}. Random ID: ${randomSeed}.
-You MUST create impressive, specific dishes inspired by ${todayCuisine} cuisine. Think like a professional chef — use proper cooking techniques, bold flavors, and specific ingredients. NO generic salads, plain oatmeal, or boring meals. Every dish should sound exciting and delicious. Include specific spices, sauces, and preparation methods.
+Cuisine style: ${todayCuisine}. Featured protein: ${todayProtein}. Variety seed: ${randomSeed}.
+Use real, everyday ingredients available at a regular supermarket — nothing exotic or hard to find. Meals should be satisfying and realistic for a home cook.
 
 User profile:
 - Goal: ${goal}
-- Daily calorie target: ${dailyCalories} kcal
-- Macro targets: Protein ${dailyProtein}g, Carbs ${dailyCarbs}g, Fat ${dailyFat}g
+- Daily calorie target: ${dailyCalories} kcal (Protein ${dailyProtein}g, Carbs ${dailyCarbs}g, Fat ${dailyFat}g)
 - Cooking skill: ${cookingSkill}
-- Max cooking time per meal: ${cookingTimeMinutes} minutes
-- Weekly budget: ${currency} ${budget}
+- Max time per meal: ${cookingTimeMinutes} min
+- STRICT DAILY BUDGET: ${currency} ${dailyBudget} total for all meals. Each meal max ${currency} ${perMealBudget}. estimatedCost values MUST be realistic and the sum across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
 ${dietaryInfo}
 ${allergyInfo}
 
-Generate exactly 4 meals: breakfast, lunch, dinner, snack. Inspired by ${todayCuisine} cuisine using ${todayProtein}.
+LANGUAGE: Write ALL meal names, descriptions, and ingredient names in ${languageName}. JSON keys stay in English.
+
+Generate exactly 4 meals: breakfast, lunch, dinner, snack.
 
 Respond ONLY with this JSON (keep ingredients to 4 max, instructions to 3 max, descriptions under 10 words):
 {
@@ -262,8 +269,11 @@ app.post('/api/generate-grocery-list', async (req, res) => {
       budget = 100,
       currency = 'USD',
       dietaryPrefs = [],
-      allergies = []
+      allergies = [],
+      language: groceryLang = 'en'
     } = profile || {};
+    const groceryLangNames = { en:'English', sv:'Swedish', no:'Norwegian', da:'Danish', de:'German', fr:'French', es:'Spanish', it:'Italian', pt:'Portuguese', nl:'Dutch', ja:'Japanese', fi:'Finnish', pl:'Polish', tr:'Turkish', ko:'Korean', zh:'Chinese', ar:'Arabic', hi:'Hindi', ru:'Russian' };
+    const groceryLangName = groceryLangNames[groceryLang] || 'English';
 
     const mealList = meals.map(m => `- ${m.name} (${m.type})`).join('\n');
     const allergyInfo = allergies.length > 0 ? `Avoid: ${allergies.join(', ')}.` : '';
@@ -275,7 +285,8 @@ ${mealList}
 
 ${prefInfo}
 ${allergyInfo}
-Weekly budget: ${currency} ${budget}
+Weekly budget: ${currency} ${budget}. Keep total cost at or under this amount.
+Write all ingredient names in ${groceryLangName}. JSON keys stay in English.
 
 Consolidate duplicate ingredients. Group by category.
 
@@ -350,8 +361,11 @@ app.post('/api/ai-coach', async (req, res) => {
       height = 170,
       age = 30,
       currency = 'USD',
-      preferred_cuisine = ''
+      preferred_cuisine = '',
+      language: coachLang = 'en'
     } = profile || {};
+    const coachLangNames = { en:'English', sv:'Swedish', no:'Norwegian', da:'Danish', de:'German', fr:'French', es:'Spanish', it:'Italian', pt:'Portuguese', nl:'Dutch', ja:'Japanese', fi:'Finnish', pl:'Polish', tr:'Turkish', ko:'Korean', zh:'Chinese', ar:'Arabic', hi:'Hindi', ru:'Russian' };
+    const coachLangName = coachLangNames[coachLang] || 'English';
 
     const currencyToCountry = {
       USD: 'United States', GBP: 'United Kingdom', EUR: 'Europe',
@@ -393,6 +407,7 @@ Topics you can help with:
 - Weight management strategies
 - Cooking tips and techniques
 - Grocery shopping and budget tips
+- Always respond in ${coachLangName}
 - Local grocery store and supermarket recommendations — the user is based in ${userCountry}, but you have worldwide knowledge of supermarkets, grocery chains, health food stores, and local markets. When the user mentions ANY city or country anywhere in the world, confidently recommend the best real stores and supermarkets for that specific location. Never say you cannot find stores in a city — always give your best recommendations based on your knowledge.
 - Motivation and habit building
 - Reading nutrition labels

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <script src="/supabase-config.js"></script>
+  <script src="/translations.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -280,6 +281,22 @@
         </div>
       </div>
       <div class="form-group">
+        <label class="form-label">App Language</label>
+        <select class="form-select" id="settingLanguage">
+          <option value="en">🇬🇧 English</option>
+          <option value="sv">🇸🇪 Svenska</option>
+          <option value="no">🇳🇴 Norsk</option>
+          <option value="da">🇩🇰 Dansk</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="it">🇮🇹 Italiano</option>
+          <option value="pt">🇵🇹 Português</option>
+          <option value="nl">🇳🇱 Nederlands</option>
+          <option value="ja">🇯🇵 日本語</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label class="form-label">Preferred Cuisine</label>
         <select class="form-select" id="settingCuisine">
           <option value="">🌍 Surprise me (random each day)</option>
@@ -440,6 +457,7 @@
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
 
     prefillForm();
+    applyNavTranslations();
   }
 
   function prefillForm() {
@@ -493,6 +511,7 @@
     const currency = profile.currency || 'USD';
     document.getElementById('settingCurrency').value = currency;
     document.getElementById('settingCuisine').value = profile.preferred_cuisine || '';
+    document.getElementById('settingLanguage').value = profile.language || 'en';
   }
 
   function selectSettingGender(el) {
@@ -604,6 +623,7 @@
     profile.budget = budget;
     profile.currency = document.getElementById('settingCurrency').value;
     profile.preferred_cuisine = document.getElementById('settingCuisine').value;
+    profile.language = document.getElementById('settingLanguage').value;
     saveProfile();
     showToast('✅ Cooking preferences saved!', 'success');
   }

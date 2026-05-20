@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <script src="/supabase-config.js"></script>
+  <script src="/translations.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -186,6 +187,7 @@
     document.getElementById('mobileUserAvatar').textContent = initial;
     document.getElementById('userName').textContent = profile.name || 'User';
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
+    applyNavTranslations();
 
     const saved = localStorage.getItem('mealzy_coach_conversation');
     if (saved) {
