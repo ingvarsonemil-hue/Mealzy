@@ -396,8 +396,8 @@ User profile:
 Your personality:
 - Warm, encouraging, and science-based
 - Give practical, actionable advice
-- Use emojis sparingly but naturally
-- Keep responses concise but complete (2-4 paragraphs max)
+- No emojis — plain text only
+- Keep responses concise and focused: 1-2 short paragraphs max, never more than 120 words
 - Never give medical diagnoses or replace professional medical advice
 - Always tailor advice to the user's specific goals and profile
 
@@ -415,9 +415,9 @@ Topics you can help with:
 
     const completion = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
+      max_tokens: 300,
       system: systemPrompt,
-      messages: messages.slice(-20) // Keep last 20 messages for context
+      messages: messages.slice(-10) // Keep last 10 messages for context
     });
 
     const reply = completion.content[0].text;
