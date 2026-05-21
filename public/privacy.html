@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy | Mealzy</title>
+  <meta name="description" content="Mealzy privacy policy — how we collect, use, and protect your data." />
+  <link rel="canonical" href="https://mealzy.org/privacy.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#4a8a6f">
+  <style>
+    .legal-wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    .legal-wrap h1 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 0.25rem; }
+    .legal-wrap .updated { color: var(--clr-muted); font-size: 0.82rem; margin-bottom: 2.5rem; }
+    .legal-wrap h2 { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.5rem; color: var(--clr-text); }
+    .legal-wrap p, .legal-wrap li { font-size: 0.9rem; line-height: 1.75; color: var(--clr-muted); }
+    .legal-wrap ul { padding-left: 1.25rem; margin: 0.5rem 0; }
+    .legal-wrap li { margin-bottom: 0.35rem; }
+    .legal-wrap a { color: var(--clr-primary); text-decoration: none; }
+    .legal-wrap a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon" style="font-size:14px;">M</span>
+      Mealzy
+    </a>
+    <div class="nav-links">
+      <a href="pricing.html" class="nav-link">Pricing</a>
+      <a href="login.html" class="btn btn-outline btn-sm">Log in</a>
+    </div>
+  </div>
+</nav>
+
+<div class="legal-wrap">
+  <h1>Privacy Policy</h1>
+  <p class="updated">Last updated: May 2026</p>
+
+  <h2>1. Who we are</h2>
+  <p>Mealzy ("we", "us", "our") is an AI-powered meal planning service available at mealzy.org. If you have questions about this policy, contact us at <a href="mailto:support@mealzy.org">support@mealzy.org</a>.</p>
+
+  <h2>2. What data we collect</h2>
+  <ul>
+    <li><strong>Account data:</strong> Your name, email address, and a hashed (bcrypt) version of your password when you register.</li>
+    <li><strong>Profile data:</strong> Dietary preferences, health goals, budget, and activity level you enter during onboarding — stored locally in your browser (localStorage).</li>
+    <li><strong>Meal plan data:</strong> Plans you generate are stored locally in your browser. We do not transmit your meal plan content to our servers beyond what is required to call the AI API.</li>
+    <li><strong>Usage data:</strong> A count of how many meal plans you have generated in the current 30-day window, tracked by IP address on our server. This resets automatically.</li>
+    <li><strong>Payment data:</strong> Processed entirely by Stripe. We never see or store your card number. We receive a Stripe customer ID and subscription status.</li>
+  </ul>
+
+  <h2>3. How we use your data</h2>
+  <ul>
+    <li>To provide and personalise the meal planning service.</li>
+    <li>To enforce the free plan limit (3 meal plans per 30-day rolling period).</li>
+    <li>To manage your Pro subscription via Stripe.</li>
+    <li>To respond to support enquiries.</li>
+    <li>We do not sell your data to third parties. We do not use your data for advertising.</li>
+  </ul>
+
+  <h2>4. Third-party services</h2>
+  <ul>
+    <li><strong>Anthropic:</strong> Your meal preferences are sent to the Anthropic API to generate meal plans. Anthropic's data use is governed by their <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">privacy policy</a>.</li>
+    <li><strong>Stripe:</strong> Handles all payment processing. See <a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe's privacy policy</a>.</li>
+    <li><strong>Render:</strong> Our hosting provider. Your data transits their infrastructure. See <a href="https://render.com/privacy" target="_blank" rel="noopener">Render's privacy policy</a>.</li>
+  </ul>
+
+  <h2>5. Cookies and local storage</h2>
+  <p>We use a server-side session cookie solely to keep you logged in. We store your profile data, meal history, and preferences in your browser's localStorage — this data never leaves your device except when explicitly used to generate a meal plan.</p>
+
+  <h2>6. Data retention</h2>
+  <p>Account data (name, email, hashed password) is retained until you delete your account. Usage counters (IP-based, plan count) reset every 30 days automatically. Stripe subscription data is retained as long as you have an active or historical subscription, per Stripe's own retention policies.</p>
+
+  <h2>7. Your rights</h2>
+  <ul>
+    <li>You may request a copy of the personal data we hold about you.</li>
+    <li>You may request deletion of your account and associated data at any time by emailing <a href="mailto:support@mealzy.org">support@mealzy.org</a>.</li>
+    <li>You may clear all locally stored data at any time through your browser settings.</li>
+    <li>If you are in the EEA or UK, you have rights under GDPR/UK GDPR including access, rectification, erasure, and objection.</li>
+  </ul>
+
+  <h2>8. Security</h2>
+  <p>Passwords are hashed with bcrypt before storage. All traffic is served over HTTPS. We do not log or store the content of your meal plans on our servers.</p>
+
+  <h2>9. Children</h2>
+  <p>Mealzy is not directed at children under 16. We do not knowingly collect data from anyone under 16. If you believe a child has provided us with personal data, contact us and we will delete it.</p>
+
+  <h2>10. Changes to this policy</h2>
+  <p>We may update this policy from time to time. We will update the "Last updated" date above. For material changes we will notify you by email if we hold your address.</p>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <a href="index.html" class="logo" style="color:white;">
+        <span class="logo-icon" style="font-size:14px;">M</span>
+        Mealzy
+      </a>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="mailto:support@mealzy.org">Contact</a>
+        <a href="pricing.html">Pricing</a>
+      </div>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

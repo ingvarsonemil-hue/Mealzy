@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/supabase-config.js"></script>
   <script src="/translations.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -439,9 +440,12 @@
   let selectedSkill = 'intermediate';
 
   async function init() {
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
-    await cloudLoad(session.user.id);
+    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || 'null');
+    if (!lsUser) { window.location.href = 'login.html'; return; }
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) await cloudLoad(session.user.id);
+    } catch(e) {}
     const profileData = localStorage.getItem('mealzy_profile');
     if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);

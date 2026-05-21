@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -203,6 +204,20 @@
       </div>
     </div>
 
+    <!-- RETENTION BANNERS -->
+    <div id="retentionBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:var(--clr-primary);color:#fff;font-size:0.9rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+      <span id="retentionBannerText"></span>
+      <button onclick="document.getElementById('retentionBanner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:0.5rem;padding:0.3rem 0.75rem;cursor:pointer;font-size:0.8rem;white-space:nowrap;">Dismiss</button>
+    </div>
+
+    <!-- RECENT PLANS -->
+    <div id="recentPlansCard" class="card" style="margin-bottom:1.5rem;display:none;">
+      <div class="card-header">
+        <div class="card-title">Recent Plans</div>
+      </div>
+      <div id="recentPlansList" style="display:flex;flex-direction:column;gap:0.75rem;padding-top:0.25rem;"></div>
+    </div>
+
     <!-- QUICK ACTIONS -->
     <div style="margin-bottom:1.5rem;">
       <h2 style="margin-bottom:1rem;font-size:1rem;">Quick Actions</h2>
@@ -322,9 +337,12 @@
   let calorieChart = null;
 
   async function init() {
-    const { data: { session } } = await _sb.auth.getSession();
-    if (!session) { window.location.href = 'login.html'; return; }
-    await cloudLoad(session.user.id);
+    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || 'null');
+    if (!lsUser) { window.location.href = 'login.html'; return; }
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (session) await cloudLoad(session.user.id);
+    } catch(e) {}
     const profileData = localStorage.getItem('mealzy_profile');
     if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);
@@ -332,6 +350,8 @@
     updateUserUI();
     updateGreeting();
     loadTodayData();
+    renderRecentPlans();
+    checkRetentionBanners();
     renderWaterGlasses();
     updateStreak();
     buildCalorieHistoryChart();
@@ -735,6 +755,7 @@
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
       plans[today] = { meals: todayMeals, generatedAt: new Date().toISOString() };
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+      saveToHistory(todayMeals);
       renderMeals();
       updateStats();
       cloudSave();
@@ -773,6 +794,68 @@
     toast.textContent = msg;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3500);
+  }
+
+  // === PLAN HISTORY ===
+  function saveToHistory(meals) {
+    const history = JSON.parse(localStorage.getItem('mealzy_history') || '[]');
+    history.unshift({ date: today, meals, generatedAt: new Date().toISOString() });
+    if (history.length > 10) history.length = 10;
+    localStorage.setItem('mealzy_history', JSON.stringify(history));
+    localStorage.setItem('mealzy_last_generation', new Date().toISOString());
+    renderRecentPlans();
+  }
+
+  function renderRecentPlans() {
+    const history = JSON.parse(localStorage.getItem('mealzy_history') || '[]');
+    const card = document.getElementById('recentPlansCard');
+    const list = document.getElementById('recentPlansList');
+    const recent = history.slice(0, 3);
+    if (!recent.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    list.innerHTML = recent.map((entry, i) => {
+      const d = new Date(entry.generatedAt);
+      const label = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      const preview = (entry.meals || []).slice(0, 2).map(m => m.name || m.type).filter(Boolean).join(', ');
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 0;${i < recent.length - 1 ? 'border-bottom:1px solid var(--clr-border);' : ''}">
+        <div>
+          <div style="font-weight:600;font-size:0.88rem;">${label}</div>
+          ${preview ? `<div style="font-size:0.8rem;color:var(--clr-muted);margin-top:0.15rem;">${preview}…</div>` : ''}
+        </div>
+        <button onclick="loadRecentPlan(${i})" class="btn btn-outline btn-sm" style="white-space:nowrap;">Load plan</button>
+      </div>`;
+    }).join('');
+  }
+
+  function loadRecentPlan(index) {
+    const history = JSON.parse(localStorage.getItem('mealzy_history') || '[]');
+    const entry = history[index];
+    if (!entry) return;
+    todayMeals = entry.meals.map(m => ({ ...m, completed: false }));
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    plans[today] = { meals: todayMeals, generatedAt: new Date().toISOString() };
+    localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+    renderMeals();
+    updateStats();
+    showToast('Plan loaded!', 'success');
+  }
+
+  function checkRetentionBanners() {
+    const banner = document.getElementById('retentionBanner');
+    const bannerText = document.getElementById('retentionBannerText');
+    const now = new Date();
+    const day = now.getDay();
+    const hour = now.getHours();
+    const lastGen = localStorage.getItem('mealzy_last_generation');
+    const daysSinceLast = lastGen ? (Date.now() - new Date(lastGen).getTime()) / 86400000 : Infinity;
+
+    if (day === 0 && hour >= 17) {
+      bannerText.textContent = '🌿 Sunday evening — a great time to plan your meals for the week ahead.';
+      banner.style.display = 'flex';
+    } else if (daysSinceLast >= 7) {
+      bannerText.textContent = `👋 Welcome back! It's been ${Math.floor(daysSinceLast)} days since your last meal plan. Generate a fresh one?`;
+      banner.style.display = 'flex';
+    }
   }
 
   // === SHARE PLAN ===

@@ -3,12 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mealzy — Pricing</title>
+  <title>Pricing | Mealzy — Free & Pro Plans</title>
+  <meta name="description" content="Start free with 3 meal plans per month. Upgrade to Pro for unlimited plans, advanced macros, and AI coaching. Cancel any time." />
+  <meta property="og:title" content="Pricing | Mealzy — Free & Pro Plans" />
+  <meta property="og:description" content="Start free with 3 meal plans per month. Upgrade to Pro for unlimited plans and AI coaching." />
+  <meta property="og:image" content="https://mealzy.org/card-cta.svg" />
+  <meta property="og:url" content="https://mealzy.org/pricing.html" />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://mealzy.org/pricing.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -189,7 +197,7 @@
         <tbody>
           <tr>
             <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">AI Meal Plans</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">7/week</td>
+            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">3/month</td>
             <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">Unlimited</td>
             <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Unlimited</td>
           </tr>
@@ -229,6 +237,50 @@
   </div>
 </section>
 
+<!-- FAQ -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Common questions</h2>
+    </div>
+    <div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:1rem;">
+
+      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
+        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+          Can I cancel at any time?
+          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
+        </summary>
+        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted);">Yes — cancel in one click from your Stripe billing portal. You keep Pro access until the end of your current billing period. No penalties, no fine print.</p>
+      </details>
+
+      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
+        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+          What happens to my free plan when it runs out?
+          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
+        </summary>
+        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted);">Your 3 free generations reset automatically every 30 days from the date of your first generation in that cycle. You never lose access to plans you have already generated.</p>
+      </details>
+
+      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
+        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+          Is my data safe?
+          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
+        </summary>
+        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted);">Yes. Passwords are hashed with bcrypt and never stored in plain text. All traffic is served over HTTPS. We do not sell your data to third parties. Payments are handled entirely by Stripe — we never see your card number.</p>
+      </details>
+
+      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
+        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+          Do you store my meal plans?
+          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
+        </summary>
+        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted);">Your meal plans and profile preferences are stored in your browser's localStorage — they stay on your device and are never uploaded to our servers. Clearing your browser data will remove them.</p>
+      </details>
+
+    </div>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="section">
   <div class="container">
@@ -249,9 +301,9 @@
         Mealzy
       </a>
       <div class="footer-links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="mailto:support@mealzy.org">Contact</a>
         <a href="pricing.html">Pricing</a>
       </div>
       <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>

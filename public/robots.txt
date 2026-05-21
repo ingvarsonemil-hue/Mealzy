@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /meal-planner.html
+Disallow: /ai-coach.html
+Disallow: /analytics.html
+Disallow: /grocery-list.html
+Disallow: /settings.html
+Disallow: /onboarding.html
+
+Sitemap: https://mealzy.org/sitemap.xml

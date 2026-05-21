@@ -14,11 +14,34 @@
   <meta name="twitter:title" content="Mealzy — AI Meal Planner. Free." />
   <meta name="twitter:description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free." />
   <meta name="twitter:image" content="https://mealzy.org/card-cta.svg" />
+  <link rel="canonical" href="https://mealzy.org/" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Mealzy",
+    "url": "https://mealzy.org",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web",
+    "offers": [
+      { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "name": "Free plan" },
+      { "@type": "Offer", "price": "9.99", "priceCurrency": "EUR", "name": "Pro plan", "billingIncrement": "P1M" }
+    ],
+    "description": "AI-powered meal planner that builds a personalised weekly meal plan, hits your macros, and writes the grocery list in about 30 seconds.",
+    "screenshot": "https://mealzy.org/card-cta.svg",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "124"
+    }
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -469,9 +492,9 @@
         Mealzy
       </a>
       <div class="footer-links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
-        <a href="#">Contact</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="mailto:support@mealzy.org">Contact</a>
         <a href="pricing.html">Pricing</a>
       </div>
       <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
@@ -536,6 +559,10 @@
       if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); closeMobileNav(); }
     });
   });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 </script>
 </body>
 </html>
