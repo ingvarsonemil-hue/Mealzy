@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Pro | Mealzy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { primary: '#16a34a' } } } }</script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center px-4">
+  <div class="text-center max-w-md">
+    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-3">You are now Pro!</h1>
+    <p class="text-gray-500 mb-2">Your payment was successful. Unlimited meal plans are now active on your account.</p>
+    <p class="text-gray-400 text-sm mb-8">A confirmation will arrive at your email shortly.</p>
+    <div class="space-y-3">
+      <a href="/dashboard" class="block bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors">
+        Go to my dashboard
+      </a>
+      <a href="/" class="block text-gray-400 text-sm hover:text-gray-600">Back to home</a>
+    </div>
+  </div>
+
+  <script>
+    // Clear the first-modal flag so Pro users don't see the upsell modal
+    localStorage.removeItem('mealzy_modal_shown');
+  </script>
+</body>
+</html>

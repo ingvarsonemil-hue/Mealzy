@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Mealzy</title>
+  <meta property="og:title" content="My Meal Dashboard | Mealzy">
+  <meta property="og:description" content="Generate AI meal plans, view your grocery list, and chat with your nutrition coach.">
+  <meta property="og:image" content="https://meal-plan-app-2nn3.onrender.com/og-image.png">
+  <meta property="og:url" content="https://meal-plan-app-2nn3.onrender.com/dashboard">
+  <meta property="og:type" content="website">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { theme: { extend: { colors: { primary: '#16a34a' } } } }</script>
+  <style>
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .meal-output h2 { font-size: 1.15rem; font-weight: 700; margin: 1.25rem 0 .5rem; color: #111; }
+    .meal-output h3 { font-size: 1rem; font-weight: 600; margin: 1rem 0 .25rem; color: #166534; }
+    .meal-output p, .meal-output li { font-size: .875rem; color: #374151; line-height: 1.6; }
+    .meal-output ul, .meal-output ol { padding-left: 1.25rem; margin: .25rem 0; }
+    .meal-output strong { color: #111; }
+    .meal-output hr { border-color: #e5e7eb; margin: 1rem 0; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="bg-white border-b border-gray-100 sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="text-lg font-bold text-primary">Mealzy</a>
+      <div class="flex items-center gap-3">
+        <!-- Usage badge -->
+        <div id="usage-badge" class="hidden">
+          <span id="usage-text" class="text-xs bg-amber-100 text-amber-800 font-medium px-3 py-1 rounded-full"></span>
+        </div>
+        <button onclick="openCoach()" class="text-sm text-gray-600 hover:text-gray-900 hidden sm:block">AI Coach</button>
+        <button onclick="logout()" class="text-sm text-gray-500 hover:text-gray-900">Log out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-5xl mx-auto px-4 py-8">
+
+    <!-- Welcome + Onboarding progress -->
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900 mb-1">Hi, <span id="user-name">there</span>!</h1>
+      <p class="text-gray-500 text-sm">What would you like to eat this week?</p>
+
+      <!-- Onboarding bar (hidden after first plan) -->
+      <div id="onboarding" class="mt-5 bg-white border border-gray-200 rounded-2xl p-5">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Getting started — 3 steps to your first plan</p>
+        <div class="flex gap-2 sm:gap-4 flex-wrap">
+          <div class="flex items-center gap-2 text-sm">
+            <div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">1</div>
+            <span class="text-gray-500 line-through">Created account</span>
+          </div>
+          <div class="text-gray-300 hidden sm:block">›</div>
+          <div id="step2" class="flex items-center gap-2 text-sm">
+            <div id="step2-icon" class="w-6 h-6 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shrink-0">2</div>
+            <span id="step2-label" class="text-gray-700 font-medium">Set your preferences</span>
+          </div>
+          <div class="text-gray-300 hidden sm:block">›</div>
+          <div id="step3" class="flex items-center gap-2 text-sm">
+            <div id="step3-icon" class="w-6 h-6 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shrink-0">3</div>
+            <span id="step3-label" class="text-gray-700 font-medium">Generate your first plan</span>
+          </div>
+        </div>
+        <div class="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-full bg-primary rounded-full transition-all duration-500" style="width: 33%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-6">
+
+      <!-- Form -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 sticky top-20">
+          <h2 class="font-bold text-gray-900 mb-4">Plan settings</h2>
+          <div class="space-y-4">
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Weekly budget</label>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-400 text-sm">€</span>
+                <input id="budget" type="number" min="10" max="500" value="50" onchange="markStep2()"
+                  class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Duration</label>
+              <select id="days" onchange="markStep2()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="1">1 day</option>
+                <option value="3">3 days</option>
+                <option value="5">5 days</option>
+                <option value="7" selected>1 week</option>
+                <option value="10">10 days</option>
+                <option value="14">2 weeks</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Dietary style</label>
+              <select id="diet" onchange="markStep2()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="balanced">Balanced</option>
+                <option value="vegan">Vegan</option>
+                <option value="vegetarian">Vegetarian</option>
+                <option value="keto">Keto</option>
+                <option value="high-protein">High protein</option>
+                <option value="carnivore">Carnivore</option>
+                <option value="flexitarian">Flexitarian</option>
+                <option value="mediterranean">Mediterranean</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Goal</label>
+              <select id="goal" onchange="markStep2()" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="general health">General health</option>
+                <option value="weight loss">Weight loss</option>
+                <option value="muscle gain">Muscle gain</option>
+                <option value="maintain weight">Maintain weight</option>
+                <option value="more energy">More energy</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Cuisine preference</label>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Mediterranean" class="cuisine-cb accent-primary rounded"> Mediterranean
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Asian" class="cuisine-cb accent-primary rounded"> Asian
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Mexican" class="cuisine-cb accent-primary rounded"> Mexican
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Italian" class="cuisine-cb accent-primary rounded"> Italian
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="American" class="cuisine-cb accent-primary rounded"> American
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" value="Middle Eastern" class="cuisine-cb accent-primary rounded"> Middle Eastern
+                </label>
+              </div>
+            </div>
+
+            <button id="generate-btn" onclick="generateMeal()"
+              class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              Generate my meal plan
+            </button>
+
+            <div id="generate-error" class="hidden bg-red-50 border border-red-100 text-red-700 text-sm rounded-xl px-4 py-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="lg:col-span-2 space-y-4">
+
+        <!-- Empty state -->
+        <div id="empty-state" class="bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div class="text-5xl mb-4">+</div>
+          <h3 class="font-bold text-gray-900 mb-2">No plan yet</h3>
+          <p class="text-gray-500 text-sm max-w-xs mx-auto">Set your preferences on the left and hit Generate — your full meal plan will appear here.</p>
+        </div>
+
+        <!-- Loading state -->
+        <div id="loading-state" class="hidden bg-white rounded-2xl border border-gray-200 p-12 text-center">
+          <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full spin mx-auto mb-4"></div>
+          <p class="font-semibold text-gray-700">Building your meal plan...</p>
+          <p class="text-gray-400 text-sm mt-1">This takes about 10–20 seconds</p>
+        </div>
+
+        <!-- Result -->
+        <div id="result-section" class="hidden space-y-4">
+          <div class="bg-white rounded-2xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-bold text-gray-900">Your meal plan</h2>
+              <button onclick="copyGroceryList()" id="copy-btn"
+                class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
+                Copy grocery list
+              </button>
+            </div>
+            <div id="meal-output" class="meal-output"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Upgrade modal (after first generation) -->
+  <div id="upgrade-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl text-center">
+      <div class="text-4xl mb-4">*</div>
+      <h2 class="text-xl font-bold mb-2">That took 30 seconds.</h2>
+      <p id="modal-body" class="text-gray-500 mb-6">You have <strong id="modal-remaining" class="text-gray-900">2 free plans</strong> left this month. Want unlimited?</p>
+      <div class="space-y-3">
+        <button onclick="upgradeFromModal()" id="modal-upgrade-btn"
+          class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60">
+          Upgrade to Pro — €9.99/month
+        </button>
+        <button onclick="closeModal()" class="w-full text-gray-400 text-sm hover:text-gray-600">Maybe later</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limit reached modal -->
+  <div id="limit-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl text-center">
+      <div class="text-4xl mb-4">!</div>
+      <h2 class="text-xl font-bold mb-2">Monthly limit reached</h2>
+      <p id="limit-message" class="text-gray-500 mb-6"></p>
+      <div class="space-y-3">
+        <button onclick="upgradeFromModal()" id="limit-upgrade-btn"
+          class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60">
+          Upgrade to Pro — €9.99/month
+        </button>
+        <button onclick="document.getElementById('limit-modal').classList.add('hidden')" class="w-full text-gray-400 text-sm hover:text-gray-600">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Coach panel -->
+  <div id="coach-panel" class="hidden fixed bottom-0 right-0 w-full sm:w-96 h-96 bg-white border border-gray-200 rounded-t-2xl sm:rounded-2xl sm:bottom-6 sm:right-6 shadow-2xl flex flex-col z-50">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <span class="font-semibold text-sm">AI Nutrition Coach</span>
+      <button onclick="closeCoach()" class="text-gray-400 hover:text-gray-700 text-lg leading-none">&times;</button>
+    </div>
+    <div id="coach-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 text-sm">
+      <div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 max-w-xs text-gray-700">
+        Hi! Ask me anything about nutrition, your meal plan, or substitutions.
+      </div>
+    </div>
+    <div class="px-4 py-3 border-t border-gray-100 flex gap-2">
+      <input id="coach-input" type="text" placeholder="Ask a nutrition question..." onkeydown="if(event.key==='Enter')sendCoach()"
+        class="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+      <button onclick="sendCoach()" id="coach-send-btn"
+        class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors disabled:opacity-60">
+        Send
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let userPremium = false;
+    let userRemaining = 3;
+
+    // Check auth + load user info
+    async function init() {
+      try {
+        const res = await fetch('/api/me', { credentials: 'include' });
+        const data = await res.json();
+        if (!data.loggedIn) { window.location.href = '/login'; return; }
+
+        userPremium = data.premium;
+        userRemaining = data.remaining;
+
+        document.getElementById('user-name').textContent = data.name || 'there';
+
+        if (!data.premium) {
+          const badge = document.getElementById('usage-badge');
+          const text = document.getElementById('usage-text');
+          badge.classList.remove('hidden');
+          text.textContent = `${data.usage} of ${data.freeLimit} free plans used`;
+          if (data.usage >= data.freeLimit) {
+            text.className = 'text-xs bg-red-100 text-red-700 font-medium px-3 py-1 rounded-full';
+          }
+        }
+
+        // Onboarding
+        const firstDone = localStorage.getItem('mealzy_first_plan');
+        if (firstDone) {
+          document.getElementById('onboarding').style.display = 'none';
+        }
+      } catch {
+        window.location.href = '/login';
+      }
+    }
+
+    function markStep2() {
+      const icon = document.getElementById('step2-icon');
+      const label = document.getElementById('step2-label');
+      if (icon.classList.contains('bg-gray-200')) {
+        icon.classList.replace('bg-gray-200', 'bg-primary');
+        icon.classList.replace('text-gray-500', 'text-white');
+        label.classList.add('line-through', 'text-gray-400');
+        label.classList.remove('text-gray-700', 'font-medium');
+        document.getElementById('progress-bar').style.width = '66%';
+      }
+    }
+
+    async function generateMeal() {
+      const btn = document.getElementById('generate-btn');
+      const errEl = document.getElementById('generate-error');
+      errEl.classList.add('hidden');
+
+      const cuisines = [...document.querySelectorAll('.cuisine-cb:checked')].map(c => c.value);
+
+      btn.disabled = true;
+      btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full spin"></div> Generating...';
+
+      document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('result-section').classList.add('hidden');
+      document.getElementById('loading-state').classList.remove('hidden');
+
+      try {
+        const res = await fetch('/api/generate-meal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            budget: document.getElementById('budget').value,
+            days: document.getElementById('days').value,
+            diet: document.getElementById('diet').value,
+            goal: document.getElementById('goal').value,
+            cuisines
+          })
+        });
+        const data = await res.json();
+
+        if (data.error === 'free_limit_reached') {
+          document.getElementById('loading-state').classList.add('hidden');
+          document.getElementById('empty-state').classList.remove('hidden');
+          document.getElementById('limit-message').textContent = data.message;
+          document.getElementById('limit-modal').classList.remove('hidden');
+          return;
+        }
+
+        if (data.error) {
+          document.getElementById('loading-state').classList.add('hidden');
+          document.getElementById('empty-state').classList.remove('hidden');
+          errEl.textContent = data.error;
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        // Show result
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('result-section').classList.remove('hidden');
+        document.getElementById('meal-output').innerHTML = formatMealPlan(data.result);
+
+        // Update badge
+        if (!data.premium) {
+          const text = document.getElementById('usage-text');
+          text.textContent = `${data.usage} of ${data.freeLimit} free plans used`;
+          document.getElementById('usage-badge').classList.remove('hidden');
+          if (data.remaining === 0) {
+            text.className = 'text-xs bg-red-100 text-red-700 font-medium px-3 py-1 rounded-full';
+          }
+        }
+
+        userRemaining = data.remaining;
+
+        // Onboarding: mark step 3 done
+        const step3Icon = document.getElementById('step3-icon');
+        const step3Label = document.getElementById('step3-label');
+        step3Icon.classList.replace('bg-gray-200', 'bg-primary');
+        step3Icon.classList.replace('text-gray-500', 'text-white');
+        step3Label.classList.add('line-through', 'text-gray-400');
+        step3Label.classList.remove('text-gray-700', 'font-medium');
+        document.getElementById('progress-bar').style.width = '100%';
+        setTimeout(() => {
+          document.getElementById('onboarding').style.display = 'none';
+          localStorage.setItem('mealzy_first_plan', '1');
+        }, 1500);
+
+        // Show upgrade modal after first plan
+        const modalShown = localStorage.getItem('mealzy_modal_shown');
+        if (!modalShown && !data.premium) {
+          localStorage.setItem('mealzy_modal_shown', '1');
+          setTimeout(() => {
+            const remaining = data.remaining;
+            document.getElementById('modal-remaining').textContent =
+              remaining === 0 ? 'no more free plans' :
+              remaining === 1 ? '1 free plan' :
+              `${remaining} free plans`;
+            document.getElementById('upgrade-modal').classList.remove('hidden');
+          }, 800);
+        }
+
+      } catch {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+        errEl.textContent = 'Connection error. Please try again.';
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Generate my meal plan';
+      }
+    }
+
+    function formatMealPlan(text) {
+      // Convert markdown-style text to HTML
+      return text
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^\*\*([^*]+)\*\*$/gm, '<h3>$1</h3>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+        .replace(/\n{2,}/g, '<hr>')
+        .replace(/\n/g, '<br>');
+    }
+
+    function copyGroceryList() {
+      const output = document.getElementById('meal-output').innerText;
+      const listStart = output.indexOf('GROCERY LIST');
+      const nutritionStart = output.indexOf('NUTRITION SUMMARY');
+      if (listStart === -1) {
+        navigator.clipboard.writeText(output);
+      } else {
+        const end = nutritionStart > listStart ? nutritionStart : output.length;
+        navigator.clipboard.writeText(output.slice(listStart, end).trim());
+      }
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy grocery list', 2000);
+    }
+
+    async function upgradeFromModal() {
+      const btns = ['modal-upgrade-btn', 'limit-upgrade-btn'];
+      btns.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.disabled = true; el.textContent = 'Redirecting...'; }
+      });
+      try {
+        const res = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert(data.error || 'Could not start checkout. Please try again.');
+          btns.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.disabled = false; el.textContent = 'Upgrade to Pro — €9.99/month'; }
+          });
+        }
+      } catch {
+        alert('Connection error. Please try again.');
+        btns.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.disabled = false; el.textContent = 'Upgrade to Pro — €9.99/month'; }
+        });
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('upgrade-modal').classList.add('hidden');
+    }
+
+    function openCoach() {
+      document.getElementById('coach-panel').classList.remove('hidden');
+    }
+
+    function closeCoach() {
+      document.getElementById('coach-panel').classList.add('hidden');
+    }
+
+    async function sendCoach() {
+      const input = document.getElementById('coach-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const messages = document.getElementById('coach-messages');
+      messages.innerHTML += `<div class="flex justify-end"><div class="bg-primary text-white rounded-xl rounded-tr-none px-3 py-2 max-w-xs text-sm">${escHtml(msg)}</div></div>`;
+      input.value = '';
+      messages.scrollTop = messages.scrollHeight;
+
+      const btn = document.getElementById('coach-send-btn');
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      try {
+        const res = await fetch('/api/coach', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        messages.innerHTML += `<div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 max-w-xs text-gray-700 text-sm">${escHtml(data.reply || data.error || 'No response')}</div>`;
+      } catch {
+        messages.innerHTML += `<div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 max-w-xs text-red-500 text-sm">Connection error. Please try again.</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send';
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/';
+    }
+
+    init();
+  </script>
+</body>
+</html>

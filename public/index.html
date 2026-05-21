@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mealzy — AI Meal Plans in 30 Seconds</title>
+  <meta name="description" content="Mealzy builds personalized weekly meal plans that fit your budget, taste, and goals — powered by AI. Get 3 free plans every month.">
+  <meta property="og:title" content="Mealzy — AI Meal Plans in 30 Seconds">
+  <meta property="og:description" content="Stop spending hours planning meals. Mealzy generates a full week of budget-smart, diet-matched meals in under a minute.">
+  <meta property="og:image" content="https://meal-plan-app-2nn3.onrender.com/og-image.png">
+  <meta property="og:url" content="https://meal-plan-app-2nn3.onrender.com/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mealzy — AI Meal Plans in 30 Seconds">
+  <meta name="twitter:description" content="Stop spending hours planning meals. Mealzy generates a full week of budget-smart, diet-matched meals in under a minute.">
+  <meta name="twitter:image" content="https://meal-plan-app-2nn3.onrender.com/og-image.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: '#16a34a' }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .fade-in { animation: fadeIn .5s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  </style>
+</head>
+<body class="bg-white text-gray-900 font-sans">
+
+  <!-- Nav -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4">
+    <div class="max-w-5xl mx-auto px-4 flex items-center justify-between">
+      <a href="/" class="text-xl font-bold text-primary">Mealzy</a>
+      <div class="flex items-center gap-6">
+        <a href="/pricing" class="text-sm text-gray-600 hover:text-gray-900 hidden sm:block">Pricing</a>
+        <a href="/login" class="text-sm text-gray-600 hover:text-gray-900">Log in</a>
+        <a href="/login#register" class="text-sm bg-primary text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Sign up free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero" class="min-h-screen flex items-center pt-16">
+    <div class="max-w-5xl mx-auto px-4 py-20 text-center">
+      <span class="inline-block bg-green-100 text-primary text-sm font-medium px-3 py-1 rounded-full mb-6">3 free plans every month — no card needed</span>
+      <h1 class="text-4xl sm:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+        Plan the whole week<br class="hidden sm:block"> in 30 seconds.
+      </h1>
+      <p class="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10">
+        Mealzy uses AI to build personalized meal plans that match your budget, diet, and goals — then hands you a ready-to-shop grocery list.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/login#register" class="bg-primary text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-700 transition-colors shadow-lg">
+          Get my first plan free
+        </a>
+        <a href="#how" class="border border-gray-300 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-50 transition-colors">
+          See how it works
+        </a>
+      </div>
+      <p class="text-sm text-gray-400 mt-4">No credit card. No commitment. Cancel anytime.</p>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="bg-gray-50 py-20" id="features">
+    <div class="max-w-5xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-4">Everything you need to eat well</h2>
+      <p class="text-gray-500 text-center mb-12">No more Sunday afternoon stress. No more wasted food.</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm">
+          <div class="text-3xl mb-4">$</div>
+          <h3 class="font-bold text-lg mb-2">Budget-smart plans</h3>
+          <p class="text-gray-500 text-sm">Enter your weekly budget. Every meal is optimised to keep you in range.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm">
+          <div class="text-3xl mb-4">*</div>
+          <h3 class="font-bold text-lg mb-2">Auto grocery lists</h3>
+          <p class="text-gray-500 text-sm">After every plan, get a categorised, shop-ready ingredient list.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm">
+          <div class="text-3xl mb-4">~</div>
+          <h3 class="font-bold text-lg mb-2">Any diet, any goal</h3>
+          <p class="text-gray-500 text-sm">Vegan, keto, high-protein, flexitarian, carnivore — your plan, your rules.</p>
+        </div>
+        <div class="bg-white rounded-2xl p-6 shadow-sm">
+          <div class="text-3xl mb-4">?</div>
+          <h3 class="font-bold text-lg mb-2">AI nutrition coach</h3>
+          <p class="text-gray-500 text-sm">Ask anything about your plan, macros, or substitutions. Instant answers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="py-20" id="how">
+    <div class="max-w-5xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-center mb-4">Three steps to a full week of meals</h2>
+      <p class="text-gray-500 text-center mb-14">Faster than deciding where to order takeaway.</p>
+      <div class="grid sm:grid-cols-3 gap-10">
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">1</div>
+          <h3 class="font-bold text-lg mb-2">Set your preferences</h3>
+          <p class="text-gray-500 text-sm">Budget, duration, dietary style, and cuisine. Takes 20 seconds.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">2</div>
+          <h3 class="font-bold text-lg mb-2">Generate your plan</h3>
+          <p class="text-gray-500 text-sm">AI builds a full meal plan with portion sizes, prep times, and costs.</p>
+        </div>
+        <div class="text-center">
+          <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">3</div>
+          <h3 class="font-bold text-lg mb-2">Shop and cook</h3>
+          <p class="text-gray-500 text-sm">Copy the grocery list, hit the store, and you are done for the week.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof -->
+  <section class="bg-gray-50 py-20">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="grid sm:grid-cols-3 gap-6 text-center">
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+          <div class="text-4xl font-extrabold text-primary mb-2">30s</div>
+          <p class="text-gray-500 text-sm">Average time to generate a full week's meal plan</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+          <div class="text-4xl font-extrabold text-primary mb-2">156h</div>
+          <p class="text-gray-500 text-sm">Hours the average person spends on meal planning per year</p>
+        </div>
+        <div class="bg-white rounded-2xl p-8 shadow-sm">
+          <div class="text-4xl font-extrabold text-primary mb-2">€0</div>
+          <p class="text-gray-500 text-sm">Cost to get started — 3 free plans every single month</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing teaser -->
+  <section class="py-20">
+    <div class="max-w-3xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold mb-4">Simple, honest pricing</h2>
+      <p class="text-gray-500 mb-10">Start free. Upgrade only when you want more.</p>
+      <div class="grid sm:grid-cols-2 gap-6">
+        <div class="border border-gray-200 rounded-2xl p-8 text-left">
+          <div class="text-2xl font-bold mb-1">Free</div>
+          <div class="text-gray-400 text-sm mb-6">Forever</div>
+          <ul class="space-y-3 text-sm text-gray-600 mb-8">
+            <li class="flex gap-2"><span class="text-primary font-bold">+</span> 3 AI meal plans per month</li>
+            <li class="flex gap-2"><span class="text-primary font-bold">+</span> Auto grocery lists</li>
+            <li class="flex gap-2"><span class="text-primary font-bold">+</span> AI nutrition coach</li>
+          </ul>
+          <a href="/login#register" class="block text-center border border-primary text-primary px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition-colors">Get started free</a>
+        </div>
+        <div class="bg-primary text-white rounded-2xl p-8 text-left relative overflow-hidden">
+          <div class="absolute top-4 right-4 bg-white text-primary text-xs font-bold px-2 py-1 rounded-full">Most popular</div>
+          <div class="text-2xl font-bold mb-1">Pro</div>
+          <div class="text-green-200 text-sm mb-6">€9.99 / month</div>
+          <ul class="space-y-3 text-sm text-green-100 mb-8">
+            <li class="flex gap-2"><span class="font-bold">+</span> Unlimited AI meal plans</li>
+            <li class="flex gap-2"><span class="font-bold">+</span> Full grocery lists every time</li>
+            <li class="flex gap-2"><span class="font-bold">+</span> AI nutrition coach, unlimited</li>
+            <li class="flex gap-2"><span class="font-bold">+</span> Advanced dietary options</li>
+            <li class="flex gap-2"><span class="font-bold">+</span> Priority support</li>
+          </ul>
+          <a href="/login#register" class="block text-center bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition-colors">Start with Pro</a>
+        </div>
+      </div>
+      <p class="text-sm text-gray-400 mt-6">Cancel anytime. No long-term contracts.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-100 py-10">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="text-gray-400 text-sm">Mealzy &copy; 2025</div>
+      <div class="flex gap-6 text-sm text-gray-400">
+        <a href="/pricing" class="hover:text-gray-700">Pricing</a>
+        <a href="/login" class="hover:text-gray-700">Log in</a>
+        <a href="/privacy" class="hover:text-gray-700">Privacy</a>
+        <a href="/terms" class="hover:text-gray-700">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Sticky CTA (appears after hero scrolls out) -->
+  <div id="sticky-cta" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 opacity-0 pointer-events-none transition-all duration-300">
+    <a href="/login#register" class="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full shadow-2xl font-semibold hover:bg-green-700 transition-colors whitespace-nowrap">
+      Try it free — 3 plans/month
+    </a>
+  </div>
+
+  <script>
+    // Navbar background on scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('bg-white', 'shadow-sm');
+      } else {
+        navbar.classList.remove('bg-white', 'shadow-sm');
+      }
+    });
+
+    // Sticky CTA appears when hero scrolls out of view
+    const hero = document.getElementById('hero');
+    const stickyCta = document.getElementById('sticky-cta');
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) {
+        stickyCta.classList.remove('opacity-0', 'pointer-events-none');
+        stickyCta.classList.add('opacity-100');
+      } else {
+        stickyCta.classList.add('opacity-0', 'pointer-events-none');
+        stickyCta.classList.remove('opacity-100');
+      }
+    }, { threshold: 0.1 });
+    observer.observe(hero);
+  </script>
+</body>
+</html>
