@@ -65,7 +65,7 @@ const generateLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many requests. Please wait a moment and try again.' }
+  message: { error: "You're generating plans fast — wait 60 seconds and try again." }
 });
 
 // ── Cookie helpers ─────────────────────────────────────────────────────────
@@ -914,9 +914,71 @@ function generateFallbackMealPlan(profile) {
   };
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// XP / GAMIFICATION ENDPOINT
+// ════════════════════════════════════════════════════════════════════════════
+
+// POST /api/xp/award — award XP to the authenticated user (server validates)
+// Body: { action: 'generate_plan' | 'swap_meal' | 'complete_day' | 'onboarding' }
+app.post('/api/xp/award', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  const XP_MAP = {
+    generate_plan:  50,
+    swap_meal:      10,
+    complete_day:   25,
+    onboarding:    100,
+  };
+
+  const { action } = req.body;
+  const xpEarned = XP_MAP[action];
+  if (!xpEarned) return res.status(400).json({ error: 'unknown action' });
+
+  try {
+    const profile = db.getProfile(session.userId) || {};
+    const newXP    = (profile.xp || 0) + xpEarned;
+    const newLevel = calcLevel(newXP);
+    const oldLevel = calcLevel(profile.xp || 0);
+
+    profile.xp    = newXP;
+    profile.level = newLevel;
+    db.saveProfile(session.userId, profile);
+    db.logEvent('xp_award', { action, xp: xpEarned, total: newXP, level: newLevel }, '');
+
+    res.json({ success: true, xp: newXP, level: newLevel, levelUp: newLevel > oldLevel, xpEarned });
+  } catch(err) {
+    console.error('XP award error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+function calcLevel(xp) {
+  if (xp >= 1000) return 5;
+  if (xp >= 500)  return 4;
+  if (xp >= 250)  return 3;
+  if (xp >= 100)  return 2;
+  return 1;
+}
+
 // ── Catch-all: serve index.html ────────────────────────────────────────────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ── Global error handler — prevents unhandled exceptions from crashing the server ──
+app.use((err, req, res, next) => {
+  console.error('[ERROR]', err.stack || err.message || err);
+  res.status(500).json({ error: 'Something went wrong. Please try again.' });
+});
+
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason) => {
+  console.error('[unhandledRejection]', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[uncaughtException]', err.stack || err);
+  // Don't exit — Render will restart if truly unrecoverable
 });
 
 // ── Start server after DB is ready ────────────────────────────────────────

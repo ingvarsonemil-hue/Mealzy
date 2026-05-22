@@ -20,9 +20,41 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
+  <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
     @keyframes pricePop { 0% { transform: scale(0.95); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
     .price-animated { animation: pricePop 0.25s ease; }
+    /* 30-second popup */
+    #decidingPopup {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--clr-card);
+      border: 1px solid var(--clr-border);
+      border-radius: 1rem;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      padding: 1.25rem 1.5rem;
+      max-width: 320px;
+      z-index: 9999;
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    #decidingPopup.show { display: block; }
+    #decidingPopup .popup-close {
+      position: absolute; top: 0.7rem; right: 0.9rem;
+      background: none; border: none; cursor: pointer;
+      font-size: 1.1rem; color: var(--clr-muted-fg); line-height: 1;
+    }
+    /* countdown badge */
+    .countdown-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: #fff3cd; color: #856404;
+      border: 1px solid #ffc107;
+      border-radius: 0.5rem; padding: 0.35rem 0.75rem;
+      font-size: 0.8rem; font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -115,8 +147,11 @@
 
       <!-- PRO (POPULAR) -->
       <div class="pricing-card popular" id="cardPremium">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">
           <span class="badge badge-primary">Most Popular</span>
+        </div>
+        <div class="countdown-badge" id="priceLockBadge">
+          🔒 Price locks in <span id="countdownDisplay">48:00:00</span>
         </div>
         <div class="pricing-card-top">
           <div class="pricing-plan-name">Pro</div>
@@ -127,8 +162,8 @@
           </div>
           <div class="pricing-billed" id="billedPremium">&nbsp;</div>
         </div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" onclick="trackUpgradeClick()">Start Pro — 7 Days Free</a>
-        <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.6rem;">🔒 Prices may increase as we grow. Lock in $8/month now.</p>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" id="proCta" onclick="trackUpgradeClick()">Start Pro — 7 Days Free</a>
+        <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.6rem;" id="proCtaNote">🔒 Lock in $8/mo — price may increase as we grow.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
           <li><span class="check">✓</span> Automatic grocery list</li>
@@ -312,12 +347,30 @@
   </div>
 </footer>
 
+<!-- 30-SECOND "STILL DECIDING?" POPUP -->
+<div id="decidingPopup" role="dialog" aria-label="Special offer">
+  <button class="popup-close" onclick="closeDecidingPopup()" aria-label="Close">✕</button>
+  <div style="font-size:1.35rem;margin-bottom:0.5rem;">🤔</div>
+  <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.35rem;">Still deciding?</div>
+  <p style="font-size:0.84rem;color:var(--clr-muted-fg);line-height:1.5;margin-bottom:1rem;">
+    Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.
+  </p>
+  <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" style="font-size:0.88rem;" onclick="trackUpgradeClick();closeDecidingPopup();">
+    Start 7-Day Free Trial →
+  </a>
+  <p style="font-size:0.75rem;color:var(--clr-muted);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
+</div>
+
 <script>
   function trackUpgradeClick() {
     fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event:'upgrade_click', data:{ source:'pricing_page' } }) }).catch(()=>{});
   }
 
   let billingMode = 'monthly';
+
+  // Stripe links — replace YEARLY_STRIPE_LINK with real annual Stripe link when created
+  const STRIPE_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
+  const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // TODO: replace with annual link
 
   const prices = {
     monthly: { free: '$0', premium: '$8',  family: '$16' },
@@ -355,6 +408,19 @@
     updatePrice('pricePremiumMo', 'billedPremium', p.premium, b.premium);
     updatePrice('priceFamilyMo', 'billedFamily', p.family, b.family);
 
+    // Swap Pro CTA link and label based on billing mode
+    const cta = document.getElementById('proCta');
+    const ctaNote = document.getElementById('proCtaNote');
+    if (mode === 'yearly') {
+      cta.href = STRIPE_YEARLY;
+      cta.textContent = 'Start Pro Annual — 7 Days Free';
+      ctaNote.textContent = '🎉 Best value — $62/year saves you $34 vs monthly.';
+    } else {
+      cta.href = STRIPE_MONTHLY;
+      cta.textContent = 'Start Pro — 7 Days Free';
+      ctaNote.textContent = '🔒 Lock in $8/mo — price may increase as we grow.';
+    }
+
     // Subtle pulse on premium card when switching to yearly
     if (mode === 'yearly') {
       const card = document.getElementById('cardPremium');
@@ -364,6 +430,43 @@
       setTimeout(() => card.style.animation = '', 500);
     }
   }
+
+  // ── "Still deciding?" popup — fires after 30s, once per session ──
+  function closeDecidingPopup() {
+    const el = document.getElementById('decidingPopup');
+    el.classList.remove('show');
+    sessionStorage.setItem('pricing_popup_seen', '1');
+  }
+  if (!sessionStorage.getItem('pricing_popup_seen')) {
+    setTimeout(() => {
+      document.getElementById('decidingPopup').classList.add('show');
+    }, 30000);
+  }
+
+  // ── Countdown clock (48h urgency) ──
+  (function startCountdown() {
+    const KEY = 'pricing_deadline';
+    let deadline = localStorage.getItem(KEY);
+    if (!deadline) {
+      deadline = Date.now() + 48 * 60 * 60 * 1000;
+      localStorage.setItem(KEY, deadline);
+    }
+    function tick() {
+      const diff = Math.max(0, deadline - Date.now());
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      const el = document.getElementById('countdownDisplay');
+      if (el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      if (diff > 0) setTimeout(tick, 1000);
+      else {
+        const badge = document.getElementById('priceLockBadge');
+        if (badge) badge.style.display = 'none';
+        localStorage.removeItem(KEY); // reset for next visit
+      }
+    }
+    tick();
+  })();
 
   // Hamburger
   const hamburger = document.getElementById('hamburger');

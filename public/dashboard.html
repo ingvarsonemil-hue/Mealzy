@@ -13,10 +13,8 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
-  <script src="/supabase-config.js"></script>
-  <script src="/translations.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <script src="/translations.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 </head>
 <body>
 
@@ -100,6 +98,30 @@
         <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate">
           ✨ Generate Today's Plan
         </button>
+      </div>
+    </div>
+
+    <!-- ── GAMIFICATION STRIP ── -->
+    <div id="xpStrip" style="display:flex;align-items:center;gap:1rem;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:0.85rem 1.25rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;">
+        <div id="xpLevelBadge" style="width:38px;height:38px;background:var(--clr-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:#fff;">1</div>
+        <div>
+          <div style="font-size:0.7rem;font-weight:600;color:var(--clr-muted-fg);letter-spacing:0.05em;">LEVEL</div>
+          <div id="xpLevelTitle" style="font-weight:800;font-size:0.88rem;color:var(--clr-text);">Beginner</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:120px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+          <span style="font-size:0.75rem;font-weight:600;color:var(--clr-muted-fg);">XP</span>
+          <span id="xpLabel" style="font-size:0.75rem;font-weight:700;color:var(--clr-primary);">0 / 100</span>
+        </div>
+        <div style="background:var(--clr-border);border-radius:1rem;height:8px;overflow:hidden;">
+          <div id="xpBar" style="height:100%;background:var(--clr-primary);border-radius:1rem;width:0%;transition:width 0.6s ease;"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+        <span id="xpStreakBadge" style="background:hsl(32,88%,95%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">🔥 0 week streak</span>
+        <span id="xpBadgeCount" style="background:var(--clr-muted-bg);border:1px solid var(--clr-border);color:var(--clr-text);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">🏅 0 badges</span>
       </div>
     </div>
 
@@ -269,6 +291,15 @@
       </div>
     </div>
 
+    <!-- BADGES -->
+    <div class="card" style="margin-bottom:1.5rem;" id="badgesCard">
+      <div class="card-header">
+        <div class="card-title">🏅 Achievements</div>
+        <span id="badgesEarned" class="text-muted text-sm">0 earned</span>
+      </div>
+      <div id="badgesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:0.75rem;padding-top:0.5rem;"></div>
+    </div>
+
     <!-- DIETARY PREFERENCES QUICK-EDIT -->
     <div class="card" style="margin-bottom:1.5rem;">
       <div class="card-header" style="cursor:pointer;" onclick="toggleDietaryEdit()">
@@ -333,10 +364,24 @@
 
 <!-- LOADING OVERLAY -->
 <div class="modal-overlay" id="loadingOverlay">
-  <div class="modal" style="max-width:300px;text-align:center;padding:2.5rem;">
-    <div class="spinner" style="margin-bottom:1rem;"></div>
-    <h3>Generating your meal plan...</h3>
-    <p class="text-muted text-sm" style="margin-top:0.5rem;">Our AI is crafting personalized meals just for you</p>
+  <div class="modal" style="max-width:320px;text-align:center;padding:2.5rem;">
+    <div class="spinner" style="margin-bottom:1.25rem;"></div>
+    <h3 style="margin-bottom:0.5rem;">Building your plan...</h3>
+    <p class="text-muted text-sm" id="loadingMsg" style="min-height:1.5em;transition:opacity 0.3s;">Calculating your macros...</p>
+    <div style="margin-top:1rem;background:var(--clr-muted-bg);border-radius:0.5rem;height:4px;overflow:hidden;">
+      <div id="loadingBar" style="height:100%;background:var(--clr-primary);border-radius:0.5rem;width:0%;transition:width 0.8s ease;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LEVEL UP MODAL -->
+<div class="modal-overlay" id="levelUpModal" onclick="if(event.target===this)closeLevelUp()">
+  <div class="modal" style="max-width:340px;text-align:center;padding:2.5rem;">
+    <div style="font-size:3rem;margin-bottom:0.75rem;" id="levelUpEmoji">⭐</div>
+    <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:0.35rem;" id="levelUpTitle">Level 2 Unlocked!</h2>
+    <p style="color:var(--clr-muted-fg);font-size:0.9rem;margin-bottom:1.25rem;" id="levelUpSub">You're on your way to becoming a nutrition pro.</p>
+    <div id="levelUpBadge" style="display:inline-block;background:var(--clr-primary);color:#fff;font-weight:800;font-size:0.9rem;padding:0.4rem 1.2rem;border-radius:2rem;margin-bottom:1.25rem;"></div>
+    <button class="btn btn-primary" style="width:100%;" onclick="closeLevelUp()">Let's go! 🚀</button>
   </div>
 </div>
 
@@ -349,27 +394,12 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
-  // ── Supabase auth & sync ──
-  const _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-  async function cloudLoad(uid) {
-    try {
-      const { data } = await _sb.from('user_data').select('*').eq('id', uid).single();
-      if (!data) return;
-      const map = { profile:'mealzy_profile', meal_plans:'mealzy_meal_plans', grocery_lists:'mealzy_grocery_lists', nutrition_logs:'mealzy_nutrition_logs', coach_conversation:'mealzy_coach_conversation', ratings:'mealzy_ratings' };
-      for (const [col, key] of Object.entries(map)) {
-        if (data[col] != null) localStorage.setItem(key, JSON.stringify(data[col]));
-      }
-    } catch(e) {}
-  }
+  // ── Cloud sync (server-side SQLite is source of truth) ──
   async function cloudSave() {
-    try {
-      const { data: { session } } = await _sb.auth.getSession();
-      if (!session) return;
-      await _sb.from('user_data').upsert({ id: session.user.id, profile: JSON.parse(localStorage.getItem('mealzy_profile')||'null'), meal_plans: JSON.parse(localStorage.getItem('mealzy_meal_plans')||'{}'), grocery_lists: JSON.parse(localStorage.getItem('mealzy_grocery_lists')||'{}'), nutrition_logs: JSON.parse(localStorage.getItem('mealzy_nutrition_logs')||'{}'), coach_conversation: JSON.parse(localStorage.getItem('mealzy_coach_conversation')||'[]'), ratings: JSON.parse(localStorage.getItem('mealzy_ratings')||'{}') }, { onConflict: 'id' });
-    } catch(e) {}
+    // Profile changes are synced to server on generate + settings save
+    // localStorage is the fast-read cache
   }
   async function signOut() {
-    try { await _sb.auth.signOut(); } catch(e) {}
     try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
     localStorage.clear();
     window.location.href = 'login.html';
@@ -431,6 +461,15 @@
     checkSoftUpgradeBanner(false);
     renderDietaryEdit();
     showGKeyTooltip();
+    renderXpStrip();
+    _lastBadgeIds = JSON.stringify(getEarnedBadges().map(b => b.id).sort());
+
+    // Auto-generate from onboarding (Phase 4 — value in 15 seconds)
+    const autoParams = new URLSearchParams(window.location.search);
+    if (autoParams.get('autoGenerate') === '1') {
+      window.history.replaceState({}, '', 'dashboard.html'); // clean the URL
+      setTimeout(() => generateMealPlan(), 800); // slight delay so page renders first
+    }
   }
 
   function updateUserUI() {
@@ -802,6 +841,7 @@
     if (!profile) { window.location.href = 'onboarding.html'; return; }
     document.getElementById('loadingOverlay').classList.add('open');
     document.getElementById('generateBtn').disabled = true;
+    startLoadingAnimation();
     try {
       const ratingsData = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
       const avoid_meals = Object.entries(ratingsData).filter(([,v]) => v === -1).map(([k]) => k);
@@ -846,11 +886,15 @@
         fetch('/api/plans/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: mealPlan, date: today })
+          body: JSON.stringify({ plan: data.mealPlan, date: today })
         });
       } catch(e) { /* fail silently — localStorage still has it */ }
 
-      showToast('Meal plan generated! 🎉', 'success');
+      // Award XP for generating a plan
+      awardXP('generate_plan');
+
+      showToast('Meal plan generated! +50 XP 🎉', 'success');
+      updateWeeklyStreak();
 
       // Growth triggers — only show to free users
       if (!isPro) {
@@ -861,31 +905,73 @@
       console.error(err);
       showToast('Something went wrong — please try again.', 'error');
     } finally {
+      stopLoadingAnimation();
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;
     }
   }
 
+  // ── Abandonment paywall — two-stage modal ────────────────────────────────
   function showUpgradePrompt(message) {
-    trackEvent('upgrade_click', { source: 'limit_prompt' });
+    trackEvent('upgrade_prompt_shown', { source: 'limit' });
     const existing = document.getElementById('upgradePrompt');
     if (existing) existing.remove();
     const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
     const prefillEmail = (lsUser.email || '').replace(/"/g, '&quot;');
     const prompt = document.createElement('div');
     prompt.id = 'upgradePrompt';
-    prompt.style.cssText = `position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;`;
+    prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     prompt.innerHTML = `
-      <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-        <div style="font-size:1.5rem;font-weight:900;color:#2e7d4f;margin-bottom:0.75rem;">Mealzy</div>
-        <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;">Free plan limit reached</h2>
-        <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;line-height:1.5;">${message}<br><br>Upgrade to Pro for unlimited meal plans — $8/month, cancel anytime.</p>
-        <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Confirm your email for Pro access" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.9rem;margin-bottom:0.75rem;font-family:inherit;" />
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">Upgrade to Pro — $8/month →</a>
-        <button onclick="document.getElementById('upgradePrompt').remove()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;">Maybe later</button>
-      </div>
-    `;
+      <div id="upgradeCard" style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
+        <!-- Primary offer -->
+        <div id="upgradeStage1">
+          <div style="background:#e8f5ee;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 0.75rem;">🚀</div>
+          <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;color:#111;">You've hit your free limit</h2>
+          <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$8/month</strong>.</p>
+          <div style="background:#f0fdf4;border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;text-align:left;">
+            ✅ Unlimited AI meal plans<br>
+            ✅ Full recipes with steps & ingredients<br>
+            ✅ Advanced macros & nutrition tracking<br>
+            ✅ Priority AI coaching
+          </div>
+          <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
+          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
+          <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
+        </div>
+        <!-- Abandonment offer (shown after "No thanks") -->
+        <div id="upgradeStage2" style="display:none;">
+          <div style="background:#fff7ed;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 0.75rem;">⚡</div>
+          <div style="background:#dc2626;color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
+          <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:#111;">Wait — 50% off, just for you</h2>
+          <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $8/month. Cancel any time.</p>
+          <a href="https://buy.stripe.com/REPLACE_WITH_DISCOUNTED_STRIPE_LINK" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
+          <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
+        </div>
+      </div>`;
     document.body.appendChild(prompt);
+  }
+
+  function showAbandonmentOffer() {
+    trackEvent('abandonment_offer_shown', {});
+    document.getElementById('upgradeStage1').style.display = 'none';
+    document.getElementById('upgradeStage2').style.display = '';
+  }
+
+  function closeUpgradeAndShowBanner() {
+    const p = document.getElementById('upgradePrompt');
+    if (p) p.remove();
+    // Show persistent "0 plans left" banner
+    showZeroPlansBanner();
+  }
+
+  function showZeroPlansBanner() {
+    const existing = document.getElementById('zeroPlansBanner');
+    if (existing) return;
+    const banner = document.createElement('div');
+    banner.id = 'zeroPlansBanner';
+    banner.style.cssText = 'position:sticky;top:0;z-index:200;background:#dc2626;color:#fff;text-align:center;padding:0.6rem 1rem;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.75rem;';
+    banner.innerHTML = `<span>You have 0 free plans left.</span><a href="pricing.html" onclick="trackEvent('upgrade_click',{source:'zero_plans_banner'})" style="background:rgba(255,255,255,0.25);color:#fff;padding:0.2rem 0.75rem;border-radius:2rem;font-weight:700;text-decoration:none;white-space:nowrap;">Upgrade from $4 →</a><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:0.25rem;">✕</button>`;
+    document.querySelector('.main-content').prepend(banner);
   }
 
   function captureUpgradeEmail() {
@@ -1005,7 +1091,7 @@
       const response = await fetch('/api/generate-meal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, date: today, swap_meal_type: meal.type })
+        body: JSON.stringify({ profile, date: today, swap_meal_type: meal.type, is_pro: localStorage.getItem('mealzy_pro') === 'true' })
       });
       const data = await response.json();
       let newMeal = null;
@@ -1032,7 +1118,8 @@
         }
         renderMeals();
         updateStats();
-        showToast('Meal swapped!', 'success');
+        showToast('Meal swapped! +10 XP 🎮', 'success');
+        awardXP('swap_meal');
       } else {
         showToast('Could not swap meal — try again', 'error');
         btn.disabled = false;
@@ -1146,6 +1233,220 @@
   // === TRACK EVENT ===
   function trackEvent(event, data) {
     fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event, data }) }).catch(()=>{});
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // GAMIFICATION — XP, Levels, Badges, Weekly Streak
+  // ════════════════════════════════════════════════════════════════
+
+  const LEVELS = [
+    { level: 1, title: 'Beginner',       emoji: '🌱', xpNeeded: 0   },
+    { level: 2, title: 'Planner',        emoji: '📋', xpNeeded: 100 },
+    { level: 3, title: 'Nutritionist',   emoji: '🥗', xpNeeded: 250 },
+    { level: 4, title: 'Health Guru',    emoji: '💪', xpNeeded: 500 },
+    { level: 5, title: 'Meal Master',    emoji: '👑', xpNeeded: 1000 },
+  ];
+
+  const BADGES_DEF = [
+    { id: 'first_plan',   label: 'First Plan',      emoji: '🍽️', desc: 'Generated your first meal plan',         check: (p,s) => s.planCount >= 1 },
+    { id: 'meal_swapper', label: 'Meal Swapper',     emoji: '🔄', desc: 'Swapped 5 meals',                       check: (p,s) => s.swapCount >= 5 },
+    { id: 'budget_master',label: 'Budget Master',    emoji: '💰', desc: 'Generated a plan under $50 total',      check: (p,s) => s.underBudgetPlan },
+    { id: 'health_streak',label: 'Health Streak',    emoji: '🔥', desc: '4 consecutive weeks of planning',       check: (p,s) => (p.weekStreak || 0) >= 4 },
+    { id: 'pro_planner',  label: 'Pro Planner',      emoji: '⭐', desc: 'Upgraded to Pro',                       check: (p,s) => localStorage.getItem('mealzy_pro') === 'true' },
+    { id: 'level2',       label: 'Level 2',          emoji: '📋', desc: 'Reached Planner level',                 check: (p,s) => (p.level || 1) >= 2 },
+    { id: 'level5',       label: 'Meal Master',      emoji: '👑', desc: 'Reached the top level',                 check: (p,s) => (p.level || 1) >= 5 },
+    { id: 'water_champ',  label: 'Hydration Hero',   emoji: '💧', desc: 'Logged 8 glasses of water in a day',    check: (p,s) => s.maxWater >= 8 },
+  ];
+
+  function getXpStats() {
+    const xp = profile.xp || 0;
+    const levelObj = LEVELS.slice().reverse().find(l => xp >= l.xpNeeded) || LEVELS[0];
+    const nextObj = LEVELS.find(l => l.xpNeeded > xp);
+    const pct = nextObj ? Math.min(100, ((xp - levelObj.xpNeeded) / (nextObj.xpNeeded - levelObj.xpNeeded)) * 100) : 100;
+    return { xp, levelObj, nextObj, pct };
+  }
+
+  function renderXpStrip() {
+    const { xp, levelObj, nextObj, pct } = getXpStats();
+    const weekStreak = profile.weekStreak || 0;
+    const earnedBadges = getEarnedBadges();
+
+    document.getElementById('xpLevelBadge').textContent = levelObj.emoji;
+    document.getElementById('xpLevelTitle').textContent = levelObj.title;
+    document.getElementById('xpBar').style.width = pct + '%';
+    document.getElementById('xpLabel').textContent = nextObj ? `${xp} / ${nextObj.xpNeeded} XP` : `${xp} XP — MAX LEVEL`;
+    document.getElementById('xpStreakBadge').textContent = `🔥 ${weekStreak} week${weekStreak !== 1 ? 's' : ''} streak`;
+    document.getElementById('xpBadgeCount').textContent = `🏅 ${earnedBadges.length} badge${earnedBadges.length !== 1 ? 's' : ''}`;
+
+    renderBadges(earnedBadges);
+    const earnedEl = document.getElementById('badgesEarned');
+    if (earnedEl) earnedEl.textContent = `${earnedBadges.length} of ${BADGES_DEF.length} earned`;
+  }
+
+  function getGameStats() {
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    const planCount = Object.keys(plans).length;
+    const swapCount = parseInt(localStorage.getItem('mealzy_swap_count') || '0');
+    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
+    const maxWater = Math.max(0, ...Object.values(water).map(Number));
+    // budget check: look at any plan's totalCost
+    const underBudgetPlan = Object.values(plans).some(p => p.mealPlan?.totalCost && p.mealPlan.totalCost < 50);
+    return { planCount, swapCount, maxWater, underBudgetPlan };
+  }
+
+  function getEarnedBadges() {
+    const stats = getGameStats();
+    return BADGES_DEF.filter(b => b.check(profile, stats));
+  }
+
+  function renderBadges(earned) {
+    const grid = document.getElementById('badgesGrid');
+    if (!grid) return;
+    const earnedIds = new Set(earned.map(b => b.id));
+    grid.innerHTML = BADGES_DEF.map(b => {
+      const isEarned = earnedIds.has(b.id);
+      return `<div style="background:${isEarned ? 'var(--clr-muted-bg)' : 'var(--clr-muted-bg)'};border:1px solid ${isEarned ? 'var(--clr-primary)' : 'var(--clr-border)'};border-radius:0.75rem;padding:0.75rem;text-align:center;${isEarned ? '' : 'opacity:0.4;filter:grayscale(1);'}">
+        <div style="font-size:1.5rem;margin-bottom:0.25rem;">${b.emoji}</div>
+        <div style="font-size:0.75rem;font-weight:700;color:${isEarned ? 'var(--clr-text)' : 'var(--clr-muted-fg)'};">${b.label}</div>
+        <div style="font-size:0.68rem;color:var(--clr-muted-fg);margin-top:0.15rem;line-height:1.3;">${isEarned ? b.desc : '???'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  async function awardXP(action) {
+    // Increment local counts for badge tracking
+    if (action === 'swap_meal') {
+      const c = parseInt(localStorage.getItem('mealzy_swap_count') || '0') + 1;
+      localStorage.setItem('mealzy_swap_count', c);
+    }
+
+    // Call server to award XP (server syncs to SQLite profile)
+    try {
+      const res = await fetch('/api/xp/award', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const oldLevel = profile.level || 1;
+        profile.xp    = data.xp;
+        profile.level = data.level;
+        localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+        renderXpStrip();
+        if (data.levelUp && data.level > oldLevel) {
+          setTimeout(() => showLevelUp(data.level), 600);
+        }
+        // Award new badges
+        checkAndAwardNewBadges();
+      }
+    } catch(e) {
+      // Fall back to local-only XP
+      const XP_MAP = { generate_plan: 50, swap_meal: 10, complete_day: 25, onboarding: 100 };
+      profile.xp = (profile.xp || 0) + (XP_MAP[action] || 0);
+      if (profile.xp >= 1000) profile.level = 5;
+      else if (profile.xp >= 500) profile.level = 4;
+      else if (profile.xp >= 250) profile.level = 3;
+      else if (profile.xp >= 100) profile.level = 2;
+      else profile.level = 1;
+      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+      renderXpStrip();
+    }
+  }
+
+  let _lastBadgeIds = null;
+  function checkAndAwardNewBadges() {
+    const earned = getEarnedBadges();
+    const ids = JSON.stringify(earned.map(b => b.id).sort());
+    if (_lastBadgeIds && _lastBadgeIds !== ids) {
+      const prev = new Set(JSON.parse(_lastBadgeIds));
+      const newOnes = earned.filter(b => !prev.has(b.id));
+      newOnes.forEach(b => {
+        setTimeout(() => showToast(`🏅 Badge unlocked: ${b.label}!`, 'success'), 400);
+      });
+    }
+    _lastBadgeIds = ids;
+    renderBadges(earned);
+  }
+
+  function showLevelUp(level) {
+    const levelObj = LEVELS.find(l => l.level === level) || LEVELS[level - 1];
+    if (!levelObj) return;
+    document.getElementById('levelUpEmoji').textContent = levelObj.emoji;
+    document.getElementById('levelUpTitle').textContent = `Level ${level} Unlocked!`;
+    document.getElementById('levelUpSub').textContent = `You are now a "${levelObj.title}". Keep planning to reach the top!`;
+    document.getElementById('levelUpBadge').textContent = `${levelObj.emoji} ${levelObj.title}`;
+    document.getElementById('levelUpModal').classList.add('open');
+    trackEvent('level_up', { level });
+  }
+
+  function closeLevelUp() {
+    document.getElementById('levelUpModal').classList.remove('open');
+  }
+
+  function updateWeeklyStreak() {
+    // Track weekly streak: did the user generate a plan this week?
+    const now = new Date();
+    const weekKey = `${now.getFullYear()}-W${Math.ceil(now.getDate() / 7)}`; // simple week key
+    const lastWeek = profile.lastPlanWeek;
+    let streak = profile.weekStreak || 0;
+
+    if (lastWeek === weekKey) {
+      // Already tracked this week
+    } else {
+      const prevWeekDate = new Date(now);
+      prevWeekDate.setDate(now.getDate() - 7);
+      const prevWeekKey = `${prevWeekDate.getFullYear()}-W${Math.ceil(prevWeekDate.getDate() / 7)}`;
+      if (lastWeek === prevWeekKey) {
+        streak += 1;
+      } else if (lastWeek) {
+        streak = 1; // broke streak
+      } else {
+        streak = 1; // first time
+      }
+      profile.weekStreak = streak;
+      profile.lastPlanWeek = weekKey;
+      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+
+      if (streak > 1) {
+        showToast(`🔥 ${streak} week streak! Keep it up!`, 'success');
+      }
+    }
+  }
+
+  // ── Loading animation ────────────────────────────────────────────────────
+  let _loadingTimer = null;
+  const LOADING_MSGS = [
+    'Calculating your macros...',
+    'Building your grocery list...',
+    'Optimising for your budget...',
+    'Selecting the best proteins...',
+    'Balancing your daily nutrients...',
+    'Almost ready — adding the final touches...'
+  ];
+
+  function startLoadingAnimation() {
+    let i = 0;
+    const msgEl  = document.getElementById('loadingMsg');
+    const barEl  = document.getElementById('loadingBar');
+    if (!msgEl || !barEl) return;
+    msgEl.textContent = LOADING_MSGS[0];
+    barEl.style.width = '10%';
+    _loadingTimer = setInterval(() => {
+      i = Math.min(i + 1, LOADING_MSGS.length - 1);
+      msgEl.style.opacity = '0';
+      setTimeout(() => {
+        msgEl.textContent = LOADING_MSGS[i];
+        msgEl.style.opacity = '1';
+      }, 150);
+      barEl.style.width = Math.min(90, 10 + (i / (LOADING_MSGS.length - 1)) * 80) + '%';
+    }, 2000);
+  }
+
+  function stopLoadingAnimation() {
+    if (_loadingTimer) { clearInterval(_loadingTimer); _loadingTimer = null; }
+    const barEl = document.getElementById('loadingBar');
+    if (barEl) barEl.style.width = '100%';
   }
 
   // === PRO STATUS ===
@@ -1391,6 +1692,11 @@
   });
 
   init();
+
+  // Register service worker for PWA offline support
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 </script>
 </body>
 </html>

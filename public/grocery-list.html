@@ -10,9 +10,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <script src="/supabase-config.js"></script>
-  <script src="/translations.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/translations.js" defer></script>
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -86,10 +84,10 @@
   <!-- MAIN CONTENT -->
   <main class="main-content">
 
-    <!-- PRO NUDGE: PDF EXPORT -->
-    <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.85rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-      <span>📄 <strong>Pro users get PDF export</strong> — save and share your grocery list as a PDF.</span>
-      <a href="pricing.html" style="background:hsl(32,88%,50%);color:white;padding:0.3rem 0.85rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro →</a>
+    <!-- PRO NUDGE: PDF EXPORT + UNLIMITED LISTS -->
+    <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(148,40%,96%);border:1px solid hsl(148,40%,78%);color:hsl(148,40%,22%);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <span>⭐ <strong>Pro unlocks PDF export + unlimited grocery lists</strong> — share your list or print it in one tap.</span>
+      <a href="pricing.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro →</a>
     </div>
 
     <div class="grocery-header">
@@ -164,27 +162,10 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
-  // ── Supabase auth & sync ──
-  const _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-  async function cloudLoad(uid) {
-    try {
-      const { data } = await _sb.from('user_data').select('*').eq('id', uid).single();
-      if (!data) return;
-      const map = { profile:'mealzy_profile', meal_plans:'mealzy_meal_plans', grocery_lists:'mealzy_grocery_lists', nutrition_logs:'mealzy_nutrition_logs', coach_conversation:'mealzy_coach_conversation', ratings:'mealzy_ratings' };
-      for (const [col, key] of Object.entries(map)) {
-        if (data[col] != null) localStorage.setItem(key, JSON.stringify(data[col]));
-      }
-    } catch(e) {}
-  }
-  async function cloudSave() {
-    try {
-      const { data: { session } } = await _sb.auth.getSession();
-      if (!session) return;
-      await _sb.from('user_data').upsert({ id: session.user.id, profile: JSON.parse(localStorage.getItem('mealzy_profile')||'null'), meal_plans: JSON.parse(localStorage.getItem('mealzy_meal_plans')||'{}'), grocery_lists: JSON.parse(localStorage.getItem('mealzy_grocery_lists')||'{}'), nutrition_logs: JSON.parse(localStorage.getItem('mealzy_nutrition_logs')||'{}'), coach_conversation: JSON.parse(localStorage.getItem('mealzy_coach_conversation')||'[]'), ratings: JSON.parse(localStorage.getItem('mealzy_ratings')||'{}') }, { onConflict: 'id' });
-    } catch(e) {}
-  }
+  // ── Auth helpers (JWT cookie — server is source of truth) ──
+  async function cloudLoad(uid) { /* no-op */ }
+  async function cloudSave() { /* no-op — data saved server-side */ }
   async function signOut() {
-    try { await _sb.auth.signOut(); } catch(e) {}
     try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
     localStorage.clear(); window.location.href = 'login.html';
   }

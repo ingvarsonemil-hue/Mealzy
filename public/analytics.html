@@ -10,13 +10,11 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <script src="/supabase-config.js"></script>
-  <script src="/translations.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="/translations.js" defer></script>
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js" defer></script>
 </head>
 <body>
 
@@ -183,20 +181,9 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
-  // ── Supabase auth & sync ──
-  const _sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-  async function cloudLoad(uid) {
-    try {
-      const { data } = await _sb.from('user_data').select('*').eq('id', uid).single();
-      if (!data) return;
-      const map = { profile:'mealzy_profile', meal_plans:'mealzy_meal_plans', grocery_lists:'mealzy_grocery_lists', nutrition_logs:'mealzy_nutrition_logs', coach_conversation:'mealzy_coach_conversation', ratings:'mealzy_ratings' };
-      for (const [col, key] of Object.entries(map)) {
-        if (data[col] != null) localStorage.setItem(key, JSON.stringify(data[col]));
-      }
-    } catch(e) {}
-  }
+  // ── Auth helpers (JWT cookie — server is source of truth) ──
+  async function cloudLoad(uid) { /* no-op */ }
   async function signOut() {
-    try { await _sb.auth.signOut(); } catch(e) {}
     try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
     localStorage.clear(); window.location.href = 'login.html';
   }
