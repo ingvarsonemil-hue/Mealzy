@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Pro | Mealzy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    body { background: var(--clr-bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
+    .pro-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 24px; padding: 3rem 2.5rem; width: 100%; max-width: 500px; box-shadow: 0 12px 60px rgba(0,0,0,0.10); text-align: center; }
+    .pro-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--clr-primary); color: white; font-size: 0.85rem; font-weight: 700; padding: 0.35rem 0.9rem; border-radius: 2rem; letter-spacing: 0.04em; margin-bottom: 1.25rem; }
+    .pro-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .feature-list { text-align: left; list-style: none; padding: 0; margin: 1.5rem 0 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .feature-list li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; }
+    .feature-list .chk { color: var(--clr-primary); font-weight: 700; font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+<div class="pro-card">
+  <div class="pro-badge">⭐ PRO ACTIVATED</div>
+  <div class="pro-icon">🎉</div>
+  <h1 style="font-family:'Fraunces',serif;font-size:2rem;font-weight:900;margin-bottom:0.5rem;">You're on Pro!</h1>
+  <p style="color:var(--clr-muted);font-size:0.95rem;line-height:1.6;margin-bottom:0.5rem;">
+    Thanks for upgrading. Here's everything you've unlocked:
+  </p>
+
+  <ul class="feature-list">
+    <li><span class="chk">✓</span> <strong>Unlimited</strong> AI meal plan generation</li>
+    <li><span class="chk">✓</span> <strong>Unlimited</strong> AI Coach messages</li>
+    <li><span class="chk">✓</span> Priority generation — 2× faster</li>
+    <li><span class="chk">✓</span> PDF meal plan &amp; grocery list export</li>
+    <li><span class="chk">✓</span> Advanced macro splits per meal</li>
+    <li><span class="chk">✓</span> All future Pro features — included</li>
+  </ul>
+
+  <a href="dashboard.html" class="btn btn-primary" style="width:100%;display:block;font-size:1rem;padding:0.9rem;">
+    Go to My Dashboard →
+  </a>
+  <p style="margin-top:1rem;font-size:0.78rem;color:var(--clr-muted);">
+    Questions? Email <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a>
+  </p>
+</div>
+
+<script>
+  if (localStorage.getItem('mealzy_theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  // Activate Pro status
+  localStorage.setItem('mealzy_pro', 'true');
+
+  // If user came from Stripe (?session_id= or just landing on this page after payment)
+  // Track the upgrade event
+  try {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: 'pro_activated', data: { source: 'pro_welcome' } })
+    }).catch(() => {});
+  } catch(e) {}
+</script>
+</body>
+</html>

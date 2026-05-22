@@ -98,7 +98,7 @@
           </div>
           <div class="pricing-billed" id="billedFree">&nbsp;</div>
         </div>
-        <a href="login.html" class="btn btn-outline btn-full">Start Free</a>
+        <a href="login.html?signup=1" class="btn btn-outline btn-full">Start Free</a>
         <ul class="pricing-features">
           <li><span class="check">✓</span> 3 meal plans per month</li>
           <li><span class="check">✓</span> Automatic grocery list</li>
@@ -127,7 +127,8 @@
           </div>
           <div class="pricing-billed" id="billedPremium">&nbsp;</div>
         </div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full">Start Pro — 7 Days Free</a>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" onclick="trackUpgradeClick()">Start Pro — 7 Days Free</a>
+        <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.6rem;">🔒 Prices may increase as we grow. Lock in $8/month now.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
           <li><span class="check">✓</span> Automatic grocery list</li>
@@ -153,7 +154,7 @@
           </div>
           <div class="pricing-billed" id="billedFamily">&nbsp;</div>
         </div>
-        <a href="login.html" class="btn btn-outline btn-full">Start Free Trial</a>
+        <a href="mailto:support@mealzy.org?subject=Family%20Plan%20Waitlist" class="btn btn-outline btn-full">Join Waitlist — Coming Soon</a>
         <ul class="pricing-features">
           <li><span class="check">✓</span> Everything in Pro</li>
           <li><span class="check">✓</span> Up to 4 profiles</li>
@@ -287,7 +288,7 @@
     <div class="cta-banner">
       <h2>Stop planning meals by hand.</h2>
       <p>Mealzy builds the full week in 30 seconds. Free to start — no credit card.</p>
-      <a href="login.html" class="btn btn-accent btn-lg">Start Free — Takes 2 Minutes</a>
+      <a href="login.html?signup=1" class="btn btn-accent btn-lg">Start Free — Takes 2 Minutes</a>
     </div>
   </div>
 </section>
@@ -312,6 +313,10 @@
 </footer>
 
 <script>
+  function trackUpgradeClick() {
+    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event:'upgrade_click', data:{ source:'pricing_page' } }) }).catch(()=>{});
+  }
+
   let billingMode = 'monthly';
 
   const prices = {

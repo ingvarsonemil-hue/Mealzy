@@ -282,7 +282,7 @@
       const response = await fetch('/api/ai-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: apiMessages, profile })
+        body: JSON.stringify({ messages: apiMessages, profile, is_pro: localStorage.getItem('mealzy_pro') === 'true' })
       });
 
       const data = await response.json();

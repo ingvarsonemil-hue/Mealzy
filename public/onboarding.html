@@ -315,6 +315,9 @@
       </div>
     </div>
 
+    <!-- Step error message -->
+    <div id="stepError" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:8px;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;"></div>
+
     <!-- Navigation Buttons -->
     <div class="onboarding-nav">
       <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;">← Back</button>
@@ -324,6 +327,25 @@
 </div>
 
 <script>
+  // Auth guard — must be logged in to onboard
+  if (!localStorage.getItem('mealzy_user')) {
+    window.location.href = 'login.html?signup=1';
+  }
+
+  if (localStorage.getItem('mealzy_theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+
+  function showStepError(msg) {
+    const el = document.getElementById('stepError');
+    el.textContent = msg;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function hideStepError() {
+    document.getElementById('stepError').style.display = 'none';
+  }
+
   let currentStep = 1;
   const totalSteps = 5;
 
@@ -370,6 +392,7 @@
   }
 
   function prevStep() {
+    hideStepError();
     if (currentStep > 1) {
       currentStep--;
       showStep(currentStep);
@@ -377,18 +400,19 @@
   }
 
   function validateStep(step) {
+    hideStepError();
     if (step === 1) {
       userData.name = document.getElementById('inputName').value.trim();
       userData.age = parseInt(document.getElementById('inputAge').value);
       userData.weight = parseFloat(document.getElementById('inputWeight').value);
       userData.height = parseFloat(document.getElementById('inputHeight').value);
-      if (!userData.name) { alert('Please enter your name.'); return false; }
-      if (!userData.age || userData.age < 5 || userData.age > 100) { alert('Please enter a valid age (5-100).'); return false; }
-      if (!userData.weight || userData.weight < 30) { alert('Please enter a valid weight.'); return false; }
-      if (!userData.height || userData.height < 100) { alert('Please enter a valid height.'); return false; }
+      if (!userData.name) { showStepError('Please enter your name.'); return false; }
+      if (!userData.age || userData.age < 5 || userData.age > 100) { showStepError('Please enter a valid age (5–100).'); return false; }
+      if (!userData.weight || userData.weight < 30) { showStepError('Please enter a valid weight (at least 30 kg).'); return false; }
+      if (!userData.height || userData.height < 100) { showStepError('Please enter a valid height (at least 100 cm).'); return false; }
     }
-    if (step === 2 && !userData.goal) { alert('Please select a goal.'); return false; }
-    if (step === 3 && !userData.activityLevel) { alert('Please select your activity level.'); return false; }
+    if (step === 2 && !userData.goal) { showStepError('Please select a goal to continue.'); return false; }
+    if (step === 3 && !userData.activityLevel) { showStepError('Please select your activity level to continue.'); return false; }
     if (step === 5) {
       userData.cookingTimeMinutes = parseInt(document.getElementById('cookTimeRange').value);
       userData.budget = parseFloat(document.getElementById('inputBudget').value) || 100;

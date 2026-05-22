@@ -85,6 +85,13 @@
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
+
+    <!-- PRO NUDGE: PDF EXPORT -->
+    <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.85rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <span>📄 <strong>Pro users get PDF export</strong> — save and share your grocery list as a PDF.</span>
+      <a href="pricing.html" style="background:hsl(32,88%,50%);color:white;padding:0.3rem 0.85rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro →</a>
+    </div>
+
     <div class="grocery-header">
       <div>
         <h1 style="font-size:1.6rem;font-weight:800;">🛒 This Week's Groceries</h1>
@@ -224,6 +231,11 @@
     document.getElementById('userName').textContent = profile.name || 'User';
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
     applyNavTranslations();
+
+    // Show Pro nudge for PDF export if user is not Pro
+    if (localStorage.getItem('mealzy_pro') !== 'true') {
+      document.getElementById('proNudgeBanner').style.display = 'flex';
+    }
 
     weekStart = getMondayOfWeek(new Date());
     const weekEnd = new Date(weekStart);

@@ -14,10 +14,10 @@
   <script src="/supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
-    body { background: var(--clr-bg); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
-    .auth-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); }
+    body { background: var(--clr-background); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
+    .auth-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); }
     .auth-logo { display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 1.75rem; font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: var(--clr-text); text-decoration: none; }
-    .auth-tabs { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.75rem; }
+    .auth-tabs { display: flex; border: 1px solid var(--clr-border); border-radius: 10px; overflow: hidden; margin-bottom: 1.75rem; }
     .auth-tab { flex: 1; padding: 0.65rem; font-size: 0.9rem; font-weight: 600; text-align: center; cursor: pointer; border: none; background: none; color: var(--clr-muted-fg); transition: all .15s; }
     .auth-tab.active { background: var(--clr-primary); color: #fff; }
     .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.875rem; margin-bottom: 1rem; display: none; }
@@ -25,7 +25,7 @@
     .auth-note { font-size: 0.8rem; color: var(--clr-muted-fg); text-align: center; margin-top: 1.25rem; }
     .auth-note a { color: var(--clr-primary); text-decoration: none; }
     .divider { text-align: center; color: var(--clr-muted-fg); font-size: 0.8rem; margin: 1.25rem 0; position: relative; }
-    .divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--border); }
+    .divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--clr-border); }
     .divider::before { left:0; } .divider::after { right:0; }
     .pw-wrap { position: relative; }
     .pw-toggle { position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:var(--clr-muted-fg); padding:0; }
@@ -94,6 +94,15 @@
   if (localStorage.getItem('mealzy_user')) {
     const profile = localStorage.getItem('mealzy_profile');
     window.location.href = profile ? 'dashboard.html' : 'onboarding.html';
+  }
+
+  // Capture referral code from URL
+  const _refParam = new URLSearchParams(window.location.search).get('ref') || '';
+  if (_refParam) localStorage.setItem('mealzy_pending_ref', _refParam);
+
+  // Auto-switch to signup tab when coming from "Start Free" CTAs
+  if (new URLSearchParams(window.location.search).get('signup') === '1') {
+    switchTab('signup');
   }
 
   function switchTab(tab) {
@@ -180,10 +189,25 @@
       await fetch('/api/email-leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'signup' })
+        body: JSON.stringify({ email, name, source: 'signup' })
       });
     } catch(e) { /* fail silently */ }
 
+    // Credit referrer if signup came via a referral link
+    const pendingRef = localStorage.getItem('mealzy_pending_ref');
+    if (pendingRef && pendingRef !== email) {
+      try {
+        await fetch('/api/referral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ referrer_email: pendingRef, new_user_email: email })
+        });
+      } catch(e) { /* fail silently */ }
+      localStorage.removeItem('mealzy_pending_ref');
+    }
+
+    // Flag so dashboard shows a welcome message after onboarding
+    localStorage.setItem('mealzy_is_new_user', '1');
     window.location.href = 'onboarding.html';
   }
 
@@ -220,7 +244,7 @@
     e.preventDefault();
     const email = document.getElementById('siEmail').value.trim();
     if (!email) { showError('Enter your email address first.'); return; }
-    showSuccess('If that account exists, a reset link has been sent. (Feature coming soon — contact support@mealzy.org for now.)');
+    showSuccess('Password reset is not yet automated. Please email support@mealzy.org with your email address and we\'ll reset it for you within 24 hours.');
   }
 </script>
 </body>

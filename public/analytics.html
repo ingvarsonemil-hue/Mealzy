@@ -156,6 +156,24 @@
       </div>
       <div id="goalsProgress" style="display:flex;flex-direction:column;gap:1rem;"></div>
     </div>
+
+    <!-- SITE-WIDE ANALYTICS (admin) -->
+    <div class="card" style="margin-bottom:1.5rem;" id="siteAnalyticsCard">
+      <div class="card-header">
+        <div class="card-title">📡 Site Activity (This Month)</div>
+        <span class="text-muted text-sm" id="siteAnalyticsStatus">Loading…</span>
+      </div>
+      <div id="siteAnalyticsBody" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;padding-top:0.5rem;">
+        <div class="stat-card"><div class="stat-card-icon green">👤</div><div class="stat-label">Signups</div><div class="stat-value" id="saSignups">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber">🍽️</div><div class="stat-label">Plans Generated</div><div class="stat-value" id="saPlans">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon blue">🚧</div><div class="stat-label">Limit Hits</div><div class="stat-value" id="saLimitHits">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon indigo">💳</div><div class="stat-label">Upgrade Clicks</div><div class="stat-value" id="saUpgradeClicks">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon green">📤</div><div class="stat-label">Share Clicks</div><div class="stat-value" id="saShareClicks">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber">📋</div><div class="stat-label">Email Leads</div><div class="stat-value" id="saLeads">—</div></div>
+      </div>
+      <div style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted);">Most active day: <strong id="saMostActiveDay">—</strong></div>
+      <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);">Requires <code>PRO_TOKEN</code> env var. Set via <code>?token=YOUR_TOKEN</code> or the <code>x-pro-token</code> header.</div>
+    </div>
   </main>
 </div>
 
@@ -206,6 +224,34 @@
     updateSummaryStats();
     renderWeeklyBreakdown();
     renderGoalsProgress();
+    loadSiteAnalytics();
+  }
+
+  async function loadSiteAnalytics() {
+    const statusEl = document.getElementById('siteAnalyticsStatus');
+    // Token can be passed via ?token= or stored in localStorage
+    const urlToken = new URLSearchParams(window.location.search).get('token') || '';
+    const storedToken = localStorage.getItem('mealzy_pro_token') || '';
+    const token = urlToken || storedToken;
+    if (urlToken) localStorage.setItem('mealzy_pro_token', urlToken); // remember for next visit
+    if (!token) { if (statusEl) statusEl.textContent = 'Enter ?token=YOUR_TOKEN to view'; return; }
+    try {
+      const res = await fetch('/api/analytics', { headers: { 'x-pro-token': token } });
+      if (!res.ok) { if (statusEl) statusEl.textContent = res.status === 401 ? 'Unauthorized — wrong token' : 'Error loading analytics'; return; }
+      const data = await res.json();
+      const m = data.this_month || {};
+      const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
+      setText('saSignups',      m.signups        ?? 0);
+      setText('saPlans',        m.plans_generated ?? 0);
+      setText('saLimitHits',    m.free_limit_hits ?? 0);
+      setText('saUpgradeClicks',m.upgrade_clicks  ?? 0);
+      setText('saShareClicks',  m.share_clicks    ?? 0);
+      setText('saLeads',        data.total_leads  ?? 0);
+      setText('saMostActiveDay',data.most_active_day || '—');
+      if (statusEl) statusEl.textContent = 'Live data';
+    } catch(e) {
+      if (statusEl) statusEl.textContent = 'Could not load — server offline?';
+    }
   }
 
   function getLast7Days() {

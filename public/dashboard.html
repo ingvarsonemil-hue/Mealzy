@@ -49,7 +49,7 @@
         <div class="sidebar-avatar" id="mobileUserAvatar">A</div>
         <div>
           <div style="font-weight:700;font-size:0.88rem;" id="mobileUserName">Loading...</div>
-          <div class="text-muted text-sm">Free Plan</div>
+          <div class="text-muted text-sm" id="mobilePlanLabel">Free Plan</div>
         </div>
       </div>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
@@ -77,7 +77,7 @@
         <div class="sidebar-avatar" id="userAvatar">A</div>
         <div>
           <div style="font-weight:700;font-size:0.88rem;" id="userName">Loading...</div>
-          <div class="text-muted text-sm">Free Plan</div>
+          <div class="text-muted text-sm" id="planLabel">Free Plan</div>
         </div>
       </div>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
@@ -92,10 +92,12 @@
         <div class="greeting" id="greeting">Good morning!</div>
         <div class="greeting-sub" id="greetingSub">Loading your plan...</div>
       </div>
-      <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
         <span class="badge badge-accent" id="streakBadge">🔥 1 day streak</span>
-        <button class="btn btn-outline btn-sm" onclick="sharePlan()" title="Share my meal plan">📤 Share My Plan</button>
-        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()">
+        <span id="proBadge" style="display:none;background:var(--clr-primary);color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
+        <button class="btn btn-outline btn-sm" onclick="printMealPlan()" title="Print meal plan">🖨️ Print</button>
+        <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card">📤 Share Card</button>
+        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate">
           ✨ Generate Today's Plan
         </button>
       </div>
@@ -204,10 +206,37 @@
       </div>
     </div>
 
+    <!-- G KEY TOOLTIP -->
+    <div id="gKeyTooltip" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(0,0,0,0.75);color:white;font-size:0.8rem;padding:0.5rem 0.9rem;border-radius:0.5rem;z-index:100;pointer-events:none;">Press <kbd style="background:rgba(255,255,255,0.2);border-radius:3px;padding:0.1rem 0.3rem;">G</kbd> to generate</div>
+
     <!-- RETENTION BANNERS -->
     <div id="retentionBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:var(--clr-primary);color:#fff;font-size:0.9rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
       <span id="retentionBannerText"></span>
       <button onclick="document.getElementById('retentionBanner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:0.5rem;padding:0.3rem 0.75rem;cursor:pointer;font-size:0.8rem;white-space:nowrap;">Dismiss</button>
+    </div>
+
+    <!-- SOFT UPGRADE BANNER (after 2nd plan) -->
+    <div id="softUpgradeBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;align-items:center;justify-content:space-between;gap:1rem;">
+      <span>🔥 <strong>1 free plan left this month</strong> — upgrade for unlimited plans.</span>
+      <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
+        <a href="pricing.html" onclick="trackEvent('upgrade_click',{source:'soft_banner'})" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade →</a>
+        <button onclick="dismissSoftBanner()" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">✕</button>
+      </div>
+    </div>
+
+    <!-- REFERRAL BANNER (after first plan) -->
+    <div id="referralBanner" style="display:none;margin-bottom:1.5rem;padding:1.25rem;border-radius:0.75rem;background:var(--clr-card);border:1px solid var(--clr-border);">
+      <div style="font-weight:700;margin-bottom:0.4rem;">🎁 Get 1 extra free plan for every friend you invite</div>
+      <p style="font-size:0.84rem;color:var(--clr-muted);margin-bottom:0.75rem;">Share your link. When a friend signs up, you both unlock an extra free plan this month.</p>
+      <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
+        <input id="referralLink" type="text" readonly style="flex:1;font-size:0.78rem;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.45rem 0.7rem;background:var(--clr-muted-bg);color:var(--clr-text);" />
+        <button onclick="copyReferralLink()" class="btn btn-outline btn-sm">Copy</button>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button onclick="shareWhatsApp()" style="background:#25D366;color:white;border:none;padding:0.35rem 0.85rem;border-radius:0.5rem;font-size:0.82rem;font-weight:600;cursor:pointer;">WhatsApp</button>
+        <button onclick="shareFacebook()" style="background:#1877F2;color:white;border:none;padding:0.35rem 0.85rem;border-radius:0.5rem;font-size:0.82rem;font-weight:600;cursor:pointer;">Facebook</button>
+        <button onclick="copyShareMessage()" class="btn btn-outline btn-sm">Copy message</button>
+      </div>
     </div>
 
     <!-- RECENT PLANS -->
@@ -237,6 +266,18 @@
           <div class="quick-action-title">View Progress</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Nutrition analytics</p>
         </a>
+      </div>
+    </div>
+
+    <!-- DIETARY PREFERENCES QUICK-EDIT -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-header" style="cursor:pointer;" onclick="toggleDietaryEdit()">
+        <div class="card-title">🥗 Dietary Preferences</div>
+        <span class="text-muted text-sm" id="dietaryEditToggleLabel">Edit ▾</span>
+      </div>
+      <div id="dietaryEditPanel" style="display:none;padding-top:0.75rem;">
+        <p style="font-size:0.82rem;color:var(--clr-muted);margin-bottom:0.75rem;">Changes apply to your next meal plan generation.</p>
+        <div id="dietaryOptions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:0.2rem;"></div>
       </div>
     </div>
 
@@ -358,6 +399,11 @@
     renderLocalStores();
     initPwaBanner();
     applyNavTranslations();
+    checkProStatus();
+    checkWelcomeMessage();
+    checkSoftUpgradeBanner(false);
+    renderDietaryEdit();
+    showGKeyTooltip();
   }
 
   function updateUserUI() {
@@ -493,6 +539,65 @@
     ];
   }
 
+  // ── Global helpers (must live outside renderMeals so they can be called from anywhere) ──
+  function getCurrencySymbol(currency) {
+    const symbols = { USD:'$',EUR:'€',GBP:'£',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',KRW:'₩',INR:'₹',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'د.إ',SAR:'﷼',SGD:'$',HKD:'$',PLN:'zł',CZK:'Kč',HUF:'Ft',TRY:'₺',THB:'฿',MYR:'RM',IDR:'Rp',PHP:'₱' };
+    return symbols[currency] || currency || '$';
+  }
+
+  function getLocalStores(currency) {
+    const stores = {
+      USD: [{n:'Walmart',e:'🏪'},{n:'Kroger',e:'🛒'},{n:'Whole Foods',e:'🌿'},{n:'Trader Joe\'s',e:'🌺'},{n:'Costco',e:'📦'}],
+      GBP: [{n:'Tesco',e:'🏪'},{n:'Sainsbury\'s',e:'🛒'},{n:'Asda',e:'🟢'},{n:'Lidl',e:'🔵'},{n:'Waitrose',e:'🌿'}],
+      EUR: [{n:'Lidl',e:'🔵'},{n:'Aldi',e:'🟡'},{n:'Carrefour',e:'🏪'},{n:'Rewe',e:'🛒'},{n:'Mercadona',e:'🟠'}],
+      SEK: [{n:'ICA',e:'🔴'},{n:'Coop',e:'🟢'},{n:'Willys',e:'🏪'},{n:'Hemköp',e:'🛒'},{n:'Lidl',e:'🔵'}],
+      NOK: [{n:'Rema 1000',e:'🔴'},{n:'Kiwi',e:'🥝'},{n:'Coop',e:'🟢'},{n:'Meny',e:'🏪'},{n:'Bunnpris',e:'🐰'}],
+      DKK: [{n:'Netto',e:'🐕'},{n:'Bilka',e:'🏪'},{n:'Lidl',e:'🔵'},{n:'SuperBrugsen',e:'🛒'},{n:'Irma',e:'🐔'}],
+      CAD: [{n:'Loblaws',e:'🏪'},{n:'Sobeys',e:'🛒'},{n:'Metro',e:'Ⓜ️'},{n:'No Frills',e:'🟡'},{n:'Costco',e:'📦'}],
+      AUD: [{n:'Woolworths',e:'🟢'},{n:'Coles',e:'🔴'},{n:'Aldi',e:'🟡'},{n:'IGA',e:'🏪'},{n:'Harris Farm',e:'🌿'}],
+      NZD: [{n:'Countdown',e:'🟢'},{n:'New World',e:'🌍'},{n:'Pak\'nSave',e:'🟡'},{n:'FreshChoice',e:'🥦'},{n:'Four Square',e:'🟦'}],
+      CHF: [{n:'Migros',e:'🟠'},{n:'Coop',e:'🟢'},{n:'Lidl',e:'🔵'},{n:'Aldi',e:'🟡'},{n:'Denner',e:'🔴'}],
+      JPY: [{n:'Aeon',e:'🏪'},{n:'Ito Yokado',e:'🛒'},{n:'Life',e:'🌿'},{n:'Seiyu',e:'🏬'},{n:'OK Store',e:'👌'}],
+      CNY: [{n:'Hema Fresh',e:'🦈'},{n:'RT-Mart',e:'🏪'},{n:'Carrefour',e:'🛒'},{n:'Walmart',e:'🟡'},{n:'Yonghui',e:'🌿'}],
+      KRW: [{n:'E-Mart',e:'🟡'},{n:'Lotte Mart',e:'🔴'},{n:'HomePlus',e:'🏪'},{n:'GS Supermarket',e:'🟢'},{n:'Hanaro Mart',e:'🥬'}],
+      INR: [{n:'DMart',e:'🔵'},{n:'Reliance Fresh',e:'🟦'},{n:'Big Bazaar',e:'🏪'},{n:'Nature\'s Basket',e:'🌿'},{n:'Spencer\'s',e:'🛒'}],
+      BRL: [{n:'Carrefour',e:'🏪'},{n:'Pão de Açúcar',e:'🍬'},{n:'Atacadão',e:'📦'},{n:'Extra',e:'🟢'},{n:'Assaí',e:'🟡'}],
+      MXN: [{n:'Walmart',e:'🏪'},{n:'Soriana',e:'🛒'},{n:'Chedraui',e:'🟢'},{n:'La Comer',e:'🏬'},{n:'Costco',e:'📦'}],
+      ZAR: [{n:'Woolworths',e:'🟢'},{n:'Pick n Pay',e:'🔵'},{n:'Checkers',e:'🏪'},{n:'Shoprite',e:'🔴'},{n:'Spar',e:'🟢'}],
+      AED: [{n:'Carrefour',e:'🏪'},{n:'LuLu',e:'🟢'},{n:'Spinneys',e:'🛒'},{n:'Choithrams',e:'🔵'},{n:'Waitrose UAE',e:'🌿'}],
+      SAR: [{n:'Panda',e:'🐼'},{n:'Carrefour',e:'🏪'},{n:'Tamimi',e:'🛒'},{n:'Danube',e:'🔵'},{n:'Othaim',e:'🏬'}],
+      SGD: [{n:'NTUC FairPrice',e:'🟠'},{n:'Cold Storage',e:'🧊'},{n:'Sheng Siong',e:'🏪'},{n:'Giant',e:'🟢'},{n:'Mustafa',e:'🌙'}],
+      HKD: [{n:'ParknShop',e:'🏪'},{n:'Wellcome',e:'🟢'},{n:'City\'super',e:'✨'},{n:'Jason\'s',e:'🔵'},{n:'Fusion',e:'🟡'}],
+      PLN: [{n:'Biedronka',e:'🐞'},{n:'Lidl',e:'🔵'},{n:'Kaufland',e:'🏪'},{n:'Auchan',e:'🟠'},{n:'Żabka',e:'🐸'}],
+      CZK: [{n:'Albert',e:'🏪'},{n:'Kaufland',e:'🟡'},{n:'Lidl',e:'🔵'},{n:'Penny',e:'🔴'},{n:'Billa',e:'🟢'}],
+      HUF: [{n:'Tesco',e:'🏪'},{n:'Lidl',e:'🔵'},{n:'Aldi',e:'🟡'},{n:'Spar',e:'🟢'},{n:'Penny',e:'🔴'}],
+      TRY: [{n:'BİM',e:'🔴'},{n:'A101',e:'🟠'},{n:'Migros',e:'🏪'},{n:'CarrefourSA',e:'🛒'},{n:'Şok',e:'🟡'}],
+      THB: [{n:'Lotus\'s',e:'🌸'},{n:'Big C',e:'🟡'},{n:'Tops',e:'🏪'},{n:'Makro',e:'📦'},{n:'Villa Market',e:'🌿'}],
+      MYR: [{n:'Giant',e:'🟢'},{n:'Tesco',e:'🏪'},{n:'Mydin',e:'🔵'},{n:'Aeon Big',e:'🟠'},{n:'Jaya Grocer',e:'🌿'}],
+      IDR: [{n:'Indomaret',e:'🔴'},{n:'Alfamart',e:'🟠'},{n:'Giant',e:'🟢'},{n:'Hypermart',e:'🏪'},{n:'Ranch Market',e:'🌿'}],
+      PHP: [{n:'SM Supermarket',e:'🏪'},{n:'Robinsons',e:'🟡'},{n:'Puregold',e:'🥇'},{n:'S&R',e:'📦'},{n:'Rustan\'s',e:'✨'}],
+      ARS: [{n:'Carrefour',e:'🏪'},{n:'Coto',e:'🔵'},{n:'Día',e:'🟡'},{n:'Disco',e:'🟢'},{n:'Jumbo',e:'🐘'}],
+    };
+    return stores[currency] || stores['USD'];
+  }
+
+  function renderLocalStores() {
+    const p = JSON.parse(localStorage.getItem('mealzy_profile') || '{}');
+    const currency = p.currency || 'USD';
+    const storeList = getLocalStores(currency);
+    const section = document.getElementById('localStoresSection');
+    if (!section) return;
+    section.innerHTML = `
+      <h2 style="margin-bottom:0.75rem;font-size:1rem;">🛍️ Where to Shop</h2>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        ${storeList.map(s => `
+          <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:500;">
+            <span>${s.e}</span><span>${s.n}</span>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
   function renderMeals() {
     const container = document.getElementById('mealsContainer');
     if (!todayMeals || todayMeals.length === 0) {
@@ -513,65 +618,6 @@
       snack: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'
     };
 
-    function getCurrencySymbol(currency) {
-      const symbols = { USD:'$',EUR:'€',GBP:'£',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',KRW:'₩',INR:'₹',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'د.إ',SAR:'﷼',SGD:'$',HKD:'$',PLN:'zł',CZK:'Kč',HUF:'Ft',TRY:'₺',THB:'฿',MYR:'RM',IDR:'Rp',PHP:'₱' };
-      return symbols[currency] || currency || '$';
-    }
-
-    function getLocalStores(currency) {
-      const stores = {
-        USD: [{n:'Walmart',e:'🏪'},{n:'Kroger',e:'🛒'},{n:'Whole Foods',e:'🌿'},{n:'Trader Joe\'s',e:'🌺'},{n:'Costco',e:'📦'}],
-        GBP: [{n:'Tesco',e:'🏪'},{n:'Sainsbury\'s',e:'🛒'},{n:'Asda',e:'🟢'},{n:'Lidl',e:'🔵'},{n:'Waitrose',e:'🌿'}],
-        EUR: [{n:'Lidl',e:'🔵'},{n:'Aldi',e:'🟡'},{n:'Carrefour',e:'🏪'},{n:'Rewe',e:'🛒'},{n:'Mercadona',e:'🟠'}],
-        SEK: [{n:'ICA',e:'🔴'},{n:'Coop',e:'🟢'},{n:'Willys',e:'🏪'},{n:'Hemköp',e:'🛒'},{n:'Lidl',e:'🔵'}],
-        NOK: [{n:'Rema 1000',e:'🔴'},{n:'Kiwi',e:'🥝'},{n:'Coop',e:'🟢'},{n:'Meny',e:'🏪'},{n:'Bunnpris',e:'🐰'}],
-        DKK: [{n:'Netto',e:'🐕'},{n:'Bilka',e:'🏪'},{n:'Lidl',e:'🔵'},{n:'SuperBrugsen',e:'🛒'},{n:'Irma',e:'🐔'}],
-        CAD: [{n:'Loblaws',e:'🏪'},{n:'Sobeys',e:'🛒'},{n:'Metro',e:'Ⓜ️'},{n:'No Frills',e:'🟡'},{n:'Costco',e:'📦'}],
-        AUD: [{n:'Woolworths',e:'🟢'},{n:'Coles',e:'🔴'},{n:'Aldi',e:'🟡'},{n:'IGA',e:'🏪'},{n:'Harris Farm',e:'🌿'}],
-        NZD: [{n:'Countdown',e:'🟢'},{n:'New World',e:'🌍'},{n:'Pak\'nSave',e:'🟡'},{n:'FreshChoice',e:'🥦'},{n:'Four Square',e:'🟦'}],
-        CHF: [{n:'Migros',e:'🟠'},{n:'Coop',e:'🟢'},{n:'Lidl',e:'🔵'},{n:'Aldi',e:'🟡'},{n:'Denner',e:'🔴'}],
-        JPY: [{n:'Aeon',e:'🏪'},{n:'Ito Yokado',e:'🛒'},{n:'Life',e:'🌿'},{n:'Seiyu',e:'🏬'},{n:'OK Store',e:'👌'}],
-        CNY: [{n:'Hema Fresh',e:'🦈'},{n:'RT-Mart',e:'🏪'},{n:'Carrefour',e:'🛒'},{n:'Walmart',e:'🟡'},{n:'Yonghui',e:'🌿'}],
-        KRW: [{n:'E-Mart',e:'🟡'},{n:'Lotte Mart',e:'🔴'},{n:'HomePlus',e:'🏪'},{n:'GS Supermarket',e:'🟢'},{n:'Hanaro Mart',e:'🥬'}],
-        INR: [{n:'DMart',e:'🔵'},{n:'Reliance Fresh',e:'🟦'},{n:'Big Bazaar',e:'🏪'},{n:'Nature\'s Basket',e:'🌿'},{n:'Spencer\'s',e:'🛒'}],
-        BRL: [{n:'Carrefour',e:'🏪'},{n:'Pão de Açúcar',e:'🍬'},{n:'Atacadão',e:'📦'},{n:'Extra',e:'🟢'},{n:'Assaí',e:'🟡'}],
-        MXN: [{n:'Walmart',e:'🏪'},{n:'Soriana',e:'🛒'},{n:'Chedraui',e:'🟢'},{n:'La Comer',e:'🏬'},{n:'Costco',e:'📦'}],
-        ZAR: [{n:'Woolworths',e:'🟢'},{n:'Pick n Pay',e:'🔵'},{n:'Checkers',e:'🏪'},{n:'Shoprite',e:'🔴'},{n:'Spar',e:'🟢'}],
-        AED: [{n:'Carrefour',e:'🏪'},{n:'LuLu',e:'🟢'},{n:'Spinneys',e:'🛒'},{n:'Choithrams',e:'🔵'},{n:'Waitrose UAE',e:'🌿'}],
-        SAR: [{n:'Panda',e:'🐼'},{n:'Carrefour',e:'🏪'},{n:'Tamimi',e:'🛒'},{n:'Danube',e:'🔵'},{n:'Othaim',e:'🏬'}],
-        SGD: [{n:'NTUC FairPrice',e:'🟠'},{n:'Cold Storage',e:'🧊'},{n:'Sheng Siong',e:'🏪'},{n:'Giant',e:'🟢'},{n:'Mustafa',e:'🌙'}],
-        HKD: [{n:'ParknShop',e:'🏪'},{n:'Wellcome',e:'🟢'},{n:'City\'super',e:'✨'},{n:'Jason\'s',e:'🔵'},{n:'Fusion',e:'🟡'}],
-        PLN: [{n:'Biedronka',e:'🐞'},{n:'Lidl',e:'🔵'},{n:'Kaufland',e:'🏪'},{n:'Auchan',e:'🟠'},{n:'Żabka',e:'🐸'}],
-        CZK: [{n:'Albert',e:'🏪'},{n:'Kaufland',e:'🟡'},{n:'Lidl',e:'🔵'},{n:'Penny',e:'🔴'},{n:'Billa',e:'🟢'}],
-        HUF: [{n:'Tesco',e:'🏪'},{n:'Lidl',e:'🔵'},{n:'Aldi',e:'🟡'},{n:'Spar',e:'🟢'},{n:'Penny',e:'🔴'}],
-        TRY: [{n:'BİM',e:'🔴'},{n:'A101',e:'🟠'},{n:'Migros',e:'🏪'},{n:'CarrefourSA',e:'🛒'},{n:'Şok',e:'🟡'}],
-        THB: [{n:'Lotus\'s',e:'🌸'},{n:'Big C',e:'🟡'},{n:'Tops',e:'🏪'},{n:'Makro',e:'📦'},{n:'Villa Market',e:'🌿'}],
-        MYR: [{n:'Giant',e:'🟢'},{n:'Tesco',e:'🏪'},{n:'Mydin',e:'🔵'},{n:'Aeon Big',e:'🟠'},{n:'Jaya Grocer',e:'🌿'}],
-        IDR: [{n:'Indomaret',e:'🔴'},{n:'Alfamart',e:'🟠'},{n:'Giant',e:'🟢'},{n:'Hypermart',e:'🏪'},{n:'Ranch Market',e:'🌿'}],
-        PHP: [{n:'SM Supermarket',e:'🏪'},{n:'Robinsons',e:'🟡'},{n:'Puregold',e:'🥇'},{n:'S&R',e:'📦'},{n:'Rustan\'s',e:'✨'}],
-        ARS: [{n:'Carrefour',e:'🏪'},{n:'Coto',e:'🔵'},{n:'Día',e:'🟡'},{n:'Disco',e:'🟢'},{n:'Jumbo',e:'🐘'}],
-      };
-      return stores[currency] || stores['USD'];
-    }
-
-    function renderLocalStores() {
-      const profile = JSON.parse(localStorage.getItem('mealzy_profile') || '{}');
-      const currency = profile.currency || 'USD';
-      const storeList = getLocalStores(currency);
-      const section = document.getElementById('localStoresSection');
-      if (!section) return;
-      section.innerHTML = `
-        <h2 style="margin-bottom:0.75rem;font-size:1rem;">🛍️ Where to Shop</h2>
-        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
-          ${storeList.map(s => `
-            <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:0.5rem 0.9rem;display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;font-weight:500;">
-              <span>${s.e}</span><span>${s.n}</span>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    }
-
     function getMealImageByType(meal) {
       return meal.image_url || mealFallbacks[meal.type] || mealFallbacks.lunch;
     }
@@ -579,15 +625,10 @@
     const ratings = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
 
     container.innerHTML = `<div class="grid-2">${todayMeals.map((meal, i) => {
-      const currentRating = ratings[meal.name] || 0;
-      const starsHtml = [1,2,3,4,5].map(n =>
-        `<span class="star ${n <= currentRating ? 'filled' : ''}" data-meal-idx="${i}" data-star="${n}" onclick="rateMeal(${i}, ${n})">★</span>`
-      ).join('');
-      const ratingLabel = currentRating ? `<span class="star-avg">You rated: ${currentRating}/5</span>` : `<span class="star-avg">Rate this meal</span>`;
-
+      const r = ratings[meal.name] || 0; // 1=thumbsUp, -1=thumbsDown, 0=unrated
       return `
       <div class="meal-card ${meal.completed ? 'completed' : ''}" id="mealCard${i}">
-        <img src="${getMealImageByType(meal)}" alt="${meal.name}" class="meal-img" loading="lazy" />
+        <img src="${meal.image_url || mealFallbacks[meal.type] || mealFallbacks.lunch}" alt="${meal.name}" class="meal-img" loading="lazy" />
         <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
         <div class="meal-name">${meal.name}</div>
         <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
@@ -608,10 +649,12 @@
             <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i})">🔄 Swap</button>
           </div>
         </div>
-        <div class="star-rating">
-          <span class="star-rating-label">Rate:</span>
-          ${starsHtml}
-          ${ratingLabel}
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--clr-border);">
+          <span style="font-size:0.8rem;color:var(--clr-muted);">Rate:</span>
+          <button onclick="rateMeal(${i}, 1)" style="background:${r===1?'#dcfce7':'var(--clr-muted-bg)'};border:1px solid ${r===1?'#86efac':'var(--clr-border)'};border-radius:0.5rem;padding:0.25rem 0.6rem;cursor:pointer;font-size:1rem;" title="Thumbs up — include more like this">👍</button>
+          <button onclick="rateMeal(${i}, -1)" style="background:${r===-1?'#fee2e2':'var(--clr-muted-bg)'};border:1px solid ${r===-1?'#fca5a5':'var(--clr-border)'};border-radius:0.5rem;padding:0.25rem 0.6rem;cursor:pointer;font-size:1rem;" title="Thumbs down — avoid next time">👎</button>
+          ${r===1?'<span style="font-size:0.78rem;color:#16a34a;">Noted — more like this next time</span>':''}
+          ${r===-1?'<span style="font-size:0.78rem;color:#dc2626;">Noted — will be avoided</span>':''}
         </div>
       </div>`;
     }).join('')}</div>`;
@@ -733,14 +776,19 @@
     document.getElementById('loadingOverlay').classList.add('open');
     document.getElementById('generateBtn').disabled = true;
     try {
+      const ratingsData = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
+      const avoid_meals = Object.entries(ratingsData).filter(([,v]) => v === -1).map(([k]) => k);
+      const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
+      const isPro = localStorage.getItem('mealzy_pro') === 'true';
       const response = await fetch('/api/generate-meal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, date: today })
+        body: JSON.stringify({ profile, date: today, avoid_meals, user_email: lsUser.email || '', is_pro: isPro })
       });
 
       if (response.status === 402) {
         const data = await response.json();
+        trackEvent('free_limit_hit', {});
         showUpgradePrompt(data.message || 'You have used all 3 free plans this month.');
         return;
       }
@@ -755,14 +803,26 @@
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
       plans[today] = { meals: todayMeals, generatedAt: new Date().toISOString() };
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+      trackEvent('generate_plan', {});
+
+      // Track plan count for soft upgrade banner
+      const planCount = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0') + 1;
+      localStorage.setItem('mealzy_plan_count_month', planCount);
+
       saveToHistory(todayMeals);
       renderMeals();
       updateStats();
       cloudSave();
-      showToast('Meal plan generated!', 'success');
+      showToast('Meal plan generated! 🎉', 'success');
+
+      // Growth triggers — only show to free users
+      if (!isPro) {
+        if (planCount === 1) showReferralBanner();
+        if (planCount === 2) checkSoftUpgradeBanner(true);
+      }
     } catch (err) {
       console.error(err);
-      showToast('Could not connect to server. Is the server running?', 'error');
+      showToast('Something went wrong — please try again.', 'error');
     } finally {
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;
@@ -770,8 +830,11 @@
   }
 
   function showUpgradePrompt(message) {
+    trackEvent('upgrade_click', { source: 'limit_prompt' });
     const existing = document.getElementById('upgradePrompt');
     if (existing) existing.remove();
+    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
+    const prefillEmail = (lsUser.email || '').replace(/"/g, '&quot;');
     const prompt = document.createElement('div');
     prompt.id = 'upgradePrompt';
     prompt.style.cssText = `position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;`;
@@ -779,12 +842,22 @@
       <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
         <div style="font-size:1.5rem;font-weight:900;color:#2e7d4f;margin-bottom:0.75rem;">Mealzy</div>
         <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;">Free plan limit reached</h2>
-        <p style="color:#666;font-size:0.9rem;margin-bottom:1.5rem;line-height:1.5;">${message}<br><br>Upgrade to Pro for unlimited meal plans — $8/month, cancel anytime.</p>
-        <a href="pricing.html" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">See Pro Plan — $8/month</a>
+        <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;line-height:1.5;">${message}<br><br>Upgrade to Pro for unlimited meal plans — $8/month, cancel anytime.</p>
+        <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Confirm your email for Pro access" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.9rem;margin-bottom:0.75rem;font-family:inherit;" />
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">Upgrade to Pro — $8/month →</a>
         <button onclick="document.getElementById('upgradePrompt').remove()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;">Maybe later</button>
       </div>
     `;
     document.body.appendChild(prompt);
+  }
+
+  function captureUpgradeEmail() {
+    const emailEl = document.getElementById('upgradeEmail');
+    const email = emailEl ? emailEl.value.trim() : '';
+    if (email) {
+      fetch('/api/email-leads', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, source:'upgrade_prompt' }) }).catch(()=>{});
+    }
+    trackEvent('upgrade_click', { source: 'stripe_button' });
   }
 
   function showToast(msg, type = '') {
@@ -946,7 +1019,8 @@
     ratings[meal.name] = rating;
     localStorage.setItem('mealzy_ratings', JSON.stringify(ratings));
     renderMeals();
-    showToast(`Rated "${meal.name}" ${rating}/5 ★`, 'success');
+    const rLabel = rating === 1 ? '👍 Liked! More like this next time' : '👎 Got it — will avoid next time';
+    showToast(rLabel, 'success');
   }
 
   // === 7-DAY CALORIE HISTORY CHART ===
@@ -1031,6 +1105,238 @@
     localStorage.setItem('mealzy_pwa_dismissed', '1');
     document.getElementById('pwaBanner').classList.remove('show');
   }
+
+  // === TRACK EVENT ===
+  function trackEvent(event, data) {
+    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event, data }) }).catch(()=>{});
+  }
+
+  // === PRO STATUS ===
+  function checkProStatus() {
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
+    const proBadge = document.getElementById('proBadge');
+    const planLabel = document.getElementById('planLabel');
+    const mobilePlanLabel = document.getElementById('mobilePlanLabel');
+    if (proBadge) proBadge.style.display = isPro ? 'inline-block' : 'none';
+    if (planLabel) planLabel.textContent = isPro ? '⭐ Pro Plan' : 'Free Plan';
+    if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? '⭐ Pro Plan' : 'Free Plan';
+  }
+
+  // === WELCOME MESSAGE (?new=true or mealzy_is_new_user flag) ===
+  function checkWelcomeMessage() {
+    const params = new URLSearchParams(window.location.search);
+    const isNew = params.get('new') === 'true' || localStorage.getItem('mealzy_is_new_user') === '1';
+    if (isNew) {
+      showToast(`🎉 Welcome to Mealzy, ${profile.name || 'there'}! Generate your first meal plan below.`, 'success');
+      localStorage.removeItem('mealzy_is_new_user');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('new');
+      window.history.replaceState({}, '', url);
+    }
+  }
+
+  // === SOFT UPGRADE BANNER ===
+  function checkSoftUpgradeBanner(force) {
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
+    if (isPro) return;
+    const count = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0');
+    const dismissed = localStorage.getItem('mealzy_soft_banner_dismissed');
+    if ((force || count >= 2) && !dismissed) {
+      document.getElementById('softUpgradeBanner').style.display = 'flex';
+    }
+  }
+
+  function dismissSoftBanner() {
+    document.getElementById('softUpgradeBanner').style.display = 'none';
+    localStorage.setItem('mealzy_soft_banner_dismissed', '1');
+  }
+
+  // === REFERRAL BANNER ===
+  function showReferralBanner() {
+    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
+    const email = lsUser.email || '';
+    if (!email) return;
+    const refLink = `${window.location.origin}/login.html?ref=${encodeURIComponent(email)}`;
+    const input = document.getElementById('referralLink');
+    if (input) input.value = refLink;
+    document.getElementById('referralBanner').style.display = '';
+  }
+
+  function copyReferralLink() {
+    const input = document.getElementById('referralLink');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+      showToast('Referral link copied! 🎁', 'success');
+      trackEvent('share_click', { type: 'referral_copy' });
+    }).catch(() => {
+      input.select();
+      document.execCommand('copy');
+      showToast('Link copied!', 'success');
+    });
+  }
+
+  function shareWhatsApp() {
+    const input = document.getElementById('referralLink');
+    const link = input ? input.value : 'https://mealzy.org';
+    const msg = encodeURIComponent(`I've been using Mealzy to plan my meals with AI — it's brilliant! 🥗 Try it free: ${link}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    trackEvent('share_click', { type: 'whatsapp' });
+  }
+
+  function shareFacebook() {
+    const input = document.getElementById('referralLink');
+    const link = input ? input.value : 'https://mealzy.org';
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank');
+    trackEvent('share_click', { type: 'facebook' });
+  }
+
+  function copyShareMessage() {
+    const input = document.getElementById('referralLink');
+    const link = input ? input.value : 'https://mealzy.org';
+    const msg = `I've been using Mealzy to plan my meals with AI — it's brilliant! 🥗 Try it free: ${link}`;
+    navigator.clipboard.writeText(msg).then(() => {
+      showToast('Message copied!', 'success');
+      trackEvent('share_click', { type: 'copy_message' });
+    }).catch(() => showToast('Could not copy', 'error'));
+  }
+
+  // === GENERATE SHARE CARD (Canvas API) ===
+  function generateShareCard() {
+    trackEvent('share_click', { type: 'share_card' });
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const ctx = canvas.getContext('2d');
+
+    // Background gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, '#1a4731');
+    grad.addColorStop(1, '#2e7d4f');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Decorative circle
+    ctx.beginPath();
+    ctx.arc(canvas.width - 80, 120, 320, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.fill();
+
+    // Logo
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 68px Arial, sans-serif';
+    ctx.fillText('🥗 Mealzy', 80, 130);
+
+    // Tagline
+    ctx.font = '400 34px Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText('My AI meal plan — powered by mealzy.org', 80, 190);
+
+    // Meals
+    if (todayMeals && todayMeals.length > 0) {
+      ctx.font = 'bold 26px Arial, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText("TODAY'S MEALS", 80, 290);
+      const icons = ['🌅','☀️','🍎','🌙'];
+      todayMeals.slice(0, 4).forEach((meal, i) => {
+        ctx.font = 'bold 40px Arial, sans-serif';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`${icons[i] || '🍽️'}  ${meal.name}`, 80, 370 + i * 130);
+        ctx.font = '400 26px Arial, sans-serif';
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        ctx.fillText(`   ${meal.calories} kcal · ${meal.protein}g protein`, 80, 415 + i * 130);
+      });
+    } else {
+      ctx.font = 'bold 56px Arial, sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Eating healthy,', 80, 420);
+      ctx.fillText('effortlessly. ✨', 80, 500);
+    }
+
+    // Divider
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillRect(80, canvas.height - 195, canvas.width - 160, 1);
+
+    // CTA
+    ctx.font = 'bold 36px Arial, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('Try it free → mealzy.org', 80, canvas.height - 130);
+    ctx.font = '400 24px Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText('Powered by Mealzy · AI Meal Planning', 80, canvas.height - 80);
+
+    // Download
+    const a = document.createElement('a');
+    a.download = 'mealzy-meal-plan.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    showToast('Share card downloaded! Share it anywhere 📲', 'success');
+  }
+
+  // === PRINT ===
+  function printMealPlan() {
+    window.print();
+  }
+
+  // === DIETARY PREFERENCES QUICK-EDIT ===
+  const DIETARY_OPTIONS = [
+    { id: 'vegetarian', label: '🌿 Vegetarian' },
+    { id: 'vegan', label: '🌱 Vegan' },
+    { id: 'gluten_free', label: '🌾 Gluten-Free' },
+    { id: 'dairy_free', label: '🥛 Dairy-Free' },
+    { id: 'keto', label: '🥩 Keto' },
+    { id: 'paleo', label: '🍖 Paleo' },
+    { id: 'low_carb', label: '🥦 Low-Carb' },
+    { id: 'halal', label: '☪️ Halal' },
+    { id: 'kosher', label: '✡️ Kosher' },
+    { id: 'nut_free', label: '🚫 Nut-Free' },
+  ];
+
+  function renderDietaryEdit() {
+    const container = document.getElementById('dietaryOptions');
+    if (!container) return;
+    const current = (profile && profile.dietaryRestrictions) ? profile.dietaryRestrictions : [];
+    container.innerHTML = DIETARY_OPTIONS.map(opt => {
+      const active = current.includes(opt.id);
+      return `<button onclick="updateDietaryPref('${opt.id}')" style="padding:0.45rem 0.75rem;border-radius:0.5rem;border:1px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'};background:${active ? 'var(--clr-primary)' : 'var(--clr-muted-bg)'};color:${active ? '#fff' : 'var(--clr-text)'};font-size:0.82rem;cursor:pointer;font-family:inherit;">${opt.label}</button>`;
+    }).join('');
+  }
+
+  function updateDietaryPref(id) {
+    if (!profile) return;
+    if (!profile.dietaryRestrictions) profile.dietaryRestrictions = [];
+    const idx = profile.dietaryRestrictions.indexOf(id);
+    if (idx === -1) profile.dietaryRestrictions.push(id);
+    else profile.dietaryRestrictions.splice(idx, 1);
+    localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+    renderDietaryEdit();
+    showToast('Dietary preference updated ✓', 'success');
+  }
+
+  function toggleDietaryEdit() {
+    const panel = document.getElementById('dietaryEditPanel');
+    const label = document.getElementById('dietaryEditToggleLabel');
+    if (!panel) return;
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : '';
+    if (label) label.textContent = isOpen ? 'Edit ▾' : 'Close ▴';
+    if (!isOpen) renderDietaryEdit();
+  }
+
+  // === G KEY SHORTCUT ===
+  function showGKeyTooltip() {
+    const tooltip = document.getElementById('gKeyTooltip');
+    if (!tooltip || localStorage.getItem('mealzy_g_key_shown')) return;
+    tooltip.style.display = 'block';
+    setTimeout(() => { tooltip.style.display = 'none'; localStorage.setItem('mealzy_g_key_shown', '1'); }, 4000);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'g' || e.key === 'G') &&
+        document.activeElement.tagName !== 'INPUT' &&
+        document.activeElement.tagName !== 'TEXTAREA') {
+      generateMealPlan();
+    }
+  });
 
   // Mobile sidebar toggle
   document.getElementById('mobileMenuBtn').addEventListener('click', () => {
