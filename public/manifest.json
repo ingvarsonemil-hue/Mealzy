@@ -1,13 +1,23 @@
 {
   "name": "Mealzy — AI Meal Planner",
   "short_name": "Mealzy",
-  "description": "Your personal AI nutritionist",
-  "start_url": "/",
+  "description": "Your personal AI nutritionist — meal plans, macros, and grocery lists in 30 seconds.",
+  "start_url": "/dashboard.html",
   "display": "standalone",
   "background_color": "#f5fbf7",
   "theme_color": "#4a8a6f",
+  "orientation": "portrait-primary",
   "icons": [
-    { "src": "https://via.placeholder.com/192x192/4a8a6f/ffffff?text=M", "sizes": "192x192", "type": "image/png" },
-    { "src": "https://via.placeholder.com/512x512/4a8a6f/ffffff?text=M", "sizes": "512x512", "type": "image/png" }
+    { "src": "/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Generate Meal Plan",
+      "short_name": "Generate",
+      "description": "Open the dashboard and generate your week",
+      "url": "/dashboard.html",
+      "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
+    }
   ]
 }

@@ -368,9 +368,13 @@
 
   let billingMode = 'monthly';
 
-  // Stripe links — replace YEARLY_STRIPE_LINK with real annual Stripe link when created
+  // Stripe links
+  // TODO (annual plan): Create annual Stripe price:
+  //   1. Stripe Dashboard → Products → select "Mealzy Pro" → Add price
+  //   2. Billing period: Yearly, Amount: $62.00
+  //   3. Copy the resulting payment link and replace STRIPE_YEARLY below
   const STRIPE_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
-  const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // TODO: replace with annual link
+  const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with annual Stripe link
 
   const prices = {
     monthly: { free: '$0', premium: '$8',  family: '$16' },

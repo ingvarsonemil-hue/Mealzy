@@ -521,13 +521,16 @@ app.get('/api/referral-status', (req, res) => {
 
 app.post('/api/email-leads', (req, res) => {
   try {
-    const email  = sanitise(req.body.email, 254).toLowerCase();
-    const source = sanitise(req.body.source, 100) || 'unknown';
-    const name   = sanitise(req.body.name,   100);
+    const email    = sanitise(req.body.email, 254).toLowerCase();
+    const source   = sanitise(req.body.source, 100) || 'unknown';
+    const name     = sanitise(req.body.name,   100);
+    const discount = req.body.discount ? 1 : 0; // abandonment flow — mark for 50% off code
     if (!email || !email.includes('@')) {
       return res.status(400).json({ error: 'Valid email required' });
     }
     db.saveLead(randomUUID(), email, source, name);
+    // Log with discount flag so admin export can filter these for coupon send
+    db.logEvent('email_lead', { email, source, discount }, '');
     res.json({ success: true });
   } catch(err) {
     console.error('Email lead error:', err);

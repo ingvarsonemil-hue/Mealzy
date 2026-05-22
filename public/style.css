@@ -722,14 +722,57 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
 .toggle-switch input:checked + .toggle-slider { background: var(--clr-primary); }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
 
-/* === PRINT STYLES === */
+/* === PRINT STYLES (PDF Export) === */
 @media print {
-  .sidebar, .mobile-topbar, .btn, .nav-fixed, .pwa-banner, .toast-container,
-  .date-navigator, .totals-bar, .grocery-header .btn, .modal-overlay { display: none !important; }
-  body { background: white; }
-  .main-content { margin-left: 0 !important; padding: 1rem !important; padding-top: 1rem !important; }
-  .card { box-shadow: none; border: 1px solid #ccc; }
-  .app-layout { display: block; }
+  /* Hide everything except the meal plan content */
+  .sidebar, .mobile-topbar, .mobile-sidebar-overlay,
+  .btn, .nav-fixed, .nav-fixed *, .pwa-banner, .toast-container,
+  #toastContainer, .date-navigator, .totals-bar,
+  .grocery-header button, .modal-overlay,
+  #upgradePrompt, #softUpgradeBanner, #retentionBanner,
+  #zeroPlansBanner, #xpStrip, #badgesCard, #referralBanner,
+  .page-header .btn, #generateBtn, #swapAllBtn,
+  #printBtn, #shareBtn, .quick-actions-grid,
+  [id$="Banner"], .email-popup-overlay { display: none !important; }
+
+  @page {
+    size: A4;
+    margin: 1.5cm 1.5cm 2cm 1.5cm;
+  }
+
+  html, body { background: white !important; color: #111 !important; font-size: 11pt; }
+  .app-layout { display: block !important; }
+  .main-content { margin: 0 !important; padding: 0 !important; }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid;
+    margin-bottom: 0.5cm;
+  }
+  .meal-card { page-break-inside: avoid; }
+
+  /* Print header */
+  body::before {
+    content: "Mealzy — AI Meal Plan";
+    display: block;
+    font-size: 20pt;
+    font-weight: 900;
+    color: #2e7d4f;
+    border-bottom: 2px solid #2e7d4f;
+    padding-bottom: 0.3cm;
+    margin-bottom: 0.5cm;
+  }
+
+  /* Ensure meal grid prints cleanly */
+  .meals-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0.4cm !important; }
+  .meal-card img { display: none !important; } /* skip images for clean PDF */
+  .meal-card .meal-image-wrap { display: none !important; }
+
+  /* Grocery list print */
+  .grocery-category { break-inside: avoid; }
+  .grocery-list-columns { display: block !important; }
+
+  a[href]::after { content: none !important; } /* don't print URLs */
 }
 
 /* === UTILITY === */

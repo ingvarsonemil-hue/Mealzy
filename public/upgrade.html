@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
+  <meta name="description" content="Upgrade to Mealzy Pro for unlimited AI meal plans, PDF export, unlimited AI coaching, and priority generation. $8/month. Cancel any time." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#4a8a6f">
+  <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <style>
+    body { background: var(--clr-background); }
+    .upgrade-wrap { max-width: 560px; margin: 0 auto; padding: 4rem 1.5rem 5rem; }
+    .upgrade-hero { text-align: center; margin-bottom: 2.5rem; }
+    .upgrade-hero .eyebrow { font-size: 0.82rem; font-weight: 700; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
+    .upgrade-hero h1 { font-family: 'Fraunces', serif; font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; }
+    .upgrade-hero p { font-size: 1rem; color: var(--clr-muted-fg); max-width: 440px; margin: 0 auto; line-height: 1.65; }
+    .upgrade-card { background: var(--clr-card); border: 2px solid var(--clr-primary); border-radius: 1.25rem; padding: 2rem; box-shadow: var(--shadow-lg); }
+    .price-display { text-align: center; margin-bottom: 1.5rem; }
+    .price-amount { font-size: 3rem; font-weight: 900; color: var(--clr-primary); line-height: 1; }
+    .price-period { font-size: 1rem; color: var(--clr-muted-fg); }
+    .price-annual { font-size: 0.85rem; color: var(--clr-muted-fg); margin-top: 0.25rem; }
+    .features-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .features-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; }
+    .features-list .check { color: var(--clr-primary); font-weight: 900; flex-shrink: 0; margin-top: 0.1rem; }
+    .features-list .label { font-weight: 600; }
+    .features-list .desc { color: var(--clr-muted-fg); font-size: 0.83rem; margin-top: 0.1rem; }
+    .upgrade-cta-btn { display: block; background: var(--gradient-primary); color: white; text-align: center; padding: 1rem 2rem; border-radius: 0.75rem; font-weight: 700; font-size: 1.05rem; text-decoration: none; box-shadow: var(--shadow-button); transition: transform 0.15s, box-shadow 0.15s; margin-bottom: 0.6rem; }
+    .upgrade-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px hsl(152,52%,36%,0.4); }
+    .guarantee { font-size: 0.8rem; color: var(--clr-muted-fg); text-align: center; margin-top: 0.5rem; }
+    .testimonials-strip { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .upgrade-testimonial { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.75rem; padding: 1.1rem 1.25rem; }
+    .upgrade-testimonial p { font-size: 0.88rem; color: var(--clr-muted-fg); line-height: 1.6; font-style: italic; margin-bottom: 0.5rem; }
+    .upgrade-testimonial-author { font-size: 0.82rem; font-weight: 700; color: var(--clr-foreground); }
+    .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.88rem; }
+    .toggle-wrap .billing-label { color: var(--clr-muted-fg); cursor: pointer; transition: color 0.15s; }
+    .toggle-wrap .billing-label.active { color: var(--clr-primary); font-weight: 700; }
+    .save-badge { background: hsl(152,52%,94%); color: var(--clr-primary); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid var(--clr-primary-light); }
+    .back-link { text-align: center; margin-top: 2rem; font-size: 0.85rem; color: var(--clr-muted-fg); }
+    .back-link a { color: var(--clr-primary); text-decoration: none; }
+    .objection-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; }
+    .objection-icon { flex-shrink: 0; font-size: 1rem; }
+  </style>
+</head>
+<body>
+<div class="upgrade-wrap">
+
+  <!-- Back link -->
+  <div style="margin-bottom:2rem;">
+    <a href="dashboard.html" style="font-size:0.85rem;color:var(--clr-muted-fg);text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;">← Back to dashboard</a>
+  </div>
+
+  <!-- Hero -->
+  <div class="upgrade-hero">
+    <div class="eyebrow">Mealzy Pro</div>
+    <h1>Unlock the full Mealzy experience</h1>
+    <p>You've seen how fast it works. Pro removes all limits — and adds features that make it genuinely better every week.</p>
+  </div>
+
+  <!-- Billing toggle -->
+  <div class="toggle-wrap">
+    <span class="billing-label active" id="lblMonthly" onclick="setMode('monthly')">Monthly</span>
+    <div style="position:relative;width:44px;height:24px;background:var(--clr-primary);border-radius:2rem;cursor:pointer;flex-shrink:0;" onclick="setMode(billingMode==='monthly'?'yearly':'monthly')">
+      <div id="toggleDot" style="position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;transition:left 0.2s;"></div>
+    </div>
+    <span class="billing-label" id="lblYearly" onclick="setMode('yearly')">Yearly <span class="save-badge">Save 35%</span></span>
+  </div>
+
+  <!-- Upgrade card -->
+  <div class="upgrade-card">
+    <div class="price-display">
+      <div>
+        <span class="price-amount" id="upgrPrice">$8</span>
+        <span class="price-period">/month</span>
+      </div>
+      <div class="price-annual" id="upgrBilled">&nbsp;</div>
+    </div>
+
+    <ul class="features-list">
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <div class="label">Unlimited AI meal plans</div>
+          <div class="desc">Generate as many times as you want. Every week, every diet change, every goal shift.</div>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <div class="label">PDF export — download &amp; print</div>
+          <div class="desc">Export your full meal plan and grocery list as a clean PDF. Print it, share it, save it.</div>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <div class="label">Unlimited AI coaching with Mia</div>
+          <div class="desc">Ask anything, any time. Recipe help, macro questions, what to do with leftovers.</div>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <div class="label">Priority generation — 2× faster</div>
+          <div class="desc">Pro requests jump the queue. Your plan is ready in about 15 seconds.</div>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <div class="label">Advanced macros per meal</div>
+          <div class="desc">See protein, carbs, and fat broken down for every individual meal — not just daily totals.</div>
+        </div>
+      </li>
+      <li>
+        <span class="check">✓</span>
+        <div>
+          <div class="label">Cancel any time, instantly</div>
+          <div class="desc">One click in your billing portal. No emails, no questions. Pro access continues until period end.</div>
+        </div>
+      </li>
+    </ul>
+
+    <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" class="upgrade-cta-btn" onclick="trackUpgrade()">
+      Start Pro — 7 Days Free →
+    </a>
+    <p class="guarantee">🔒 7-day free trial. No charge for 7 days. Cancel before then and you owe nothing.</p>
+  </div>
+
+  <!-- Objection handling -->
+  <div class="objection-list">
+    <div class="objection">
+      <span class="objection-icon">❓</span>
+      <div><strong>What if I don't like it?</strong> Cancel in one click from your billing portal. You keep Pro until your period ends. We've made it as easy to cancel as it is to sign up.</div>
+    </div>
+    <div class="objection">
+      <span class="objection-icon">❓</span>
+      <div><strong>Is my card safe?</strong> All payments go through Stripe — the same processor used by Amazon and Google. We never see your card number.</div>
+    </div>
+    <div class="objection">
+      <span class="objection-icon">❓</span>
+      <div><strong>Will the price go up?</strong> Not for you — current subscribers lock in today's price. We may raise prices for new users as we grow.</div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials-strip">
+    <div class="upgrade-testimonial">
+      <p>"I was about to stop using it when I hit the free limit — I upgraded and honestly it's worth way more than $8. The PDF export alone means I can print the list and actually tick things off at the supermarket."</p>
+      <div class="upgrade-testimonial-author">L. K. — Pro user, 8 weeks</div>
+    </div>
+    <div class="upgrade-testimonial">
+      <p>"The unlimited plans changed how I eat. I generate a new one whenever my goals shift — before a holiday, after a gym plateau, when I'm bored of the rotation. It's like having a nutritionist on call."</p>
+      <div class="upgrade-testimonial-author">J. R. — Pro user, 3 months</div>
+    </div>
+  </div>
+
+  <!-- Abandonment offer (shown after 45s if user hasn't clicked CTA) -->
+  <div id="abandonOffer" style="display:none;margin-top:2rem;padding:1.25rem;background:hsl(0,70%,97%);border:1px solid hsl(0,60%,85%);border-radius:0.75rem;text-align:center;">
+    <div style="font-size:0.72rem;font-weight:800;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;">Limited Offer</div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;">Get your first month for $4</div>
+    <p style="font-size:0.84rem;color:#555;margin-bottom:0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
+    <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" onclick="trackUpgrade('abandon_offer')" style="display:inline-block;background:#dc2626;color:white;padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;">
+      <!-- TODO: Replace with discounted $4 Stripe link (see dashboard.html comment for steps) -->
+      Get first month for $4 →
+    </a>
+  </div>
+
+  <div class="back-link">
+    <a href="dashboard.html">← Stay on free plan</a>
+  </div>
+
+</div>
+
+<script>
+  let billingMode = 'monthly';
+  const STRIPE_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
+  const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // TODO: replace with $62/yr link
+
+  function setMode(mode) {
+    billingMode = mode;
+    const dot = document.getElementById('toggleDot');
+    document.getElementById('lblMonthly').classList.toggle('active', mode === 'monthly');
+    document.getElementById('lblYearly').classList.toggle('active', mode === 'yearly');
+    if (mode === 'yearly') {
+      dot.style.left = '23px';
+      document.getElementById('upgrPrice').textContent = '$5';
+      document.getElementById('upgrBilled').textContent = 'Billed $62/year — saves $34';
+      document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
+      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free →';
+    } else {
+      dot.style.left = '3px';
+      document.getElementById('upgrPrice').textContent = '$8';
+      document.getElementById('upgrBilled').textContent = '';
+      document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
+      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
+    }
+  }
+
+  function trackUpgrade(source) {
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: 'upgrade_click', data: { source: source || 'upgrade_page', billing: billingMode } })
+    }).catch(() => {});
+  }
+
+  // Show abandonment offer after 45s if user hasn't clicked
+  let _clicked = false;
+  document.getElementById('upgradeCtaBtn').addEventListener('click', () => { _clicked = true; });
+  setTimeout(() => {
+    if (!_clicked) document.getElementById('abandonOffer').style.display = 'block';
+  }, 45000);
+</script>
+</body>
+</html>

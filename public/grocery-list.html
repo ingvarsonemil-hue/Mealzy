@@ -96,7 +96,7 @@
         <p class="text-muted" style="margin-top:0.25rem;" id="weekLabel">Loading...</p>
       </div>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-        <button class="btn btn-outline btn-sm" onclick="window.print()" title="Print grocery list">🖨️ Print</button>
+        <button class="btn btn-outline btn-sm" id="groceryPrintBtn" onclick="printGroceryList()" title="Download grocery list as PDF">📄 Download PDF</button>
         <button class="btn btn-outline btn-sm" onclick="clearAll()">Clear All</button>
         <button class="btn btn-primary" id="generateBtn" onclick="generateGroceryList()">✨ Generate List</button>
       </div>
@@ -481,6 +481,30 @@
       document.getElementById('mobileSidebarOverlay').classList.remove('open');
     }
   });
+
+  // === PDF EXPORT (Pro only) ===
+  function printGroceryList() {
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
+    if (!isPro) {
+      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'upgrade_click', data: { source: 'grocery_pdf_btn' } }) }).catch(() => {});
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+      overlay.innerHTML = `
+        <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+          <button onclick="this.closest('[style]').remove()" style="float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#999;">✕</button>
+          <div style="font-size:2rem;margin-bottom:0.5rem;">🛒</div>
+          <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
+          <p style="color:#555;font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature — upgrade to unlock.</p>
+          <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.85rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro — $8/month →</a>
+          <a href="pricing.html" style="font-size:0.82rem;color:#888;text-decoration:underline;">See all plans</a>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+      return;
+    }
+    fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'pdf_export', data: { source: 'grocery_list' } }) }).catch(() => {});
+    window.print();
+  }
 
   init();
 </script>

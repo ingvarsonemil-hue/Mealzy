@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Growth Calculator (Internal)</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+  <style>
+    body { background: var(--clr-background); }
+    .calc-wrap { max-width: 700px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    .calc-header { margin-bottom: 2.5rem; }
+    .calc-header h1 { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 0.4rem; }
+    .calc-header p { color: var(--clr-muted-fg); font-size: 0.9rem; }
+    .slider-group { margin-bottom: 1.5rem; }
+    .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .slider-label span { font-weight: 600; font-size: 0.88rem; }
+    .slider-label .val { font-size: 1rem; font-weight: 800; color: var(--clr-primary); }
+    input[type=range] { width: 100%; accent-color: var(--clr-primary); height: 6px; }
+    .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+    .output-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.75rem; padding: 1.25rem; text-align: center; }
+    .output-card.primary { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+    .output-card .val { font-size: 1.8rem; font-weight: 900; color: var(--clr-primary); }
+    .output-card .label { font-size: 0.78rem; color: var(--clr-muted-fg); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.3rem; }
+    .scenario-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1.5rem; }
+    .scenario-table th { background: var(--clr-muted-bg); padding: 0.7rem 0.85rem; text-align: left; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--clr-muted-fg); }
+    .scenario-table td { padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--clr-border); }
+    .scenario-table tr:last-child td { border-bottom: none; }
+    .target-line { background: hsl(152,52%,94%); }
+    .target-line td { font-weight: 700; color: var(--clr-primary); }
+    #authGate { position: fixed; inset: 0; background: var(--clr-background); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 2rem; }
+    #authGate .inner { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 1rem; padding: 2rem; max-width: 360px; width: 100%; text-align: center; }
+    #authGate h2 { margin-bottom: 0.5rem; }
+    #authGate p { font-size: 0.88rem; color: var(--clr-muted-fg); margin-bottom: 1rem; }
+    #authGate input { width: 100%; box-sizing: border-box; border: 1px solid var(--clr-border); border-radius: 0.5rem; padding: 0.65rem 0.85rem; font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit; background: var(--clr-input-bg); }
+    .section-divider { border: none; border-top: 1px solid var(--clr-border); margin: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="authGate">
+  <div class="inner">
+    <div style="font-size:1.5rem;margin-bottom:0.5rem;">🔒</div>
+    <h2>Internal Tool</h2>
+    <p>Enter your PRO_TOKEN to access the growth calculator.</p>
+    <input type="password" id="tokenInput" placeholder="PRO_TOKEN" onkeydown="if(event.key==='Enter')checkToken()" />
+    <button onclick="checkToken()" class="btn btn-primary btn-full">Unlock</button>
+    <p style="font-size:0.75rem;margin-top:0.75rem;color:var(--clr-muted-fg);">Token is stored locally until you clear it.</p>
+    <p id="tokenError" style="color:#dc2626;font-size:0.8rem;display:none;">Wrong token. Try again.</p>
+  </div>
+</div>
+
+<div class="calc-wrap" id="calcContent" style="display:none;">
+
+  <div class="calc-header">
+    <a href="dashboard.html" style="font-size:0.82rem;color:var(--clr-muted-fg);text-decoration:none;">← Dashboard</a>
+    <h1 style="margin-top:1rem;">Growth Calculator</h1>
+    <p>Adjust the sliders to model your path to $10k MRR. All calculations update live.</p>
+  </div>
+
+  <div class="slider-group">
+    <div class="slider-label"><span>Monthly Visitors</span><span class="val" id="lblVisitors">50,000</span></div>
+    <input type="range" id="slVisitors" min="1000" max="500000" step="1000" value="50000" oninput="calc()" />
+  </div>
+
+  <div class="slider-group">
+    <div class="slider-label"><span>Visitor → Signup Rate</span><span class="val" id="lblSignup">4%</span></div>
+    <input type="range" id="slSignup" min="0.5" max="15" step="0.5" value="4" oninput="calc()" />
+  </div>
+
+  <div class="slider-group">
+    <div class="slider-label"><span>Free → Paid Conversion</span><span class="val" id="lblConvert">6%</span></div>
+    <input type="range" id="slConvert" min="0.5" max="25" step="0.5" value="6" oninput="calc()" />
+  </div>
+
+  <div class="slider-group">
+    <div class="slider-label"><span>Pro / Family Split (% Pro)</span><span class="val" id="lblMix">80%</span></div>
+    <input type="range" id="slMix" min="0" max="100" step="5" value="80" oninput="calc()" />
+    <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.25rem;">Pro = $8/mo &nbsp;·&nbsp; Family = $16/mo</div>
+  </div>
+
+  <div class="slider-group">
+    <div class="slider-label"><span>Monthly Churn Rate</span><span class="val" id="lblChurn">5%</span></div>
+    <input type="range" id="slChurn" min="0.5" max="20" step="0.5" value="5" oninput="calc()" />
+  </div>
+
+  <hr class="section-divider" />
+
+  <div class="output-grid">
+    <div class="output-card primary">
+      <div class="val" id="outMRR">$0</div>
+      <div class="label">Projected MRR</div>
+    </div>
+    <div class="output-card">
+      <div class="val" id="outARR">$0</div>
+      <div class="label">Annual Revenue</div>
+    </div>
+    <div class="output-card">
+      <div class="val" id="outPaid">0</div>
+      <div class="label">Paying Users</div>
+    </div>
+    <div class="output-card">
+      <div class="val" id="outMonths">∞</div>
+      <div class="label">Months to $10k MRR</div>
+    </div>
+  </div>
+
+  <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem;margin-bottom:1.5rem;">
+    <div style="font-weight:700;margin-bottom:0.5rem;font-size:0.95rem;">Visitors needed to hit $10k MRR</div>
+    <div style="font-size:1.5rem;font-weight:900;color:var(--clr-primary);" id="outVisitorsNeeded">—</div>
+    <div style="font-size:0.8rem;color:var(--clr-muted-fg);margin-top:0.25rem;" id="outVisitorsNeededNote">at current conversion rates</div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <h3 style="margin-bottom:1rem;">Scenario comparison</h3>
+  <table class="scenario-table">
+    <thead>
+      <tr>
+        <th>Scenario</th>
+        <th>V→Signup</th>
+        <th>Free→Paid</th>
+        <th>Visitors/mo</th>
+        <th>MRR</th>
+      </tr>
+    </thead>
+    <tbody id="scenarioBody">
+    </tbody>
+  </table>
+
+</div>
+
+<script>
+  // Auth gate
+  function checkToken() {
+    const input = document.getElementById('tokenInput').value.trim();
+    const stored = localStorage.getItem('mealzy_pro_token') || '';
+    if (input === stored && input) {
+      unlock();
+    } else {
+      // Try to verify against server
+      fetch('/api/analytics', { headers: { 'x-pro-token': input } })
+        .then(r => {
+          if (r.ok) {
+            localStorage.setItem('mealzy_pro_token', input);
+            unlock();
+          } else {
+            document.getElementById('tokenError').style.display = 'block';
+          }
+        })
+        .catch(() => {
+          // Offline: accept if it matches stored
+          if (stored && input === stored) { unlock(); }
+          else { document.getElementById('tokenError').style.display = 'block'; }
+        });
+    }
+  }
+
+  function unlock() {
+    document.getElementById('authGate').style.display = 'none';
+    document.getElementById('calcContent').style.display = 'block';
+    calc();
+  }
+
+  // Check if already authenticated
+  const _stored = localStorage.getItem('mealzy_pro_token');
+  if (_stored) {
+    document.getElementById('tokenInput').value = _stored;
+    // Try server check in background
+    fetch('/api/analytics', { headers: { 'x-pro-token': _stored } })
+      .then(r => { if (r.ok) unlock(); })
+      .catch(() => unlock()); // allow offline
+  }
+
+  function fmt(n) {
+    if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return Math.round(n/1000) + 'k';
+    return n.toString();
+  }
+  function fmtMoney(n) {
+    if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+    if (n >= 1000) return '$' + (n/1000).toFixed(1) + 'k';
+    return '$' + Math.round(n);
+  }
+
+  function calc() {
+    const visitors  = parseInt(document.getElementById('slVisitors').value);
+    const signupPct = parseFloat(document.getElementById('slSignup').value) / 100;
+    const convPct   = parseFloat(document.getElementById('slConvert').value) / 100;
+    const proMix    = parseFloat(document.getElementById('slMix').value) / 100;
+    const churnPct  = parseFloat(document.getElementById('slChurn').value) / 100;
+
+    document.getElementById('lblVisitors').textContent = fmt(visitors);
+    document.getElementById('lblSignup').textContent   = (signupPct * 100).toFixed(1) + '%';
+    document.getElementById('lblConvert').textContent  = (convPct * 100).toFixed(1) + '%';
+    document.getElementById('lblMix').textContent      = Math.round(proMix * 100) + '%';
+    document.getElementById('lblChurn').textContent    = (churnPct * 100).toFixed(1) + '%';
+
+    const signups    = visitors * signupPct;
+    const newPaid    = signups * convPct;
+    const blendedARPU = proMix * 8 + (1 - proMix) * 16;
+
+    // Steady-state: new paid per month = churn from existing base
+    // At steady state: newPaid = paidBase * churnPct → paidBase = newPaid / churnPct
+    const steadyStatePaid = churnPct > 0 ? newPaid / churnPct : newPaid * 24;
+    const mrr = steadyStatePaid * blendedARPU;
+    const arr = mrr * 12;
+
+    document.getElementById('outMRR').textContent  = fmtMoney(mrr);
+    document.getElementById('outARR').textContent  = fmtMoney(arr);
+    document.getElementById('outPaid').textContent = Math.round(steadyStatePaid).toLocaleString();
+
+    // Months to $10k — simple linear model, starting from 0
+    let months = '∞';
+    if (newPaid > 0) {
+      // paid(t) ≈ newPaid/churnPct * (1 - e^(-churnPct*t))
+      // Solve for MRR(t) = 10000: paid(t) = 10000/blendedARPU
+      const targetPaid = 10000 / blendedARPU;
+      if (steadyStatePaid >= targetPaid) {
+        // Solve t: targetPaid = steadyStatePaid * (1 - e^(-churnPct*t))
+        const ratio = targetPaid / steadyStatePaid;
+        if (churnPct > 0 && ratio < 1) {
+          const t = -Math.log(1 - ratio) / churnPct;
+          months = Math.ceil(t).toString();
+        } else {
+          months = Math.ceil(targetPaid / newPaid).toString();
+        }
+      } else {
+        months = '∞ (need more visitors)';
+      }
+    }
+    document.getElementById('outMonths').textContent = months;
+
+    // Visitors needed for $10k at current rates
+    const targetPaid2 = 10000 / blendedARPU;
+    const visitorsNeeded = churnPct > 0 ? (targetPaid2 * churnPct) / (signupPct * convPct) : targetPaid2 / (signupPct * convPct);
+    document.getElementById('outVisitorsNeeded').textContent = fmt(Math.ceil(visitorsNeeded));
+    document.getElementById('outVisitorsNeededNote').textContent =
+      `at ${(signupPct*100).toFixed(1)}% signup × ${(convPct*100).toFixed(1)}% conversion × $${blendedARPU.toFixed(2)} ARPU`;
+
+    // Scenarios table
+    const scenarios = [
+      { name: 'Conservative', signup: 0.02, conv: 0.03 },
+      { name: 'Realistic',    signup: 0.04, conv: 0.06 },
+      { name: 'Aggressive',   signup: 0.07, conv: 0.12 },
+      { name: '⭐ Current',   signup: signupPct, conv: convPct },
+    ];
+    const tbody = document.getElementById('scenarioBody');
+    tbody.innerHTML = scenarios.map((s, i) => {
+      const sp = s.signup; const cp = s.conv;
+      const vNeeded = churnPct > 0 ? Math.ceil((targetPaid2 * churnPct) / (sp * cp)) : Math.ceil(targetPaid2 / (sp * cp));
+      const sMrr = visitors * sp * cp / churnPct * blendedARPU;
+      const isCurrent = s.name.includes('Current');
+      return `<tr class="${isCurrent ? 'target-line' : ''}">
+        <td>${s.name}</td>
+        <td>${(sp*100).toFixed(0)}%</td>
+        <td>${(cp*100).toFixed(0)}%</td>
+        <td>${fmt(vNeeded)}/mo</td>
+        <td>${fmtMoney(sMrr)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  calc();
+</script>
+</body>
+</html>

@@ -93,7 +93,7 @@
       <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
         <span class="badge badge-accent" id="streakBadge">🔥 1 day streak</span>
         <span id="proBadge" style="display:none;background:var(--clr-primary);color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
-        <button class="btn btn-outline btn-sm" onclick="printMealPlan()" title="Print meal plan">🖨️ Print</button>
+        <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Download meal plan as PDF">📄 Download PDF</button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card">📤 Share Card</button>
         <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate">
           ✨ Generate Today's Plan
@@ -239,9 +239,9 @@
 
     <!-- SOFT UPGRADE BANNER (after 2nd plan) -->
     <div id="softUpgradeBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;align-items:center;justify-content:space-between;gap:1rem;">
-      <span>🔥 <strong>1 free plan left this month</strong> — upgrade for unlimited plans.</span>
+      <span>🔥 <strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; PDF export.</span>
       <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
-        <a href="pricing.html" onclick="trackEvent('upgrade_click',{source:'soft_banner'})" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade →</a>
+        <a href="upgrade.html" onclick="trackEvent('upgrade_click',{source:'soft_banner'})" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade →</a>
         <button onclick="dismissSoftBanner()" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">✕</button>
       </div>
     </div>
@@ -458,6 +458,7 @@
     applyNavTranslations();
     checkProStatus();
     checkWelcomeMessage();
+    checkWeeklyReengagement();
     checkSoftUpgradeBanner(false);
     renderDietaryEdit();
     showGKeyTooltip();
@@ -936,7 +937,10 @@
           </div>
           <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
           <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
-          <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
+          <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.25rem;">
+            <a href="upgrade.html" style="font-size:0.8rem;color:#666;text-decoration:underline;">See all Pro features</a>
+            <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
+          </div>
         </div>
         <!-- Abandonment offer (shown after "No thanks") -->
         <div id="upgradeStage2" style="display:none;">
@@ -944,7 +948,12 @@
           <div style="background:#dc2626;color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
           <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:#111;">Wait — 50% off, just for you</h2>
           <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $8/month. Cancel any time.</p>
-          <a href="https://buy.stripe.com/REPLACE_WITH_DISCOUNTED_STRIPE_LINK" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
+          <!-- TODO: Create a Stripe coupon/price for the discounted $4 first month:
+               1. Stripe Dashboard → Products → Create Product: "Mealzy Pro - First Month 50% Off"
+               2. Add price: $4/month recurring, then $8/month after coupon expires
+               3. Or use Stripe coupon: Dashboard → Coupons → Create coupon → 50% off, 1 month, apply to existing Pro price
+               4. Replace the URL below with your discounted Stripe payment link -->
+          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
           <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
         </div>
       </div>`;
@@ -960,8 +969,76 @@
   function closeUpgradeAndShowBanner() {
     const p = document.getElementById('upgradePrompt');
     if (p) p.remove();
-    // Show persistent "0 plans left" banner
-    showZeroPlansBanner();
+    // Before showing the banner, try to capture their email with a reminder offer
+    if (!localStorage.getItem('mealzy_abandon_email_shown')) {
+      showAbandonEmailCapture();
+    } else {
+      showZeroPlansBanner();
+    }
+  }
+
+  function showAbandonEmailCapture() {
+    localStorage.setItem('mealzy_abandon_email_shown', '1');
+    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
+    // If they already have an email on record, skip this step
+    if (lsUser.email) {
+      // Still capture it with discount flag but skip the modal
+      fetch('/api/email-leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: lsUser.email, source: 'abandonment', discount: true })
+      }).catch(() => {});
+      showZeroPlansBanner();
+      return;
+    }
+    const overlay = document.createElement('div');
+    overlay.id = 'abandonEmailOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">💌</div>
+        <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;color:#111;">One last thing</h3>
+        <p style="color:#555;font-size:0.85rem;margin-bottom:1rem;line-height:1.6;">
+          Enter your email and we'll remind you when your free plans reset next month —
+          and send you a <strong>one-time 50% off code</strong>.
+        </p>
+        <input type="email" id="abandonEmail" placeholder="your@email.com"
+          style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
+        <button onclick="submitAbandonEmail()" style="width:100%;background:#2e7d4f;color:white;border:none;padding:0.85rem;border-radius:0.75rem;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:0.5rem;">
+          Send me the 50% off code →
+        </button>
+        <button onclick="document.getElementById('abandonEmailOverlay').remove();showZeroPlansBanner();"
+          style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">
+          No thanks
+        </button>
+      </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  async function submitAbandonEmail() {
+    const emailEl = document.getElementById('abandonEmail');
+    const email = emailEl ? emailEl.value.trim() : '';
+    if (!email || !email.includes('@')) {
+      emailEl.style.border = '1.5px solid #dc2626';
+      emailEl.focus();
+      return;
+    }
+    try {
+      await fetch('/api/email-leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, source: 'abandonment', discount: true })
+      });
+    } catch (e) {}
+    trackEvent('abandon_email_captured', { source: 'abandon_flow' });
+    const overlay = document.getElementById('abandonEmailOverlay');
+    if (overlay) {
+      overlay.querySelector('div').innerHTML = `
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">✅</div>
+        <h3 style="font-size:1.1rem;font-weight:800;color:#111;">You're on the list!</h3>
+        <p style="color:#555;font-size:0.85rem;margin-top:0.5rem;">We'll send your 50% off code and a reminder when plans reset. Check your inbox.</p>`;
+      setTimeout(() => { overlay.remove(); showZeroPlansBanner(); }, 2500);
+    }
   }
 
   function showZeroPlansBanner() {
@@ -970,7 +1047,7 @@
     const banner = document.createElement('div');
     banner.id = 'zeroPlansBanner';
     banner.style.cssText = 'position:sticky;top:0;z-index:200;background:#dc2626;color:#fff;text-align:center;padding:0.6rem 1rem;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.75rem;';
-    banner.innerHTML = `<span>You have 0 free plans left.</span><a href="pricing.html" onclick="trackEvent('upgrade_click',{source:'zero_plans_banner'})" style="background:rgba(255,255,255,0.25);color:#fff;padding:0.2rem 0.75rem;border-radius:2rem;font-weight:700;text-decoration:none;white-space:nowrap;">Upgrade from $4 →</a><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:0.25rem;">✕</button>`;
+    banner.innerHTML = `<span>You have 0 free plans left.</span><a href="upgrade.html" onclick="trackEvent('upgrade_click',{source:'zero_plans_banner'})" style="background:rgba(255,255,255,0.25);color:#fff;padding:0.2rem 0.75rem;border-radius:2rem;font-weight:700;text-decoration:none;white-space:nowrap;">Upgrade from $4 →</a><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:0.25rem;">✕</button>`;
     document.querySelector('.main-content').prepend(banner);
   }
 
@@ -1473,6 +1550,40 @@
     }
   }
 
+  // === WEEKLY RE-ENGAGEMENT (Sunday new-week nudge) ===
+  function checkWeeklyReengagement() {
+    const now = new Date();
+    const isSunday = now.getDay() === 0;
+    if (!isSunday) return;
+    const todayStr = now.toISOString().split('T')[0];
+    const lastSeen = localStorage.getItem('mealzy_sunday_nudge_shown');
+    if (lastSeen === todayStr) return; // already shown today
+    localStorage.setItem('mealzy_sunday_nudge_shown', todayStr);
+
+    // Check if they have a current plan already (skip nudge if plan generated today)
+    const lastGenerated = localStorage.getItem('mealzy_last_generated_date');
+    if (lastGenerated === todayStr) return;
+
+    setTimeout(() => {
+      showToast('🗓️ New week starting — your meal plan is waiting. Generate now and your grocery list will be ready before Monday!', 'success');
+      // Also show a banner
+      const banner = document.createElement('div');
+      banner.id = 'sundayNudgeBanner';
+      banner.style.cssText = 'margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:hsl(270,60%,96%);border:1px solid hsl(270,60%,80%);color:hsl(270,60%,25%);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;';
+      banner.innerHTML = `
+        <div>
+          <strong>🗓️ New week starting!</strong>
+          <span style="font-size:0.88rem;"> Your meal plan is waiting — generate now and your grocery list will be ready before Monday.</span>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
+          <button onclick="generateMealPlan();document.getElementById('sundayNudgeBanner').remove();" style="background:hsl(270,60%,55%);color:white;border:none;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;cursor:pointer;">Generate Now →</button>
+          <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:hsl(270,60%,35%);font-size:1rem;line-height:1;">✕</button>
+        </div>`;
+      const mainContent = document.querySelector('.main-content');
+      if (mainContent) mainContent.prepend(banner);
+    }, 1500);
+  }
+
   // === SOFT UPGRADE BANNER ===
   function checkSoftUpgradeBanner(force) {
     const isPro = localStorage.getItem('mealzy_pro') === 'true';
@@ -1610,8 +1721,41 @@
     showToast('Share card downloaded! Share it anywhere 📲', 'success');
   }
 
-  // === PRINT ===
+  // === PRINT / PDF EXPORT (Pro only) ===
   function printMealPlan() {
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
+    if (!isPro) {
+      trackEvent('pdf_export_blocked', { source: 'print_btn' });
+      // Show upgrade prompt with PDF-specific messaging
+      const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
+      const prefillEmail = (lsUser.email || '').replace(/"/g, '&quot;');
+      const existing = document.getElementById('upgradePrompt');
+      if (existing) { existing.remove(); }
+      const prompt = document.createElement('div');
+      prompt.id = 'upgradePrompt';
+      prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+      prompt.innerHTML = `
+        <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
+          <button onclick="document.getElementById('upgradePrompt').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button>
+          <div style="font-size:2rem;margin-bottom:0.75rem;">📄</div>
+          <h2 style="font-size:1.25rem;font-weight:800;margin-bottom:0.5rem;color:#111;">PDF Export is a Pro feature</h2>
+          <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro to download your meal plan and grocery list as a clean PDF you can print or share.</p>
+          <div style="background:#f0fdf4;border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;text-align:left;">
+            📄 Download meal plan as PDF<br>
+            🛒 Grocery list as PDF<br>
+            ✅ Unlimited meal plans<br>
+            💬 Unlimited AI coaching
+          </div>
+          <input type="email" id="upgradeEmailPdf" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
+          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="(function(){const e=document.getElementById('upgradeEmailPdf');if(e&&e.value)fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),source:'pdf_upgrade'})}).catch(()=>{});trackEvent('upgrade_click',{source:'pdf_btn'});document.getElementById('upgradePrompt').remove();})()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
+          <a href="upgrade.html" style="font-size:0.82rem;color:#666;text-decoration:underline;">Learn more about Pro</a>
+        </div>`;
+      document.body.appendChild(prompt);
+      prompt.addEventListener('click', e => { if (e.target === prompt) prompt.remove(); });
+      return;
+    }
+    // Pro user — print immediately
+    trackEvent('pdf_export', { source: 'print_btn' });
     window.print();
   }
 
