@@ -68,6 +68,15 @@ const generateLimiter = rateLimit({
   message: { error: "You're generating plans fast — wait 60 seconds and try again." }
 });
 
+// Demo meal limiter — 3 per IP per 24 hours (no account required)
+const demoLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'demo_limit', message: "You've used today's 3 free demos. Create a free account — it only takes 30 seconds." }
+});
+
 // ── Cookie helpers ─────────────────────────────────────────────────────────
 function parseCookies(req) {
   const cookies = {};
@@ -119,7 +128,7 @@ function sanitise(val, maxLen = 500) {
 // ── In-memory usage tracker (free-plan generation cap) ────────────────────
 const usageTracker = new Map();
 const FREE_PLAN_LIMIT = 3;
-const referralBonus   = new Map();
+const referralBonus   = new Map(); // kept for in-session backward compat; SQLite is source of truth
 
 function getUsage(ip) {
   const now = new Date();
@@ -135,8 +144,16 @@ function incrementUsage(ip) {
   return usage;
 }
 function getEffectiveLimit(email) {
-  const bonus = email ? (referralBonus.get(email) || 0) : 0;
-  return FREE_PLAN_LIMIT + bonus;
+  const memBonus = email ? (referralBonus.get(email) || 0) : 0;
+  if (email && memBonus === 0) {
+    // Check SQLite for persisted bonus_plans (survives server restarts)
+    try {
+      const user = db.getUserByEmail(email);
+      const dbBonus = user?.bonus_plans || 0;
+      if (dbBonus > 0) return FREE_PLAN_LIMIT + dbBonus;
+    } catch(e) { /* non-fatal */ }
+  }
+  return FREE_PLAN_LIMIT + memBonus;
 }
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -337,6 +354,131 @@ app.get('/api/profile', (req, res) => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
+// FAMILY PROFILES (multi-profile for Family plan)
+// ════════════════════════════════════════════════════════════════════════════
+
+// GET /api/family-profiles — list all family profiles for the authenticated user
+app.get('/api/family-profiles', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const profiles = db.getFamilyProfiles(session.userId);
+  res.json({ success: true, profiles });
+});
+
+// POST /api/family-profiles — create or update a family profile
+// Body: { id (optional — omit to create), name, calorieGoal, budget, dietaryRestrictions, avatar }
+app.post('/api/family-profiles', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  // Check user is pro (family profiles are a pro feature)
+  const user = db.getUserById(session.userId);
+  if (!user?.pro) return res.status(403).json({ error: 'pro_required', message: 'Family profiles require a Pro or Family plan.' });
+
+  const { id: profileId, name, calorieGoal, budget, dietaryRestrictions, avatar } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
+
+  // Limit to 4 profiles per user
+  const existing = db.getFamilyProfiles(session.userId);
+  const isUpdate = profileId && existing.find(p => p.id === profileId);
+  if (!isUpdate && existing.length >= 4) {
+    return res.status(400).json({ error: 'max_profiles', message: 'Family plan supports up to 4 profiles.' });
+  }
+
+  const id = profileId || randomUUID();
+  const data = {
+    calorieGoal: parseInt(calorieGoal) || 2000,
+    budget: parseFloat(budget) || 100,
+    dietaryRestrictions: Array.isArray(dietaryRestrictions) ? dietaryRestrictions : [],
+    avatar: sanitise(avatar || '', 4)
+  };
+
+  db.saveFamilyProfile(id, session.userId, sanitise(name, 100), data);
+  db.logEvent('family_profile_saved', { userId: session.userId }, '');
+  res.json({ success: true, id, name, ...data });
+});
+
+// DELETE /api/family-profiles/:id
+app.delete('/api/family-profiles/:id', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  db.deleteFamilyProfile(req.params.id, session.userId);
+  res.json({ success: true });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// DEMO MEAL — no auth, rate limited, for homepage interactive demo
+// ════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/demo-meal', demoLimiter, async (req, res) => {
+  try {
+    const ip           = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const calorieGoal  = Math.min(Math.max(parseInt(req.body.calorieGoal) || 2000, 1200), 4000);
+    const budget       = Math.min(Math.max(parseFloat(req.body.budget) || 60, 20), 500);
+    const dietary      = sanitise(req.body.dietary || 'none', 100);
+
+    db.logEvent('demo_generated', { calorieGoal, budget, dietary }, ip.slice(-8));
+
+    const dietaryLine = dietary && dietary !== 'none'
+      ? `DIETARY REQUIREMENT: All meals must be ${dietary}. Strictly no ingredients that violate this.`
+      : '';
+
+    const perMealBudget = (budget / 7 / 2).toFixed(2); // lunch + dinner only
+    const dailyBudget   = (budget / 7).toFixed(2);
+
+    const demoPrompt = `You are a professional meal planner. Generate a simple, practical Monday-to-Friday lunch and dinner plan.
+
+Requirements:
+- Daily calorie target: ${calorieGoal} kcal total (split roughly 35% lunch, 40% dinner, 25% other)
+- Weekly grocery budget: $${budget} total. Per-meal budget: max $${perMealBudget} each.
+- Cooking skill: beginner-friendly, everyday supermarket ingredients only.
+${dietaryLine}
+
+Generate exactly 10 meals: lunch and dinner for Monday, Tuesday, Wednesday, Thursday, Friday.
+Keep meal names short (under 6 words) and descriptions under 8 words.
+
+Respond ONLY with valid JSON, no markdown, no extra text:
+{
+  "meals": [
+    { "day": "Monday",    "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Monday",    "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Tuesday",   "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Tuesday",   "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Wednesday", "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Wednesday", "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Thursday",  "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Thursday",  "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Friday",    "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Friday",    "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number }
+  ],
+  "weeklyEstimatedCost": number,
+  "avgDailyCalories": number
+}`;
+
+    const completion = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1800,
+      system: 'You are a meal planning API. Always respond with valid JSON only. No markdown fences, no explanations.',
+      messages: [{ role: 'user', content: demoPrompt }]
+    });
+
+    const rawText = completion.content[0].text.trim();
+    let plan;
+    try {
+      plan = parseJsonResponse(rawText);
+    } catch(e) {
+      return res.status(500).json({ error: 'Failed to generate demo. Please try again.' });
+    }
+
+    res.json({ success: true, plan });
+
+  } catch(err) {
+    console.error('[demo-meal] error:', err);
+    res.status(500).json({ error: 'Failed to generate demo. Please try again.' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // PLAN HISTORY ENDPOINTS
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -497,22 +639,58 @@ app.get('/api/analytics', (req, res) => {
 // REFERRAL
 // ════════════════════════════════════════════════════════════════════════════
 
+// POST /api/referral — credit a referral (called at signup when a pending ref exists)
 app.post('/api/referral', (req, res) => {
   const { referrer_email, new_user_email } = req.body;
   if (!referrer_email) return res.status(400).json({ error: 'referrer_email required' });
+
+  // Persist to SQLite referrals table
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+  try {
+    const { randomUUID } = require('crypto');
+    db.saveReferral(randomUUID(), referrer_email, ip, new_user_email || '');
+    db.addBonusPlan(referrer_email); // increment bonus_plans on the referrer's account
+    db.markReferralConverted(referrer_email, new_user_email || '');
+  } catch(e) { console.error('[referral] DB error:', e); }
+
+  // Also update in-memory Map for immediate effect in current server session
   const current = referralBonus.get(referrer_email) || 0;
   referralBonus.set(referrer_email, current + 1);
+
   db.logEvent('referral_signup', { referrer: referrer_email, new_user: new_user_email }, '');
   res.json({ ok: true, bonus_plans: current + 1 });
+});
+
+// GET /api/referral-capture — called when visitor lands with ?ref=EMAIL
+// Stores the referral intent so it can be credited when they sign up
+app.get('/api/referral-capture', (req, res) => {
+  const { ref, ip: clientIp } = req.query;
+  if (!ref || !ref.includes('@')) return res.json({ ok: false });
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || clientIp || '';
+  try {
+    const { randomUUID } = require('crypto');
+    db.saveReferral(randomUUID(), ref, ip.slice(-16), '');
+  } catch(e) { /* non-fatal */ }
+  db.logEvent('referral_visit', { ref }, ip.slice(-8));
+  res.json({ ok: true });
 });
 
 app.get('/api/referral-status', (req, res) => {
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: 'email required' });
+  const session = getSessionFromReq(req);
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   const usage         = getUsage(ip);
   const effectiveLimit = getEffectiveLimit(email);
-  res.json({ bonus_plans: referralBonus.get(email) || 0, effective_limit: effectiveLimit, used: usage.count });
+
+  // Get SQLite-persisted referral count (survives restarts)
+  let referralCount = referralBonus.get(email) || 0;
+  try {
+    const dbCount = db.getReferralCount(email);
+    if (dbCount > referralCount) referralCount = dbCount;
+  } catch(e) { /* non-fatal */ }
+
+  res.json({ bonus_plans: referralCount, effective_limit: effectiveLimit, used: usage.count });
 });
 
 // ════════════════════════════════════════════════════════════════════════════

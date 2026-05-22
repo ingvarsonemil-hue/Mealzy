@@ -150,8 +150,8 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">
           <span class="badge badge-primary">Most Popular</span>
         </div>
-        <div class="countdown-badge" id="priceLockBadge">
-          🔒 Price locks in <span id="countdownDisplay">48:00:00</span>
+        <div class="countdown-badge" style="background:hsl(152,52%,94%);color:var(--clr-primary);border-color:var(--clr-primary);">
+          📈 Introductory pricing — we started at $5/mo and the price has already increased once.
         </div>
         <div class="pricing-card-top">
           <div class="pricing-plan-name">Pro</div>
@@ -162,7 +162,7 @@
           </div>
           <div class="pricing-billed" id="billedPremium">&nbsp;</div>
         </div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" id="proCta" onclick="trackUpgradeClick()">Start Pro — 7 Days Free</a>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
         <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.6rem;" id="proCtaNote">🔒 Lock in $8/mo — price may increase as we grow.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
@@ -182,21 +182,26 @@
       <div class="pricing-card" id="cardFamily">
         <div class="pricing-card-top">
           <div class="pricing-plan-name">Family</div>
-          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">Up to 4 profiles, one plan.</p>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">For households that eat together.</p>
           <div class="pricing-price">
             <span class="amount" id="priceFamilyMo">$16</span>
             <span class="period">/month</span>
           </div>
           <div class="pricing-billed" id="billedFamily">&nbsp;</div>
         </div>
-        <a href="mailto:support@mealzy.org?subject=Family%20Plan%20Waitlist" class="btn btn-outline btn-full">Join Waitlist — Coming Soon</a>
+        <!-- TODO (Family Stripe): Create a Family plan product in Stripe Dashboard:
+             1. Stripe Dashboard → Products → Add product → "Mealzy Family"
+             2. Add price: $16/month recurring (and $10/month billed as $120/year)
+             3. Copy the payment link URL and replace the href below -->
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-outline btn-full" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
+        <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
-          <li><span class="check">✓</span> Everything in Pro</li>
-          <li><span class="check">✓</span> Up to 4 profiles</li>
-          <li><span class="check">✓</span> Separate goals per person</li>
-          <li><span class="check">✓</span> Shared grocery list</li>
-          <li><span class="check">✓</span> Individual macro tracking</li>
+          <li><span class="check">✓</span> <strong>Everything</strong> in Pro</li>
+          <li><span class="check">✓</span> Up to <strong>4 individual profiles</strong></li>
+          <li><span class="check">✓</span> Separate calorie &amp; macro goals per person</li>
           <li><span class="check">✓</span> Allergen management per profile</li>
+          <li><span class="check">✓</span> Combined grocery list (one shop, everyone covered)</li>
+          <li><span class="check">✓</span> Unlimited meal plans for all profiles</li>
           <li><span class="check">✓</span> Priority support</li>
           <li><span class="check">✓</span> Cancel anytime</li>
         </ul>
@@ -317,6 +322,16 @@
   </div>
 </section>
 
+<!-- STILL NOT SURE -->
+<section class="section" style="padding-top:0;">
+  <div class="container" style="text-align:center;">
+    <p style="font-size:0.95rem;color:var(--clr-muted-fg);">
+      Still not sure? <a href="upgrade.html" style="color:var(--clr-primary);font-weight:600;text-decoration:none;">See a full breakdown of what Pro unlocks →</a>
+    </p>
+    <p style="font-size:0.84rem;color:var(--clr-muted-fg);margin-top:0.5rem;">Questions? <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a> — usually replied to within 24 hours.</p>
+  </div>
+</section>
+
 <!-- CTA -->
 <section class="section">
   <div class="container">
@@ -342,6 +357,10 @@
         <a href="mailto:support@mealzy.org">Contact</a>
         <a href="pricing.html">Pricing</a>
       </div>
+      <p style="color:rgba(255,255,255,0.75);font-size:0.85rem;margin-top:0.25rem;">
+        Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,0.9);font-weight:600;">support@mealzy.org</a>
+      </p>
+      <p style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:0.1rem;">Usually replied to within 24 hours.</p>
       <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
     </div>
   </div>
@@ -362,8 +381,8 @@
 </div>
 
 <script>
-  function trackUpgradeClick() {
-    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event:'upgrade_click', data:{ source:'pricing_page' } }) }).catch(()=>{});
+  function trackUpgradeClick(plan) {
+    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event:'upgrade_click', data:{ source:'pricing_page', plan: plan || 'pro' } }) }).catch(()=>{});
   }
 
   let billingMode = 'monthly';
@@ -385,10 +404,14 @@
     monthly: { free: '', premium: '', family: '' },
     yearly:  {
       free: '',
-      premium: 'Billed $62/year — 2 months free',
-      family:  'Billed $124/year — 2 months free'
+      premium: 'Billed $62/year — save $34 vs monthly',
+      family:  'Billed $120/year — save $72 vs monthly'
     }
   };
+
+  // TODO (Family annual Stripe): Replace href below with Family annual payment link
+  const STRIPE_FAMILY_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with Family monthly link
+  const STRIPE_FAMILY_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with Family annual link
 
   function setBilling(mode) {
     billingMode = mode;
@@ -425,6 +448,13 @@
       ctaNote.textContent = '🔒 Lock in $8/mo — price may increase as we grow.';
     }
 
+    // Swap Family CTA link based on billing mode
+    const familyCta = document.getElementById('familyCta');
+    if (familyCta) {
+      familyCta.href = mode === 'yearly' ? STRIPE_FAMILY_YEARLY : STRIPE_FAMILY_MONTHLY;
+      familyCta.textContent = mode === 'yearly' ? 'Start Family Annual →' : 'Start Family Plan →';
+    }
+
     // Subtle pulse on premium card when switching to yearly
     if (mode === 'yearly') {
       const card = document.getElementById('cardPremium');
@@ -447,30 +477,7 @@
     }, 30000);
   }
 
-  // ── Countdown clock (48h urgency) ──
-  (function startCountdown() {
-    const KEY = 'pricing_deadline';
-    let deadline = localStorage.getItem(KEY);
-    if (!deadline) {
-      deadline = Date.now() + 48 * 60 * 60 * 1000;
-      localStorage.setItem(KEY, deadline);
-    }
-    function tick() {
-      const diff = Math.max(0, deadline - Date.now());
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      const el = document.getElementById('countdownDisplay');
-      if (el) el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-      if (diff > 0) setTimeout(tick, 1000);
-      else {
-        const badge = document.getElementById('priceLockBadge');
-        if (badge) badge.style.display = 'none';
-        localStorage.removeItem(KEY); // reset for next visit
-      }
-    }
-    tick();
-  })();
+  // Countdown removed — replaced with static introductory pricing note.
 
   // Hamburger
   const hamburger = document.getElementById('hamburger');

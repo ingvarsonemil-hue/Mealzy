@@ -50,6 +50,7 @@
         </div>
       </div>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <a href="mailto:support@mealzy.org" style="font-size:0.75rem;color:var(--clr-muted-fg);text-decoration:none;margin-top:0.4rem;display:block;">✉ support@mealzy.org</a>
     </div>
   </div>
 </div>
@@ -355,7 +356,56 @@
       <button class="btn btn-primary btn-sm" onclick="saveCooking()">Save Cooking Preferences</button>
     </div>
 
-    <!-- SECTION 6: Danger Zone -->
+    <!-- SECTION 6: Family Profiles (Pro users only) -->
+    <div class="card settings-section" id="familyProfilesSection" style="display:none;">
+      <div class="settings-section-title">👨‍👩‍👧 Family Profiles</div>
+      <p style="font-size:0.88rem;color:var(--clr-muted-fg);margin-bottom:1.25rem;">Add up to 4 profiles for people you cook for. Each profile has its own calorie goal, budget, and dietary preferences. Plans can be generated for any profile.</p>
+
+      <div id="familyProfilesList" style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.25rem;"></div>
+
+      <div id="addProfileForm" style="display:none;background:var(--clr-muted-bg);border-radius:0.75rem;padding:1.25rem;margin-bottom:1rem;">
+        <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.85rem;">New Profile</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-input" id="fpName" placeholder="e.g. Partner, Kid" maxlength="50" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Daily calorie goal</label>
+            <input type="number" class="form-input" id="fpCals" value="2000" min="1000" max="5000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Weekly food budget ($)</label>
+            <input type="number" class="form-input" id="fpBudget" value="80" min="10" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Avatar (1-2 chars)</label>
+            <input type="text" class="form-input" id="fpAvatar" placeholder="😊" maxlength="2" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dietary restrictions</label>
+          <div class="chips-group" id="fpDietChips">
+            <button class="chip" data-pref="vegetarian" onclick="this.classList.toggle('active')">🌿 Vegetarian</button>
+            <button class="chip" data-pref="vegan" onclick="this.classList.toggle('active')">🌱 Vegan</button>
+            <button class="chip" data-pref="gluten-free" onclick="this.classList.toggle('active')">🌾 Gluten-Free</button>
+            <button class="chip" data-pref="dairy-free" onclick="this.classList.toggle('active')">🥛 Dairy-Free</button>
+            <button class="chip" data-pref="nut-free" onclick="this.classList.toggle('active')">🥜 Nut-Free</button>
+            <button class="chip" data-pref="halal" onclick="this.classList.toggle('active')">☪️ Halal</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.6rem;margin-top:0.85rem;">
+          <button class="btn btn-primary btn-sm" onclick="saveNewProfile()">Save Profile</button>
+          <button class="btn btn-outline btn-sm" onclick="cancelAddProfile()">Cancel</button>
+        </div>
+      </div>
+
+      <button class="btn btn-outline btn-sm" id="addProfileBtn" onclick="showAddProfileForm()">+ Add Profile</button>
+    </div>
+
+    <!-- SECTION 7: Danger Zone -->
     <div class="settings-section">
       <div class="danger-zone">
         <h3>⚠️ Danger Zone</h3>
@@ -450,6 +500,13 @@
 
     prefillForm();
     applyNavTranslations();
+
+    // Show family profiles section for Pro users
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
+    if (isPro) {
+      document.getElementById('familyProfilesSection').style.display = 'block';
+      loadFamilyProfiles();
+    }
   }
 
   function prefillForm() {
@@ -646,6 +703,95 @@
     toast.textContent = msg;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3500);
+  }
+
+  // ── Family Profiles ──────────────────────────────────────────────────────
+  let _familyProfiles = [];
+
+  async function loadFamilyProfiles() {
+    try {
+      const res = await fetch('/api/family-profiles');
+      if (!res.ok) return;
+      const data = await res.json();
+      _familyProfiles = data.profiles || [];
+      renderFamilyProfiles();
+    } catch(e) { /* non-fatal */ }
+  }
+
+  function renderFamilyProfiles() {
+    const list = document.getElementById('familyProfilesList');
+    const addBtn = document.getElementById('addProfileBtn');
+    if (!list) return;
+
+    if (_familyProfiles.length === 0) {
+      list.innerHTML = '<p style="font-size:0.85rem;color:var(--clr-muted-fg);">No family profiles yet. Add one to get started.</p>';
+    } else {
+      list.innerHTML = _familyProfiles.map(p => `
+        <div style="display:flex;align-items:center;gap:0.75rem;background:var(--clr-muted-bg);border-radius:0.75rem;padding:0.85rem 1rem;border:1px solid var(--clr-border);">
+          <div style="width:38px;height:38px;background:var(--clr-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1rem;flex-shrink:0;">${(p.avatar || p.name[0]).slice(0,2)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:0.9rem;">${p.name}</div>
+            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">${p.calorieGoal||'?'} kcal/day · $${p.budget||'?'}/week${p.dietaryRestrictions?.length ? ' · ' + p.dietaryRestrictions.join(', ') : ''}</div>
+          </div>
+          <button onclick="deleteFamilyProfile('${p.id}')" style="background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.85rem;padding:0.25rem 0.5rem;" title="Delete profile">🗑</button>
+        </div>`).join('');
+    }
+
+    // Hide add button if at limit
+    if (addBtn) addBtn.style.display = _familyProfiles.length >= 4 ? 'none' : 'inline-flex';
+  }
+
+  function showAddProfileForm() {
+    document.getElementById('addProfileForm').style.display = 'block';
+    document.getElementById('addProfileBtn').style.display = 'none';
+    document.getElementById('fpName').focus();
+  }
+
+  function cancelAddProfile() {
+    document.getElementById('addProfileForm').style.display = 'none';
+    const addBtn = document.getElementById('addProfileBtn');
+    if (addBtn && _familyProfiles.length < 4) addBtn.style.display = 'inline-flex';
+    // Clear form
+    document.getElementById('fpName').value = '';
+    document.getElementById('fpAvatar').value = '';
+    document.querySelectorAll('#fpDietChips .chip').forEach(c => c.classList.remove('active'));
+  }
+
+  async function saveNewProfile() {
+    const name = document.getElementById('fpName').value.trim();
+    if (!name) { showToast('Please enter a name', 'error'); return; }
+
+    const cals   = parseInt(document.getElementById('fpCals').value) || 2000;
+    const budget = parseFloat(document.getElementById('fpBudget').value) || 80;
+    const avatar = document.getElementById('fpAvatar').value.trim() || name[0];
+    const restrictions = Array.from(document.querySelectorAll('#fpDietChips .chip.active')).map(c => c.dataset.pref);
+
+    try {
+      const res = await fetch('/api/family-profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, calorieGoal: cals, budget, avatar, dietaryRestrictions: restrictions })
+      });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.message || 'Error saving profile', 'error'); return; }
+
+      _familyProfiles.push({ id: data.id, name, calorieGoal: cals, budget, avatar, dietaryRestrictions: restrictions });
+      renderFamilyProfiles();
+      cancelAddProfile();
+      showToast('✅ Profile added!', 'success');
+    } catch(e) {
+      showToast('Error saving profile. Try again.', 'error');
+    }
+  }
+
+  async function deleteFamilyProfile(id) {
+    if (!confirm('Delete this profile?')) return;
+    try {
+      await fetch('/api/family-profiles/' + id, { method: 'DELETE' });
+      _familyProfiles = _familyProfiles.filter(p => p.id !== id);
+      renderFamilyProfiles();
+      showToast('Profile deleted', 'success');
+    } catch(e) { showToast('Error deleting profile', 'error'); }
   }
 
   // Close modal on overlay click

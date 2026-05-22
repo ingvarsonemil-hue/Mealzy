@@ -89,7 +89,27 @@ function _applySchema() {
       ip_tail      TEXT,
       created_at   TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS family_profiles (
+      id           TEXT PRIMARY KEY,
+      user_id      TEXT NOT NULL,
+      name         TEXT NOT NULL,
+      data         TEXT NOT NULL,
+      created_at   TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS referrals (
+      id             TEXT PRIMARY KEY,
+      referrer_email TEXT NOT NULL,
+      referred_ip    TEXT,
+      referred_email TEXT,
+      converted      INTEGER DEFAULT 0,
+      created_at     TEXT DEFAULT CURRENT_TIMESTAMP
+    );
   `);
+
+  // Add bonus_plans column to existing users tables (ignore if already exists)
+  try { _db.run(`ALTER TABLE users ADD COLUMN bonus_plans INTEGER DEFAULT 0`); } catch(e) { /* column already exists */ }
 }
 
 // Save in-memory db to disk. Called after every write.
@@ -255,7 +275,78 @@ function getAnalytics() {
   }));
 }
 
-// DB health check (for /api/health)
+// ── Family Profiles ───────────────────────────────────────────────────────────
+
+function getFamilyProfiles(userId) {
+  const rows = all(
+    'SELECT id, name, data, created_at FROM family_profiles WHERE user_id = ? ORDER BY created_at ASC',
+    [userId]
+  );
+  return rows.map(r => ({
+    id: r.id,
+    name: r.name,
+    createdAt: r.created_at,
+    ...(() => { try { return JSON.parse(r.data); } catch(e) { return {}; } })()
+  }));
+}
+
+function saveFamilyProfile(id, userId, name, dataObj) {
+  run(
+    `INSERT INTO family_profiles (id, user_id, name, data)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET name = excluded.name, data = excluded.data`,
+    [id, userId, name, JSON.stringify(dataObj || {})]
+  );
+}
+
+function deleteFamilyProfile(id, userId) {
+  run('DELETE FROM family_profiles WHERE id = ? AND user_id = ?', [id, userId]);
+}
+
+function countFamilyProfiles(userId) {
+  const row = get('SELECT COUNT(*) AS n FROM family_profiles WHERE user_id = ?', [userId]);
+  return row ? row.n : 0;
+}
+
+// ── Referrals ─────────────────────────────────────────────────────────────────
+
+function saveReferral(id, referrerEmail, referredIp, referredEmail) {
+  run(
+    `INSERT INTO referrals (id, referrer_email, referred_ip, referred_email, converted)
+     VALUES (?, ?, ?, ?, 0)
+     ON CONFLICT DO NOTHING`,
+    [id, referrerEmail.toLowerCase().trim(), referredIp || '', (referredEmail || '').toLowerCase().trim()]
+  );
+}
+
+function markReferralConverted(referrerEmail, referredEmail) {
+  run(
+    `UPDATE referrals SET converted = 1 WHERE referrer_email = ? AND referred_email = ? AND converted = 0`,
+    [referrerEmail.toLowerCase().trim(), (referredEmail || '').toLowerCase().trim()]
+  );
+}
+
+function getReferralCount(referrerEmail) {
+  const row = get(
+    'SELECT COUNT(*) AS n FROM referrals WHERE referrer_email = ?',
+    [referrerEmail.toLowerCase().trim()]
+  );
+  return row ? row.n : 0;
+}
+
+function addBonusPlan(email) {
+  run(
+    `UPDATE users SET bonus_plans = COALESCE(bonus_plans, 0) + 1 WHERE email = ?`,
+    [email.toLowerCase().trim()]
+  );
+}
+
+function getUserBonusPlans(userId) {
+  const row = get('SELECT bonus_plans FROM users WHERE id = ?', [userId]);
+  return row ? (row.bonus_plans || 0) : 0;
+}
+
+// ── DB health check (for /api/health) ─────────────────────────────────────────
 function ping() {
   const row = get('SELECT 1 AS ok');
   return row && row.ok === 1;
@@ -275,6 +366,10 @@ module.exports = {
   saveLead, countLeads,
   // analytics
   logEvent, getAnalytics,
+  // family profiles
+  getFamilyProfiles, saveFamilyProfile, deleteFamilyProfile, countFamilyProfiles,
+  // referrals
+  saveReferral, markReferralConverted, getReferralCount, addBonusPlan, getUserBonusPlans,
   // health
   ping
 };

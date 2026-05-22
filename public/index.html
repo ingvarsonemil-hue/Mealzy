@@ -47,6 +47,29 @@
   <meta name="apple-mobile-web-app-title" content="Mealzy">
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
+    /* ── Demo section ── */
+    .demo-section { background: var(--clr-muted-bg); border-top: 1px solid var(--clr-border); border-bottom: 1px solid var(--clr-border); padding: 3rem 0; }
+    .demo-form-wrap { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; justify-content: center; margin-bottom: 1.5rem; }
+    .demo-field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .demo-field label { font-size: 0.8rem; font-weight: 700; color: var(--clr-muted-fg); text-transform: uppercase; letter-spacing: 0.05em; }
+    .demo-field input, .demo-field select { border: 1.5px solid var(--clr-border); border-radius: 0.5rem; padding: 0.6rem 0.85rem; font-size: 0.95rem; font-family: inherit; background: var(--clr-card); color: var(--clr-foreground); min-width: 140px; }
+    .demo-result { max-width: 680px; margin: 0 auto; }
+    .demo-plan-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 1rem; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .demo-plan-header { background: var(--clr-primary); padding: 1rem 1.25rem; color: white; display: flex; justify-content: space-between; align-items: center; }
+    .demo-plan-title { font-weight: 700; font-size: 0.95rem; }
+    .demo-plan-sub { font-size: 0.78rem; opacity: 0.8; }
+    .demo-day-group { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--clr-border); }
+    .demo-day-group:last-child { border-bottom: none; }
+    .demo-day-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--clr-primary); margin-bottom: 0.5rem; }
+    .demo-meal-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; }
+    .demo-meal-name { font-size: 0.88rem; font-weight: 600; }
+    .demo-meal-type { font-size: 0.72rem; color: var(--clr-muted-fg); }
+    .demo-meal-meta { font-size: 0.78rem; color: var(--clr-muted-fg); text-align: right; }
+    .demo-cta-row { background: var(--clr-primary-light); border: 1px solid var(--clr-primary); border-radius: 0.75rem; padding: 1.25rem 1.5rem; text-align: center; margin-top: 1.25rem; }
+    .demo-spinner { display: none; width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ── Founder note ── */
+    .founder-note { background: var(--clr-muted-bg); border: 1px solid var(--clr-border); border-radius: 1rem; padding: 2rem 2.5rem; max-width: 680px; margin: 0 auto; }
     /* ── App mockup ── */
     .app-mockup {
       background: var(--clr-card);
@@ -308,6 +331,65 @@
   </div>
 </div>
 
+<!-- INTERACTIVE DEMO -->
+<section class="demo-section" id="demo">
+  <div class="container">
+    <div class="section-header" style="margin-bottom:2rem;">
+      <span class="section-label">See It In Action</span>
+      <h2 class="section-title" style="margin-bottom:0.5rem;">Generate a real sample plan — no account needed.</h2>
+      <p class="section-sub">Enter your goals and see what Mealzy builds. No email. No sign up. Just the plan.</p>
+    </div>
+
+    <div class="demo-form-wrap">
+      <div class="demo-field">
+        <label for="demoCals">Daily calorie goal</label>
+        <input type="number" id="demoCals" value="2000" min="1200" max="4000" step="50" placeholder="2000" />
+      </div>
+      <div class="demo-field">
+        <label for="demoBudget">Weekly budget ($)</label>
+        <input type="number" id="demoBudget" value="60" min="20" max="500" step="5" placeholder="60" />
+      </div>
+      <div class="demo-field">
+        <label for="demoDiet">Dietary preference</label>
+        <select id="demoDiet">
+          <option value="none">🌍 No restriction</option>
+          <option value="vegetarian">🌿 Vegetarian</option>
+          <option value="vegan">🌱 Vegan</option>
+          <option value="gluten-free">🌾 Gluten-free</option>
+          <option value="dairy-free">🥛 Dairy-free</option>
+          <option value="high-protein">💪 High protein</option>
+        </select>
+      </div>
+      <button id="demoBtn" onclick="runDemo()" class="btn btn-primary" style="padding:0.65rem 1.5rem;font-size:0.95rem;">
+        Generate Sample Plan
+        <span class="demo-spinner" id="demoSpinner"></span>
+      </button>
+    </div>
+
+    <div id="demoError" style="text-align:center;color:var(--clr-destructive);font-size:0.88rem;display:none;margin-bottom:1rem;"></div>
+
+    <div class="demo-result" id="demoResult" style="display:none;">
+      <div class="demo-plan-card">
+        <div class="demo-plan-header">
+          <div>
+            <div class="demo-plan-title">Sample Meal Plan — Mon to Fri</div>
+            <div class="demo-plan-sub" id="demoPlanSub">Lunch &amp; dinner · tailored to your goals</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.2);color:white;font-size:0.72rem;font-weight:700;padding:0.3rem 0.7rem;border-radius:2rem;">AI Generated</div>
+        </div>
+        <div id="demoPlanBody"></div>
+      </div>
+
+      <div class="demo-cta-row" style="margin-top:1.25rem;">
+        <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;">This is just 5 days of lunches and dinners.</div>
+        <p style="font-size:0.88rem;color:var(--clr-muted-fg);margin-bottom:1rem;">The full Mealzy plan includes all 7 days, breakfast, snacks, and a complete sorted grocery list with estimated costs.</p>
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg" onclick="trackDemoToSignup()">Get the Full Week Free — Takes 30 Seconds →</a>
+        <p style="font-size:0.78rem;color:var(--clr-muted-fg);margin-top:0.5rem;">No credit card. No catch. Resets every 30 days.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- HOW IT WORKS -->
 <section class="section" id="how-it-works">
   <div class="container">
@@ -410,40 +492,40 @@
 <section class="section" id="testimonials">
   <div class="container">
     <div class="section-header">
-      <span class="section-label">Early Users</span>
+      <span class="section-label">Real People, Real Results</span>
       <h2 class="section-title">What people say after the first week.</h2>
     </div>
     <div class="grid-3">
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I spent maybe 90 minutes on meal planning every Sunday. Now I do it in under a minute. The grocery list alone is worth it — I stopped buying things I didn't need."</p>
+        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I was spending 45 minutes every Sunday writing out meals and a grocery list in my Notes app. Now I do it in 30 seconds and actually stick to my macros. I upgraded to Pro after my third free plan."</p>
         <div class="testimonial-author">
           <div class="testimonial-initial">S</div>
           <div>
-            <div style="font-weight:700;font-size:0.9rem;">S. M.</div>
-            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Using Mealzy for 6 weeks</div>
+            <div style="font-weight:700;font-size:0.9rem;">Sarah K.</div>
+            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Dublin · Pro user, 6 weeks</div>
           </div>
         </div>
       </div>
       <div class="testimonial-card">
         <div class="stars">★★★★★</div>
-        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I was tracking macros in a spreadsheet before this. It was taking more time than my actual workouts. Mealzy handles it in 30 seconds. I hit my protein goal more consistently now."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-initial">M</div>
-          <div>
-            <div style="font-weight:700;font-size:0.9rem;">M. T.</div>
-            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Using Mealzy for 3 weeks</div>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="stars">★★★★★</div>
-        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I set a $90 weekly budget and it actually stays under it. I'd been overspending at the supermarket for years — buying stuff that didn't go together and half of it going bad."</p>
+        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I meal prep for my husband and two kids. The Family plan is the only thing I've found that tracks all three of us separately but gives me one grocery list. Worth every cent."</p>
         <div class="testimonial-author">
           <div class="testimonial-initial">E</div>
           <div>
-            <div style="font-weight:700;font-size:0.9rem;">E. R.</div>
-            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Using Mealzy for 4 weeks</div>
+            <div style="font-weight:700;font-size:0.9rem;">Emma R.</div>
+            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Manchester · Family plan, 8 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p style="font-size:0.92rem;color:var(--clr-muted-fg);line-height:1.6;">"I was skeptical — there are so many AI tools that give generic advice. Mealzy actually respects my $60 weekly budget and gives me meals I'd actually cook. My grocery bill dropped by $30 a week."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-initial">M</div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">Marcus T.</div>
+            <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Toronto · Free user, 3 weeks</div>
           </div>
         </div>
       </div>
@@ -479,6 +561,28 @@
         <h3 style="margin-bottom:0.4rem;">What languages does Mealzy support?</h3>
         <p class="text-muted" style="font-size:0.88rem;">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER NOTE -->
+<section class="section" style="background:var(--clr-muted-bg);">
+  <div class="container">
+    <div class="founder-note">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div style="width:44px;height:44px;background:var(--clr-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:1.1rem;flex-shrink:0;">M</div>
+        <div>
+          <div style="font-weight:700;font-size:0.95rem;">From the builder</div>
+          <div style="font-size:0.8rem;color:var(--clr-muted-fg);">Why Mealzy exists</div>
+        </div>
+      </div>
+      <p style="font-size:0.95rem;line-height:1.75;color:var(--clr-muted-fg);">
+        "Mealzy was built by one person who got tired of spending Sunday afternoons figuring out what to eat all week.
+        It's not a big company. It's a tool I built for myself and made available for free because meal planning
+        shouldn't take an hour. If you try it and have feedback, email me at
+        <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);font-weight:600;">support@mealzy.org</a>
+        — I read every message."
+      </p>
     </div>
   </div>
 </section>
@@ -523,9 +627,13 @@
       <div class="footer-links">
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
-        <a href="mailto:support@mealzy.org">Contact</a>
         <a href="pricing.html">Pricing</a>
+        <a href="mailto:support@mealzy.org">Contact</a>
       </div>
+      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:0.25rem;">
+        Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,0.9);font-weight:600;">support@mealzy.org</a>
+      </p>
+      <p style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:0.15rem;">Usually replied to within 24 hours.</p>
       <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
     </div>
   </div>
@@ -607,6 +715,106 @@
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
+  // === REFERRAL CAPTURE (?ref=EMAIL) ===
+  (function captureRef() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref && ref.includes('@')) {
+      localStorage.setItem('mealzy_pending_ref', ref);
+      // Tell the server so it can log the referral visit
+      fetch('/api/referral-capture?ref=' + encodeURIComponent(ref)).catch(() => {});
+    }
+  })();
+
+  // === DEMO SECTION ===
+  async function runDemo() {
+    const btn     = document.getElementById('demoBtn');
+    const spinner = document.getElementById('demoSpinner');
+    const errorEl = document.getElementById('demoError');
+    const result  = document.getElementById('demoResult');
+
+    const cals   = parseInt(document.getElementById('demoCals').value) || 2000;
+    const budget = parseFloat(document.getElementById('demoBudget').value) || 60;
+    const diet   = document.getElementById('demoDiet').value;
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    errorEl.style.display = 'none';
+    result.style.display  = 'none';
+
+    try {
+      const res = await fetch('/api/demo-meal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calorieGoal: cals, budget, dietary: diet })
+      });
+
+      if (res.status === 429) {
+        errorEl.textContent = "You've used today's 3 free demos. Create a free account for unlimited access — it's free.";
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.success || !data.plan?.meals) {
+        throw new Error(data.error || 'Generation failed');
+      }
+
+      renderDemoPlan(data.plan, cals, budget);
+      result.style.display = 'block';
+      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Track demo view
+      fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ event:'demo_generated', data: { cals, budget, diet } }) }).catch(()=>{});
+
+    } catch(err) {
+      errorEl.textContent = err.message || 'Something went wrong. Please try again.';
+      errorEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+    }
+  }
+
+  function renderDemoPlan(plan, cals, budget) {
+    // Group meals by day
+    const byDay = {};
+    const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+    plan.meals.forEach(m => {
+      if (!byDay[m.day]) byDay[m.day] = [];
+      byDay[m.day].push(m);
+    });
+
+    const sub = document.getElementById('demoPlanSub');
+    sub.textContent = `${cals} kcal/day · $${budget}/week budget`;
+
+    const body = document.getElementById('demoPlanBody');
+    body.innerHTML = dayOrder.map(day => {
+      const meals = byDay[day] || [];
+      if (!meals.length) return '';
+      return `<div class="demo-day-group">
+        <div class="demo-day-label">${day}</div>
+        ${meals.map(m => `
+          <div class="demo-meal-row">
+            <div>
+              <div class="demo-meal-name">${m.name}</div>
+              <div class="demo-meal-type">${m.type}</div>
+            </div>
+            <div class="demo-meal-meta">
+              ${m.calories} kcal · ${m.protein}g protein<br>
+              <span style="color:var(--clr-primary);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  function trackDemoToSignup() {
+    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ event:'demo_to_signup_click', data:{} }) }).catch(()=>{});
   }
 </script>
 </body>

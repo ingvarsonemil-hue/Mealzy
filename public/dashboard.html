@@ -79,6 +79,7 @@
         </div>
       </div>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <a href="mailto:support@mealzy.org" style="font-size:0.75rem;color:var(--clr-muted-fg);text-decoration:none;margin-top:0.4rem;display:block;">✉ support@mealzy.org</a>
     </div>
   </div>
 
@@ -1605,7 +1606,8 @@
     const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
     const email = lsUser.email || '';
     if (!email) return;
-    const refLink = `${window.location.origin}/login.html?ref=${encodeURIComponent(email)}`;
+    // Link goes to homepage so the referral capture script fires
+    const refLink = `${window.location.origin}/?ref=${encodeURIComponent(email)}`;
     const input = document.getElementById('referralLink');
     if (input) input.value = refLink;
     document.getElementById('referralBanner').style.display = '';
