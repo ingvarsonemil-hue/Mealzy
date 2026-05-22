@@ -137,8 +137,15 @@
   if (_refParam) localStorage.setItem('mealzy_pending_ref', _refParam);
 
   // Auto-switch to signup tab when coming from "Start Free" CTAs
-  if (new URLSearchParams(window.location.search).get('signup') === '1') {
+  const _qs = new URLSearchParams(window.location.search);
+  if (_qs.get('signup') === '1') {
     switchTab('signup');
+    // Pre-fill email if passed (e.g. from homepage email popup)
+    const _emailPrefill = _qs.get('email');
+    if (_emailPrefill) {
+      const emailField = document.getElementById('suEmail');
+      if (emailField) emailField.value = decodeURIComponent(_emailPrefill);
+    }
   }
 
   function switchTab(tab) {
