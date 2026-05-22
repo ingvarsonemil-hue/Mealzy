@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { randomUUID } = require('crypto');
 const Anthropic = require('@anthropic-ai/sdk');
 
 const app = express();
@@ -11,9 +12,21 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ── File paths for persistent data ──
-const LEADS_FILE = path.join(__dirname, 'leads.json');
+const LEADS_FILE    = path.join(__dirname, 'leads.json');
 const ANALYTICS_FILE = path.join(__dirname, 'analytics.json');
 
+// ── User data directory ──
+const DATA_DIR          = path.join(__dirname, 'data');
+const USERS_FILE        = path.join(DATA_DIR, 'users.json');
+const RESET_TOKENS_FILE = path.join(DATA_DIR, 'reset-tokens.json');
+const BACKUP_FILE       = path.join(DATA_DIR, 'backup.jsonl');
+
+// Create data directory structure on startup
+[DATA_DIR, path.join(DATA_DIR, 'profiles'), path.join(DATA_DIR, 'plans')].forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
+
+// ── Generic file helpers ──
 function appendJsonLine(filePath, obj) {
   try {
     fs.appendFileSync(filePath, JSON.stringify(obj) + '\n', 'utf8');
@@ -31,8 +44,97 @@ function readJsonLines(filePath) {
   } catch(e) { return []; }
 }
 
+// ── User data helpers ──
+function readUsers() {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return {};
+    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+  } catch(e) { return {}; }
+}
+
+function writeUsers(users) {
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+  } catch(e) { console.error('writeUsers error:', e); }
+}
+
+function readProfile(userId) {
+  const file = path.join(DATA_DIR, 'profiles', `${userId}.json`);
+  try {
+    if (!fs.existsSync(file)) return null;
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch(e) { return null; }
+}
+
+function writeProfile(userId, profile) {
+  const file = path.join(DATA_DIR, 'profiles', `${userId}.json`);
+  try {
+    fs.writeFileSync(file, JSON.stringify(profile, null, 2), 'utf8');
+  } catch(e) { console.error('writeProfile error:', e); }
+}
+
+function readResetTokens() {
+  try {
+    if (!fs.existsSync(RESET_TOKENS_FILE)) return {};
+    return JSON.parse(fs.readFileSync(RESET_TOKENS_FILE, 'utf8'));
+  } catch(e) { return {}; }
+}
+
+function writeResetTokens(tokens) {
+  try {
+    fs.writeFileSync(RESET_TOKENS_FILE, JSON.stringify(tokens, null, 2), 'utf8');
+  } catch(e) { console.error('writeResetTokens error:', e); }
+}
+
+// ── Append-only backup (survives across deploys if disk is persistent) ──
+function backupWrite(type, data) {
+  appendJsonLine(BACKUP_FILE, { type, data, ts: new Date().toISOString() });
+}
+
+// ── Cookie helpers ──
+function parseCookies(req) {
+  const cookies = {};
+  const header = req.headers.cookie || '';
+  header.split(';').forEach(part => {
+    const [k, ...v] = part.trim().split('=');
+    if (k) cookies[k.trim()] = decodeURIComponent(v.join('=').trim());
+  });
+  return cookies;
+}
+
+function setSessionCookie(res, token) {
+  const maxAge = 30 * 24 * 60 * 60; // 30 days in seconds
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `mealzy_session=${token}; HttpOnly; SameSite=Lax; Max-Age=${maxAge}; Path=/${secure}`);
+}
+
+function clearSessionCookie(res) {
+  res.setHeader('Set-Cookie', 'mealzy_session=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/');
+}
+
+// ── In-memory session store: token → { userId, email, expires } ──
+// Note: sessions reset on server restart. Users are re-authenticated via cookie on next request.
+// For production at scale, move this to Redis or a database.
+const sessions = new Map();
+const SESSION_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+function createSession(userId, email) {
+  const token = randomUUID();
+  sessions.set(token, { userId, email, expires: Date.now() + SESSION_MAX_AGE_MS });
+  return token;
+}
+
+function getSessionFromReq(req) {
+  const cookies = parseCookies(req);
+  const token = cookies.mealzy_session;
+  if (!token) return null;
+  const session = sessions.get(token);
+  if (!session) return null;
+  if (session.expires < Date.now()) { sessions.delete(token); return null; }
+  return session;
+}
+
 // ── Simple in-memory usage tracker (resets on server restart) ──
-// Key: IP address  Value: { count, month }
 const usageTracker = new Map();
 const FREE_PLAN_LIMIT = 3;
 
@@ -63,7 +165,7 @@ function getEffectiveLimit(email) {
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '1.0.0' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '2.0.0' }));
 
 // Serve Supabase public config to the browser (anon key is safe to expose)
 app.get('/supabase-config.js', (req, res) => {
@@ -73,6 +175,285 @@ app.get('/supabase-config.js', (req, res) => {
   );
 });
 
+// ════════════════════════════════════════════════════════════════
+// AUTH ENDPOINTS
+// ════════════════════════════════════════════════════════════════
+
+// POST /api/auth/signup
+app.post('/api/auth/signup', (req, res) => {
+  try {
+    const { name, email, hashedPassword } = req.body;
+    if (!name || !email || !hashedPassword) {
+      return res.status(400).json({ error: 'missing_fields', message: 'name, email, and hashedPassword are required.' });
+    }
+    const emailLower = email.toLowerCase().trim();
+    const users = readUsers();
+    if (users[emailLower]) {
+      return res.status(409).json({ error: 'account_exists', message: 'An account with this email already exists.' });
+    }
+    const userId = randomUUID();
+    const user = {
+      id: userId,
+      name: name.trim(),
+      email: emailLower,
+      hashedPassword,
+      pro: false,
+      created: new Date().toISOString()
+    };
+    users[emailLower] = user;
+    writeUsers(users);
+    backupWrite('signup', { id: userId, name: user.name, email: emailLower, created: user.created });
+    appendJsonLine(ANALYTICS_FILE, { event: 'signup', data: { email: emailLower }, ts: new Date().toISOString() });
+    const token = createSession(userId, emailLower);
+    setSessionCookie(res, token);
+    res.json({ success: true, user: { id: userId, name: user.name, email: emailLower, pro: false } });
+  } catch(err) {
+    console.error('Signup error:', err);
+    res.status(500).json({ error: 'signup_failed', message: 'Sign up failed. Please try again.' });
+  }
+});
+
+// POST /api/auth/signin
+app.post('/api/auth/signin', (req, res) => {
+  try {
+    const { email, hashedPassword } = req.body;
+    if (!email || !hashedPassword) {
+      return res.status(400).json({ error: 'missing_fields', message: 'email and hashedPassword are required.' });
+    }
+    const emailLower = email.toLowerCase().trim();
+    const users = readUsers();
+    const user = users[emailLower];
+    if (!user) {
+      return res.status(401).json({ error: 'not_found', message: 'No account found with that email. Please sign up first.' });
+    }
+    if (user.hashedPassword !== hashedPassword) {
+      return res.status(401).json({ error: 'wrong_password', message: 'Incorrect password. Try again.' });
+    }
+    const token = createSession(user.id, emailLower);
+    setSessionCookie(res, token);
+    res.json({ success: true, user: { id: user.id, name: user.name, email: emailLower, pro: user.pro || false } });
+  } catch(err) {
+    console.error('Signin error:', err);
+    res.status(500).json({ error: 'signin_failed', message: 'Sign in failed. Please try again.' });
+  }
+});
+
+// GET /api/auth/me — returns current user (with profile) if session is valid
+app.get('/api/auth/me', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const users = readUsers();
+  const user = users[session.email];
+  if (!user) {
+    // Session exists but user was deleted — clear it
+    const cookies = parseCookies(req);
+    if (cookies.mealzy_session) sessions.delete(cookies.mealzy_session);
+    clearSessionCookie(res);
+    return res.status(401).json({ error: 'user_not_found' });
+  }
+  const profile = readProfile(user.id);
+  res.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    pro: user.pro || false,
+    profile
+  });
+});
+
+// POST /api/auth/signout
+app.post('/api/auth/signout', (req, res) => {
+  const cookies = parseCookies(req);
+  const token = cookies.mealzy_session;
+  if (token) sessions.delete(token);
+  clearSessionCookie(res);
+  res.json({ success: true });
+});
+
+// POST /api/auth/reset-request
+// Returns the token directly in the response (no email sending yet).
+// Show it on screen with instructions.
+app.post('/api/auth/reset-request', (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'email_required' });
+    const emailLower = email.toLowerCase().trim();
+    const users = readUsers();
+    if (!users[emailLower]) {
+      // Don't reveal whether account exists
+      return res.json({ success: true, found: false });
+    }
+    const token = randomUUID();
+    const tokens = readResetTokens();
+    tokens[token] = { email: emailLower, expires: Date.now() + 60 * 60 * 1000 }; // 1 hour
+    writeResetTokens(tokens);
+    backupWrite('reset_request', { email: emailLower });
+    res.json({ success: true, found: true, token });
+  } catch(err) {
+    console.error('Reset request error:', err);
+    res.status(500).json({ error: 'reset_failed' });
+  }
+});
+
+// POST /api/auth/reset-confirm
+app.post('/api/auth/reset-confirm', (req, res) => {
+  try {
+    const { token, newHashedPassword } = req.body;
+    if (!token || !newHashedPassword) {
+      return res.status(400).json({ error: 'token and newHashedPassword required' });
+    }
+    const tokens = readResetTokens();
+    const record = tokens[token];
+    if (!record) {
+      return res.status(400).json({ error: 'invalid_token', message: 'Invalid reset token. Request a new one.' });
+    }
+    if (record.expires < Date.now()) {
+      delete tokens[token];
+      writeResetTokens(tokens);
+      return res.status(400).json({ error: 'expired_token', message: 'Reset token has expired. Request a new one.' });
+    }
+    const users = readUsers();
+    if (!users[record.email]) {
+      return res.status(400).json({ error: 'user_not_found' });
+    }
+    users[record.email].hashedPassword = newHashedPassword;
+    writeUsers(users);
+    delete tokens[token];
+    writeResetTokens(tokens);
+    backupWrite('password_reset', { email: record.email });
+    res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
+  } catch(err) {
+    console.error('Reset confirm error:', err);
+    res.status(500).json({ error: 'reset_confirm_failed' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// PROFILE ENDPOINTS
+// ════════════════════════════════════════════════════════════════
+
+// POST /api/profile — save or update user profile
+app.post('/api/profile', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const { profile } = req.body;
+  if (!profile) return res.status(400).json({ error: 'profile required' });
+  writeProfile(session.userId, profile);
+  backupWrite('profile', { userId: session.userId, profile });
+  res.json({ success: true });
+});
+
+// GET /api/profile — get user profile
+app.get('/api/profile', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const profile = readProfile(session.userId);
+  if (!profile) return res.status(404).json({ error: 'no_profile' });
+  res.json({ success: true, profile });
+});
+
+// ════════════════════════════════════════════════════════════════
+// PLAN HISTORY ENDPOINTS
+// ════════════════════════════════════════════════════════════════
+
+// POST /api/plans/save — save a generated meal plan for the current user
+app.post('/api/plans/save', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const { plan, date } = req.body;
+  if (!plan) return res.status(400).json({ error: 'plan required' });
+  try {
+    const userPlansDir = path.join(DATA_DIR, 'plans', session.userId);
+    if (!fs.existsSync(userPlansDir)) fs.mkdirSync(userPlansDir, { recursive: true });
+    const planDate = date || new Date().toISOString().split('T')[0];
+    const filename = `${planDate}_${Date.now()}.json`;
+    fs.writeFileSync(
+      path.join(userPlansDir, filename),
+      JSON.stringify({ date: planDate, plan, savedAt: new Date().toISOString() }, null, 2)
+    );
+    backupWrite('plan', { userId: session.userId, date: planDate });
+    res.json({ success: true });
+  } catch(err) {
+    console.error('Plan save error:', err);
+    res.status(500).json({ error: 'save_failed' });
+  }
+});
+
+// GET /api/plans — get last 10 saved plans for the current user
+app.get('/api/plans', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  try {
+    const userPlansDir = path.join(DATA_DIR, 'plans', session.userId);
+    if (!fs.existsSync(userPlansDir)) return res.json({ success: true, plans: [] });
+    const files = fs.readdirSync(userPlansDir)
+      .filter(f => f.endsWith('.json'))
+      .sort()
+      .reverse()
+      .slice(0, 10);
+    const plans = files.map(f => {
+      try { return JSON.parse(fs.readFileSync(path.join(userPlansDir, f), 'utf8')); }
+      catch(e) { return null; }
+    }).filter(Boolean);
+    res.json({ success: true, plans });
+  } catch(err) {
+    res.json({ success: true, plans: [] });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// PRO ACTIVATION
+// ════════════════════════════════════════════════════════════════
+
+// POST /api/pro/activate — mark current user as Pro (called from pro-welcome.html)
+app.post('/api/pro/activate', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const users = readUsers();
+  if (!users[session.email]) return res.status(404).json({ error: 'user_not_found' });
+  users[session.email].pro = true;
+  writeUsers(users);
+  backupWrite('pro_activate', { email: session.email, activatedAt: new Date().toISOString() });
+  appendJsonLine(ANALYTICS_FILE, { event: 'pro_activated', data: { email: session.email }, ts: new Date().toISOString() });
+  res.json({ success: true, pro: true });
+});
+
+// ════════════════════════════════════════════════════════════════
+// ADMIN EXPORT
+// ════════════════════════════════════════════════════════════════
+
+// GET /api/admin/export — export all user data (passwords excluded), PRO_TOKEN protected
+app.get('/api/admin/export', (req, res) => {
+  const token = req.headers['x-pro-token'] || req.query.token;
+  if (!token || token !== process.env.PRO_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const users = readUsers();
+    const safeUsers = Object.fromEntries(
+      Object.entries(users).map(([email, u]) => [
+        email,
+        { id: u.id, name: u.name, email: u.email, pro: u.pro || false, created: u.created }
+      ])
+    );
+    const backupContent = fs.existsSync(BACKUP_FILE) ? fs.readFileSync(BACKUP_FILE, 'utf8') : '';
+    res.json({
+      user_count: Object.keys(users).length,
+      pro_count: Object.values(users).filter(u => u.pro).length,
+      users: safeUsers,
+      backup_line_count: backupContent.split('\n').filter(Boolean).length,
+      exported_at: new Date().toISOString(),
+      note: 'Passwords are excluded from this export.'
+    });
+  } catch(e) {
+    res.status(500).json({ error: 'Export failed', message: e.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// ANALYTICS
+// ════════════════════════════════════════════════════════════════
+
 // POST /api/track — lightweight analytics event tracking
 app.post('/api/track', (req, res) => {
   const { event, data } = req.body;
@@ -81,13 +462,13 @@ app.post('/api/track', (req, res) => {
   appendJsonLine(ANALYTICS_FILE, {
     event,
     data: data || {},
-    ip: ip.slice(-8), // partial IP for privacy
+    ip: ip.slice(-8),
     ts: new Date().toISOString()
   });
   res.json({ ok: true });
 });
 
-// GET /api/analytics — return aggregated stats (PRO_TOKEN protected)
+// GET /api/analytics — aggregated stats (PRO_TOKEN protected)
 app.get('/api/analytics', (req, res) => {
   const token = req.headers['x-pro-token'] || req.query.token;
   if (token !== process.env.PRO_TOKEN) {
@@ -96,11 +477,8 @@ app.get('/api/analytics', (req, res) => {
   const events = readJsonLines(ANALYTICS_FILE);
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
   const thisMonth = events.filter(e => new Date(e.ts) >= monthStart);
-
   const count = (arr, type) => arr.filter(e => e.event === type).length;
-
   const dayCounts = {};
   events.forEach(e => {
     const day = new Date(e.ts).getDay();
@@ -108,9 +486,11 @@ app.get('/api/analytics', (req, res) => {
   });
   const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const mostActiveDay = dayNames[Object.entries(dayCounts).sort((a,b) => b[1]-a[1])[0]?.[0]] || 'N/A';
-
+  const users = readUsers();
   res.json({
     total_events: events.length,
+    total_users: Object.keys(users).length,
+    pro_users: Object.values(users).filter(u => u.pro).length,
     this_month: {
       signups: count(thisMonth, 'signup'),
       plans_generated: count(thisMonth, 'generate_plan'),
@@ -118,17 +498,23 @@ app.get('/api/analytics', (req, res) => {
       upgrade_clicks: count(thisMonth, 'upgrade_click'),
       share_clicks: count(thisMonth, 'share_click'),
       page_views: count(thisMonth, 'page_view'),
+      pro_activations: count(thisMonth, 'pro_activated'),
     },
     all_time: {
       signups: count(events, 'signup'),
       plans_generated: count(events, 'generate_plan'),
       free_limit_hits: count(events, 'free_limit_hit'),
       upgrade_clicks: count(events, 'upgrade_click'),
+      pro_activations: count(events, 'pro_activated'),
     },
     most_active_day: mostActiveDay,
     total_leads: readJsonLines(LEADS_FILE).length,
   });
 });
+
+// ════════════════════════════════════════════════════════════════
+// REFERRAL
+// ════════════════════════════════════════════════════════════════
 
 // POST /api/referral — credit a referrer when a referred user signs up
 app.post('/api/referral', (req, res) => {
@@ -155,6 +541,30 @@ app.get('/api/referral-status', (req, res) => {
   res.json({ bonus_plans: bonus, effective_limit: effectiveLimit, used: usage.count });
 });
 
+// ════════════════════════════════════════════════════════════════
+// EMAIL LEADS
+// ════════════════════════════════════════════════════════════════
+
+// POST /api/email-leads — capture email, write to leads.json
+app.post('/api/email-leads', (req, res) => {
+  try {
+    const { email, source = 'unknown', name = '' } = req.body;
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+    const lead = { email: email.toLowerCase().trim(), source, name, ts: new Date().toISOString() };
+    appendJsonLine(LEADS_FILE, lead);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Email lead error:', err);
+    res.json({ success: true }); // fail silently to client
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// MEAL GENERATION
+// ════════════════════════════════════════════════════════════════
+
 // POST /api/generate-meal — generate daily meal plan or swap a single meal
 app.post('/api/generate-meal', async (req, res) => {
   try {
@@ -164,9 +574,18 @@ app.post('/api/generate-meal', async (req, res) => {
       return res.status(400).json({ error: 'Profile is required' });
     }
 
-    // ── Freemium gate (skip for swaps and pro users) ──
-    // is_pro is sent by the client when mealzy_pro is set in localStorage (set after Stripe payment)
-    const isPro = plan_token === process.env.PRO_TOKEN || req.body.is_pro === true;
+    // ── Freemium gate ──
+    // Check server-side Pro status first (authoritative), then fall back to client claim
+    const session = getSessionFromReq(req);
+    let isPro = plan_token === process.env.PRO_TOKEN;
+    if (!isPro && session) {
+      const users = readUsers();
+      const user = users[session.email];
+      isPro = user?.pro === true;
+    }
+    // Backward compat: accept client-sent is_pro for users without server accounts
+    if (!isPro) isPro = req.body.is_pro === true;
+
     if (!swap_meal_type && !isPro) {
       const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
       const usage = getUsage(ip);
@@ -410,6 +829,10 @@ Respond ONLY with this JSON (keep ingredients to ${isPro ? '6' : '4'} max, instr
   }
 });
 
+// ════════════════════════════════════════════════════════════════
+// GROCERY LIST
+// ════════════════════════════════════════════════════════════════
+
 // POST /api/generate-grocery-list
 app.post('/api/generate-grocery-list', async (req, res) => {
   try {
@@ -492,27 +915,22 @@ Respond ONLY with valid JSON:
   }
 });
 
-// POST /api/email-leads — capture email, write to leads.json
-app.post('/api/email-leads', (req, res) => {
-  try {
-    const { email, source = 'unknown', name = '' } = req.body;
-    if (!email || !email.includes('@')) {
-      return res.status(400).json({ error: 'Valid email required' });
-    }
-    const lead = { email: email.toLowerCase().trim(), source, name, ts: new Date().toISOString() };
-    appendJsonLine(LEADS_FILE, lead);
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Email lead error:', err);
-    res.json({ success: true }); // fail silently to client
-  }
-});
+// ════════════════════════════════════════════════════════════════
+// AI COACH
+// ════════════════════════════════════════════════════════════════
 
 // POST /api/ai-coach — AI nutritionist chat
 app.post('/api/ai-coach', async (req, res) => {
   try {
     const { messages, profile, is_pro } = req.body;
-    const isCoachPro = is_pro === true;
+    // Check server-side pro status first
+    const session = getSessionFromReq(req);
+    let isCoachPro = is_pro === true;
+    if (session) {
+      const users = readUsers();
+      const user = users[session.email];
+      if (user?.pro) isCoachPro = true;
+    }
 
     if (!messages || messages.length === 0) {
       return res.status(400).json({ error: 'Messages array is required' });
@@ -593,6 +1011,10 @@ Your personality:
   }
 });
 
+// ════════════════════════════════════════════════════════════════
+// FALLBACK MEAL PLAN
+// ════════════════════════════════════════════════════════════════
+
 function generateFallbackMealPlan(profile) {
   const calories = profile?.dailyCalories || 2000;
   return {
@@ -620,7 +1042,7 @@ function generateFallbackMealPlan(profile) {
           { name: 'Avocado', amount: '1/2', cost: 1.00 },
           { name: 'Cherry tomatoes', amount: '100g', cost: 0.80 }
         ],
-        instructions: ['Season and grill chicken 6-7 min per side.', 'Let rest 5 min, then slice.', 'Arrange over greens and top with avocado and lemon juice.']
+        instructions: ['Season and grill chicken 6-7 min per side.', 'Let rest 5 min, then slice.', 'Arrange over greens with avocado and lemon juice.']
       },
       {
         type: 'snack', name: 'Apple with Almond Butter',
@@ -653,6 +1075,7 @@ function generateFallbackMealPlan(profile) {
   };
 }
 
+// Catch-all: serve index.html for unmatched routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

@@ -11,8 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <script src="/supabase-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <style>
     body { background: var(--clr-background); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
     .auth-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); }
@@ -20,7 +18,7 @@
     .auth-tabs { display: flex; border: 1px solid var(--clr-border); border-radius: 10px; overflow: hidden; margin-bottom: 1.75rem; }
     .auth-tab { flex: 1; padding: 0.65rem; font-size: 0.9rem; font-weight: 600; text-align: center; cursor: pointer; border: none; background: none; color: var(--clr-muted-fg); transition: all .15s; }
     .auth-tab.active { background: var(--clr-primary); color: #fff; }
-    .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.875rem; margin-bottom: 1rem; display: none; }
+    .auth-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.875rem; margin-bottom: 1rem; display: none; word-break: break-word; }
     .auth-error.show { display: block; }
     .auth-note { font-size: 0.8rem; color: var(--clr-muted-fg); text-align: center; margin-top: 1.25rem; }
     .auth-note a { color: var(--clr-primary); text-decoration: none; }
@@ -29,8 +27,9 @@
     .divider::before { left:0; } .divider::after { right:0; }
     .pw-wrap { position: relative; }
     .pw-toggle { position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:1rem; color:var(--clr-muted-fg); padding:0; }
-    .reset-link { font-size:0.82rem; color:var(--clr-primary); text-decoration:none; display:block; text-align:right; margin-top:0.35rem; }
+    .reset-link { font-size:0.82rem; color:var(--clr-primary); text-decoration:none; display:block; text-align:right; margin-top:0.35rem; cursor:pointer; }
     .reset-link:hover { text-decoration:underline; }
+    .reset-token-box { background:var(--clr-muted-bg); border:1px solid var(--clr-border); border-radius:8px; padding:0.75rem; font-size:0.8rem; word-break:break-all; font-family:monospace; margin-bottom:1rem; }
   </style>
 </head>
 <body>
@@ -40,7 +39,7 @@
     Mealzy
   </a>
 
-  <div class="auth-tabs">
+  <div class="auth-tabs" id="authTabs">
     <button class="auth-tab active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
     <button class="auth-tab" id="tabSignUp" onclick="switchTab('signup')">Create Account</button>
   </div>
@@ -59,7 +58,7 @@
         <input type="password" class="form-input" id="siPassword" placeholder="••••••••" required autocomplete="current-password" />
         <button type="button" class="pw-toggle" onclick="togglePw('siPassword',this)">👁</button>
       </div>
-      <a href="#" class="reset-link" onclick="handleReset(event)">Forgot password?</a>
+      <span class="reset-link" onclick="handleReset()">Forgot password?</span>
     </div>
     <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" id="btnSignIn">Sign In</button>
   </form>
@@ -84,17 +83,63 @@
     <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" id="btnSignUp">Create Account</button>
   </form>
 
-  <p class="auth-note">By continuing you agree to Mealzy's <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
+  <!-- RESET PASSWORD -->
+  <div id="formReset" style="display:none;">
+    <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;">Reset Password</h3>
+    <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-bottom:1rem;">Enter your email to get a reset token. You'll use it to set a new password immediately.</p>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" id="resetEmail" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="requestReset()">Get Reset Token</button>
+
+    <!-- Token entry and new password — shown after token is generated -->
+    <div id="resetStep2" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Reset Token</label>
+        <div class="reset-token-box" id="resetTokenDisplay"></div>
+        <input type="text" class="form-input" id="resetTokenInput" placeholder="Paste token here" style="margin-top:0.5rem;" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <div class="pw-wrap">
+          <input type="password" class="form-input" id="resetNewPw" placeholder="Min. 6 characters" minlength="6" autocomplete="new-password" />
+          <button type="button" class="pw-toggle" onclick="togglePw('resetNewPw',this)">👁</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="confirmReset()">Set New Password</button>
+    </div>
+
+    <button class="btn btn-outline" style="width:100%;font-size:0.85rem;" onclick="switchTab('signin')">← Back to Sign In</button>
+  </div>
+
+  <p class="auth-note" id="authNote">By continuing you agree to Mealzy's <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
 </div>
 
 <script>
   if (localStorage.getItem('mealzy_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
 
-  // If already logged in, skip login page
-  if (localStorage.getItem('mealzy_user')) {
-    const profile = localStorage.getItem('mealzy_profile');
-    window.location.href = profile ? 'dashboard.html' : 'onboarding.html';
-  }
+  // Check if already logged in (via server session cookie)
+  // Run async so we don't block the page
+  (async function checkExistingSession() {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        // Freshen localStorage cache
+        localStorage.setItem('mealzy_user', JSON.stringify({ name: data.name, email: data.email }));
+        if (data.pro) localStorage.setItem('mealzy_pro', 'true');
+        if (data.profile) localStorage.setItem('mealzy_profile', JSON.stringify(data.profile));
+        window.location.href = data.profile ? 'dashboard.html' : 'onboarding.html';
+      }
+    } catch(e) {
+      // Server unreachable — check localStorage fallback
+      if (localStorage.getItem('mealzy_user')) {
+        const profile = localStorage.getItem('mealzy_profile');
+        window.location.href = profile ? 'dashboard.html' : 'onboarding.html';
+      }
+    }
+  })();
 
   // Capture referral code from URL
   const _refParam = new URLSearchParams(window.location.search).get('ref') || '';
@@ -107,10 +152,14 @@
 
   function switchTab(tab) {
     const isSignIn = tab === 'signin';
+    const isReset  = tab === 'reset';
     document.getElementById('tabSignIn').classList.toggle('active', isSignIn);
-    document.getElementById('tabSignUp').classList.toggle('active', !isSignIn);
+    document.getElementById('tabSignUp').classList.toggle('active', !isSignIn && !isReset);
     document.getElementById('formSignIn').style.display = isSignIn ? '' : 'none';
-    document.getElementById('formSignUp').style.display = isSignIn ? 'none' : '';
+    document.getElementById('formSignUp').style.display = (!isSignIn && !isReset) ? '' : 'none';
+    document.getElementById('formReset').style.display  = isReset ? '' : 'none';
+    document.getElementById('authTabs').style.display   = isReset ? 'none' : '';
+    document.getElementById('authNote').style.display   = isReset ? 'none' : '';
     hideError();
   }
 
@@ -138,6 +187,7 @@
 
   function setLoading(btnId, loading) {
     const btn = document.getElementById(btnId);
+    if (!btn) return;
     btn.disabled = loading;
     btn.textContent = loading ? 'Please wait…' : (btnId === 'btnSignIn' ? 'Sign In' : 'Create Account');
   }
@@ -149,20 +199,20 @@
     btn.textContent = isText ? '👁' : '🙈';
   }
 
-  // Simple hash — not cryptographic, just stops plaintext passwords in localStorage
   async function hashPassword(password) {
     const msgBuffer = new TextEncoder().encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
+  // ── SIGN UP ──
   async function handleSignUp(e) {
     e.preventDefault();
     hideError();
     setLoading('btnSignUp', true);
 
-    const name = document.getElementById('suName').value.trim();
-    const email = document.getElementById('suEmail').value.trim().toLowerCase();
+    const name     = document.getElementById('suName').value.trim();
+    const email    = document.getElementById('suEmail').value.trim().toLowerCase();
     const password = document.getElementById('suPassword').value;
 
     if (!name || !email || !password) {
@@ -171,80 +221,186 @@
       return;
     }
 
-    // Check if account already exists
-    const users = JSON.parse(localStorage.getItem('mealzy_users') || '{}');
-    if (users[email]) {
-      showError('An account with this email already exists. Sign in instead.');
-      setLoading('btnSignUp', false);
-      return;
-    }
-
-    const hashed = await hashPassword(password);
-    users[email] = { name, email, hashed, created: new Date().toISOString() };
-    localStorage.setItem('mealzy_users', JSON.stringify(users));
-    localStorage.setItem('mealzy_user', JSON.stringify({ name, email }));
-
-    // Capture email lead
     try {
-      await fetch('/api/email-leads', {
+      const hashed = await hashPassword(password);
+      const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, source: 'signup' })
+        body: JSON.stringify({ name, email, hashedPassword: hashed })
       });
-    } catch(e) { /* fail silently */ }
+      const data = await res.json();
 
-    // Credit referrer if signup came via a referral link
-    const pendingRef = localStorage.getItem('mealzy_pending_ref');
-    if (pendingRef && pendingRef !== email) {
+      if (!res.ok) {
+        if (data.error === 'account_exists') {
+          showError('An account with this email already exists. Sign in instead.');
+        } else {
+          showError(data.message || 'Sign up failed. Please try again.');
+        }
+        setLoading('btnSignUp', false);
+        return;
+      }
+
+      // Cache user in localStorage (server is source of truth)
+      localStorage.setItem('mealzy_user', JSON.stringify({ name: data.user.name, email: data.user.email }));
+      if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
+
+      // Capture email lead
       try {
-        await fetch('/api/referral', {
+        fetch('/api/email-leads', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ referrer_email: pendingRef, new_user_email: email })
+          body: JSON.stringify({ email, name, source: 'signup' })
         });
-      } catch(e) { /* fail silently */ }
-      localStorage.removeItem('mealzy_pending_ref');
-    }
+      } catch(e) {}
 
-    // Flag so dashboard shows a welcome message after onboarding
-    localStorage.setItem('mealzy_is_new_user', '1');
-    window.location.href = 'onboarding.html';
+      // Credit referrer
+      const pendingRef = localStorage.getItem('mealzy_pending_ref');
+      if (pendingRef && pendingRef !== email) {
+        try {
+          fetch('/api/referral', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ referrer_email: pendingRef, new_user_email: email })
+          });
+        } catch(e) {}
+        localStorage.removeItem('mealzy_pending_ref');
+      }
+
+      localStorage.setItem('mealzy_is_new_user', '1');
+      window.location.href = 'onboarding.html';
+
+    } catch(err) {
+      showError('Could not connect. Please check your connection and try again.');
+      setLoading('btnSignUp', false);
+    }
   }
 
+  // ── SIGN IN ──
   async function handleSignIn(e) {
     e.preventDefault();
     hideError();
     setLoading('btnSignIn', true);
 
-    const email = document.getElementById('siEmail').value.trim().toLowerCase();
+    const email    = document.getElementById('siEmail').value.trim().toLowerCase();
     const password = document.getElementById('siPassword').value;
 
-    const users = JSON.parse(localStorage.getItem('mealzy_users') || '{}');
-    const user = users[email];
+    try {
+      const hashed = await hashPassword(password);
+      const res = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, hashedPassword: hashed })
+      });
+      const data = await res.json();
 
-    if (!user) {
-      showError('No account found with that email. Create one instead.');
+      if (!res.ok) {
+        showError(data.message || 'Sign in failed. Please try again.');
+        setLoading('btnSignIn', false);
+        return;
+      }
+
+      // Cache in localStorage
+      localStorage.setItem('mealzy_user', JSON.stringify({ name: data.user.name, email: data.user.email }));
+      if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
+      else localStorage.removeItem('mealzy_pro');
+
+      // Fetch profile from server to decide where to redirect
+      try {
+        const profileRes = await fetch('/api/profile');
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          localStorage.setItem('mealzy_profile', JSON.stringify(profileData.profile));
+          window.location.href = 'dashboard.html';
+        } else {
+          window.location.href = 'onboarding.html';
+        }
+      } catch(e) {
+        // Fallback to localStorage check
+        window.location.href = localStorage.getItem('mealzy_profile') ? 'dashboard.html' : 'onboarding.html';
+      }
+
+    } catch(err) {
+      showError('Could not connect. Please check your connection and try again.');
       setLoading('btnSignIn', false);
-      return;
     }
-
-    const hashed = await hashPassword(password);
-    if (hashed !== user.hashed) {
-      showError('Incorrect password. Try again.');
-      setLoading('btnSignIn', false);
-      return;
-    }
-
-    localStorage.setItem('mealzy_user', JSON.stringify({ name: user.name, email: user.email }));
-    const profile = localStorage.getItem('mealzy_profile');
-    window.location.href = profile ? 'dashboard.html' : 'onboarding.html';
   }
 
-  async function handleReset(e) {
-    e.preventDefault();
-    const email = document.getElementById('siEmail').value.trim();
-    if (!email) { showError('Enter your email address first.'); return; }
-    showSuccess('Password reset is not yet automated. Please email support@mealzy.org with your email address and we\'ll reset it for you within 24 hours.');
+  // ── PASSWORD RESET ──
+  function handleReset() {
+    hideError();
+    // Pre-fill email if user typed it
+    const emailVal = document.getElementById('siEmail').value.trim();
+    if (emailVal) document.getElementById('resetEmail').value = emailVal;
+    switchTab('reset');
+  }
+
+  async function requestReset() {
+    hideError();
+    const email = document.getElementById('resetEmail').value.trim().toLowerCase();
+    if (!email) { showError('Enter your email address.'); return; }
+
+    const btn = document.querySelector('#formReset button');
+    btn.disabled = true; btn.textContent = 'Please wait…';
+
+    try {
+      const res = await fetch('/api/auth/reset-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Get Reset Token';
+
+      if (!data.found) {
+        showSuccess('If that email has an account, a reset token has been generated. Check below.');
+        return;
+      }
+
+      // Show token and the new-password form
+      document.getElementById('resetTokenDisplay').textContent = data.token;
+      document.getElementById('resetTokenInput').value = data.token;
+      document.getElementById('resetStep2').style.display = '';
+      showSuccess('Token generated. Set your new password below — it expires in 1 hour.');
+
+    } catch(err) {
+      btn.disabled = false; btn.textContent = 'Get Reset Token';
+      showError('Could not connect. Email support@mealzy.org if this persists.');
+    }
+  }
+
+  async function confirmReset() {
+    hideError();
+    const token       = document.getElementById('resetTokenInput').value.trim();
+    const newPassword = document.getElementById('resetNewPw').value;
+
+    if (!token)       { showError('Enter the reset token.'); return; }
+    if (newPassword.length < 6) { showError('Password must be at least 6 characters.'); return; }
+
+    const btn = document.querySelector('#resetStep2 button');
+    btn.disabled = true; btn.textContent = 'Updating…';
+
+    try {
+      const newHashed = await hashPassword(newPassword);
+      const res = await fetch('/api/auth/reset-confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, newHashedPassword: newHashed })
+      });
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Set New Password';
+
+      if (!res.ok) {
+        showError(data.message || 'Token invalid or expired. Request a new one.');
+        return;
+      }
+
+      showSuccess('Password updated! Sign in with your new password.');
+      setTimeout(() => switchTab('signin'), 1500);
+
+    } catch(err) {
+      btn.disabled = false; btn.textContent = 'Set New Password';
+      showError('Could not connect. Please try again.');
+    }
   }
 </script>
 </body>

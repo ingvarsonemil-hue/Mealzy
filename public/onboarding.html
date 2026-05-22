@@ -327,14 +327,35 @@
 </div>
 
 <script>
-  // Auth guard — must be logged in to onboard
-  if (!localStorage.getItem('mealzy_user')) {
-    window.location.href = 'login.html?signup=1';
-  }
-
   if (localStorage.getItem('mealzy_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
+
+  // Auth guard — verify with server (cookie is source of truth)
+  (async function checkAuth() {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('mealzy_user', JSON.stringify({ name: data.name, email: data.email }));
+        if (data.pro) localStorage.setItem('mealzy_pro', 'true');
+        // Pre-fill name field from server profile
+        if (data.name && !document.getElementById('inputName').value) {
+          document.getElementById('inputName').value = data.name;
+          userData.name = data.name;
+        }
+      } else {
+        // Server says not authenticated
+        localStorage.removeItem('mealzy_user');
+        window.location.href = 'login.html?signup=1';
+      }
+    } catch(e) {
+      // Server unreachable — fall back to localStorage
+      if (!localStorage.getItem('mealzy_user')) {
+        window.location.href = 'login.html?signup=1';
+      }
+    }
+  })();
 
   function showStepError(msg) {
     const el = document.getElementById('stepError');
@@ -500,7 +521,7 @@
     document.getElementById('resultWater').textContent = water + ' glasses';
   }
 
-  function finishOnboarding() {
+  async function finishOnboarding() {
     updateChipsData();
     userData.cookingTimeMinutes = parseInt(document.getElementById('cookTimeRange').value);
     userData.budget = parseFloat(document.getElementById('inputBudget').value) || 100;
@@ -517,16 +538,17 @@
     };
 
     localStorage.setItem('mealzy_profile', JSON.stringify(profile));
-    // Sync to cloud before navigating
-    const _sb2 = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-    _sb2.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        try {
-          await _sb2.from('user_data').upsert({ id: session.user.id, profile }, { onConflict: 'id' });
-        } catch(e) {}
-      }
-      window.location.href = 'dashboard.html';
-    });
+
+    // Save profile to server (source of truth)
+    try {
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile })
+      });
+    } catch(e) { /* fail silently — localStorage still has it */ }
+
+    window.location.href = 'dashboard.html';
   }
 
   // Initialize default selections

@@ -163,7 +163,11 @@
       await _sb.from('user_data').upsert({ id: session.user.id, profile: JSON.parse(localStorage.getItem('mealzy_profile')||'null'), meal_plans: JSON.parse(localStorage.getItem('mealzy_meal_plans')||'{}'), grocery_lists: JSON.parse(localStorage.getItem('mealzy_grocery_lists')||'{}'), nutrition_logs: JSON.parse(localStorage.getItem('mealzy_nutrition_logs')||'{}'), coach_conversation: JSON.parse(localStorage.getItem('mealzy_coach_conversation')||'[]'), ratings: JSON.parse(localStorage.getItem('mealzy_ratings')||'{}') }, { onConflict: 'id' });
     } catch(e) {}
   }
-  async function signOut() { await _sb.auth.signOut(); localStorage.clear(); window.location.href = 'login.html'; }
+  async function signOut() {
+    try { await _sb.auth.signOut(); } catch(e) {}
+    try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
+    localStorage.clear(); window.location.href = 'login.html';
+  }
   // ─────────────────────────
 
   let profile = null;
@@ -176,12 +180,15 @@
   };
 
   async function init() {
-    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || 'null');
-    if (!lsUser) { window.location.href = 'login.html'; return; }
     try {
-      const { data: { session } } = await _sb.auth.getSession();
-      if (session) await cloudLoad(session.user.id);
-    } catch(e) {}
+      const meRes = await fetch('/api/auth/me');
+      if (meRes.ok) {
+        const u = await meRes.json();
+        localStorage.setItem('mealzy_user', JSON.stringify({ name: u.name, email: u.email }));
+        if (u.pro) localStorage.setItem('mealzy_pro', 'true'); else localStorage.removeItem('mealzy_pro');
+        if (u.profile) { const lp = JSON.parse(localStorage.getItem('mealzy_profile')||'{}'); localStorage.setItem('mealzy_profile', JSON.stringify({ ...u.profile, ...lp })); }
+      } else { localStorage.removeItem('mealzy_user'); window.location.href = 'login.html'; return; }
+    } catch(e) { if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html'; return; } }
     const profileData = localStorage.getItem('mealzy_profile');
     if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);

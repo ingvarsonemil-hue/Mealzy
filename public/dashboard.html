@@ -368,7 +368,12 @@
       await _sb.from('user_data').upsert({ id: session.user.id, profile: JSON.parse(localStorage.getItem('mealzy_profile')||'null'), meal_plans: JSON.parse(localStorage.getItem('mealzy_meal_plans')||'{}'), grocery_lists: JSON.parse(localStorage.getItem('mealzy_grocery_lists')||'{}'), nutrition_logs: JSON.parse(localStorage.getItem('mealzy_nutrition_logs')||'{}'), coach_conversation: JSON.parse(localStorage.getItem('mealzy_coach_conversation')||'[]'), ratings: JSON.parse(localStorage.getItem('mealzy_ratings')||'{}') }, { onConflict: 'id' });
     } catch(e) {}
   }
-  async function signOut() { await _sb.auth.signOut(); localStorage.clear(); window.location.href = 'login.html'; }
+  async function signOut() {
+    try { await _sb.auth.signOut(); } catch(e) {}
+    try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
+    localStorage.clear();
+    window.location.href = 'login.html';
+  }
   // ─────────────────────────
 
   let profile = null;
@@ -378,12 +383,34 @@
   let calorieChart = null;
 
   async function init() {
-    const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || 'null');
-    if (!lsUser) { window.location.href = 'login.html'; return; }
+    // Auth: server session is source of truth
+    let serverUser = null;
     try {
-      const { data: { session } } = await _sb.auth.getSession();
-      if (session) await cloudLoad(session.user.id);
-    } catch(e) {}
+      const meRes = await fetch('/api/auth/me');
+      if (meRes.ok) {
+        serverUser = await meRes.json();
+        // Freshen localStorage cache from server
+        localStorage.setItem('mealzy_user', JSON.stringify({ name: serverUser.name, email: serverUser.email }));
+        if (serverUser.pro) localStorage.setItem('mealzy_pro', 'true');
+        else localStorage.removeItem('mealzy_pro');
+        if (serverUser.profile) {
+          // Merge server profile with any local-only fields (streak, water, etc.)
+          const localProfile = JSON.parse(localStorage.getItem('mealzy_profile') || '{}');
+          const merged = { ...serverUser.profile, ...localProfile, name: serverUser.name };
+          localStorage.setItem('mealzy_profile', JSON.stringify(merged));
+        }
+      } else {
+        // Server says not authenticated — log out
+        localStorage.removeItem('mealzy_user');
+        window.location.href = 'login.html';
+        return;
+      }
+    } catch(e) {
+      // Server unreachable — fall back to localStorage cache
+      const lsUser = localStorage.getItem('mealzy_user');
+      if (!lsUser) { window.location.href = 'login.html'; return; }
+    }
+
     const profileData = localStorage.getItem('mealzy_profile');
     if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);
@@ -813,6 +840,16 @@
       renderMeals();
       updateStats();
       cloudSave();
+
+      // Save plan to server (persistent across browser clears)
+      try {
+        fetch('/api/plans/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan: mealPlan, date: today })
+        });
+      } catch(e) { /* fail silently — localStorage still has it */ }
+
       showToast('Meal plan generated! 🎉', 'success');
 
       // Growth triggers — only show to free users

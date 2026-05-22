@@ -50,8 +50,15 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
-  // Activate Pro status
+  // Activate Pro status — both locally and on the server
   localStorage.setItem('mealzy_pro', 'true');
+
+  // Persist Pro flag server-side so it survives browser clears / new devices
+  (async () => {
+    try {
+      await fetch('/api/pro/activate', { method: 'POST' });
+    } catch(e) {}
+  })();
 
   // If user came from Stripe (?session_id= or just landing on this page after payment)
   // Track the upgrade event
