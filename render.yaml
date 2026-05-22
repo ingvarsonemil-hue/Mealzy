@@ -7,7 +7,17 @@ services:
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: PRO_TOKEN
         sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: APP_URL
+        value: https://mealzy.org
       - key: NODE_ENV
         value: production
+      - key: UNSPLASH_ACCESS_KEY
+        sync: false

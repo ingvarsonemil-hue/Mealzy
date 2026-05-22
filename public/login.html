@@ -86,28 +86,19 @@
   <!-- RESET PASSWORD -->
   <div id="formReset" style="display:none;">
     <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;">Reset Password</h3>
-    <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-bottom:1rem;">Enter your email to get a reset token. You'll use it to set a new password immediately.</p>
+    <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-bottom:1rem;">Enter your email and we'll generate a secure reset link for you.</p>
     <div class="form-group">
       <label class="form-label">Email</label>
       <input type="email" class="form-input" id="resetEmail" placeholder="you@example.com" autocomplete="email" />
     </div>
-    <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="requestReset()">Get Reset Token</button>
+    <button class="btn btn-primary" id="btnGetReset" style="width:100%;margin-bottom:0.75rem;" onclick="requestReset()">Generate Reset Link</button>
 
-    <!-- Token entry and new password — shown after token is generated -->
+    <!-- Reset URL shown after generation — no email needed -->
     <div id="resetStep2" style="display:none;">
-      <div class="form-group">
-        <label class="form-label">Reset Token</label>
-        <div class="reset-token-box" id="resetTokenDisplay"></div>
-        <input type="text" class="form-input" id="resetTokenInput" placeholder="Paste token here" style="margin-top:0.5rem;" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">New Password</label>
-        <div class="pw-wrap">
-          <input type="password" class="form-input" id="resetNewPw" placeholder="Min. 6 characters" minlength="6" autocomplete="new-password" />
-          <button type="button" class="pw-toggle" onclick="togglePw('resetNewPw',this)">👁</button>
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;" onclick="confirmReset()">Set New Password</button>
+      <p style="font-size:0.82rem;font-weight:600;color:var(--clr-text);margin-bottom:0.35rem;">Your reset link:</p>
+      <div class="reset-token-box" id="resetUrlDisplay" style="cursor:pointer;" onclick="copyResetUrl()" title="Click to copy"></div>
+      <p style="font-size:0.78rem;color:var(--clr-muted-fg);margin-top:0.4rem;margin-bottom:0.75rem;">Copy this link and open it to reset your password. This link expires in 1 hour. <strong>Do not share it.</strong></p>
+      <button class="btn btn-primary" style="width:100%;margin-bottom:0.5rem;" onclick="openResetLink()">Open Reset Link →</button>
     </div>
 
     <button class="btn btn-outline" style="width:100%;font-size:0.85rem;" onclick="switchTab('signin')">← Back to Sign In</button>
@@ -334,12 +325,14 @@
     switchTab('reset');
   }
 
+  let _resetUrl = '';
+
   async function requestReset() {
     hideError();
     const email = document.getElementById('resetEmail').value.trim().toLowerCase();
     if (!email) { showError('Enter your email address.'); return; }
 
-    const btn = document.querySelector('#formReset button');
+    const btn = document.getElementById('btnGetReset');
     btn.disabled = true; btn.textContent = 'Please wait…';
 
     try {
@@ -349,58 +342,41 @@
         body: JSON.stringify({ email })
       });
       const data = await res.json();
-      btn.disabled = false; btn.textContent = 'Get Reset Token';
+      btn.disabled = false; btn.textContent = 'Generate Reset Link';
 
       if (!data.found) {
-        showSuccess('If that email has an account, a reset token has been generated. Check below.');
+        // Don't reveal whether account exists
+        showSuccess('If that email has an account, a reset link has been generated below.');
         return;
       }
 
-      // Show token and the new-password form
-      document.getElementById('resetTokenDisplay').textContent = data.token;
-      document.getElementById('resetTokenInput').value = data.token;
+      // Show the reset URL on screen (no email required)
+      _resetUrl = data.resetUrl;
+      document.getElementById('resetUrlDisplay').textContent = _resetUrl;
       document.getElementById('resetStep2').style.display = '';
-      showSuccess('Token generated. Set your new password below — it expires in 1 hour.');
+      showSuccess('Reset link generated — it expires in 1 hour. Open it to set your new password.');
 
     } catch(err) {
-      btn.disabled = false; btn.textContent = 'Get Reset Token';
+      btn.disabled = false; btn.textContent = 'Generate Reset Link';
       showError('Could not connect. Email support@mealzy.org if this persists.');
     }
   }
 
-  async function confirmReset() {
-    hideError();
-    const token       = document.getElementById('resetTokenInput').value.trim();
-    const newPassword = document.getElementById('resetNewPw').value;
+  function copyResetUrl() {
+    if (!_resetUrl) return;
+    navigator.clipboard.writeText(_resetUrl).then(() => {
+      showSuccess('Link copied to clipboard!');
+    }).catch(() => {
+      // Fallback: select the text in the box
+      const range = document.createRange();
+      range.selectNode(document.getElementById('resetUrlDisplay'));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+    });
+  }
 
-    if (!token)       { showError('Enter the reset token.'); return; }
-    if (newPassword.length < 6) { showError('Password must be at least 6 characters.'); return; }
-
-    const btn = document.querySelector('#resetStep2 button');
-    btn.disabled = true; btn.textContent = 'Updating…';
-
-    try {
-      const newHashed = await hashPassword(newPassword);
-      const res = await fetch('/api/auth/reset-confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, newHashedPassword: newHashed })
-      });
-      const data = await res.json();
-      btn.disabled = false; btn.textContent = 'Set New Password';
-
-      if (!res.ok) {
-        showError(data.message || 'Token invalid or expired. Request a new one.');
-        return;
-      }
-
-      showSuccess('Password updated! Sign in with your new password.');
-      setTimeout(() => switchTab('signin'), 1500);
-
-    } catch(err) {
-      btn.disabled = false; btn.textContent = 'Set New Password';
-      showError('Could not connect. Please try again.');
-    }
+  function openResetLink() {
+    if (_resetUrl) window.open(_resetUrl, '_blank');
   }
 </script>
 </body>

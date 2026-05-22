@@ -1,91 +1,123 @@
-# Mealzy — Data Persistence Notes
+# Mealzy — Production Deployment & Data Persistence
 
-## Where data lives
+## Architecture
 
-| Path | Contents | Gitignored |
+| Component | What | Lives where |
 |---|---|---|
-| `data/users.json` | All user accounts (email, hashed password, pro flag) | ✅ Yes |
-| `data/profiles/{userId}.json` | Onboarding profile per user | ✅ Yes |
-| `data/plans/{userId}/{date}_{ts}.json` | Saved meal plan history per user | ✅ Yes |
-| `data/reset-tokens.json` | Pending password-reset tokens (1-hour TTL) | ✅ Yes |
-| `data/backup.jsonl` | Append-only event log (signups, logins, saves) | ✅ Yes |
-
-All files under `data/` are gitignored — **user PII never touches GitHub**.
+| Sessions | Stateless JWT in httpOnly cookie | Browser cookie — survives server restarts ✅ |
+| Database | SQLite via sql.js | `mealzy.db` — needs Render Disk to survive deploys |
+| Auth | JWT signed with `JWT_SECRET` | Cookie / server verifies on every request |
+| Pro activation | Stripe webhook (primary) + pro-welcome.html (backup) | Both write `pro = 1` to SQLite |
 
 ---
 
-## ⚠️ Render free tier — ephemeral filesystem
+## ⚠️ Critical: Add Render Persistent Disk
 
-Render's free-tier instances have an **ephemeral filesystem**: the disk is wiped on every deploy and on routine restarts (roughly every 15 minutes of inactivity).
+Without a persistent disk, **`mealzy.db` is wiped on every Render deploy and idle restart**.
+A paying customer's account will disappear.
 
-**What this means in practice:**
-- `data/users.json` and all profile/plan files are deleted on every Render deploy.
-- Users will be logged out (in-memory sessions are also cleared).
-- Returning users whose accounts lived only on the server will see "No account found" and need to re-register.
+### Steps (takes 2 minutes, costs $1/month):
 
-**Mitigations:**
+1. Go to your Render dashboard → select the **mealzy** service
+2. Click **Disks** in the left sidebar
+3. Click **Add Disk**
+4. Set:
+   - **Name**: `mealzy-data`
+   - **Mount path**: `/opt/render/project/src`
+   - **Size**: 1 GB
+5. Click **Save** — Render redeploys automatically
 
-### Option 1 — Render Disk (paid, $1/month)
-Add a persistent disk in the Render dashboard:
-1. Service → Disks → Add Disk
-2. Mount path: `/opt/render/project/src/data`
-3. Size: 1 GB (more than enough for years of JSON files)
+The database file at `/opt/render/project/src/mealzy.db` will now persist across all deploys and restarts.
 
-This is the **recommended production fix** once you have paying users.
+---
 
-### Option 2 — External database (free tier available)
-Migrate `data/users.json` → PostgreSQL (Supabase free tier, Neon, Railway, etc.)  
-Supabase credentials can be added to the `.env` file; the existing `cloudSave` / `cloudLoad` stubs in each HTML file are already wired for this.
+## Required Environment Variables
 
-### Option 3 — Export backup before deploy
-Before each `git push` / Render deploy:
+Set all of these in Render Dashboard → your service → **Environment**:
+
+| Variable | Required | Description |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | ✅ | Claude API key |
+| `JWT_SECRET` | ✅ | Long random string. Generate: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
+| `PRO_TOKEN` | ✅ | Secret for admin endpoints. Any long random string. |
+| `STRIPE_SECRET_KEY` | ✅ | From Stripe dashboard → Developers → API keys |
+| `STRIPE_WEBHOOK_SECRET` | ✅ | From Stripe Webhooks (see below) |
+| `APP_URL` | ✅ | `https://mealzy.org` — used in password reset links |
+| `NODE_ENV` | ✅ | `production` |
+
+---
+
+## Stripe Webhook Setup
+
+Without the webhook, Pro is only activated when the user visits `pro-welcome.html` after
+payment. If they close the tab early, they paid but don't get Pro.
+
+### Steps:
+
+1. Go to [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
+2. Click **Add endpoint**
+3. Endpoint URL: `https://mealzy.org/api/stripe/webhook`
+4. Select event: `checkout.session.completed`
+5. Click **Add endpoint**
+6. Copy the **Signing secret** (`whsec_...`)
+7. Add it to Render as `STRIPE_WEBHOOK_SECRET`
+
+Now Pro is activated server-side regardless of what the browser does.
+
+---
+
+## Database Backup
+
+### Export via admin API:
 ```bash
-curl -H "Authorization: Bearer $PRO_TOKEN" https://mealzy.org/api/admin/export > backup_$(date +%Y%m%d).json
+curl -H "x-pro-token: YOUR_PRO_TOKEN" https://mealzy.org/api/admin/export > backup_$(date +%Y%m%d).json
 ```
-Then restore from the backup after the deploy by re-running the signup flow for affected users.  
-The `data/backup.jsonl` append-only log can also be used to reconstruct account state.
+
+### Download the SQLite file directly (from Render shell):
+```bash
+# In Render Shell (your service → Shell tab)
+cp mealzy.db /tmp/mealzy_backup.db
+```
+
+### SQLite schema:
+- `users` — accounts (id, name, email, hashed_password, pro, created_at)
+- `profiles` — onboarding profile JSON per user
+- `plans` — meal plan history per user
+- `reset_tokens` — password reset tokens (1 hour TTL, single-use)
+- `leads` — email lead captures
+- `analytics` — event log
 
 ---
 
-## Recovery from `backup.jsonl`
+## Health Check
 
-Each line is a JSON object with a `type` field:
+```
+GET https://mealzy.org/api/health
+```
 
+Returns:
 ```json
-{"type":"signup","email":"user@example.com","id":"uuid","name":"Alice","ts":"2026-05-22T..."}
-{"type":"profile_save","userId":"uuid","profile":{...},"ts":"..."}
-{"type":"plan_save","userId":"uuid","plan":{...},"ts":"..."}
-{"type":"pro_activate","email":"user@example.com","userId":"uuid","ts":"..."}
+{ "status": "ok", "db": "connected", "timestamp": "...", "version": "3.0.0" }
 ```
 
-To rebuild `users.json` from the log:
-```bash
-node -e "
-const fs = require('fs');
-const lines = fs.readFileSync('data/backup.jsonl','utf8').trim().split('\n');
-const users = {};
-for (const line of lines) {
-  const ev = JSON.parse(line);
-  if (ev.type === 'signup') users[ev.email] = { id: ev.id, name: ev.name, email: ev.email, hashedPassword: ev.hashedPassword || '', pro: false, created: ev.ts };
-  if (ev.type === 'pro_activate') { if (users[ev.email]) users[ev.email].pro = true; }
-}
-fs.writeFileSync('data/users.json', JSON.stringify(users, null, 2));
-console.log('Restored', Object.keys(users).length, 'users');
-"
-```
+Returns `"status": "degraded"` if the database is not reachable.
+Use this URL in Render's health check settings.
 
 ---
 
-## Admin export endpoint
+## Deployment Checklist
 
-```
-GET /api/admin/export
-Authorization: Bearer <PRO_TOKEN>
-```
+Before going live:
 
-Returns JSON with:
-- `users` — all accounts (passwords stripped)
-- `backupLines` — count of backup log entries
-- `exportedAt` — ISO timestamp
-
-Set `PRO_TOKEN` in your `.env` file.
+- [ ] Add Render persistent disk (mount: `/opt/render/project/src`, size: 1 GB)
+- [ ] Set `JWT_SECRET` in Render env vars (long random string)
+- [ ] Set `ANTHROPIC_API_KEY`
+- [ ] Set `PRO_TOKEN`
+- [ ] Set `STRIPE_SECRET_KEY`
+- [ ] Set `STRIPE_WEBHOOK_SECRET` (after adding webhook in Stripe)
+- [ ] Set `APP_URL=https://mealzy.org`
+- [ ] Set `NODE_ENV=production`
+- [ ] Verify `/api/health` returns `"db": "connected"` after deploy
+- [ ] Test signup → onboarding → dashboard flow end-to-end
+- [ ] Test Stripe payment → Pro activation via webhook
+- [ ] Test password reset link flow
