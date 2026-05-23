@@ -51,6 +51,11 @@ app.post(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// TikTok domain verification
+app.get('/tiktok5D5PTssMk9TzIVSQAXCcHPlwQwQ52nQc.txt', (req, res) => {
+  res.type('text/plain').send('tiktok-developers-site-verification=5D5PTssMk9TzIVSQAXCcHPIwQwQ52nQc');
+});
+
 // ── Rate limiters ──────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,   // 1 minute
