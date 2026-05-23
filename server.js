@@ -156,7 +156,13 @@ function getEffectiveLimit(email) {
   return FREE_PLAN_LIMIT + memBonus;
 }
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Fix: Windows system env vars can override .env with empty string — read .env directly as fallback
+const _anthropicKey = (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.trim())
+  || (() => { try { return require('fs').readFileSync('.env','utf8').split('\n').find(l=>l.startsWith('ANTHROPIC_API_KEY='))?.split('=').slice(1).join('=').trim(); } catch(e){} })()
+  || '';
+if (!_anthropicKey) console.warn('[WARN] ANTHROPIC_API_KEY is not set — AI features will fail');
+else console.log('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + ')');
+const anthropic = new Anthropic({ apiKey: _anthropicKey });
 
 // ════════════════════════════════════════════════════════════════════════════
 // EMAIL UTILITY (Resend API — set RESEND_API_KEY in Render env vars)
@@ -912,21 +918,48 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
 
     if (!swap_meal_type && !isPro) {
       const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
-      const usage          = getUsage(ip);
-      const effectiveLimit = getEffectiveLimit(user_email || '');
-      if (usage.count >= effectiveLimit) {
-        db.logEvent('free_limit_hit', {}, '');
-        return res.status(402).json({
-          error: 'free_limit_reached',
-          message: `You've used all ${effectiveLimit} free plans this month.`,
-          upgrade_url: '/pricing.html',
-          resets_in: 'Start of next month',
-          used: usage.count,
-          limit: effectiveLimit
-        });
+      const effectiveLimit = getEffectiveLimit(session?.email || user_email || '');
+
+      if (session) {
+        // Logged-in user: count generate_plan events for this user this month from analytics
+        // (uses analytics not plans table — counts generations, not saves)
+        const monthStart = new Date();
+        monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+        const monthStartStr = monthStart.toISOString().replace('T', ' ').slice(0, 19);
+        const genRow = db.get(
+          `SELECT COUNT(*) as n FROM analytics WHERE event = 'generate_plan' AND json_extract(data, '$.userId') = ? AND created_at >= ?`,
+          [session.userId, monthStartStr]
+        );
+        const generationsThisMonth = genRow?.n || 0;
+        if (generationsThisMonth >= effectiveLimit) {
+          db.logEvent('free_limit_hit', { userId: session.userId }, '');
+          return res.status(402).json({
+            error: 'free_limit_reached',
+            message: `You've used all ${effectiveLimit} free plans this month.`,
+            upgrade_url: '/pricing.html',
+            resets_in: 'Start of next month',
+            used: generationsThisMonth,
+            limit: effectiveLimit
+          });
+        }
+        db.logEvent('generate_plan', { plan_num: generationsThisMonth + 1, userId: session.userId }, '');
+      } else {
+        // Anonymous user: track by IP (in-memory, resets on server restart)
+        const usage = getUsage(ip);
+        if (usage.count >= effectiveLimit) {
+          db.logEvent('free_limit_hit', {}, '');
+          return res.status(402).json({
+            error: 'free_limit_reached',
+            message: `You've used all ${effectiveLimit} free plans this month.`,
+            upgrade_url: '/pricing.html',
+            resets_in: 'Start of next month',
+            used: usage.count,
+            limit: effectiveLimit
+          });
+        }
+        incrementUsage(ip);
+        db.logEvent('generate_plan', { plan_num: usage.count + 1 }, '');
       }
-      incrementUsage(ip);
-      db.logEvent('generate_plan', { plan_num: usage.count + 1 }, '');
     } else if (!swap_meal_type && isPro) {
       db.logEvent('generate_plan', { pro: true }, '');
     }

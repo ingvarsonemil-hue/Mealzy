@@ -242,6 +242,10 @@ async function runDemo() {
       errEl.style.display = 'block';
       return;
     }
+    if (res.status === 402) {
+      window.location.href = '/upgrade.html';
+      return;
+    }
     const data = await res.json();
     if (!data.success || !data.plan?.meals) throw new Error('Generation failed');
     result.innerHTML = renderMeals(data.plan.meals, cals, budget);
