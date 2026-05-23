@@ -106,11 +106,32 @@
       <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" title="Generate a completely different plan">🔄 Regenerate</button>
     </div>
 
+    <!-- STICKY "1 FREE PLAN LEFT" BANNER (shown when planCount >= 2 and not Pro) -->
+    <div id="planLimitBanner" style="display:none;margin-bottom:1rem;padding:0.75rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <span>⚡ <strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; the full grocery list.</span>
+      <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
+        <a href="upgrade.html" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','plan_limit_banner')" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade to Pro →</a>
+        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">✕</button>
+      </div>
+    </div>
+
     <!-- MEALS GRID -->
     <div id="mealsContainer">
       <div class="loading-overlay">
         <div class="spinner"></div>
         <p class="text-muted">Loading meals...</p>
+      </div>
+    </div>
+
+    <!-- SHARE PLAN PANEL (shown after plan generation) -->
+    <div id="sharePlanPanel" style="display:none;margin-top:1.25rem;padding:1.25rem;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;">
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">📤 Share this plan</div>
+      <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Share your meal plan — friends can view it and generate their own from your link.</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+        <input id="sharePlanInput" type="text" readonly style="flex:1;min-width:200px;font-size:0.78rem;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.45rem 0.7rem;background:var(--clr-muted-bg);color:var(--clr-text);" placeholder="Generating link…" />
+        <button onclick="copySharePlanLink()" class="btn btn-outline btn-sm">📋 Copy</button>
+        <a id="shareTwitterBtn" href="#" target="_blank" class="btn btn-outline btn-sm">🐦 X</a>
+        <a id="shareWhatsAppBtn" href="#" target="_blank" class="btn btn-outline btn-sm">💬 WhatsApp</a>
       </div>
     </div>
 
@@ -205,6 +226,7 @@
 
     setDateStr();
     loadMeals();
+    checkPlanLimitBanner();
   }
 
   function setDateStr() {
@@ -372,6 +394,10 @@
       updateTotals();
       cloudSave();
       showToast('Meal plan generated!', 'success');
+      // Update plan limit banner
+      checkPlanLimitBanner();
+      // Show share panel and generate share link
+      showSharePanel(meals);
     } catch (err) {
       console.error(err);
       showToast('Could not connect to server. Is the server running?', 'error');
@@ -379,6 +405,56 @@
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;
     }
+  }
+
+  function checkPlanLimitBanner() {
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
+    if (isPro) return;
+    const count = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0');
+    const banner = document.getElementById('planLimitBanner');
+    if (banner && count >= 2) banner.style.display = 'flex';
+  }
+
+  async function showSharePanel(meals) {
+    const panel = document.getElementById('sharePlanPanel');
+    const input = document.getElementById('sharePlanInput');
+    if (!panel || !input || !meals || meals.length === 0) return;
+    panel.style.display = '';
+    input.value = 'Generating link…';
+    try {
+      const res = await fetch('/api/plans/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: { meals, date: currentDateStr } })
+      });
+      if (!res.ok) throw new Error('share failed');
+      const data = await res.json();
+      if (data.url) {
+        input.value = data.url;
+        const encoded = encodeURIComponent(data.url);
+        const text = encodeURIComponent('Check out my AI meal plan 🥗 — built with Mealzy, free: ');
+        const tw = document.getElementById('shareTwitterBtn');
+        const wa = document.getElementById('shareWhatsAppBtn');
+        if (tw) tw.href = `https://twitter.com/intent/tweet?text=${text}&url=${encoded}`;
+        if (wa) wa.href = `https://wa.me/?text=${text}${encoded}`;
+      } else {
+        input.value = window.location.origin + '/plan.html?id=' + (data.shareId || '');
+      }
+    } catch(e) {
+      panel.style.display = 'none';
+    }
+  }
+
+  function copySharePlanLink() {
+    const input = document.getElementById('sharePlanInput');
+    if (!input) return;
+    navigator.clipboard.writeText(input.value).then(() => {
+      showToast('Plan link copied! 📋', 'success');
+    }).catch(() => {
+      input.select();
+      document.execCommand('copy');
+      showToast('Link copied!', 'success');
+    });
   }
 
   function showUpgradePrompt(message) {

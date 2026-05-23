@@ -193,7 +193,8 @@
              1. Stripe Dashboard → Products → Add product → "Mealzy Family"
              2. Add price: $16/month recurring (and $10/month billed as $120/year)
              3. Copy the payment link URL and replace the href below -->
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-outline btn-full" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
+        <!-- ⚠️ NEEDS REAL STRIPE LINK — replace href with Family plan payment link -->
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" data-needs-stripe target="_blank" class="btn btn-outline btn-full" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
         <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Everything</strong> in Pro</li>
@@ -393,6 +394,7 @@
   //   2. Billing period: Yearly, Amount: $62.00
   //   3. Copy the resulting payment link and replace STRIPE_YEARLY below
   const STRIPE_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
+  // ⚠️ NEEDS REAL STRIPE LINK — create annual price in Stripe Dashboard (see TODO above), then replace:
   const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with annual Stripe link
 
   const prices = {
@@ -410,6 +412,7 @@
   };
 
   // TODO (Family annual Stripe): Replace href below with Family annual payment link
+  // ⚠️ NEEDS REAL STRIPE LINK — create Family product + payment links in Stripe, then replace both:
   const STRIPE_FAMILY_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with Family monthly link
   const STRIPE_FAMILY_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with Family annual link
 

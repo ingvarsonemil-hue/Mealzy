@@ -159,6 +159,120 @@ function getEffectiveLimit(email) {
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // ════════════════════════════════════════════════════════════════════════════
+// EMAIL UTILITY (Resend API — set RESEND_API_KEY in Render env vars)
+// ════════════════════════════════════════════════════════════════════════════
+
+async function sendEmail(to, subject, html) {
+  if (!process.env.RESEND_API_KEY) {
+    // Graceful fallback — log so Emil can copy-paste the link during dev
+    console.log(`[email] RESEND_API_KEY not set — would send to ${to}:\n  Subject: ${subject}\n  (set RESEND_API_KEY in Render to enable real email sending)`);
+    return { ok: false, reason: 'no_api_key' };
+  }
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Mealzy <noreply@mealzy.org>',
+        to,
+        subject,
+        html
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[email] Resend error:', data);
+      return { ok: false, error: data };
+    }
+    console.log(`[email] Sent to ${to} — id: ${data.id}`);
+    return { ok: true, id: data.id };
+  } catch(err) {
+    console.error('[email] sendEmail error:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
+// ── Email HTML templates ──────────────────────────────────────────────────────
+
+function emailBase(content) {
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
+<body style="margin:0;padding:0;background:#f5f7f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7f5;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+        <tr><td style="background:#3d8b5e;padding:24px 32px;border-radius:12px 12px 0 0;text-align:center;">
+          <span style="color:white;font-size:22px;font-weight:800;letter-spacing:-0.5px;">🥗 Mealzy</span>
+        </td></tr>
+        <tr><td style="background:#ffffff;padding:32px;border-radius:0 0 12px 12px;">
+          ${content}
+          <hr style="border:none;border-top:1px solid #e8f0eb;margin:28px 0"/>
+          <p style="color:#888;font-size:12px;text-align:center;margin:0;">
+            Mealzy · <a href="https://mealzy.org" style="color:#3d8b5e;text-decoration:none;">mealzy.org</a> ·
+            Questions? <a href="mailto:support@mealzy.org" style="color:#3d8b5e;text-decoration:none;">support@mealzy.org</a>
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+function emailPasswordReset(name, resetUrl) {
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Reset your password</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${name || 'there'}, here's your password reset link. It expires in 1 hour.</p>
+    <a href="${resetUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
+    <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${resetUrl}</span></p>
+    <p style="color:#aaa;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email. Your password won't change.</p>
+  `);
+}
+
+function emailDay3Nudge(name, plansLeft) {
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You've got ${plansLeft} free plan${plansLeft !== 1 ? 's' : ''} left this month 🥗</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — you signed up 3 days ago. Here's what Pro unlocks when you're ready:</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+      ${['Unlimited AI meal plans — every week, every goal change', 'PDF export — print your plan, take it to the shop', 'Unlimited AI coaching with Mia — ask anything, any time', 'Advanced macros per meal — protein, carbs, fat broken down'].map(f => `
+      <tr><td style="padding:6px 0;color:#333;font-size:14px;">✅ ${f}</td></tr>`).join('')}
+    </table>
+    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Start Pro — 7 Days Free →</a>
+    <p style="color:#888;font-size:13px;margin:0;">$8/month. Cancel any time with one click.</p>
+  `);
+}
+
+function emailLimitHit(name) {
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You hit your free plan limit 🚀</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — you've used all your free plans this month. That means you're actually using Mealzy — which is great.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Upgrade to Pro and never hit a limit again. Your <strong>7-day free trial</strong> starts the moment you click — no charge until the trial ends.</p>
+    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Start My 7-Day Free Trial →</a>
+    <p style="color:#888;font-size:13px;margin:0;">$8/month after the trial. Cancel any time.</p>
+  `);
+}
+
+function emailReferralReward(name, referredName) {
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">🎉 You earned a free month of Pro!</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — ${referredName || 'someone you referred'} just upgraded to Pro. As a thank you, we've added <strong>30 days of Pro</strong> to your account.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Your Pro access is now active. Enjoy unlimited meal plans, PDF export, advanced macros, and unlimited AI coaching.</p>
+    <a href="https://mealzy.org/dashboard.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Go to My Dashboard →</a>
+  `);
+}
+
+function emailWeeklyDigest(name) {
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">New week — new meal plan 🥗</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — it's a new week. Take 30 seconds to generate your meal plan and you'll know exactly what to eat (and spend) all week.</p>
+    <a href="https://mealzy.org/meal-planner.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Generate This Week's Plan →</a>
+    <hr style="border:none;border-top:1px solid #e8f0eb;margin:24px 0"/>
+    <p style="color:#888;font-size:13px;margin:0 0 12px;">Want more? <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;font-weight:700;">Upgrade to Pro</a> for unlimited plans, PDF export, and unlimited AI coaching — $8/month.</p>
+  `);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // HEALTH
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -206,11 +320,17 @@ app.post('/api/auth/signup', authLimiter, (req, res) => {
 
     const userId = randomUUID();
     db.createUser({ id: userId, name, email, hashedPassword });
+
+    // Generate short referral code ref_[6 alphanumeric chars]
+    const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
+    try { db.setUserRefCode(userId, refCode); } catch(e) {}
+    try { db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
+
     db.logEvent('signup', { email }, '');
 
     const jwtPayload = { userId, email, pro: false };
     setJwtCookie(res, jwtPayload);
-    res.json({ success: true, user: { id: userId, name, email, pro: false } });
+    res.json({ success: true, user: { id: userId, name, email, pro: false, refCode } });
   } catch(err) {
     console.error('Signup error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -292,6 +412,10 @@ app.post('/api/auth/reset-request', authLimiter, (req, res) => {
 
     const host     = process.env.APP_URL || 'https://mealzy.org';
     const resetUrl = `${host}/reset-password.html?token=${token}`;
+
+    // Send reset email via Resend (logs to console if API key not set)
+    sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl))
+      .catch(e => console.error('[reset-email] send error:', e));
 
     res.json({ success: true, found: true, resetUrl });
   } catch(err) {
@@ -550,17 +674,65 @@ async function handleStripeWebhook(req, res) {
   if (event.type === 'checkout.session.completed') {
     const session  = event.data.object;
     const email    = session.customer_details?.email?.toLowerCase().trim();
+    const customerId = session.customer;
     if (email) {
       const user = db.getUserByEmail(email);
       if (user) {
         db.setUserPro(user.id);
+        if (customerId) try { db.setStripeCustomerId(user.id, customerId); } catch(e) {}
         db.logEvent('pro_activated', { email, source: 'stripe_webhook' }, '');
         console.log(`[stripe] Pro activated for ${email}`);
+
+        // Check if this user was referred — if so, credit the referrer
+        try {
+          const referral = db.get(
+            `SELECT referrer_email FROM referrals WHERE referred_email = ? AND converted = 0 LIMIT 1`,
+            [email]
+          );
+          if (referral?.referrer_email) {
+            db.markReferralConverted(referral.referrer_email, email);
+            db.addBonusPlan(referral.referrer_email);
+            const referrer = db.getUserByEmail(referral.referrer_email);
+            if (referrer) {
+              // Grant referrer 30 days of Pro
+              const proUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+              db.setUserProUntil(referrer.id, proUntil);
+              sendEmail(
+                referrer.email,
+                '🎉 You earned a free month of Pro!',
+                emailReferralReward(referrer.name, user.name)
+              ).catch(() => {});
+              console.log(`[referral] Credited ${referral.referrer_email} with 30d Pro`);
+            }
+          }
+        } catch(e) { console.error('[referral-reward] error:', e.message); }
+
       } else {
-        // User might not have an account yet — log and move on
         console.warn(`[stripe] checkout.session.completed for unknown email: ${email}`);
         db.logEvent('stripe_unknown_email', { email }, '');
       }
+    }
+  }
+
+  // Remove Pro when subscription is cancelled or payment fails
+  if (event.type === 'customer.subscription.deleted' || event.type === 'invoice.payment_failed') {
+    const obj = event.data.object;
+    const customerId = obj.customer;
+    if (customerId) {
+      try {
+        const user = db.get('SELECT * FROM users WHERE stripe_customer_id = ?', [customerId]);
+        if (user) {
+          // Only remove if pro_until is not set (referral reward) and past its date
+          const proUntil = user.pro_until ? new Date(user.pro_until) : null;
+          if (!proUntil || proUntil < new Date()) {
+            db.removeUserPro(user.id);
+            db.logEvent('pro_removed', { email: user.email, reason: event.type }, '');
+            console.log(`[stripe] Pro removed for ${user.email} — ${event.type}`);
+          }
+        } else {
+          console.warn(`[stripe] ${event.type} — no user found for customer ${customerId}`);
+        }
+      } catch(e) { console.error('[stripe] subscription.deleted error:', e.message); }
     }
   }
 
@@ -1141,6 +1313,142 @@ function calcLevel(xp) {
   if (xp >= 100)  return 2;
   return 1;
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// SHAREABLE MEAL PLANS — public, no login
+// ════════════════════════════════════════════════════════════════════════════
+
+// POST /api/plans/share — generate a shareable link for a plan
+app.post('/api/plans/share', (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  const { plan, date, title } = req.body;
+  if (!plan) return res.status(400).json({ error: 'plan required' });
+
+  const shareId = Math.random().toString(36).slice(2, 10); // 8 chars, e.g. "a1b2c3d4"
+  const planId  = randomUUID();
+
+  try {
+    db.saveShareLink(shareId, planId, session.userId, { plan, date, title, sharedAt: new Date().toISOString() });
+    db.logEvent('plan_shared', { shareId }, '');
+    const shareUrl = `${process.env.APP_URL || 'https://mealzy.org'}/plan.html?id=${shareId}`;
+    res.json({ success: true, shareId, shareUrl });
+  } catch(err) {
+    console.error('[share] error:', err);
+    res.status(500).json({ error: 'Could not create share link. Please try again.' });
+  }
+});
+
+// GET /api/shared-plan/:shareId — public, no auth
+app.get('/api/shared-plan/:shareId', (req, res) => {
+  const { shareId } = req.params;
+  if (!shareId || shareId.length > 20) return res.status(404).json({ error: 'Not found' });
+
+  const link = db.getShareLink(shareId);
+  if (!link) return res.status(404).json({ error: 'Plan not found or link expired' });
+
+  db.incrementShareViews(shareId);
+  res.json({ success: true, plan: link.plan, views: (link.views || 0) + 1 });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// REF CODE LOOKUP — handles /?ref=CODE on homepage
+// ════════════════════════════════════════════════════════════════════════════
+
+// GET /api/ref-lookup?code=ref_ABC123 — resolves a code to an email for referral credit
+app.get('/api/ref-lookup', (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.json({ found: false });
+  // Support both email refs (legacy) and ref_CODE refs
+  if (code.startsWith('ref_')) {
+    const user = db.getUserByRefCode(code);
+    if (user) return res.json({ found: true, email: user.email });
+    return res.json({ found: false });
+  }
+  // Legacy email ref
+  if (code.includes('@')) return res.json({ found: true, email: code });
+  res.json({ found: false });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// ANALYTICS FUNNEL — admin endpoint
+// ════════════════════════════════════════════════════════════════════════════
+
+app.get('/api/analytics/funnel', (req, res) => {
+  const token = req.headers['x-pro-token'] || req.query.token;
+  if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const stats = db.getFunnelStats();
+    res.json(stats);
+  } catch(err) {
+    console.error('[funnel] error:', err);
+    res.status(500).json({ error: 'Could not compute funnel stats' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// CRON ENDPOINTS — called by Render cron job or external scheduler
+// Secured with a cron-specific secret header: x-cron-secret
+// ════════════════════════════════════════════════════════════════════════════
+
+function cronAuth(req, res) {
+  const secret = req.headers['x-cron-secret'];
+  if (!secret || secret !== process.env.CRON_SECRET) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return false;
+  }
+  return true;
+}
+
+// POST /api/cron/day3-nudge — send day-3 nudge emails to unconverted users
+app.post('/api/cron/day3-nudge', async (req, res) => {
+  if (!cronAuth(req, res)) return;
+  try {
+    const users = db.getUsersNeedingNudge();
+    let sent = 0;
+    for (const user of users) {
+      const result = await sendEmail(
+        user.email,
+        "You've got 2 free plans left this month — here's what Pro unlocks",
+        emailDay3Nudge(user.name, 2)
+      );
+      if (result.ok) {
+        db.markNudgeSent(user.id);
+        sent++;
+      }
+      await new Promise(r => setTimeout(r, 100)); // gentle rate limiting
+    }
+    db.logEvent('cron_day3_nudge', { sent, total: users.length }, '');
+    res.json({ ok: true, sent, total: users.length });
+  } catch(err) {
+    console.error('[cron/day3-nudge] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/cron/weekly-digest — send weekly reminder to all active free users
+app.post('/api/cron/weekly-digest', async (req, res) => {
+  if (!cronAuth(req, res)) return;
+  try {
+    const users = db.getUsersForWeeklyDigest();
+    let sent = 0;
+    for (const user of users) {
+      const result = await sendEmail(
+        user.email,
+        'New week — generate your meal plan in 30 seconds 🥗',
+        emailWeeklyDigest(user.name)
+      );
+      if (result.ok) sent++;
+      await new Promise(r => setTimeout(r, 150));
+    }
+    db.logEvent('cron_weekly_digest', { sent, total: users.length }, '');
+    res.json({ ok: true, sent, total: users.length });
+  } catch(err) {
+    console.error('[cron/weekly-digest] error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ── Catch-all: serve index.html ────────────────────────────────────────────
 app.get('*', (req, res) => {

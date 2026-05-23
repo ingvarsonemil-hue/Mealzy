@@ -106,10 +106,43 @@ function _applySchema() {
       converted      INTEGER DEFAULT 0,
       created_at     TEXT DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS share_links (
+      share_id   TEXT PRIMARY KEY,
+      plan_id    TEXT NOT NULL,
+      user_id    TEXT NOT NULL,
+      data       TEXT NOT NULL,
+      views      INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS email_queue (
+      id         TEXT PRIMARY KEY,
+      to_email   TEXT NOT NULL,
+      subject    TEXT NOT NULL,
+      html       TEXT NOT NULL,
+      sent       INTEGER DEFAULT 0,
+      error      TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      sent_at    TEXT
+    );
   `);
 
-  // Add bonus_plans column to existing users tables (ignore if already exists)
-  try { _db.run(`ALTER TABLE users ADD COLUMN bonus_plans INTEGER DEFAULT 0`); } catch(e) { /* column already exists */ }
+  // Add columns to existing tables (ignore if already exists)
+  const alters = [
+    `ALTER TABLE users ADD COLUMN bonus_plans INTEGER DEFAULT 0`,
+    `ALTER TABLE users ADD COLUMN ref_code TEXT`,
+    `ALTER TABLE users ADD COLUMN pro_until TEXT`,
+    `ALTER TABLE users ADD COLUMN signup_date TEXT`,
+    `ALTER TABLE users ADD COLUMN nudge_sent INTEGER DEFAULT 0`,
+    `ALTER TABLE users ADD COLUMN limit_email_sent INTEGER DEFAULT 0`,
+    `ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`
+  ];
+  for (const sql of alters) {
+    try { _db.run(sql); } catch(e) { /* column already exists */ }
+  }
+  // Populate signup_date for existing users if null
+  try { _db.run(`UPDATE users SET signup_date = created_at WHERE signup_date IS NULL`); } catch(e) {}
 }
 
 // Save in-memory db to disk. Called after every write.
@@ -346,26 +379,172 @@ function getUserBonusPlans(userId) {
   return row ? (row.bonus_plans || 0) : 0;
 }
 
+// ── Ref codes ─────────────────────────────────────────────────────────────────
+
+function setUserRefCode(userId, refCode) {
+  run('UPDATE users SET ref_code = ? WHERE id = ?', [refCode, userId]);
+}
+
+function getUserByRefCode(refCode) {
+  return get('SELECT * FROM users WHERE ref_code = ?', [refCode]);
+}
+
+function setUserProUntil(userId, untilDate) {
+  run('UPDATE users SET pro = 1, pro_until = ? WHERE id = ?', [untilDate, userId]);
+}
+
+function setStripeCustomerId(userId, customerId) {
+  run('UPDATE users SET stripe_customer_id = ? WHERE id = ?', [customerId, userId]);
+}
+
+function removeUserPro(userId) {
+  run('UPDATE users SET pro = 0, pro_until = NULL WHERE id = ?', [userId]);
+}
+
+function getUsersNeedingNudge() {
+  // Users who signed up 3 days ago, are not Pro, and haven't been sent a nudge yet
+  return all(`
+    SELECT id, name, email FROM users
+    WHERE pro = 0
+      AND nudge_sent = 0
+      AND signup_date IS NOT NULL
+      AND datetime(signup_date) <= datetime('now', '-3 days')
+    LIMIT 100
+  `);
+}
+
+function markNudgeSent(userId) {
+  run('UPDATE users SET nudge_sent = 1 WHERE id = ?', [userId]);
+}
+
+function getUsersForWeeklyDigest() {
+  // Active free users (signed up, not pro, email known)
+  return all(`
+    SELECT id, name, email FROM users
+    WHERE pro = 0 AND email IS NOT NULL AND email != ''
+    LIMIT 500
+  `);
+}
+
+// ── Share links ───────────────────────────────────────────────────────────────
+
+function saveShareLink(shareId, planId, userId, planData) {
+  run(
+    `INSERT INTO share_links (share_id, plan_id, user_id, data)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(share_id) DO UPDATE SET data = excluded.data`,
+    [shareId, planId, userId, JSON.stringify(planData)]
+  );
+}
+
+function getShareLink(shareId) {
+  const row = get('SELECT * FROM share_links WHERE share_id = ?', [shareId]);
+  if (!row) return null;
+  try {
+    row.plan = JSON.parse(row.data);
+    return row;
+  } catch(e) { return null; }
+}
+
+function incrementShareViews(shareId) {
+  // fire-and-forget, don't let this fail loudly
+  try { _db.run('UPDATE share_links SET views = views + 1 WHERE share_id = ?', [shareId]); _saveDb(); } catch(e) {}
+}
+
+// ── Analytics funnel ──────────────────────────────────────────────────────────
+
+function getFunnelStats() {
+  const users     = all('SELECT id, pro, created_at FROM users');
+  const now       = new Date();
+  const weekAgo   = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const monthAgo  = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const total     = users.length;
+  const proUsers  = users.filter(u => u.pro === 1).length;
+  const thisWeek  = users.filter(u => u.created_at >= weekAgo).length;
+
+  // Get plan counts from analytics
+  const plansRow  = get(`SELECT COUNT(*) AS n FROM analytics WHERE event = 'generate_plan'`);
+  const plans     = plansRow ? plansRow.n : 0;
+
+  // Top referrers
+  const refRows   = all(`
+    SELECT referrer_email, COUNT(*) AS n FROM referrals
+    WHERE converted = 1
+    GROUP BY referrer_email
+    ORDER BY n DESC
+    LIMIT 5
+  `);
+
+  // This month signups
+  const signupRow = get(`SELECT COUNT(*) AS n FROM analytics WHERE event = 'signup' AND created_at >= ?`, [monthAgo]);
+  const monthSignups = signupRow ? signupRow.n : 0;
+
+  // Free limit hits this month
+  const limitRow  = get(`SELECT COUNT(*) AS n FROM analytics WHERE event = 'free_limit_hit' AND created_at >= ?`, [monthAgo]);
+  const limitHits = limitRow ? limitRow.n : 0;
+
+  // Upgrade clicks this month
+  const upgradeRow = get(`SELECT COUNT(*) AS n FROM analytics WHERE event = 'upgrade_click' AND created_at >= ?`, [monthAgo]);
+  const upgradeClicks = upgradeRow ? upgradeRow.n : 0;
+
+  const convRate = total > 0 ? ((proUsers / total) * 100).toFixed(1) + '%' : '0%';
+  const plansPerUser = total > 0 ? (plans / total).toFixed(1) : '0';
+
+  return {
+    total_users: total,
+    pro_users: proUsers,
+    free_users: total - proUsers,
+    users_this_week: thisWeek,
+    conversion_rate: convRate,
+    plans_generated: plans,
+    plans_per_user_avg: plansPerUser,
+    this_month: {
+      signups: monthSignups,
+      free_limit_hits: limitHits,
+      upgrade_clicks: upgradeClicks
+    },
+    mrr_estimate: `$${(proUsers * 8).toLocaleString()}/month`,
+    top_referrers: refRows.map(r => ({ email: r.referrer_email, conversions: r.n }))
+  };
+}
+
 // ── DB health check (for /api/health) ─────────────────────────────────────────
 function ping() {
   const row = get('SELECT 1 AS ok');
   return row && row.ok === 1;
 }
 
+// expose the raw db instance for direct queries (ping uses it)
+Object.defineProperty(module.exports || {}, 'db', { get: () => _db });
+
 module.exports = {
   initDb,
+  // expose raw db
+  get db() { return _db; },
+  // expose low-level helpers for direct queries in server.js
+  get: (sql, params) => get(sql, params || []),
+  all: (sql, params) => all(sql, params || []),
+  run: (sql, params) => run(sql, params || []),
   // users
   createUser, getUserByEmail, getUserById, setUserPro, updatePassword, getAllUsers,
+  removeUserPro, setStripeCustomerId, setUserProUntil,
+  // ref codes
+  setUserRefCode, getUserByRefCode,
+  // nurture
+  getUsersNeedingNudge, markNudgeSent, getUsersForWeeklyDigest,
   // profiles
   saveProfile, getProfile,
   // plans
   savePlan, getRecentPlans,
+  // share links
+  saveShareLink, getShareLink, incrementShareViews,
   // reset tokens
   createResetToken, getResetToken, markResetTokenUsed, purgeExpiredTokens,
   // leads
   saveLead, countLeads,
   // analytics
-  logEvent, getAnalytics,
+  logEvent, getAnalytics, getFunnelStats,
   // family profiles
   getFamilyProfiles, saveFamilyProfile, deleteFamilyProfile, countFamilyProfiles,
   // referrals

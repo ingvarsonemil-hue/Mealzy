@@ -155,6 +155,23 @@
       <div id="goalsProgress" style="display:flex;flex-direction:column;gap:1rem;"></div>
     </div>
 
+    <!-- CONVERSION FUNNEL (admin — requires PRO_TOKEN) -->
+    <div class="card" style="margin-bottom:1.5rem;" id="funnelCard">
+      <div class="card-header">
+        <div class="card-title">🔄 Conversion Funnel</div>
+        <span class="text-muted text-sm" id="funnelStatus">Loading…</span>
+      </div>
+      <div id="funnelBody" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;padding-top:0.5rem;">
+        <div class="stat-card"><div class="stat-card-icon green">👥</div><div class="stat-label">Total Users</div><div class="stat-value" id="fTotalUsers">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber">⭐</div><div class="stat-label">Pro Users</div><div class="stat-value" id="fProUsers">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon blue">📈</div><div class="stat-label">Conversion Rate</div><div class="stat-value" id="fConversion">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon indigo">💰</div><div class="stat-label">MRR Estimate</div><div class="stat-value" id="fMrr">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon green">📅</div><div class="stat-label">New This Week</div><div class="stat-value" id="fThisWeek">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber">🍽️</div><div class="stat-label">Plans / User</div><div class="stat-value" id="fPlansPerUser">—</div></div>
+      </div>
+      <div id="funnelReferrers" style="margin-top:1rem;"></div>
+    </div>
+
     <!-- SITE-WIDE ANALYTICS (admin) -->
     <div class="card" style="margin-bottom:1.5rem;" id="siteAnalyticsCard">
       <div class="card-header">
@@ -218,7 +235,46 @@
     updateSummaryStats();
     renderWeeklyBreakdown();
     renderGoalsProgress();
+    loadFunnelStats();
     loadSiteAnalytics();
+  }
+
+  async function loadFunnelStats() {
+    const statusEl = document.getElementById('funnelStatus');
+    const urlToken = new URLSearchParams(window.location.search).get('token') || '';
+    const storedToken = localStorage.getItem('mealzy_pro_token') || '';
+    const token = urlToken || storedToken;
+    if (!token) { if (statusEl) statusEl.textContent = 'Enter ?token=YOUR_TOKEN to view'; return; }
+    try {
+      const res = await fetch('/api/analytics/funnel', { headers: { 'x-pro-token': token } });
+      if (!res.ok) {
+        if (statusEl) statusEl.textContent = res.status === 401 ? 'Unauthorized — wrong token' : 'Error loading funnel';
+        return;
+      }
+      const d = await res.json();
+      if (statusEl) statusEl.textContent = 'Live data';
+      const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
+      setText('fTotalUsers',   d.total_users   ?? '—');
+      setText('fProUsers',     d.pro_users     ?? '—');
+      setText('fConversion',   d.conversion_rate ?? '—');
+      setText('fMrr',         d.mrr_estimate  ?? '—');
+      setText('fThisWeek',    d.users_this_week ?? '—');
+      setText('fPlansPerUser',d.plans_per_user_avg != null ? d.plans_per_user_avg.toFixed(1) : '—');
+      // Top referrers
+      const referrers = d.top_referrers || [];
+      const refEl = document.getElementById('funnelReferrers');
+      if (refEl && referrers.length > 0) {
+        refEl.innerHTML = `<div style="font-size:0.82rem;font-weight:700;color:var(--clr-muted-fg);margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.04em;">Top Referrers</div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">${referrers.map(r =>
+            `<div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.35rem 0;border-bottom:1px solid var(--clr-border);">
+              <span style="color:var(--clr-text);">${r.email}</span>
+              <span style="font-weight:700;color:var(--clr-primary);">${r.conversions} conversion${r.conversions !== 1 ? 's' : ''}</span>
+            </div>`
+          ).join('')}</div>`;
+      }
+    } catch(e) {
+      if (statusEl) statusEl.textContent = 'Could not load — server offline?';
+    }
   }
 
   async function loadSiteAnalytics() {

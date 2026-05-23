@@ -126,6 +126,23 @@
       </div>
     </div>
 
+    <!-- PRO UPGRADE CARD — free users only, hidden for Pro -->
+    <div id="proUpgradeCard" style="display:none;margin-bottom:1.25rem;background:linear-gradient(135deg,#1a4731 0%,#2e7d4f 100%);border-radius:1rem;padding:1.25rem 1.5rem;color:white;display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;opacity:0.75;text-transform:uppercase;margin-bottom:0.3rem;">Unlock the full experience</div>
+          <div style="font-size:1.05rem;font-weight:800;margin-bottom:0.5rem;">Upgrade to Pro — $8/month</div>
+          <div style="font-size:0.82rem;opacity:0.88;line-height:1.6;">
+            ✅ Unlimited AI meal plans &nbsp;·&nbsp; ✅ PDF export &nbsp;·&nbsp; ✅ AI coaching &nbsp;·&nbsp; ✅ Advanced analytics
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
+          <a href="upgrade.html" style="display:inline-block;background:white;color:#1a4731;font-weight:800;padding:0.65rem 1.25rem;border-radius:0.6rem;text-decoration:none;font-size:0.9rem;white-space:nowrap;">Start 7-Day Free Trial →</a>
+          <button onclick="document.getElementById('proUpgradeCard').style.display='none';localStorage.setItem('mealzy_pro_card_dismissed','1')" style="background:none;border:none;color:rgba(255,255,255,0.55);font-size:0.75rem;cursor:pointer;text-align:right;">Dismiss</button>
+        </div>
+      </div>
+    </div>
+
     <!-- STAT CARDS -->
     <div class="grid-4" style="margin-bottom:1.5rem;" id="statCards">
       <div class="stat-card">
@@ -954,7 +971,8 @@
                2. Add price: $4/month recurring, then $8/month after coupon expires
                3. Or use Stripe coupon: Dashboard → Coupons → Create coupon → 50% off, 1 month, apply to existing Pro price
                4. Replace the URL below with your discounted Stripe payment link -->
-          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
+          <!-- ⚠️ NEEDS REAL STRIPE LINK — replace href with discounted $4 first-month payment link -->
+          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" data-needs-stripe onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
           <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
         </div>
       </div>`;
@@ -1536,6 +1554,12 @@
     if (proBadge) proBadge.style.display = isPro ? 'inline-block' : 'none';
     if (planLabel) planLabel.textContent = isPro ? '⭐ Pro Plan' : 'Free Plan';
     if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? '⭐ Pro Plan' : 'Free Plan';
+    // Show upgrade card only for free users who haven't dismissed it
+    const upgradeCard = document.getElementById('proUpgradeCard');
+    if (upgradeCard) {
+      const dismissed = localStorage.getItem('mealzy_pro_card_dismissed');
+      upgradeCard.style.display = (!isPro && !dismissed) ? 'block' : 'none';
+    }
   }
 
   // === WELCOME MESSAGE (?new=true or mealzy_is_new_user flag) ===
