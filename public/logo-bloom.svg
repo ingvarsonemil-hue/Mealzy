@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <!-- Background -->
+  <rect width="600" height="600" rx="120" fill="#3d8b5e"/>
+
+  <!-- Bowl shape -->
+  <path d="M 110,255 Q 110,445 300,460 Q 490,445 490,255"
+        fill="none" stroke="white" stroke-width="38" stroke-linecap="round"/>
+
+  <!-- Bowl base line -->
+  <line x1="200" y1="454" x2="400" y2="454"
+        stroke="white" stroke-width="38" stroke-linecap="round"/>
+
+  <!-- 4-point sparkle (AI symbol) -->
+  <path d="M 300,95
+           L 322,158
+           L 388,182
+           L 322,206
+           L 300,269
+           L 278,206
+           L 212,182
+           L 278,158 Z"
+        fill="white"/>
+</svg>
