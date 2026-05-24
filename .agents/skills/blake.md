@@ -34,7 +34,7 @@ Mealzy handles user email addresses, dietary health data, and Stripe payments. N
 
 ### 3. Input Sanitisation
 - `sanitise(val, maxLen)` is used throughout — verify it's called on ALL user-supplied input.
-- SQL injection: sql.js uses parameterised queries (`?` placeholders) — verify no string concatenation in queries.
+- SQL injection: @libsql/client uses parameterised queries (`?` placeholders) — verify no string concatenation in queries.
 - XSS: all user data rendered in HTML must be escaped — audit frontend pages.
 
 ### 4. Stripe Security
@@ -50,7 +50,7 @@ Mealzy handles user email addresses, dietary health data, and Stripe payments. N
 
 ### 6. Dependencies
 - Run `npm audit` weekly — flag any HIGH or CRITICAL vulnerabilities.
-- Key packages to watch: `jsonwebtoken`, `express`, `stripe`, `sql.js`.
+- Key packages to watch: `jsonwebtoken`, `express`, `stripe`, `@libsql/client`.
 - Dev dependencies (`nodemon`, `sharp`) must never ship to production.
 
 ### 7. Security Headers
@@ -61,7 +61,7 @@ Mealzy handles user email addresses, dietary health data, and Stripe payments. N
 - Missing: `Strict-Transport-Security` — add for HTTPS enforcement. Flag as P1.
 
 ### 8. Data Privacy
-- User passwords (hashed) and email addresses stored in SQLite — must never appear in logs.
+- User passwords (hashed) and email addresses stored in Turso (cloud SQLite) — must never appear in logs.
 - Dietary data (health goals, allergies, weight) is PII — must not be logged.
 - Coordinate with Harper on GDPR data deletion requests.
 
@@ -101,7 +101,7 @@ Run every Monday alongside the measurement day:
 | Missing Content-Security-Policy header | Medium — XSS amplification | P1 |
 | Missing Strict-Transport-Security header | Low — HTTPS already enforced by Render | P2 |
 | No `state` param CSRF check in Google OAuth callback | Medium — CSRF on OAuth flow | P1 |
-| sql.js no atomic write (risk of DB corruption mid-save) | High if server crashes mid-write | P1 — add temp-file rename pattern |
+| ~~sql.js no atomic write~~ | ~~High~~ | ✅ Resolved — migrated to Turso (cloud DB, atomic by default) |
 
 ---
 
