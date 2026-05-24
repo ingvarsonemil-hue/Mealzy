@@ -27,13 +27,13 @@ You catch these things before users do.
 
 ```
 Runtime:     Node.js + Express (server.js)
-Database:    sql.js (SQLite in-memory, persisted to file via db.js)
+Database:    Turso (@libsql/client) — cloud SQLite, persists across deploys (db.js)
 Auth:        JWT in httpOnly cookies (30-day expiry)
 Payments:    Stripe (webhook-driven Pro activation)
 AI:          Anthropic Claude (claude-haiku-4-5-20251001 for plans, coach endpoint)
 Hosting:     Render (free tier — spins down after 15 min inactivity)
 Frontend:    Static HTML/CSS/JS in /public
-Env:         .env file (never commit to git)
+Env:         .env file (never commit to git) + Render env vars for production
 ```
 
 ### Key files:
@@ -246,6 +246,53 @@ FLAGGED FOR DREW:
 - **Riley** — if a new route is added, Riley needs to know so analytics can track it.
 - **Casey** — Stripe links, Pro activation logic, and plan limits are Casey's domain. Morgan implements, Casey defines.
 - **Charlie** — bug reports from users come through Charlie. Morgan gets the report and fixes the root cause.
+
+---
+
+## CLAUDE API SKILL
+
+Morgan owns the implementation of every Anthropic API call in server.js. This skill covers correct SDK usage, prompt caching, and async patterns.
+
+### Async DB Pattern
+
+All `db.*` functions are async — always `await` them. Every route handler must be `async (req, res) => {`. Missing `await` causes silent bugs where a Promise is treated as a truthy value.
+
+```javascript
+// correct
+const user = await db.getUserByEmail(email);
+
+// wrong — user will be a Promise, always truthy
+const user = db.getUserByEmail(email);
+```
+
+### Prompt Caching
+
+Mealzy caches stable system prompt blocks using `cache_control: { type: "ephemeral" }`. Rules:
+
+**What to cache (stable — put first, add cache_control):**
+- Role definitions and output format rules
+- Mia's identity and safety disclaimers
+- Dietary restriction rules that don't change per user
+
+**What NOT to cache (volatile — put last, no cache_control):**
+- User-specific data (name, goals, macros, allergies)
+- Per-request variables (budget, cuisine, target calories)
+
+Check logs for `[meal cache]`, `[coach cache]`, `[demo-meal cache]` to verify caching is working.
+
+### SDK Rules
+- Always use `@anthropic-ai/sdk` — never raw fetch for AI calls
+- Always pass `system` as an array of content blocks (not a plain string)
+- Always set `max_tokens` explicitly
+- Model: `claude-haiku-4-5-20251001` for all Mealzy endpoints
+
+### Environment Variables (production)
+All secrets live in Render env vars. Required for full 12/12 startup check:
+`JWT_SECRET`, `ANTHROPIC_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+`STRIPE_MONTHLY_URL`, `STRIPE_ANNUAL_URL`, `STRIPE_FAMILY_MONTHLY_URL`,
+`STRIPE_FAMILY_ANNUAL_URL`, `STRIPE_DISCOUNT_URL`,
+`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`
 
 ---
 

@@ -1,0 +1,35 @@
+# Mealzy — Render Keep-Alive
+# Pings /api/health every 9 minutes to prevent Render free tier cold starts.
+# Render spins down after 15 min of inactivity — this keeps it warm 24/7 at zero cost.
+#
+# No secrets needed. Just push this file and it runs automatically.
+# To pause: comment out the schedule lines below.
+
+name: Keep Alive
+
+on:
+  schedule:
+    # Every 9 minutes — stays safely under Render's 15-minute spin-down threshold
+    # Cron syntax: minute hour day month weekday
+    - cron: '*/9 * * * *'
+  workflow_dispatch: # Allow manual trigger from GitHub Actions tab
+
+jobs:
+  ping:
+    name: Ping Mealzy health endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Ping /api/health
+        run: |
+          echo "Pinging https://mealzy.org/api/health ..."
+          response=$(curl -s -o /tmp/health.json -w "%{http_code}" https://mealzy.org/api/health)
+          echo "HTTP status: $response"
+          echo "Response body:"
+          cat /tmp/health.json
+          if [ "$response" != "200" ]; then
+            echo "WARNING: Health check returned $response — server may be down"
+            exit 1
+          fi
+          echo "Server is warm and healthy."
