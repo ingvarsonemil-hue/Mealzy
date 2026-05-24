@@ -54,6 +54,7 @@ To run a day's work: `/[employee]` and say "run your [Monday/Tuesday/etc.] sched
 | Employee | Task |
 |----------|------|
 | **Maya** | Run weekly CRO audit: review one page from the 18-page list, propose copy improvements |
+| **Nova** | Run weekly design audit: score one page from the priority list (index → pricing → dashboard → repeat), propose top 3 design improvements with code |
 | **Quinn** | Implement any prompt fix identified on Monday, run regression test |
 | **Morgan** | Implement top bug fix from Charlie's backlog |
 | **Jordan** | Write or improve one email in the sequence library |
