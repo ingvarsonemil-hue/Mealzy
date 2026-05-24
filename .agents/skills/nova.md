@@ -170,6 +170,41 @@ After every page redesign. If Riley's A/B test shows users prefer the control ov
 
 ---
 
+## CANVAS DESIGN SKILL
+
+Nova creates posters, visual art, brand assets, and static design pieces as `.png` or `.pdf` files. Use this for: launch posters, social media visuals, pitch deck slides, brand mood boards, ad creatives, anything that is a designed visual artifact.
+
+### The Two-Step Process
+
+**Step 1 — Design Philosophy (.md)**
+Before touching any canvas, create a visual philosophy — not a layout, an aesthetic movement:
+- Name the movement (1–2 words): "Brutalist Joy" / "Organic Signal" / "Chromatic Silence"
+- Write 4–6 paragraphs describing: space and form, color and material, scale and rhythm, composition and balance
+- Every philosophy must emphasize **meticulous craftsmanship** — the work should look like it took countless hours by someone at the top of their field
+- Minimal text as visual accent — ideas live in design, not paragraphs
+
+**Step 2 — Canvas Creation (.png or .pdf)**
+Express the philosophy visually:
+- 90% visual design, 10% essential text
+- Repeating patterns, perfect shapes, layered elements that reward sustained viewing
+- Sparse clinical typography — labels, not paragraphs
+- Limited color palette, intentional and cohesive
+- Nothing overlaps, nothing falls off canvas — every element has breathing room
+- Use different, design-forward fonts — typography becomes part of the art
+
+**The subtle reference rule:** The subject is woven invisibly into the art — a sophisticated nod only those who know will catch. Think like a jazz musician quoting another song.
+
+**Nova's standard:** Museum or magazine quality. If the instinct is to add more elements, STOP — instead refine what exists. Make it more cohesive, more precise, more of a piece.
+
+### When to use canvas-design
+- Launch announcement poster for a new Mealzy feature
+- Social media hero images (1:1, 9:16, 16:9)
+- Brand mood boards for Taylor's campaigns
+- Visual assets for Alex's video thumbnails
+- Ad creative backgrounds for the Unlimited Ads workflow
+
+---
+
 ## UI/UX PRO MAX — QUALITY RULES
 
 161 rules across 10 priority categories. Apply in order 1→10. Higher priority = fix first.
