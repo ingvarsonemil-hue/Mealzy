@@ -23,15 +23,42 @@ const { randomUUID } = require('crypto');
 const jwt          = require('jsonwebtoken');
 const rateLimit    = require('express-rate-limit');
 const Anthropic    = require('@anthropic-ai/sdk');
+const winston      = require('winston');
 const db           = require('./db');
+
+// ── Structured logging — replaces console.log/error throughout ──────────────
+const logger = winston.createLogger({
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    process.env.NODE_ENV === 'production'
+      ? winston.format.json()                          // JSON in prod (parseable by log viewers)
+      : winston.format.prettyPrint()                   // Human-readable locally
+  ),
+  transports: [
+    new winston.transports.Console(),
+    // In production on Render, logs go to stdout — no file needed.
+    // Locally, also write errors to a file for easier debugging:
+    ...(process.env.NODE_ENV !== 'production'
+      ? [new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+         new winston.transports.File({ filename: 'logs/combined.log' })]
+      : [])
+  ]
+});
+
+// Make logger globally available — Morgan should replace console.log with logger calls over time
+global.log = logger;
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust Render's proxy so express-rate-limit can read the real client IP
+app.set('trust proxy', 1);
+
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '30d';
-const ANALYTICS_FILE = path.join(__dirname, 'analytics.json'); // legacy, keep for old data
-const LEADS_FILE     = path.join(__dirname, 'leads.json');     // legacy
+// Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via db.logEvent()
 
 // ── Security headers on every response ────────────────────────────────────
 app.use((req, res, next) => {
@@ -306,6 +333,25 @@ app.get('/supabase-config.js', (req, res) => {
   );
 });
 
+// ── Stripe payment links — served from env vars so links update without code deploys ──
+// To add a new plan: set the env var in .env (local) + Render dashboard (production), redeploy.
+const STRIPE_MONTHLY_FALLBACK = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
+app.get('/stripe-config.js', (req, res) => {
+  const monthly        = process.env.STRIPE_MONTHLY_URL        || STRIPE_MONTHLY_FALLBACK;
+  const annual         = process.env.STRIPE_ANNUAL_URL         || monthly; // falls back to monthly if annual not set
+  const familyMonthly  = process.env.STRIPE_FAMILY_MONTHLY_URL || monthly;
+  const familyAnnual   = process.env.STRIPE_FAMILY_ANNUAL_URL  || monthly;
+  const discount       = process.env.STRIPE_DISCOUNT_URL       || monthly;
+  res.type('js').send(
+    `window.STRIPE_MONTHLY=${JSON.stringify(monthly)};` +
+    `window.STRIPE_ANNUAL=${JSON.stringify(annual)};` +
+    `window.STRIPE_FAMILY_MONTHLY=${JSON.stringify(familyMonthly)};` +
+    `window.STRIPE_FAMILY_ANNUAL=${JSON.stringify(familyAnnual)};` +
+    `window.STRIPE_DISCOUNT=${JSON.stringify(discount)};` +
+    `window.STRIPE_ANNUAL_READY=${JSON.stringify(!!process.env.STRIPE_ANNUAL_URL)};`
+  );
+});
+
 // ════════════════════════════════════════════════════════════════════════════
 // AUTH ENDPOINTS
 // ════════════════════════════════════════════════════════════════════════════
@@ -460,6 +506,83 @@ app.post('/api/auth/reset-confirm', authLimiter, (req, res) => {
   } catch(err) {
     console.error('Reset confirm error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// GOOGLE OAUTH
+// ════════════════════════════════════════════════════════════════════════════
+
+const GOOGLE_REDIRECT_URI = process.env.NODE_ENV === 'production'
+  ? 'https://mealzy.org/auth/google/callback'
+  : 'http://localhost:3000/auth/google/callback';
+
+// GET /auth/google — kick off the OAuth flow
+app.get('/auth/google', authLimiter, (req, res) => {
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    return res.redirect('/login.html?error=google_not_configured');
+  }
+  const params = new URLSearchParams({
+    client_id:     process.env.GOOGLE_CLIENT_ID,
+    redirect_uri:  GOOGLE_REDIRECT_URI,
+    response_type: 'code',
+    scope:         'openid email profile',
+    access_type:   'online',
+    prompt:        'select_account',
+  });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+// GET /auth/google/callback — exchange code, upsert user, issue JWT cookie
+app.get('/auth/google/callback', async (req, res) => {
+  const { code, error } = req.query;
+  if (error || !code) return res.redirect('/login.html?error=google_cancelled');
+
+  try {
+    const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id:     process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri:  GOOGLE_REDIRECT_URI,
+        grant_type:    'authorization_code',
+      }),
+    });
+    const tokenData = await tokenRes.json();
+    if (!tokenData.access_token) {
+      logger.error('[google-oauth] token exchange failed', tokenData);
+      return res.redirect('/login.html?error=google_failed');
+    }
+
+    const userRes  = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` }
+    });
+    const gUser = await userRes.json();
+    const { sub: googleId, email, name } = gUser;
+    if (!email) return res.redirect('/login.html?error=google_failed');
+
+    let user = db.getUserByGoogleId(googleId) || db.getUserByEmail(email);
+    if (!user) {
+      const newId = randomUUID();
+      db.createUserGoogle({ id: newId, name: name || email.split('@')[0], email, googleId });
+      const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      try { db.setUserRefCode(newId, refCode); } catch(e) {}
+      try { db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), newId]); } catch(e) {}
+      db.logEvent('signup_google', { email }, '');
+      user = db.getUserById(newId);
+    } else if (!user.google_id) {
+      db.linkGoogleId(user.id, googleId);
+      db.logEvent('google_linked', { email }, '');
+    }
+
+    setJwtCookie(res, { userId: user.id, email: user.email, pro: !!user.pro });
+    const profile = db.getProfile(user.id);
+    res.redirect(profile ? '/dashboard.html' : '/onboarding.html');
+  } catch(err) {
+    logger.error('[google-oauth] callback error', err);
+    res.redirect('/login.html?error=google_failed');
   }
 });
 
@@ -988,12 +1111,30 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
     const dailyBudget    = (budget / 7).toFixed(2);
     const perMealBudget  = (budget / 7 / 4).toFixed(2);
 
-    // Strictly enforce dietary restrictions in the prompt
-    const dietaryBlock = dietaryPrefs.length > 0
-      ? `STRICT DIETARY REQUIREMENT: The user is ${dietaryPrefs.join(' and ')}. Every meal MUST comply. Do NOT include any ingredients that violate these restrictions.`
+    // ── Dietary restriction enforcement — explicit banned lists per preference ──
+    // These blocks go at the TOP of all meal plan prompts (most important instruction first).
+    const DIET_RULES = {
+      vegan:       'VEGAN — zero animal products. NEVER use: meat, fish, seafood, chicken, beef, pork, lamb, turkey, duck, eggs, milk, cheese, butter, cream, yoghurt, honey, ghee, lard, whey, gelatin. Use ONLY: vegetables, fruits, legumes, grains, nuts, seeds, plant-based oils, tofu, tempeh, seitan (if not GF), coconut milk, oat milk, soy milk, almond milk.',
+      vegetarian:  'VEGETARIAN — no meat or fish. NEVER use: chicken, beef, pork, lamb, turkey, duck, fish, salmon, tuna, shrimp, prawns, cod, sardines, anchovies, bacon, ham, sausage. Eggs and dairy are allowed.',
+      'gluten-free':'GLUTEN-FREE — no gluten. NEVER use: wheat, white flour, bread, sourdough, toast, wrap, pita, tortilla, pasta, noodles, couscous, barley, rye, seitan, soy sauce (use tamari), malt, crackers, croutons, breadcrumbs, regular oats. ALLOWED: rice, quinoa, potatoes, corn, certified GF oats, rice noodles, tamari.',
+      keto:        'KETO — max 25g total net carbs per day across all 4 meals. NEVER use: bread, pasta, rice, potatoes, corn, tortillas, wraps, noodles, couscous, sugar, honey, fruit juice, bananas, grapes, mangoes, apples, oranges, lentils, chickpeas, beans, peas, sweet potatoes, quinoa. ALLOWED: meat, fish, eggs, cheese, cream, butter, avocado, leafy greens, cauliflower, broccoli, zucchini, nuts, seeds, olive oil.',
+      halal:       'HALAL — no pork or alcohol. NEVER use: pork, bacon, ham, lard, gelatin (unless halal-certified), alcohol, wine, beer in cooking.',
+      'dairy-free':'DAIRY-FREE — no dairy. NEVER use: milk, cheese, butter, cream, yoghurt, ghee, whey, casein. Use: plant-based alternatives like coconut milk, oat milk, soy milk, vegan butter.',
+    };
+    // Special combination rules that override individual rules
+    const isVegan = dietaryPrefs.map(p=>p.toLowerCase()).includes('vegan');
+    const isKeto  = dietaryPrefs.map(p=>p.toLowerCase()).includes('keto');
+    const comboRules = (isVegan && isKeto)
+      ? '\nKETO + VEGAN COMBINATION: Use ONLY these protein sources: tofu, tempeh, edamame, hemp seeds. Use ONLY these fats: avocado, coconut oil, olive oil, nuts (almonds, walnuts, macadamia), seeds (chia, flax, sunflower). Absolutely NO eggs, dairy, fish, or meat of any kind. NO grains, legumes (except edamame/tofu/tempeh), or starchy vegetables.'
+      : '';
+    const activeDietRules = (dietaryPrefs
+      .map(p => DIET_RULES[p.toLowerCase()] || `STRICT DIETARY REQUIREMENT: User is ${p}. Every meal MUST comply.`)
+      .join('\n')) + comboRules;
+    const dietaryBlock = activeDietRules
+      ? `\n⚠️ DIETARY RULES — HIGHEST PRIORITY — THESE OVERRIDE EVERYTHING ELSE:\n${activeDietRules}\nDouble-check every ingredient against these rules before including it.\n`
       : '';
     const allergyBlock = allergies.length > 0
-      ? `ALLERGY WARNING: The user is allergic to: ${allergies.join(', ')}. NEVER include these ingredients in any form.`
+      ? `\n⚠️ ALLERGY WARNING — NEVER include these ingredients in any form: ${allergies.join(', ')}.\n`
       : '';
     const avoidBlock = avoid_meals?.length > 0
       ? `Do NOT suggest these previously disliked meals: ${avoid_meals.join(', ')}.`
@@ -1024,7 +1165,24 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
       const allCuisines = Object.values(cuisineGroups).flat();
       todayCuisine = allCuisines[Math.floor(Math.random() * allCuisines.length)];
     }
-    const todayProtein = proteins[Math.floor(Math.random() * proteins.length)];
+    // Filter protein suggestions to match dietary restrictions — prevents biasing the model with forbidden proteins
+    const proteinsByDiet = {
+      vegan:       ['tofu','lentils','chickpeas','tempeh','edamame','hemp seeds','black beans','kidney beans'],
+      vegetarian:  ['eggs','tofu','lentils','chickpeas','tempeh','halloumi','cottage cheese','greek yogurt'],
+      keto:        ['chicken','salmon','beef','shrimp','turkey','pork','lamb','cod','sardines','duck','venison','eggs','tuna'],
+      'dairy-free':['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines','duck','venison'],
+      halal:       ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','lamb','cod','tempeh','sardines','duck','venison'],
+    };
+    let eligibleProteins = [...proteins];
+    for (const pref of dietaryPrefs.map(p=>p.toLowerCase())) {
+      if (proteinsByDiet[pref]) {
+        eligibleProteins = eligibleProteins.filter(p => proteinsByDiet[pref].includes(p));
+        if (eligibleProteins.length === 0) eligibleProteins = proteinsByDiet[pref]; // fallback
+      }
+    }
+    // Special keto+vegan combo: only plant-based fats/proteins
+    if (isVegan && isKeto) eligibleProteins = ['tofu','tempeh','hemp seeds','edamame'];
+    const todayProtein = eligibleProteins[Math.floor(Math.random() * eligibleProteins.length)];
     const randomSeed   = Math.floor(Math.random() * 99999);
 
     // ── JSON schema embedded in the prompt for reliable parsing ──────────
@@ -1051,14 +1209,12 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
       const mealCalories = { breakfast: Math.round(dailyCalories * 0.25), lunch: Math.round(dailyCalories * 0.35), dinner: Math.round(dailyCalories * 0.30), snack: Math.round(dailyCalories * 0.10) };
       const targetCals   = mealCalories[swap_meal_type] || Math.round(dailyCalories * 0.25);
 
-      const swapPrompt = `Generate ONE practical home-cooked ${swap_meal_type} meal for ${name}.
+      const swapPrompt = `${dietaryBlock}${allergyBlock}Generate ONE practical home-cooked ${swap_meal_type} meal for ${name}.
 
 Cuisine: ${todayCuisine}. Featured protein: ${todayProtein}. Variety seed: ${randomSeed}.
 Target: ~${targetCals} kcal. Cooking skill: ${cookingSkill}. Max time: ${cookingTimeMinutes} min.
 Budget: max ${currency} ${perMealBudget} for this meal. Use common supermarket ingredients only.
 
-${dietaryBlock}
-${allergyBlock}
 ${avoidBlock}
 
 LANGUAGE: All meal name, description, and ingredient names MUST be in ${languageName}. JSON keys stay in English.
@@ -1098,20 +1254,28 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       ? 'Pro users get restaurant-quality, detailed recipes. Include up to 8 ingredients with precise measurements, and up to 6 steps with professional techniques (temperatures, timing, textures, plating). Descriptions can be up to 15 words.'
       : 'Keep it simple. Max 4 ingredients, max 3 short steps. Descriptions under 10 words. Basic home cooking only.';
 
-    const fullPlanPrompt = `Generate a practical, delicious daily meal plan for ${name} on ${date}.
+    // Per-meal calorie targets so the model doesn't undershoot
+    const mealCalorieTargets = {
+      breakfast: Math.round(dailyCalories * 0.25),
+      lunch:     Math.round(dailyCalories * 0.30),
+      dinner:    Math.round(dailyCalories * 0.35),
+      snack:     Math.round(dailyCalories * 0.10),
+    };
 
-Cuisine style: ${todayCuisine}. Featured protein: ${todayProtein}. Variety seed: ${randomSeed}.
+    const fullPlanPrompt = `${dietaryBlock}${allergyBlock}Generate a practical, delicious daily meal plan for ${name} on ${date}.
+
+Cuisine style: ${todayCuisine}. Variety seed: ${randomSeed}. Suggested protein for ONE meal only: ${todayProtein} (use different proteins across other meals for variety — no protein should appear in more than 2 of the 4 meals).
 Use real, everyday supermarket ingredients. Meals must be realistic for a home cook.
 
 User profile:
 - Goal: ${goal}
-- Daily calorie target: ${dailyCalories} kcal (Protein ${dailyProtein}g / Carbs ${dailyCarbs}g / Fat ${dailyFat}g)
+- Daily calorie target: ${dailyCalories} kcal TOTAL (Protein ${dailyProtein}g / Carbs ${dailyCarbs}g / Fat ${dailyFat}g)
+- PER-MEAL CALORIE TARGETS (each meal MUST hit within ±15% of its target):
+  Breakfast: ${mealCalorieTargets.breakfast} kcal | Lunch: ${mealCalorieTargets.lunch} kcal | Dinner: ${mealCalorieTargets.dinner} kcal | Snack: ${mealCalorieTargets.snack} kcal
 - Cooking skill: ${cookingSkill}
 - Max time per meal: ${cookingTimeMinutes} min
 - STRICT DAILY BUDGET: ${currency} ${dailyBudget} total. Each meal max ${currency} ${perMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
 
-${dietaryBlock}
-${allergyBlock}
 ${avoidBlock}
 
 ${proInstructions}
@@ -1119,6 +1283,7 @@ ${proInstructions}
 LANGUAGE: Write ALL meal names, descriptions, and ingredient names in ${languageName}. JSON keys stay in English.
 
 Generate exactly 4 meals: breakfast, lunch, dinner, snack.
+${dietaryBlock ? `Remember: ${activeDietRules.split('\n')[0]}` : ''}
 
 Respond ONLY with valid JSON (no markdown fences, no extra text):
 {
@@ -1137,8 +1302,8 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       model: 'claude-haiku-4-5-20251001',
       max_tokens: isPro ? 6000 : 4000,
       system: isPro
-        ? 'You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements. NEVER violate dietary restrictions or allergies.'
-        : 'You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise. NEVER violate dietary restrictions or allergies.',
+        ? `You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements.${dietaryBlock ? ` CRITICAL: ${activeDietRules.split('\n')[0]}` : ''} NEVER violate dietary restrictions or allergies — this is non-negotiable.`
+        : `You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise.${dietaryBlock ? ` CRITICAL: ${activeDietRules.split('\n')[0]}` : ''} NEVER violate dietary restrictions or allergies — this is non-negotiable.`,
       messages: [{ role: 'user', content: fullPlanPrompt }]
     });
 
@@ -1510,7 +1675,31 @@ process.on('uncaughtException', (err) => {
 
 // ── Start server after DB is ready ────────────────────────────────────────
 db.initDb().then(() => {
-  app.listen(PORT, () => console.log(`Mealzy running on http://localhost:${PORT}`));
+  app.listen(PORT, () => {
+    logger.info(`Mealzy running on http://localhost:${PORT}`);
+
+    // Startup self-test — Avery checks these logs after every deploy
+    const checks = [
+      { name: 'JWT_SECRET',              ok: !!process.env.JWT_SECRET },
+      { name: 'ANTHROPIC_API_KEY',       ok: !!process.env.ANTHROPIC_API_KEY },
+      { name: 'STRIPE_SECRET_KEY',       ok: !!process.env.STRIPE_SECRET_KEY },
+      { name: 'STRIPE_WEBHOOK_SECRET',   ok: !!process.env.STRIPE_WEBHOOK_SECRET },
+      { name: 'STRIPE_MONTHLY_URL',      ok: !!process.env.STRIPE_MONTHLY_URL },
+      { name: 'STRIPE_ANNUAL_URL',       ok: !!process.env.STRIPE_ANNUAL_URL },
+      { name: 'STRIPE_FAMILY_MONTHLY_URL', ok: !!process.env.STRIPE_FAMILY_MONTHLY_URL },
+      { name: 'STRIPE_FAMILY_ANNUAL_URL',  ok: !!process.env.STRIPE_FAMILY_ANNUAL_URL },
+      { name: 'STRIPE_DISCOUNT_URL',     ok: !!process.env.STRIPE_DISCOUNT_URL },
+      { name: 'GOOGLE_CLIENT_ID',        ok: !!process.env.GOOGLE_CLIENT_ID },
+      { name: 'GOOGLE_CLIENT_SECRET',    ok: !!process.env.GOOGLE_CLIENT_SECRET },
+      { name: 'DATABASE',                ok: db.ping() },
+    ];
+
+    const pass = checks.filter(c => c.ok);
+    const fail = checks.filter(c => !c.ok);
+    logger.info(`[startup] ${pass.length}/${checks.length} checks passed`);
+    if (fail.length) logger.warn(`[startup] Missing/failed: ${fail.map(c => c.name).join(', ')}`);
+    else logger.info('[startup] All systems go');
+  });
 }).catch(err => {
   console.error('[FATAL] Failed to initialise database:', err);
   process.exit(1);

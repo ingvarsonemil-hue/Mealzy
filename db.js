@@ -136,7 +136,8 @@ function _applySchema() {
     `ALTER TABLE users ADD COLUMN signup_date TEXT`,
     `ALTER TABLE users ADD COLUMN nudge_sent INTEGER DEFAULT 0`,
     `ALTER TABLE users ADD COLUMN limit_email_sent INTEGER DEFAULT 0`,
-    `ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`
+    `ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`,
+    `ALTER TABLE users ADD COLUMN google_id TEXT`
   ];
   for (const sql of alters) {
     try { _db.run(sql); } catch(e) { /* column already exists */ }
@@ -199,6 +200,22 @@ function getUserByEmail(email) {
 
 function getUserById(id) {
   return get('SELECT * FROM users WHERE id = ?', [id]);
+}
+
+function getUserByGoogleId(googleId) {
+  return get('SELECT * FROM users WHERE google_id = ?', [googleId]);
+}
+
+function createUserGoogle({ id, name, email, googleId }) {
+  run(
+    `INSERT INTO users (id, name, email, hashed_password, pro, google_id)
+     VALUES (?, ?, ?, '', 0, ?)`,
+    [id, name, email.toLowerCase().trim(), googleId]
+  );
+}
+
+function linkGoogleId(userId, googleId) {
+  run('UPDATE users SET google_id = ? WHERE id = ?', [googleId, userId]);
 }
 
 function setUserPro(userId) {
@@ -527,7 +544,8 @@ module.exports = {
   all: (sql, params) => all(sql, params || []),
   run: (sql, params) => run(sql, params || []),
   // users
-  createUser, getUserByEmail, getUserById, setUserPro, updatePassword, getAllUsers,
+  createUser, getUserByEmail, getUserById, getUserByGoogleId, createUserGoogle, linkGoogleId,
+  setUserPro, updatePassword, getAllUsers,
   removeUserPro, setStripeCustomerId, setUserProUntil,
   // ref codes
   setUserRefCode, getUserByRefCode,
