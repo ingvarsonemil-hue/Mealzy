@@ -58,7 +58,7 @@ app.set('trust proxy', 1);
 
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '30d';
-// Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via db.logEvent()
+// Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
 // ── Security headers on every response ────────────────────────────────────
 app.use((req, res, next) => {
@@ -180,7 +180,7 @@ function getEffectiveLimit(email) {
   if (email && memBonus === 0) {
     // Check SQLite for persisted bonus_plans (survives server restarts)
     try {
-      const user = db.getUserByEmail(email);
+      const user = await db.getUserByEmail(email);
       const dbBonus = user?.bonus_plans || 0;
       if (dbBonus > 0) return FREE_PLAN_LIMIT + dbBonus;
     } catch(e) { /* non-fatal */ }
@@ -314,9 +314,9 @@ function emailWeeklyDigest(name) {
 // HEALTH
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   let dbOk = false;
-  try { dbOk = db.ping(); } catch(e) {}
+  try { dbOk = await db.ping(); } catch(e) {}
   res.json({
     status: dbOk ? 'ok' : 'degraded',
     db: dbOk ? 'connected' : 'error',
@@ -370,20 +370,20 @@ app.post('/api/auth/signup', authLimiter, (req, res) => {
       return res.status(400).json({ error: 'invalid_email', message: 'Please enter a valid email address.' });
     }
 
-    const existing = db.getUserByEmail(email);
+    const existing = await db.getUserByEmail(email);
     if (existing) {
       return res.status(409).json({ error: 'account_exists', message: 'An account with this email already exists.' });
     }
 
     const userId = randomUUID();
-    db.createUser({ id: userId, name, email, hashedPassword });
+    await db.createUser({ id: userId, name, email, hashedPassword });
 
     // Generate short referral code ref_[6 alphanumeric chars]
     const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
-    try { db.setUserRefCode(userId, refCode); } catch(e) {}
-    try { db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
+    try { await db.setUserRefCode(userId, refCode); } catch(e) {}
+    try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
 
-    db.logEvent('signup', { email }, '');
+    await db.logEvent('signup', { email }, '');
 
     const jwtPayload = { userId, email, pro: false };
     setJwtCookie(res, jwtPayload);
@@ -404,7 +404,7 @@ app.post('/api/auth/signin', authLimiter, (req, res) => {
       return res.status(400).json({ error: 'missing_fields', message: 'email and hashedPassword are required.' });
     }
 
-    const user = db.getUserByEmail(email);
+    const user = await db.getUserByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'not_found', message: 'No account found with that email. Please sign up first.' });
     }
@@ -426,7 +426,7 @@ app.get('/api/auth/me', (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
-  const user = db.getUserById(session.userId);
+  const user = await db.getUserById(session.userId);
   if (!user) {
     clearJwtCookie(res);
     return res.status(401).json({ error: 'user_not_found' });
@@ -438,7 +438,7 @@ app.get('/api/auth/me', (req, res) => {
     setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
   }
 
-  const profile = db.getProfile(user.id);
+  const profile = await db.getProfile(user.id);
   res.json({ id: user.id, name: user.name, email: user.email, pro: serverPro, profile });
 });
 
@@ -452,12 +452,12 @@ app.post('/api/auth/signout', (req, res) => {
 // Returns a reset URL (no email sending — shows link on screen, honest about it)
 app.post('/api/auth/reset-request', authLimiter, (req, res) => {
   try {
-    db.purgeExpiredTokens(); // housekeeping
+    await db.purgeExpiredTokens(); // housekeeping
 
     const email = sanitise(req.body.email, 254).toLowerCase();
     if (!email) return res.status(400).json({ error: 'email_required' });
 
-    const user = db.getUserByEmail(email);
+    const user = await db.getUserByEmail(email);
     if (!user) {
       // Don't reveal whether account exists — return generic success
       return res.json({ success: true, found: false });
@@ -465,7 +465,7 @@ app.post('/api/auth/reset-request', authLimiter, (req, res) => {
 
     const token     = randomUUID();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
-    db.createResetToken(token, user.id, expiresAt);
+    await db.createResetToken(token, user.id, expiresAt);
 
     const host     = process.env.APP_URL || 'https://mealzy.org';
     const resetUrl = `${host}/reset-password.html?token=${token}`;
@@ -491,17 +491,17 @@ app.post('/api/auth/reset-confirm', authLimiter, (req, res) => {
       return res.status(400).json({ error: 'token and newHashedPassword required' });
     }
 
-    const record = db.getResetToken(token);
+    const record = await db.getResetToken(token);
     if (!record) {
       return res.status(400).json({ error: 'invalid_token', message: 'Invalid or already-used reset link. Request a new one.' });
     }
     if (new Date(record.expires_at) < new Date()) {
-      db.markResetTokenUsed(token);
+      await db.markResetTokenUsed(token);
       return res.status(400).json({ error: 'expired_token', message: 'This reset link has expired. Request a new one.' });
     }
 
-    db.updatePassword(record.user_id, newHashedPassword);
-    db.markResetTokenUsed(token);
+    await db.updatePassword(record.user_id, newHashedPassword);
+    await db.markResetTokenUsed(token);
     res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
   } catch(err) {
     console.error('Reset confirm error:', err);
@@ -563,22 +563,22 @@ app.get('/auth/google/callback', async (req, res) => {
     const { sub: googleId, email, name } = gUser;
     if (!email) return res.redirect('/login.html?error=google_failed');
 
-    let user = db.getUserByGoogleId(googleId) || db.getUserByEmail(email);
+    let user = await db.getUserByGoogleId(googleId) || await db.getUserByEmail(email);
     if (!user) {
       const newId = randomUUID();
-      db.createUserGoogle({ id: newId, name: name || email.split('@')[0], email, googleId });
+      await db.createUserGoogle({ id: newId, name: name || email.split('@')[0], email, googleId });
       const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
-      try { db.setUserRefCode(newId, refCode); } catch(e) {}
-      try { db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), newId]); } catch(e) {}
-      db.logEvent('signup_google', { email }, '');
-      user = db.getUserById(newId);
+      try { await db.setUserRefCode(newId, refCode); } catch(e) {}
+      try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), newId]); } catch(e) {}
+      await db.logEvent('signup_google', { email }, '');
+      user = await db.getUserById(newId);
     } else if (!user.google_id) {
-      db.linkGoogleId(user.id, googleId);
-      db.logEvent('google_linked', { email }, '');
+      await db.linkGoogleId(user.id, googleId);
+      await db.logEvent('google_linked', { email }, '');
     }
 
     setJwtCookie(res, { userId: user.id, email: user.email, pro: !!user.pro });
-    const profile = db.getProfile(user.id);
+    const profile = await db.getProfile(user.id);
     res.redirect(profile ? '/dashboard.html' : '/onboarding.html');
   } catch(err) {
     logger.error('[google-oauth] callback error', err);
@@ -598,7 +598,7 @@ app.post('/api/profile', (req, res) => {
   if (!profile || typeof profile !== 'object') {
     return res.status(400).json({ error: 'profile object required' });
   }
-  db.saveProfile(session.userId, profile);
+  await db.saveProfile(session.userId, profile);
   res.json({ success: true });
 });
 
@@ -606,7 +606,7 @@ app.post('/api/profile', (req, res) => {
 app.get('/api/profile', (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
-  const profile = db.getProfile(session.userId);
+  const profile = await db.getProfile(session.userId);
   if (!profile) return res.status(404).json({ error: 'no_profile' });
   res.json({ success: true, profile });
 });
@@ -619,7 +619,7 @@ app.get('/api/profile', (req, res) => {
 app.get('/api/family-profiles', (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
-  const profiles = db.getFamilyProfiles(session.userId);
+  const profiles = await db.getFamilyProfiles(session.userId);
   res.json({ success: true, profiles });
 });
 
@@ -630,14 +630,14 @@ app.post('/api/family-profiles', (req, res) => {
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
   // Check user is pro (family profiles are a pro feature)
-  const user = db.getUserById(session.userId);
+  const user = await db.getUserById(session.userId);
   if (!user?.pro) return res.status(403).json({ error: 'pro_required', message: 'Family profiles require a Pro or Family plan.' });
 
   const { id: profileId, name, calorieGoal, budget, dietaryRestrictions, avatar } = req.body;
   if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
 
   // Limit to 4 profiles per user
-  const existing = db.getFamilyProfiles(session.userId);
+  const existing = await db.getFamilyProfiles(session.userId);
   const isUpdate = profileId && existing.find(p => p.id === profileId);
   if (!isUpdate && existing.length >= 4) {
     return res.status(400).json({ error: 'max_profiles', message: 'Family plan supports up to 4 profiles.' });
@@ -651,8 +651,8 @@ app.post('/api/family-profiles', (req, res) => {
     avatar: sanitise(avatar || '', 4)
   };
 
-  db.saveFamilyProfile(id, session.userId, sanitise(name, 100), data);
-  db.logEvent('family_profile_saved', { userId: session.userId }, '');
+  await db.saveFamilyProfile(id, session.userId, sanitise(name, 100), data);
+  await db.logEvent('family_profile_saved', { userId: session.userId }, '');
   res.json({ success: true, id, name, ...data });
 });
 
@@ -660,7 +660,7 @@ app.post('/api/family-profiles', (req, res) => {
 app.delete('/api/family-profiles/:id', (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
-  db.deleteFamilyProfile(req.params.id, session.userId);
+  await db.deleteFamilyProfile(req.params.id, session.userId);
   res.json({ success: true });
 });
 
@@ -675,7 +675,7 @@ app.post('/api/demo-meal', demoLimiter, async (req, res) => {
     const budget       = Math.min(Math.max(parseFloat(req.body.budget) || 60, 20), 500);
     const dietary      = sanitise(req.body.dietary || 'none', 100);
 
-    db.logEvent('demo_generated', { calorieGoal, budget, dietary }, ip.slice(-8));
+    await db.logEvent('demo_generated', { calorieGoal, budget, dietary }, ip.slice(-8));
 
     const dietaryLine = dietary && dietary !== 'none'
       ? `DIETARY REQUIREMENT: All meals must be ${dietary}. Strictly no ingredients that violate this.`
@@ -751,7 +751,7 @@ app.post('/api/plans/save', (req, res) => {
   if (!plan) return res.status(400).json({ error: 'plan required' });
   try {
     const planDate = date || new Date().toISOString().split('T')[0];
-    db.savePlan(randomUUID(), session.userId, { date: planDate, plan, savedAt: new Date().toISOString() });
+    await db.savePlan(randomUUID(), session.userId, { date: planDate, plan, savedAt: new Date().toISOString() });
     res.json({ success: true });
   } catch(err) {
     console.error('Plan save error:', err);
@@ -763,7 +763,7 @@ app.post('/api/plans/save', (req, res) => {
 app.get('/api/plans', (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
-  const plans = db.getRecentPlans(session.userId, 10);
+  const plans = await db.getRecentPlans(session.userId, 10);
   res.json({ success: true, plans });
 });
 
@@ -777,11 +777,11 @@ app.post('/api/pro/activate', (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
-  const user = db.getUserById(session.userId);
+  const user = await db.getUserById(session.userId);
   if (!user) return res.status(404).json({ error: 'user_not_found' });
 
-  db.setUserPro(session.userId);
-  db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome' }, '');
+  await db.setUserPro(session.userId);
+  await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome' }, '');
 
   // Refresh the JWT so the pro flag is up-to-date without requiring sign-in
   setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
@@ -813,27 +813,27 @@ async function handleStripeWebhook(req, res) {
     const email    = session.customer_details?.email?.toLowerCase().trim();
     const customerId = session.customer;
     if (email) {
-      const user = db.getUserByEmail(email);
+      const user = await db.getUserByEmail(email);
       if (user) {
-        db.setUserPro(user.id);
-        if (customerId) try { db.setStripeCustomerId(user.id, customerId); } catch(e) {}
-        db.logEvent('pro_activated', { email, source: 'stripe_webhook' }, '');
+        await db.setUserPro(user.id);
+        if (customerId) try { await db.setStripeCustomerId(user.id, customerId); } catch(e) {}
+        await db.logEvent('pro_activated', { email, source: 'stripe_webhook' }, '');
         console.log(`[stripe] Pro activated for ${email}`);
 
         // Check if this user was referred — if so, credit the referrer
         try {
-          const referral = db.get(
+          const referral = await db.get(
             `SELECT referrer_email FROM referrals WHERE referred_email = ? AND converted = 0 LIMIT 1`,
             [email]
           );
           if (referral?.referrer_email) {
-            db.markReferralConverted(referral.referrer_email, email);
-            db.addBonusPlan(referral.referrer_email);
-            const referrer = db.getUserByEmail(referral.referrer_email);
+            await db.markReferralConverted(referral.referrer_email, email);
+            await db.addBonusPlan(referral.referrer_email);
+            const referrer = await db.getUserByEmail(referral.referrer_email);
             if (referrer) {
               // Grant referrer 30 days of Pro
               const proUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-              db.setUserProUntil(referrer.id, proUntil);
+              await db.setUserProUntil(referrer.id, proUntil);
               sendEmail(
                 referrer.email,
                 '🎉 You earned a free month of Pro!',
@@ -846,7 +846,7 @@ async function handleStripeWebhook(req, res) {
 
       } else {
         console.warn(`[stripe] checkout.session.completed for unknown email: ${email}`);
-        db.logEvent('stripe_unknown_email', { email }, '');
+        await db.logEvent('stripe_unknown_email', { email }, '');
       }
     }
   }
@@ -857,13 +857,13 @@ async function handleStripeWebhook(req, res) {
     const customerId = obj.customer;
     if (customerId) {
       try {
-        const user = db.get('SELECT * FROM users WHERE stripe_customer_id = ?', [customerId]);
+        const user = await db.get('SELECT * FROM users WHERE stripe_customer_id = ?', [customerId]);
         if (user) {
           // Only remove if pro_until is not set (referral reward) and past its date
           const proUntil = user.pro_until ? new Date(user.pro_until) : null;
           if (!proUntil || proUntil < new Date()) {
-            db.removeUserPro(user.id);
-            db.logEvent('pro_removed', { email: user.email, reason: event.type }, '');
+            await db.removeUserPro(user.id);
+            await db.logEvent('pro_removed', { email: user.email, reason: event.type }, '');
             console.log(`[stripe] Pro removed for ${user.email} — ${event.type}`);
           }
         } else {
@@ -886,8 +886,8 @@ app.get('/api/admin/export', (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
   try {
-    const users    = db.getAllUsers();
-    const leads    = db.countLeads();
+    const users    = await db.getAllUsers();
+    const leads    = await db.countLeads();
     res.json({
       user_count:  users.length,
       pro_count:   users.filter(u => u.pro === 1).length,
@@ -909,7 +909,7 @@ app.post('/api/track', (req, res) => {
   const { event, data } = req.body;
   if (!event) return res.status(400).json({ error: 'event required' });
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
-  db.logEvent(event, data || {}, ip.slice(-8));
+  await db.logEvent(event, data || {}, ip.slice(-8));
   res.json({ ok: true });
 });
 
@@ -917,13 +917,13 @@ app.get('/api/analytics', (req, res) => {
   const token = req.headers['x-pro-token'] || req.query.token;
   if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
 
-  const events = db.getAnalytics();
+  const events = await db.getAnalytics();
   const now    = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const thisMonth  = events.filter(e => new Date(e.ts) >= monthStart);
   const count = (arr, type) => arr.filter(e => e.event === type).length;
 
-  const users = db.getAllUsers();
+  const users = await db.getAllUsers();
   res.json({
     total_events:   events.length,
     total_users:    users.length,
@@ -940,7 +940,7 @@ app.get('/api/analytics', (req, res) => {
       plans_generated: count(events, 'generate_plan'),
       pro_activations: count(events, 'pro_activated'),
     },
-    lead_count: db.countLeads()
+    lead_count: await db.countLeads()
   });
 });
 
@@ -957,16 +957,16 @@ app.post('/api/referral', (req, res) => {
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   try {
     const { randomUUID } = require('crypto');
-    db.saveReferral(randomUUID(), referrer_email, ip, new_user_email || '');
-    db.addBonusPlan(referrer_email); // increment bonus_plans on the referrer's account
-    db.markReferralConverted(referrer_email, new_user_email || '');
+    await db.saveReferral(randomUUID(), referrer_email, ip, new_user_email || '');
+    await db.addBonusPlan(referrer_email); // increment bonus_plans on the referrer's account
+    await db.markReferralConverted(referrer_email, new_user_email || '');
   } catch(e) { console.error('[referral] DB error:', e); }
 
   // Also update in-memory Map for immediate effect in current server session
   const current = referralBonus.get(referrer_email) || 0;
   referralBonus.set(referrer_email, current + 1);
 
-  db.logEvent('referral_signup', { referrer: referrer_email, new_user: new_user_email }, '');
+  await db.logEvent('referral_signup', { referrer: referrer_email, new_user: new_user_email }, '');
   res.json({ ok: true, bonus_plans: current + 1 });
 });
 
@@ -978,9 +978,9 @@ app.get('/api/referral-capture', (req, res) => {
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || clientIp || '';
   try {
     const { randomUUID } = require('crypto');
-    db.saveReferral(randomUUID(), ref, ip.slice(-16), '');
+    await db.saveReferral(randomUUID(), ref, ip.slice(-16), '');
   } catch(e) { /* non-fatal */ }
-  db.logEvent('referral_visit', { ref }, ip.slice(-8));
+  await db.logEvent('referral_visit', { ref }, ip.slice(-8));
   res.json({ ok: true });
 });
 
@@ -995,7 +995,7 @@ app.get('/api/referral-status', (req, res) => {
   // Get SQLite-persisted referral count (survives restarts)
   let referralCount = referralBonus.get(email) || 0;
   try {
-    const dbCount = db.getReferralCount(email);
+    const dbCount = await db.getReferralCount(email);
     if (dbCount > referralCount) referralCount = dbCount;
   } catch(e) { /* non-fatal */ }
 
@@ -1015,9 +1015,9 @@ app.post('/api/email-leads', (req, res) => {
     if (!email || !email.includes('@')) {
       return res.status(400).json({ error: 'Valid email required' });
     }
-    db.saveLead(randomUUID(), email, source, name);
+    await db.saveLead(randomUUID(), email, source, name);
     // Log with discount flag so admin export can filter these for coupon send
-    db.logEvent('email_lead', { email, source, discount }, '');
+    await db.logEvent('email_lead', { email, source, discount }, '');
     res.json({ success: true });
   } catch(err) {
     console.error('Email lead error:', err);
@@ -1041,7 +1041,7 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
 
     if (!isPro && session) {
       // Re-query DB — the JWT payload may be stale if Pro was just activated
-      const dbUser = db.getUserById(session.userId);
+      const dbUser = await db.getUserById(session.userId);
       isPro = dbUser?.pro === 1;
     }
     // Backward compat: accept client-sent is_pro for pre-auth users (no new signups should hit this)
@@ -1057,13 +1057,13 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
         const monthStart = new Date();
         monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
         const monthStartStr = monthStart.toISOString().replace('T', ' ').slice(0, 19);
-        const genRow = db.get(
+        const genRow = await db.get(
           `SELECT COUNT(*) as n FROM analytics WHERE event = 'generate_plan' AND json_extract(data, '$.userId') = ? AND created_at >= ?`,
           [session.userId, monthStartStr]
         );
         const generationsThisMonth = genRow?.n || 0;
         if (generationsThisMonth >= effectiveLimit) {
-          db.logEvent('free_limit_hit', { userId: session.userId }, '');
+          await db.logEvent('free_limit_hit', { userId: session.userId }, '');
           return res.status(402).json({
             error: 'free_limit_reached',
             message: `You've used all ${effectiveLimit} free plans this month.`,
@@ -1073,12 +1073,12 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
             limit: effectiveLimit
           });
         }
-        db.logEvent('generate_plan', { plan_num: generationsThisMonth + 1, userId: session.userId }, '');
+        await db.logEvent('generate_plan', { plan_num: generationsThisMonth + 1, userId: session.userId }, '');
       } else {
         // Anonymous user: track by IP (in-memory, resets on server restart)
         const usage = getUsage(ip);
         if (usage.count >= effectiveLimit) {
-          db.logEvent('free_limit_hit', {}, '');
+          await db.logEvent('free_limit_hit', {}, '');
           return res.status(402).json({
             error: 'free_limit_reached',
             message: `You've used all ${effectiveLimit} free plans this month.`,
@@ -1089,10 +1089,10 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
           });
         }
         incrementUsage(ip);
-        db.logEvent('generate_plan', { plan_num: usage.count + 1 }, '');
+        await db.logEvent('generate_plan', { plan_num: usage.count + 1 }, '');
       }
     } else if (!swap_meal_type && isPro) {
-      db.logEvent('generate_plan', { pro: true }, '');
+      await db.logEvent('generate_plan', { pro: true }, '');
     }
 
     // ── Profile field extraction ──────────────────────────────────────────
@@ -1419,7 +1419,7 @@ app.post('/api/ai-coach', async (req, res) => {
     const session   = getSessionFromReq(req);
     let isCoachPro  = is_pro === true;
     if (session) {
-      const dbUser = db.getUserById(session.userId);
+      const dbUser = await db.getUserById(session.userId);
       if (dbUser?.pro === 1) isCoachPro = true;
     }
 
@@ -1522,15 +1522,15 @@ app.post('/api/xp/award', (req, res) => {
   if (!xpEarned) return res.status(400).json({ error: 'unknown action' });
 
   try {
-    const profile = db.getProfile(session.userId) || {};
+    const profile = await db.getProfile(session.userId) || {};
     const newXP    = (profile.xp || 0) + xpEarned;
     const newLevel = calcLevel(newXP);
     const oldLevel = calcLevel(profile.xp || 0);
 
     profile.xp    = newXP;
     profile.level = newLevel;
-    db.saveProfile(session.userId, profile);
-    db.logEvent('xp_award', { action, xp: xpEarned, total: newXP, level: newLevel }, '');
+    await db.saveProfile(session.userId, profile);
+    await db.logEvent('xp_award', { action, xp: xpEarned, total: newXP, level: newLevel }, '');
 
     res.json({ success: true, xp: newXP, level: newLevel, levelUp: newLevel > oldLevel, xpEarned });
   } catch(err) {
@@ -1563,8 +1563,8 @@ app.post('/api/plans/share', (req, res) => {
   const planId  = randomUUID();
 
   try {
-    db.saveShareLink(shareId, planId, session.userId, { plan, date, title, sharedAt: new Date().toISOString() });
-    db.logEvent('plan_shared', { shareId }, '');
+    await db.saveShareLink(shareId, planId, session.userId, { plan, date, title, sharedAt: new Date().toISOString() });
+    await db.logEvent('plan_shared', { shareId }, '');
     const shareUrl = `${process.env.APP_URL || 'https://mealzy.org'}/plan.html?id=${shareId}`;
     res.json({ success: true, shareId, shareUrl });
   } catch(err) {
@@ -1578,10 +1578,10 @@ app.get('/api/shared-plan/:shareId', (req, res) => {
   const { shareId } = req.params;
   if (!shareId || shareId.length > 20) return res.status(404).json({ error: 'Not found' });
 
-  const link = db.getShareLink(shareId);
+  const link = await db.getShareLink(shareId);
   if (!link) return res.status(404).json({ error: 'Plan not found or link expired' });
 
-  db.incrementShareViews(shareId);
+  await db.incrementShareViews(shareId);
   res.json({ success: true, plan: link.plan, views: (link.views || 0) + 1 });
 });
 
@@ -1595,7 +1595,7 @@ app.get('/api/ref-lookup', (req, res) => {
   if (!code) return res.json({ found: false });
   // Support both email refs (legacy) and ref_CODE refs
   if (code.startsWith('ref_')) {
-    const user = db.getUserByRefCode(code);
+    const user = await db.getUserByRefCode(code);
     if (user) return res.json({ found: true, email: user.email });
     return res.json({ found: false });
   }
@@ -1612,7 +1612,7 @@ app.get('/api/analytics/funnel', (req, res) => {
   const token = req.headers['x-pro-token'] || req.query.token;
   if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
   try {
-    const stats = db.getFunnelStats();
+    const stats = await db.getFunnelStats();
     res.json(stats);
   } catch(err) {
     console.error('[funnel] error:', err);
@@ -1638,7 +1638,7 @@ function cronAuth(req, res) {
 app.post('/api/cron/day3-nudge', async (req, res) => {
   if (!cronAuth(req, res)) return;
   try {
-    const users = db.getUsersNeedingNudge();
+    const users = await db.getUsersNeedingNudge();
     let sent = 0;
     for (const user of users) {
       const result = await sendEmail(
@@ -1647,12 +1647,12 @@ app.post('/api/cron/day3-nudge', async (req, res) => {
         emailDay3Nudge(user.name, 2)
       );
       if (result.ok) {
-        db.markNudgeSent(user.id);
+        await db.markNudgeSent(user.id);
         sent++;
       }
       await new Promise(r => setTimeout(r, 100)); // gentle rate limiting
     }
-    db.logEvent('cron_day3_nudge', { sent, total: users.length }, '');
+    await db.logEvent('cron_day3_nudge', { sent, total: users.length }, '');
     res.json({ ok: true, sent, total: users.length });
   } catch(err) {
     console.error('[cron/day3-nudge] error:', err);
@@ -1664,7 +1664,7 @@ app.post('/api/cron/day3-nudge', async (req, res) => {
 app.post('/api/cron/weekly-digest', async (req, res) => {
   if (!cronAuth(req, res)) return;
   try {
-    const users = db.getUsersForWeeklyDigest();
+    const users = await db.getUsersForWeeklyDigest();
     let sent = 0;
     for (const user of users) {
       const result = await sendEmail(
@@ -1675,7 +1675,7 @@ app.post('/api/cron/weekly-digest', async (req, res) => {
       if (result.ok) sent++;
       await new Promise(r => setTimeout(r, 150));
     }
-    db.logEvent('cron_weekly_digest', { sent, total: users.length }, '');
+    await db.logEvent('cron_weekly_digest', { sent, total: users.length }, '');
     res.json({ ok: true, sent, total: users.length });
   } catch(err) {
     console.error('[cron/weekly-digest] error:', err);
@@ -1704,7 +1704,7 @@ process.on('uncaughtException', (err) => {
 });
 
 // ── Start server after DB is ready ────────────────────────────────────────
-db.initDb().then(() => {
+db.initDb().then(async () => {
   app.listen(PORT, () => {
     logger.info(`Mealzy running on http://localhost:${PORT}`);
 
@@ -1721,7 +1721,7 @@ db.initDb().then(() => {
       { name: 'STRIPE_DISCOUNT_URL',     ok: !!process.env.STRIPE_DISCOUNT_URL },
       { name: 'GOOGLE_CLIENT_ID',        ok: !!process.env.GOOGLE_CLIENT_ID },
       { name: 'GOOGLE_CLIENT_SECRET',    ok: !!process.env.GOOGLE_CLIENT_SECRET },
-      { name: 'DATABASE',                ok: db.ping() },
+      { name: 'DATABASE',                ok: await db.ping() },
     ];
 
     const pass = checks.filter(c => c.ok);
