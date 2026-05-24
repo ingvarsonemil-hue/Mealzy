@@ -716,9 +716,12 @@ Respond ONLY with valid JSON, no markdown, no extra text:
     const completion = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1800,
-      system: 'You are a meal planning API. Always respond with valid JSON only. No markdown fences, no explanations.',
+      system: [{ type: 'text', text: 'You are a meal planning API. Always respond with valid JSON only. No markdown fences, no explanations.', cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: demoPrompt }]
     });
+    if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
+      console.log(`[demo-meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
+    }
 
     const rawText = completion.content[0].text.trim();
     let plan;
@@ -1225,7 +1228,7 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       const completion = await anthropic.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 900,
-        system: 'You are a professional nutritionist and chef. Always respond with valid JSON only, no markdown fences, no explanation. Never include ingredients that violate dietary restrictions or allergies.',
+        system: [{ type: 'text', text: 'You are a professional nutritionist and chef. Always respond with valid JSON only, no markdown fences, no explanation. Never include ingredients that violate dietary restrictions or allergies.', cache_control: { type: 'ephemeral' } }],
         messages: [{ role: 'user', content: swapPrompt }]
       });
 
@@ -1298,14 +1301,22 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
   "nutritionNote": "string (short, in ${languageName})"
 }`;
 
+    // Prompt caching: stable role block cached, volatile dietary block appended uncached
+    const _baseSys = isPro
+      ? 'You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements. NEVER violate dietary restrictions or allergies — this is non-negotiable.'
+      : 'You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise. NEVER violate dietary restrictions or allergies — this is non-negotiable.';
+    const _sysBlocks = [{ type: 'text', text: _baseSys, cache_control: { type: 'ephemeral' } }];
+    if (dietaryBlock) _sysBlocks.push({ type: 'text', text: `CRITICAL: ${activeDietRules.split('\n')[0]}` });
+
     const completion = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: isPro ? 6000 : 4000,
-      system: isPro
-        ? `You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements.${dietaryBlock ? ` CRITICAL: ${activeDietRules.split('\n')[0]}` : ''} NEVER violate dietary restrictions or allergies — this is non-negotiable.`
-        : `You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise.${dietaryBlock ? ` CRITICAL: ${activeDietRules.split('\n')[0]}` : ''} NEVER violate dietary restrictions or allergies — this is non-negotiable.`,
+      system: _sysBlocks,
       messages: [{ role: 'user', content: fullPlanPrompt }]
     });
+    if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
+      console.log(`[meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
+    }
 
     const rawText = completion.content[0].text;
     console.log('[meal] AI response chars:', rawText.length, '| tail:', rawText.slice(-80));
@@ -1319,7 +1330,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       const retryCompletion = await anthropic.messages.create({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 3000,
-        system: 'You are a JSON API. Output only valid JSON, nothing else.',
+        system: [{ type: 'text', text: 'You are a JSON API. Output only valid JSON, nothing else.', cache_control: { type: 'ephemeral' } }],
         messages: [
           { role: 'user', content: fullPlanPrompt },
           { role: 'assistant', content: rawText },
@@ -1420,7 +1431,14 @@ app.post('/api/ai-coach', async (req, res) => {
     const currencyToCountry = { USD:'United States',GBP:'United Kingdom',EUR:'Europe',SEK:'Sweden',NOK:'Norway',DKK:'Denmark',CAD:'Canada',AUD:'Australia',CHF:'Switzerland',JPY:'Japan',KRW:'South Korea',INR:'India',BRL:'Brazil' };
     const userCountry = currencyToCountry[currency] || 'their country';
 
-    const systemPrompt = `You are Mia, a friendly, knowledgeable AI nutritionist and wellness coach for the Mealzy app. You are talking with ${name}.
+    // Prompt caching: stable Mia identity cached, volatile user profile appended uncached.
+    // Earlier conversation turns also cached to save tokens on multi-turn sessions.
+    const _miaBase = `You are Mia, a friendly, knowledgeable AI nutritionist and wellness coach for the Mealzy app.
+
+Personality: warm, encouraging, science-based. Give practical, actionable advice. Plain text only.
+Never diagnose or replace professional medical advice. Always tailor to this user's profile.`;
+
+    const _userCtx = `You are talking with ${name}.
 
 User profile:
 - Goal: ${goal}
@@ -1430,18 +1448,30 @@ User profile:
 - Allergies: ${allergies.length > 0 ? allergies.join(', ') : 'None'}
 - Region: ${userCountry} (${currency})
 - Preferred cuisine: ${preferred_cuisine || 'No preference'}
-
-Personality: warm, encouraging, science-based. Give practical, actionable advice. Plain text only.
 Length: ${isCoachPro ? 'thorough: up to 3 focused paragraphs' : 'concise: 1-2 short paragraphs, max 120 words'}.
-Never diagnose or replace professional medical advice. Always tailor to this user's profile.
 Respond in ${coachLangName}.`;
+
+    // Cache conversation history: mark all turns except the final user message
+    const _convo = messages.slice(-10);
+    const _cachedConvo = _convo.map((msg, i) => {
+      if (i < _convo.length - 1 && typeof msg.content === 'string') {
+        return { role: msg.role, content: [{ type: 'text', text: msg.content, cache_control: { type: 'ephemeral' } }] };
+      }
+      return msg;
+    });
 
     const completion = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: isCoachPro ? 600 : 300,
-      system: systemPrompt,
-      messages: messages.slice(-10)
+      system: [
+        { type: 'text', text: _miaBase, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: _userCtx }
+      ],
+      messages: _cachedConvo
     });
+    if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
+      console.log(`[coach cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
+    }
 
     res.json({ success: true, message: { role: 'assistant', content: completion.content[0].text, timestamp: new Date().toISOString() } });
 
