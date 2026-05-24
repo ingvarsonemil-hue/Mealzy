@@ -79,7 +79,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // TikTok domain verification
-app.get('/tiktok5D5PTssMk9TzIVSQAXCcHPlwQwQ52nQc.txt', (req, res) => {
+app.get('/tiktok5D5PTssMk9TzIVSQAXCcHPlwQwQ52nQc.txt', async (req, res) => {
   res.type('text/plain').send('tiktok-developers-site-verification=5D5PTssMk9TzIVSQAXCcHPIwQwQ52nQc');
 });
 
@@ -175,7 +175,7 @@ function incrementUsage(ip) {
   usageTracker.set(ip, usage);
   return usage;
 }
-function getEffectiveLimit(email) {
+async function getEffectiveLimit(email) {
   const memBonus = email ? (referralBonus.get(email) || 0) : 0;
   if (email && memBonus === 0) {
     // Check SQLite for persisted bonus_plans (survives server restarts)
@@ -326,7 +326,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 // ── Supabase config shim (kept for HTML pages that still load it) ──────────
-app.get('/supabase-config.js', (req, res) => {
+app.get('/supabase-config.js', async (req, res) => {
   res.type('js').send(
     `window.SUPABASE_URL=${JSON.stringify(process.env.SUPABASE_URL || '')};` +
     `window.SUPABASE_KEY=${JSON.stringify(process.env.SUPABASE_ANON_KEY || '')};`
@@ -336,7 +336,7 @@ app.get('/supabase-config.js', (req, res) => {
 // ── Stripe payment links — served from env vars so links update without code deploys ──
 // To add a new plan: set the env var in .env (local) + Render dashboard (production), redeploy.
 const STRIPE_MONTHLY_FALLBACK = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
-app.get('/stripe-config.js', (req, res) => {
+app.get('/stripe-config.js', async (req, res) => {
   const monthly        = process.env.STRIPE_MONTHLY_URL        || STRIPE_MONTHLY_FALLBACK;
   const annual         = process.env.STRIPE_ANNUAL_URL         || monthly; // falls back to monthly if annual not set
   const familyMonthly  = process.env.STRIPE_FAMILY_MONTHLY_URL || monthly;
@@ -357,7 +357,7 @@ app.get('/stripe-config.js', (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/auth/signup
-app.post('/api/auth/signup', authLimiter, (req, res) => {
+app.post('/api/auth/signup', authLimiter, async (req, res) => {
   try {
     const name           = sanitise(req.body.name,           100);
     const email          = sanitise(req.body.email,          254).toLowerCase();
@@ -395,7 +395,7 @@ app.post('/api/auth/signup', authLimiter, (req, res) => {
 });
 
 // POST /api/auth/signin
-app.post('/api/auth/signin', authLimiter, (req, res) => {
+app.post('/api/auth/signin', authLimiter, async (req, res) => {
   try {
     const email          = sanitise(req.body.email,          254).toLowerCase();
     const hashedPassword = sanitise(req.body.hashedPassword,  64);
@@ -422,7 +422,7 @@ app.post('/api/auth/signin', authLimiter, (req, res) => {
 });
 
 // GET /api/auth/me — returns current user (with profile) if JWT is valid
-app.get('/api/auth/me', (req, res) => {
+app.get('/api/auth/me', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
@@ -443,14 +443,14 @@ app.get('/api/auth/me', (req, res) => {
 });
 
 // POST /api/auth/signout
-app.post('/api/auth/signout', (req, res) => {
+app.post('/api/auth/signout', async (req, res) => {
   clearJwtCookie(res);
   res.json({ success: true });
 });
 
 // POST /api/auth/reset-request
 // Returns a reset URL (no email sending — shows link on screen, honest about it)
-app.post('/api/auth/reset-request', authLimiter, (req, res) => {
+app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
   try {
     await db.purgeExpiredTokens(); // housekeeping
 
@@ -482,7 +482,7 @@ app.post('/api/auth/reset-request', authLimiter, (req, res) => {
 });
 
 // POST /api/auth/reset-confirm
-app.post('/api/auth/reset-confirm', authLimiter, (req, res) => {
+app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
   try {
     const token           = sanitise(req.body.token,          36);
     const newHashedPassword = sanitise(req.body.newHashedPassword, 64);
@@ -518,7 +518,7 @@ const GOOGLE_REDIRECT_URI = process.env.NODE_ENV === 'production'
   : 'http://localhost:3000/auth/google/callback';
 
 // GET /auth/google — kick off the OAuth flow
-app.get('/auth/google', authLimiter, (req, res) => {
+app.get('/auth/google', authLimiter, async (req, res) => {
   if (!process.env.GOOGLE_CLIENT_ID) {
     return res.redirect('/login.html?error=google_not_configured');
   }
@@ -591,7 +591,7 @@ app.get('/auth/google/callback', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/profile
-app.post('/api/profile', (req, res) => {
+app.post('/api/profile', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   const { profile } = req.body;
@@ -603,7 +603,7 @@ app.post('/api/profile', (req, res) => {
 });
 
 // GET /api/profile
-app.get('/api/profile', (req, res) => {
+app.get('/api/profile', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   const profile = await db.getProfile(session.userId);
@@ -616,7 +616,7 @@ app.get('/api/profile', (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // GET /api/family-profiles — list all family profiles for the authenticated user
-app.get('/api/family-profiles', (req, res) => {
+app.get('/api/family-profiles', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   const profiles = await db.getFamilyProfiles(session.userId);
@@ -625,7 +625,7 @@ app.get('/api/family-profiles', (req, res) => {
 
 // POST /api/family-profiles — create or update a family profile
 // Body: { id (optional — omit to create), name, calorieGoal, budget, dietaryRestrictions, avatar }
-app.post('/api/family-profiles', (req, res) => {
+app.post('/api/family-profiles', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
@@ -657,7 +657,7 @@ app.post('/api/family-profiles', (req, res) => {
 });
 
 // DELETE /api/family-profiles/:id
-app.delete('/api/family-profiles/:id', (req, res) => {
+app.delete('/api/family-profiles/:id', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   await db.deleteFamilyProfile(req.params.id, session.userId);
@@ -744,7 +744,7 @@ Respond ONLY with valid JSON, no markdown, no extra text:
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/plans/save
-app.post('/api/plans/save', (req, res) => {
+app.post('/api/plans/save', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   const { plan, date } = req.body;
@@ -760,7 +760,7 @@ app.post('/api/plans/save', (req, res) => {
 });
 
 // GET /api/plans
-app.get('/api/plans', (req, res) => {
+app.get('/api/plans', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   const plans = await db.getRecentPlans(session.userId, 10);
@@ -773,7 +773,7 @@ app.get('/api/plans', (req, res) => {
 
 // POST /api/pro/activate — called from pro-welcome.html as a belt-and-suspenders
 // backup to the Stripe webhook. Both paths set pro = 1 in the DB.
-app.post('/api/pro/activate', (req, res) => {
+app.post('/api/pro/activate', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
@@ -880,7 +880,7 @@ async function handleStripeWebhook(req, res) {
 // ADMIN EXPORT
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/admin/export', (req, res) => {
+app.get('/api/admin/export', async (req, res) => {
   const token = req.headers['x-pro-token'] || req.query.token;
   if (!token || token !== process.env.PRO_TOKEN) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -905,7 +905,7 @@ app.get('/api/admin/export', (req, res) => {
 // ANALYTICS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/track', (req, res) => {
+app.post('/api/track', async (req, res) => {
   const { event, data } = req.body;
   if (!event) return res.status(400).json({ error: 'event required' });
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
@@ -913,7 +913,7 @@ app.post('/api/track', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/analytics', (req, res) => {
+app.get('/api/analytics', async (req, res) => {
   const token = req.headers['x-pro-token'] || req.query.token;
   if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
 
@@ -949,7 +949,7 @@ app.get('/api/analytics', (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/referral — credit a referral (called at signup when a pending ref exists)
-app.post('/api/referral', (req, res) => {
+app.post('/api/referral', async (req, res) => {
   const { referrer_email, new_user_email } = req.body;
   if (!referrer_email) return res.status(400).json({ error: 'referrer_email required' });
 
@@ -972,7 +972,7 @@ app.post('/api/referral', (req, res) => {
 
 // GET /api/referral-capture — called when visitor lands with ?ref=EMAIL
 // Stores the referral intent so it can be credited when they sign up
-app.get('/api/referral-capture', (req, res) => {
+app.get('/api/referral-capture', async (req, res) => {
   const { ref, ip: clientIp } = req.query;
   if (!ref || !ref.includes('@')) return res.json({ ok: false });
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || clientIp || '';
@@ -984,13 +984,13 @@ app.get('/api/referral-capture', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/referral-status', (req, res) => {
+app.get('/api/referral-status', async (req, res) => {
   const { email } = req.query;
   if (!email) return res.status(400).json({ error: 'email required' });
   const session = getSessionFromReq(req);
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   const usage         = getUsage(ip);
-  const effectiveLimit = getEffectiveLimit(email);
+  const effectiveLimit = await getEffectiveLimit(email);
 
   // Get SQLite-persisted referral count (survives restarts)
   let referralCount = referralBonus.get(email) || 0;
@@ -1006,7 +1006,7 @@ app.get('/api/referral-status', (req, res) => {
 // EMAIL LEADS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/email-leads', (req, res) => {
+app.post('/api/email-leads', async (req, res) => {
   try {
     const email    = sanitise(req.body.email, 254).toLowerCase();
     const source   = sanitise(req.body.source, 100) || 'unknown';
@@ -1049,7 +1049,7 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
 
     if (!swap_meal_type && !isPro) {
       const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
-      const effectiveLimit = getEffectiveLimit(session?.email || user_email || '');
+      const effectiveLimit = await getEffectiveLimit(session?.email || user_email || '');
 
       if (session) {
         // Logged-in user: count generate_plan events for this user this month from analytics
@@ -1506,7 +1506,7 @@ function generateFallbackMealPlan(profile) {
 
 // POST /api/xp/award — award XP to the authenticated user (server validates)
 // Body: { action: 'generate_plan' | 'swap_meal' | 'complete_day' | 'onboarding' }
-app.post('/api/xp/award', (req, res) => {
+app.post('/api/xp/award', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
@@ -1552,7 +1552,7 @@ function calcLevel(xp) {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/plans/share — generate a shareable link for a plan
-app.post('/api/plans/share', (req, res) => {
+app.post('/api/plans/share', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
@@ -1574,7 +1574,7 @@ app.post('/api/plans/share', (req, res) => {
 });
 
 // GET /api/shared-plan/:shareId — public, no auth
-app.get('/api/shared-plan/:shareId', (req, res) => {
+app.get('/api/shared-plan/:shareId', async (req, res) => {
   const { shareId } = req.params;
   if (!shareId || shareId.length > 20) return res.status(404).json({ error: 'Not found' });
 
@@ -1590,7 +1590,7 @@ app.get('/api/shared-plan/:shareId', (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // GET /api/ref-lookup?code=ref_ABC123 — resolves a code to an email for referral credit
-app.get('/api/ref-lookup', (req, res) => {
+app.get('/api/ref-lookup', async (req, res) => {
   const { code } = req.query;
   if (!code) return res.json({ found: false });
   // Support both email refs (legacy) and ref_CODE refs
@@ -1608,7 +1608,7 @@ app.get('/api/ref-lookup', (req, res) => {
 // ANALYTICS FUNNEL — admin endpoint
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/analytics/funnel', (req, res) => {
+app.get('/api/analytics/funnel', async (req, res) => {
   const token = req.headers['x-pro-token'] || req.query.token;
   if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
   try {
@@ -1684,7 +1684,7 @@ app.post('/api/cron/weekly-digest', async (req, res) => {
 });
 
 // ── Catch-all: serve index.html ────────────────────────────────────────────
-app.get('*', (req, res) => {
+app.get('*', async (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -1705,7 +1705,7 @@ process.on('uncaughtException', (err) => {
 
 // ── Start server after DB is ready ────────────────────────────────────────
 db.initDb().then(async () => {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     logger.info(`Mealzy running on http://localhost:${PORT}`);
 
     // Startup self-test — Avery checks these logs after every deploy
