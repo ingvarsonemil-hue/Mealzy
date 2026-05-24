@@ -13,6 +13,7 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
+  <script src="/stripe-config.js"></script>
   <script src="/translations.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 </head>
@@ -954,7 +955,7 @@
             ✅ Priority AI coaching
           </div>
           <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
+          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
           <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.25rem;">
             <a href="upgrade.html" style="font-size:0.8rem;color:#666;text-decoration:underline;">See all Pro features</a>
             <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
@@ -966,13 +967,7 @@
           <div style="background:#dc2626;color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
           <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:#111;">Wait — 50% off, just for you</h2>
           <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $8/month. Cancel any time.</p>
-          <!-- TODO: Create a Stripe coupon/price for the discounted $4 first month:
-               1. Stripe Dashboard → Products → Create Product: "Mealzy Pro - First Month 50% Off"
-               2. Add price: $4/month recurring, then $8/month after coupon expires
-               3. Or use Stripe coupon: Dashboard → Coupons → Create coupon → 50% off, 1 month, apply to existing Pro price
-               4. Replace the URL below with your discounted Stripe payment link -->
-          <!-- ⚠️ NEEDS REAL STRIPE LINK — replace href with discounted $4 first-month payment link -->
-          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" data-needs-stripe onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
+          <a href="${window.STRIPE_DISCOUNT || window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
           <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
         </div>
       </div>`;
@@ -1773,7 +1768,7 @@
             💬 Unlimited AI coaching
           </div>
           <input type="email" id="upgradeEmailPdf" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-          <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" onclick="(function(){const e=document.getElementById('upgradeEmailPdf');if(e&&e.value)fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),source:'pdf_upgrade'})}).catch(()=>{});trackEvent('upgrade_click',{source:'pdf_btn'});document.getElementById('upgradePrompt').remove();})()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
+          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="(function(){const e=document.getElementById('upgradeEmailPdf');if(e&&e.value)fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),source:'pdf_upgrade'})}).catch(()=>{});trackEvent('upgrade_click',{source:'pdf_btn'});document.getElementById('upgradePrompt').remove();})()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
           <a href="upgrade.html" style="font-size:0.82rem;color:#666;text-decoration:underline;">Learn more about Pro</a>
         </div>`;
       document.body.appendChild(prompt);

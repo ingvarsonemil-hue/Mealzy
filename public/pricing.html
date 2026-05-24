@@ -18,6 +18,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#4a8a6f">
+  <script src="/stripe-config.js"></script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
@@ -189,12 +190,7 @@
           </div>
           <div class="pricing-billed" id="billedFamily">&nbsp;</div>
         </div>
-        <!-- TODO (Family Stripe): Create a Family plan product in Stripe Dashboard:
-             1. Stripe Dashboard → Products → Add product → "Mealzy Family"
-             2. Add price: $16/month recurring (and $10/month billed as $120/year)
-             3. Copy the payment link URL and replace the href below -->
-        <!-- ⚠️ NEEDS REAL STRIPE LINK — replace href with Family plan payment link -->
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" data-needs-stripe target="_blank" class="btn btn-outline btn-full" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
+        <a href="#" target="_blank" class="btn btn-outline btn-full" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
         <p style="font-size:0.78rem;color:var(--clr-muted);text-align:center;margin-top:0.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Everything</strong> in Pro</li>
@@ -375,7 +371,7 @@
   <p style="font-size:0.84rem;color:var(--clr-muted-fg);line-height:1.5;margin-bottom:1rem;">
     Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.
   </p>
-  <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" style="font-size:0.88rem;" onclick="trackUpgradeClick();closeDecidingPopup();">
+  <a href="#" id="popupCta" target="_blank" class="btn btn-primary btn-full" style="font-size:0.88rem;" onclick="trackUpgradeClick();closeDecidingPopup();">
     Start 7-Day Free Trial →
   </a>
   <p style="font-size:0.75rem;color:var(--clr-muted);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
@@ -388,14 +384,10 @@
 
   let billingMode = 'monthly';
 
-  // Stripe links
-  // TODO (annual plan): Create annual Stripe price:
-  //   1. Stripe Dashboard → Products → select "Mealzy Pro" → Add price
-  //   2. Billing period: Yearly, Amount: $62.00
-  //   3. Copy the resulting payment link and replace STRIPE_YEARLY below
-  const STRIPE_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
-  // ⚠️ NEEDS REAL STRIPE LINK — create annual price in Stripe Dashboard (see TODO above), then replace:
-  const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with annual Stripe link
+  const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
+  const STRIPE_YEARLY  = window.STRIPE_ANNUAL  || STRIPE_MONTHLY;
+  document.getElementById('proCta').href = STRIPE_MONTHLY;
+  document.getElementById('popupCta').href = STRIPE_MONTHLY;
 
   const prices = {
     monthly: { free: '$0', premium: '$8',  family: '$16' },
@@ -411,10 +403,9 @@
     }
   };
 
-  // TODO (Family annual Stripe): Replace href below with Family annual payment link
-  // ⚠️ NEEDS REAL STRIPE LINK — create Family product + payment links in Stripe, then replace both:
-  const STRIPE_FAMILY_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with Family monthly link
-  const STRIPE_FAMILY_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // ← REPLACE with Family annual link
+  const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
+  const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
+  document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
 
   function setBilling(mode) {
     billingMode = mode;

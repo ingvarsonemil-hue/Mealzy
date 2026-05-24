@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#4a8a6f">
+  <script src="/stripe-config.js"></script>
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
     body { background: var(--clr-background); }
@@ -219,9 +220,7 @@
     <div style="font-size:0.72rem;font-weight:800;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;">Limited Offer</div>
     <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;">Get your first month for $4</div>
     <p style="font-size:0.84rem;color:#555;margin-bottom:0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
-    <!-- ⚠️ NEEDS REAL STRIPE LINK — create a discounted $4 first-month Stripe link and replace href -->
-    <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" data-needs-stripe target="_blank" onclick="trackUpgrade('abandon_offer')" style="display:inline-block;background:#dc2626;color:white;padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;">
-      <!-- TODO: Replace with discounted $4 Stripe link (see dashboard.html comment for steps) -->
+    <a id="discountOfferBtn" href="#" target="_blank" onclick="this.href=(window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY);trackUpgrade('abandon_offer')" style="display:inline-block;background:#dc2626;color:white;padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;">
       Get first month for $4 →
     </a>
   </div>
@@ -237,9 +236,10 @@
 
 <script>
   let billingMode = 'monthly';
-  const STRIPE_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
-  // ⚠️ NEEDS REAL STRIPE LINK — create yearly price in Stripe Dashboard, then replace:
-  const STRIPE_YEARLY  = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'; // TODO: replace with $62/yr link
+  // Stripe links loaded from /stripe-config.js — update in .env + Render dashboard, no code change needed
+  const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
+  const STRIPE_YEARLY  = window.STRIPE_ANNUAL  || STRIPE_MONTHLY;
+  document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
 
   function setMode(mode) {
     billingMode = mode;
