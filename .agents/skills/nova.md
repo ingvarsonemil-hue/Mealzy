@@ -167,3 +167,156 @@ Score ≥ 7 = ship it. Score < 7 = redesign.
 
 ### Reflection Trigger
 After every page redesign. If Riley's A/B test shows users prefer the control over Nova's variant, mandatory reflection on what the original did better.
+
+---
+
+## UI/UX PRO MAX — QUALITY RULES
+
+161 rules across 10 priority categories. Apply in order 1→10. Higher priority = fix first.
+
+| Priority | Category | Impact | Key Checks |
+|----------|----------|--------|------------|
+| 1 | Accessibility | CRITICAL | Contrast 4.5:1, alt text, keyboard nav, aria-labels |
+| 2 | Touch & Interaction | CRITICAL | Min 44×44px targets, 8px+ spacing, loading feedback |
+| 3 | Performance | HIGH | WebP/AVIF, lazy loading, no layout shift (CLS < 0.1) |
+| 4 | Style Selection | HIGH | Match product type, consistency, SVG icons (no emoji) |
+| 5 | Layout & Responsive | HIGH | Mobile-first, no horizontal scroll, viewport meta |
+| 6 | Typography & Color | MEDIUM | Base 16px, line-height 1.5, semantic color tokens |
+| 7 | Animation | MEDIUM | 150–300ms, transform/opacity only, respect reduced-motion |
+| 8 | Forms & Feedback | MEDIUM | Visible labels, error near field, submit feedback |
+| 9 | Navigation Patterns | HIGH | Predictable back, consistent placement |
+| 10 | Charts & Data | LOW | Legends, tooltips, accessible color pairs |
+
+### 1. Accessibility (CRITICAL)
+- Minimum 4.5:1 contrast ratio for normal text (3:1 for large text)
+- Visible focus rings on all interactive elements (2–4px)
+- Descriptive alt text for all meaningful images
+- `aria-label` for icon-only buttons
+- Tab order matches visual order
+- `label` with `for` attribute on all form fields
+- Never convey information by color alone — add icon or text
+- Respect `prefers-reduced-motion` — reduce/disable animations
+- Sequential h1→h6, no level skips
+- Skip-to-main-content link for keyboard users
+
+### 2. Touch & Interaction (CRITICAL)
+- Minimum 44×44px touch targets — extend hit area if icon is smaller
+- Minimum 8px gap between touch targets
+- Never rely on hover for primary interactions
+- Disable button during async operations, show spinner
+- `cursor: pointer` on all clickable elements
+- `touch-action: manipulation` to eliminate 300ms tap delay
+- Visual feedback within 100ms of tap
+- Never block user input during animations
+
+### 3. Performance (HIGH)
+- Use WebP/AVIF for images, lazy load below-fold content
+- Declare `width`/`height` on images to prevent layout shift
+- `font-display: swap` to avoid invisible text
+- Virtualize lists with 50+ items
+- Skeleton screens instead of spinners for >1s loads
+- Debounce/throttle scroll, resize, input events
+- Keep per-frame work under 16ms for 60fps
+
+### 4. Style Selection (HIGH)
+- Match style to product type — Mealzy is **clean, trustworthy, food-forward editorial**
+- Use one icon family consistently (Heroicons or Lucide — stroke, never filled mixed with outline)
+- Never use emoji as icons — SVG only
+- One primary CTA per screen — secondary actions visually subordinate
+- Blur indicates background dismissal (modals/sheets) — not decoration
+
+### 5. Layout & Responsive (HIGH)
+- `<meta name="viewport" content="width=device-width, initial-scale=1">` — never disable zoom
+- Design mobile-first, 375px base
+- Breakpoints: 375 / 768 / 1024 / 1440
+- Minimum 16px body text on mobile (avoids iOS auto-zoom)
+- No horizontal scroll on mobile
+- 4pt/8pt spacing system throughout
+- `min-h-dvh` over `100vh` on mobile
+
+### 6. Typography & Color (MEDIUM)
+- Line-height 1.5–1.75 for body text
+- Max 65–75 characters per line desktop, 35–60 mobile
+- Font weight hierarchy: Bold headings (600–700), Regular body (400), Medium labels (500)
+- Always semantic color tokens — never raw hex in components
+- Dark mode: desaturated/lighter tonal variants, not inverted — test contrast separately
+- Tabular/monospaced figures for prices, data tables, timers
+
+### 7. Animation (MEDIUM)
+- Duration: 150–300ms for micro-interactions, complex transitions ≤400ms
+- Only animate `transform` and `opacity` — never `width`, `height`, `top`, `left`
+- Exit animations 60–70% of enter duration (faster = feels responsive)
+- Stagger list/grid entrance 30–50ms per item
+- Every animation must express cause-effect — never purely decorative
+- Animations must be interruptible — user tap cancels in-progress
+- Spring/physics-based curves for natural feel
+
+### 8. Forms & Feedback (MEDIUM)
+- Visible label per input — never placeholder-only
+- Error message below the related field, not just at the top
+- Loading → success/error state on every form submit
+- Mark required fields (asterisk)
+- Auto-dismiss toasts in 3–5s, use `aria-live="polite"`
+- Confirm before destructive actions
+- Validate on blur, not on every keystroke
+- Password fields always have show/hide toggle
+
+### 9. Navigation Patterns (HIGH)
+- Navigation placement never changes between pages
+- Back behavior predictable and consistent — preserve scroll state
+- Current location highlighted in navigation
+- Modals must have clear dismiss affordance
+- Never use modals for primary navigation flows
+- After page transition, move focus to main content region
+
+### 10. Charts & Data (LOW)
+- Match chart type to data (trend→line, comparison→bar, proportion→donut)
+- Always show legend; provide tooltip on hover/tap
+- Label axes with units
+- Empty state message when no data, not a blank chart
+- Accessible color pairs — never red/green only
+
+---
+
+## PRE-DELIVERY CHECKLIST
+
+Run before shipping any Nova change:
+
+### Visual Quality
+- [ ] No emojis used as icons (SVG only)
+- [ ] All icons from consistent family and style
+- [ ] CSS variables used throughout — no hardcoded hex
+- [ ] Dark mode tested independently
+
+### Interaction
+- [ ] All tappable elements have pressed feedback
+- [ ] Touch targets ≥44×44px
+- [ ] Micro-interactions 150–300ms range
+- [ ] Disabled states visually clear
+
+### Layout
+- [ ] No horizontal scroll at 375px
+- [ ] Safe areas respected
+- [ ] Scroll content not hidden behind fixed bars
+- [ ] 8px spacing rhythm maintained
+
+### Accessibility
+- [ ] Color contrast ≥4.5:1 for body text
+- [ ] All interactive elements keyboard-navigable
+- [ ] Focus rings visible
+- [ ] `reduced-motion` respected
+
+---
+
+## DESIGN SYSTEM WORKFLOW (for new pages/components)
+
+Before writing a single line of code, answer:
+1. **Product type** — Mealzy is a SaaS productivity tool (meal planning)
+2. **Tone** — editorial/magazine + clean minimal. Not clinical, not bubbly.
+3. **Constraints** — vanilla HTML/CSS/JS, CSS variables from style.css, mobile-first
+4. **Differentiation** — what's the one thing the user remembers about this page?
+
+Run the UX validation pass on every output:
+- Check §1 (Accessibility) and §2 (Touch) — CRITICAL, fix before anything else
+- Check §5 (Layout) at 375px — no horizontal scroll, readable text
+- Check §7 (Animation) — is `reduced-motion` handled?
