@@ -1152,7 +1152,7 @@
     if (day === 0 && hour >= 17) {
       bannerText.textContent = '🌿 Sunday evening — a great time to plan your meals for the week ahead.';
       banner.style.display = 'flex';
-    } else if (daysSinceLast >= 7) {
+    } else if (daysSinceLast >= 7 && isFinite(daysSinceLast)) {
       bannerText.textContent = `👋 Welcome back! It's been ${Math.floor(daysSinceLast)} days since your last meal plan. Generate a fresh one?`;
       banner.style.display = 'flex';
     }
