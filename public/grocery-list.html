@@ -14,32 +14,75 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .category-group-animated {
+        animation: fadeInUp 0.32s ease both;
+      }
+      .category-group-animated:nth-child(1) { animation-delay: 0.00s; }
+      .category-group-animated:nth-child(2) { animation-delay: 0.06s; }
+      .category-group-animated:nth-child(3) { animation-delay: 0.12s; }
+      .category-group-animated:nth-child(4) { animation-delay: 0.18s; }
+      .category-group-animated:nth-child(5) { animation-delay: 0.24s; }
+      .category-group-animated:nth-child(6) { animation-delay: 0.30s; }
+      .category-group-animated:nth-child(7) { animation-delay: 0.36s; }
+      .category-group-animated:nth-child(8) { animation-delay: 0.42s; }
+    }
+  </style>
 </head>
 <body>
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
   <a href="dashboard.html" class="logo" style="font-size:1rem;">
-    <span class="logo-icon" style="width:30px;height:30px;font-size:14px;">🥗</span>
+    <span class="logo-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+    </span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </span>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html" class="active"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -49,7 +92,10 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 </div>
@@ -58,16 +104,36 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </span>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html" class="active"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -77,28 +143,43 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
-  <main class="main-content">
+  <main class="main-content" style="background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
 
     <!-- PRO NUDGE: PDF EXPORT + UNLIMITED LISTS -->
     <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(148,40%,96%);border:1px solid hsl(148,40%,78%);color:hsl(148,40%,22%);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-      <span>⭐ <strong>Pro unlocks PDF export + unlimited grocery lists</strong> — share your list or print it in one tap.</span>
-      <a href="pricing.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro →</a>
+      <span style="display:flex;align-items:center;gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> — share your list or print it in one tap.
+      </span>
+      <a href="upgrade.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
     </div>
 
     <div class="grocery-header">
       <div>
-        <h1 style="font-size:1.6rem;font-weight:800;">🛒 This Week's Groceries</h1>
+        <h1 style="font-size:1.6rem;font-weight:700;font-family:'Fraunces',serif;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          This Week's Groceries
+        </h1>
         <p class="text-muted" style="margin-top:0.25rem;" id="weekLabel">Loading...</p>
       </div>
       <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-        <button class="btn btn-outline btn-sm" id="groceryPrintBtn" onclick="printGroceryList()" title="Download grocery list as PDF">📄 Download PDF</button>
+        <button class="btn btn-outline btn-sm" id="groceryPrintBtn" onclick="printGroceryList()" title="Download grocery list as PDF" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Download PDF
+        </button>
         <button class="btn btn-outline btn-sm" onclick="clearAll()">Clear All</button>
-        <button class="btn btn-primary" id="generateBtn" onclick="generateGroceryList()">✨ Generate List</button>
+        <button class="btn btn-primary" id="generateBtn" onclick="generateGroceryList()" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Generate List
+        </button>
       </div>
     </div>
 
@@ -135,10 +216,15 @@
     <!-- GROCERY LIST -->
     <div id="groceryContainer">
       <div class="empty-state">
-        <div class="empty-state-icon">🛒</div>
+        <div class="empty-state-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </div>
         <h3>No grocery list yet</h3>
         <p>Generate a list from your week's meal plan, or add items manually.</p>
-        <button class="btn btn-primary" onclick="generateGroceryList()">✨ Generate Grocery List</button>
+        <button class="btn btn-primary" onclick="generateGroceryList()" style="display:inline-flex;align-items:center;gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Generate Grocery List
+        </button>
       </div>
     </div>
   </main>
@@ -162,6 +248,42 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
+  // SVG icons for grocery categories — no emoji in rendered HTML
+  const categoryConfig = {
+    produce: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
+      label: 'Produce &amp; Vegetables'
+    },
+    protein: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+      label: 'Meat, Fish &amp; Protein'
+    },
+    dairy: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`,
+      label: 'Dairy &amp; Eggs'
+    },
+    grains: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+      label: 'Bread, Grains &amp; Pasta'
+    },
+    pantry: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+      label: 'Pantry &amp; Condiments'
+    },
+    frozen: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+      label: 'Frozen Foods'
+    },
+    beverages: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+      label: 'Beverages'
+    },
+    other: {
+      icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+      label: 'Other Items'
+    }
+  };
+
   // ── Auth helpers (JWT cookie — server is source of truth) ──
   async function cloudLoad(uid) { /* no-op */ }
   async function cloudSave() { /* no-op — data saved server-side */ }
@@ -179,17 +301,6 @@
     return s[c] || c || '$';
   }
   let weekStart = '';
-
-  const categoryConfig = {
-    produce:   { emoji: '🥦', label: 'Produce & Vegetables' },
-    protein:   { emoji: '🥩', label: 'Meat, Fish & Protein' },
-    dairy:     { emoji: '🥛', label: 'Dairy & Eggs' },
-    grains:    { emoji: '🌾', label: 'Bread, Grains & Pasta' },
-    pantry:    { emoji: '🫙', label: 'Pantry & Condiments' },
-    frozen:    { emoji: '🧊', label: 'Frozen Foods' },
-    beverages: { emoji: '🥤', label: 'Beverages' },
-    other:     { emoji: '🛍️', label: 'Other Items' }
-  };
 
   function getMondayOfWeek(date) {
     const d = new Date(date);
@@ -220,7 +331,6 @@
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
     applyNavTranslations();
 
-    // Show Pro nudge for PDF export if user is not Pro
     if (localStorage.getItem('mealzy_pro') !== 'true') {
       document.getElementById('proNudgeBanner').style.display = 'flex';
     }
@@ -245,13 +355,18 @@
     }
   }
 
+  const emptyCartSVG = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`;
+  const starSVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+
   function renderEmpty() {
     document.getElementById('groceryContainer').innerHTML = `
       <div class="empty-state">
-        <div class="empty-state-icon">🛒</div>
+        <div class="empty-state-icon">${emptyCartSVG}</div>
         <h3>No grocery list yet</h3>
         <p>Generate a list from your week's meal plan, or generate a smart list now.</p>
-        <button class="btn btn-primary" onclick="generateGroceryList()">✨ Generate Grocery List</button>
+        <button class="btn btn-primary" onclick="generateGroceryList()" style="display:inline-flex;align-items:center;gap:0.4rem;">
+          ${starSVG} Generate Grocery List
+        </button>
       </div>`;
   }
 
@@ -267,9 +382,9 @@
       const items = (groceryList.categories[catKey] || []);
       if (items.length === 0) continue;
       html += `
-        <div class="category-group">
+        <div class="category-group category-group-animated">
           <div class="category-header">
-            <span>${config.emoji}</span>
+            <span style="display:flex;align-items:center;">${config.icon}</span>
             <span>${config.label}</span>
             <span class="badge badge-muted" style="margin-left:auto;">${items.length}</span>
           </div>
@@ -285,7 +400,7 @@
         </div>`;
     }
 
-    container.innerHTML = html || `<div class="empty-state"><div class="empty-state-icon">🛒</div><h3>All categories are empty</h3></div>`;
+    container.innerHTML = html || `<div class="empty-state"><div class="empty-state-icon">${emptyCartSVG}</div><h3>All categories are empty</h3></div>`;
   }
 
   function toggleItem(category, index, checked) {
@@ -366,7 +481,6 @@
   }
 
   async function generateGroceryList() {
-    // Collect this week's meals
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const allMeals = [];
     for (let i = 0; i < 7; i++) {
@@ -378,14 +492,13 @@
       }
     }
 
-    // Use sample meals if no plan exists
     if (allMeals.length === 0) {
       const sampleList = getSampleGroceryList();
       groceryList = sampleList;
       saveLists();
       renderGroceryList();
       updateProgress();
-      showToast('✨ Sample grocery list generated!', 'success');
+      showToast('Sample grocery list generated!', 'success');
       return;
     }
 
@@ -403,7 +516,7 @@
         saveLists();
         renderGroceryList();
         updateProgress();
-        showToast('✨ Grocery list generated!', 'success');
+        showToast('Grocery list generated!', 'success');
       }
     } catch (err) {
       console.error(err);
@@ -490,13 +603,15 @@
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
       overlay.innerHTML = `
-        <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-          <button onclick="this.closest('[style]').remove()" style="float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#999;">✕</button>
-          <div style="font-size:2rem;margin-bottom:0.5rem;">🛒</div>
-          <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
-          <p style="color:#555;font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature — upgrade to unlock.</p>
-          <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.85rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro — $8/month →</a>
-          <a href="pricing.html" style="font-size:0.82rem;color:#888;text-decoration:underline;">See all plans</a>
+        <div style="background:var(--clr-card,#fff);border-radius:1.25rem;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+          <button onclick="this.closest('[style]').remove()" style="float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--clr-muted-fg,#999);">&times;</button>
+          <div style="width:48px;height:48px;background:hsl(152,40%,92%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+          <h3 style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
+          <p style="color:var(--clr-muted-fg,#555);font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature — upgrade to unlock.</p>
+          <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.85rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro &#8594;</a>
+          <a href="upgrade.html" style="font-size:0.82rem;color:var(--clr-muted-fg,#888);text-decoration:underline;">See all plans</a>
         </div>`;
       document.body.appendChild(overlay);
       overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
