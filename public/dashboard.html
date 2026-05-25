@@ -408,6 +408,19 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
+  // ── SVG icon strings (used in JS template literals — no emoji) ────────────
+  const ICO = {
+    flame:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;flex-shrink:0"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>`,
+    zap:    `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;flex-shrink:0"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+    grain:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`,
+    drop:   `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;flex-shrink:0"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    clock:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-1px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    thumbUp:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`,
+    thumbDn:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`,
+    fire:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>`,
+    medal:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;vertical-align:-2px"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+  };
+
   // Dark mode
   if (localStorage.getItem('mealzy_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -530,7 +543,7 @@
       localStorage.setItem('mealzy_profile', JSON.stringify(profile));
     }
 
-    document.getElementById('streakBadge').textContent = `🔥 ${streak} day${streak !== 1 ? 's' : ''} streak`;
+    document.getElementById('streakBadge').innerHTML = `${ICO.fire} ${streak} day${streak !== 1 ? 's' : ''} streak`;
   }
 
   function loadTodayData() {
@@ -719,11 +732,11 @@
         <div class="meal-name">${meal.name}</div>
         <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
         <div class="meal-macros">
-          <span class="macro-pill">🔥 ${meal.calories} kcal</span>
-          <span class="macro-pill">💪 ${meal.protein}g protein</span>
-          <span class="macro-pill">🌾 ${meal.carbs}g carbs</span>
-          <span class="macro-pill">🥑 ${meal.fat}g fat</span>
-          ${meal.cookTime ? `<span class="macro-pill">⏱️ ${meal.cookTime} min</span>` : ''}
+          <span class="macro-pill">${ICO.flame} ${meal.calories} kcal</span>
+          <span class="macro-pill">${ICO.zap} ${meal.protein}g protein</span>
+          <span class="macro-pill">${ICO.grain} ${meal.carbs}g carbs</span>
+          <span class="macro-pill">${ICO.drop} ${meal.fat}g fat</span>
+          ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${meal.cookTime} min</span>` : ''}
         </div>
         <div class="meal-actions">
           <label class="meal-checkbox">
@@ -737,8 +750,8 @@
         </div>
         <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--clr-border);">
           <span style="font-size:0.8rem;color:var(--clr-muted);">Rate:</span>
-          <button onclick="rateMeal(${i}, 1)" style="background:${r===1?'#dcfce7':'var(--clr-muted-bg)'};border:1px solid ${r===1?'#86efac':'var(--clr-border)'};border-radius:0.5rem;padding:0.25rem 0.6rem;cursor:pointer;font-size:1rem;" title="Thumbs up — include more like this">👍</button>
-          <button onclick="rateMeal(${i}, -1)" style="background:${r===-1?'#fee2e2':'var(--clr-muted-bg)'};border:1px solid ${r===-1?'#fca5a5':'var(--clr-border)'};border-radius:0.5rem;padding:0.25rem 0.6rem;cursor:pointer;font-size:1rem;" title="Thumbs down — avoid next time">👎</button>
+          <button onclick="rateMeal(${i}, 1)" style="background:${r===1?'#dcfce7':'var(--clr-muted-bg)'};border:1px solid ${r===1?'#86efac':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===1?'#16a34a':'var(--clr-muted-fg)'};" title="Thumbs up — include more like this" aria-label="Like this meal">${ICO.thumbUp}</button>
+          <button onclick="rateMeal(${i}, -1)" style="background:${r===-1?'#fee2e2':'var(--clr-muted-bg)'};border:1px solid ${r===-1?'#fca5a5':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===-1?'#dc2626':'var(--clr-muted-fg)'};" title="Thumbs down — avoid next time" aria-label="Dislike this meal">${ICO.thumbDn}</button>
           ${r===1?'<span style="font-size:0.78rem;color:#16a34a;">Noted — more like this next time</span>':''}
           ${r===-1?'<span style="font-size:0.78rem;color:#dc2626;">Noted — will be avoided</span>':''}
         </div>
@@ -836,11 +849,11 @@
     document.getElementById('modalMealName').textContent = meal.name;
     document.getElementById('modalMealDesc').textContent = meal.description || '';
     document.getElementById('modalMacros').innerHTML = `
-      <span class="macro-pill">🔥 ${meal.calories} kcal</span>
-      <span class="macro-pill">💪 ${meal.protein}g protein</span>
-      <span class="macro-pill">🌾 ${meal.carbs}g carbs</span>
-      <span class="macro-pill">🥑 ${meal.fat}g fat</span>
-      ${meal.cookTime ? `<span class="macro-pill">⏱️ ${meal.cookTime} min</span>` : ''}
+      <span class="macro-pill">${ICO.flame} ${meal.calories} kcal</span>
+      <span class="macro-pill">${ICO.zap} ${meal.protein}g protein</span>
+      <span class="macro-pill">${ICO.grain} ${meal.carbs}g carbs</span>
+      <span class="macro-pill">${ICO.drop} ${meal.fat}g fat</span>
+      ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${meal.cookTime} min</span>` : ''}
     `;
     const ingList = meal.ingredients || [];
     document.getElementById('modalIngredients').innerHTML = ingList.map(ing =>
@@ -1366,8 +1379,8 @@
     document.getElementById('xpLevelTitle').textContent = levelObj.title;
     document.getElementById('xpBar').style.width = pct + '%';
     document.getElementById('xpLabel').textContent = nextObj ? `${xp} / ${nextObj.xpNeeded} XP` : `${xp} XP — MAX LEVEL`;
-    document.getElementById('xpStreakBadge').textContent = `🔥 ${weekStreak} week${weekStreak !== 1 ? 's' : ''} streak`;
-    document.getElementById('xpBadgeCount').textContent = `🏅 ${earnedBadges.length} badge${earnedBadges.length !== 1 ? 's' : ''}`;
+    document.getElementById('xpStreakBadge').innerHTML = `${ICO.fire} ${weekStreak} week${weekStreak !== 1 ? 's' : ''} streak`;
+    document.getElementById('xpBadgeCount').innerHTML = `${ICO.medal} ${earnedBadges.length} badge${earnedBadges.length !== 1 ? 's' : ''}`;
 
     renderBadges(earnedBadges);
     const earnedEl = document.getElementById('badgesEarned');
