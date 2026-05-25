@@ -76,6 +76,17 @@ app.post(
 );
 
 app.use(express.json({ limit: '1mb' }));
+
+// ── Page view tracking (fires before static files are served) ──
+app.use((req, res, next) => {
+  if (req.method === 'GET' && (req.path.endsWith('.html') || req.path === '/')) {
+    const page = req.path === '/' ? '/index.html' : req.path;
+    const ip   = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+    db.logEvent('page_view', { page }, ip.slice(-8)).catch(() => {});
+  }
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // TikTok domain verification
@@ -720,7 +731,7 @@ Respond ONLY with valid JSON, no markdown, no extra text:
       messages: [{ role: 'user', content: demoPrompt }]
     });
     if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
-      console.log(`[demo-meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
+      log.info(`[demo-meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
     }
 
     const rawText = completion.content[0].text.trim();
@@ -929,14 +940,16 @@ app.get('/api/analytics', async (req, res) => {
     total_users:    users.length,
     pro_users:      users.filter(u => u.pro === 1).length,
     this_month: {
-      signups:           count(thisMonth, 'signup'),
+      page_views:        count(thisMonth, 'page_view'),
+      signups:           count(thisMonth, 'signup') + count(thisMonth, 'signup_google'),
       plans_generated:   count(thisMonth, 'generate_plan'),
       free_limit_hits:   count(thisMonth, 'free_limit_hit'),
       upgrade_clicks:    count(thisMonth, 'upgrade_click'),
       pro_activations:   count(thisMonth, 'pro_activated'),
     },
     all_time: {
-      signups:         count(events, 'signup'),
+      page_views:      count(events, 'page_view'),
+      signups:         count(events, 'signup') + count(events, 'signup_google'),
       plans_generated: count(events, 'generate_plan'),
       pro_activations: count(events, 'pro_activated'),
     },
@@ -1315,7 +1328,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       messages: [{ role: 'user', content: fullPlanPrompt }]
     });
     if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
-      console.log(`[meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
+      log.info(`[meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
     }
 
     const rawText = completion.content[0].text;
@@ -1470,7 +1483,7 @@ Respond in ${coachLangName}.`;
       messages: _cachedConvo
     });
     if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
-      console.log(`[coach cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
+      log.info(`[coach cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
     }
 
     res.json({ success: true, message: { role: 'assistant', content: completion.content[0].text, timestamp: new Date().toISOString() } });

@@ -205,6 +205,130 @@ When launching on Product Hunt:
 
 ---
 
+## POST-MORTEM ANALYSIS — Why a Community Post Went Bad
+
+When a community post underperforms, Taylor runs a structured analysis before writing the next one.
+
+### Performance thresholds (triggers a post-mortem):
+| Platform | Threshold |
+|----------|-----------|
+| Reddit | < 10 upvotes in 24h OR removed by mods |
+| Twitter/X | < 5 reposts in 48h |
+| Any | 0 comments in 24h |
+
+### Post-mortem format:
+```
+POST-MORTEM: [post title / date / community]
+Metric: [actual result] (threshold: [X])
+
+WHAT THE POST WAS:
+[1 sentence describing the post]
+
+ROOT CAUSE (pick most likely):
+[ ] Value wasn't clear — it read as promotional
+[ ] Wrong community — this audience doesn't have this problem
+[ ] Posted at the wrong time (Reddit peaks: 6–9am EST weekdays)
+[ ] Title/hook failed — didn't create curiosity or recognition
+[ ] No personal story — too abstract to engage with
+[ ] Topic already covered recently in this community
+
+WHAT I WILL DO DIFFERENTLY:
+[Specific change for next post in this community]
+```
+
+Cross-post every lesson to TEAM.md — Alex's carousels and the community posts should share the same topic angles that work.
+
+---
+
+## PLATFORM PROFILE OPTIMIZATION
+
+Taylor owns the professional appearance of every Mealzy profile. **Before any paid ads run, every profile must pass this checklist.** A weak profile means paid traffic bounces.
+
+### The Sales-Ready Profile Formula
+
+A profile converts when it passes the 3-second rule: a stranger lands on it and immediately understands (1) what Mealzy is, (2) who it's for, and (3) what to do next.
+
+### Instagram (@mealzy.org or similar)
+**Bio (150 chars max):**
+```
+AI meal planner. Full week of meals in 30 seconds.
+Hits your macros. Stays in budget. Free ↓
+mealzy.org
+```
+**Requirements:**
+- [ ] Profile picture: Mealzy logo (green, clean — Nova designs)
+- [ ] Link in bio: https://mealzy.org (direct — no Linktree)
+- [ ] Pinned post 1: best-performing carousel (the one with most saves)
+- [ ] Pinned post 2: founder story post ("I'm 16 and built this because…")
+- [ ] Pinned post 3: a real before/after (messy meal planning → 30 seconds in Mealzy)
+- [ ] Highlights: "How it works" / "Meal plans" / "Free vs Pro"
+- [ ] Highlight covers: designed by Nova (brand green, minimal icon)
+
+**TikTok (@mealzy or similar)**
+**Bio:**
+```
+AI meal planner 🥗 30 seconds. Full week. Free.
+🔗 mealzy.org
+```
+**Requirements:**
+- [ ] Profile picture: Mealzy logo
+- [ ] Link in bio: mealzy.org
+- [ ] Pinned video: best-performing video (most views/follows)
+- [ ] Category: Health & Wellness
+
+**Twitter/X (@mealzy)**
+**Bio (160 chars):**
+```
+Free AI meal planner. Tell it your goals and budget → full week of meals + grocery list in 30 seconds. Built by a 16yo. mealzy.org
+```
+**Requirements:**
+- [ ] Profile picture: Mealzy logo
+- [ ] Header/banner: designed by Nova — shows the app in action with "Free at mealzy.org"
+- [ ] Pinned tweet: product demo tweet OR launch thread
+- [ ] Link in bio: mealzy.org
+
+**Reddit (u/MealzyApp or u/emilmealzy)**
+**Profile bio:**
+```
+16yo founder. Built Mealzy — a free AI meal planner that builds a full week of meals in 30 seconds. mealzy.org
+```
+**Requirements:**
+- [ ] Avatar: Mealzy logo
+- [ ] Comment history built in target subreddits before posting (≥5 genuine comments)
+- [ ] Not posting until account is ≥7 days old (some subs require this)
+
+**LinkedIn (Emil's personal profile)**
+**Headline:**
+```
+16yo Founder | Built Mealzy — Free AI Meal Planner | mealzy.org
+```
+**About section (first 3 lines visible without clicking "see more"):**
+```
+I'm 16 and I built Mealzy — a free AI meal planner that generates a full week of personalised meals in 30 seconds.
+It hits your calorie and macro targets, stays in your grocery budget, and writes the shopping list automatically.
+Free at mealzy.org. 3 plans/month free, Pro $8/month.
+```
+**Requirements:**
+- [ ] Profile picture: professional photo (not logo — this is personal)
+- [ ] Banner: Nova designs — Mealzy branded, shows the product
+- [ ] Featured section: link to mealzy.org as first featured item
+- [ ] "Building in public" posts about Mealzy's journey
+
+### The Instant Sales Path
+When an ad fires, the user sees the ad → taps profile → reads bio → taps link → lands on mealzy.org.
+Every step must be frictionless. Taylor audits this path monthly:
+1. Does the ad CTA match the bio? (same message)
+2. Does the bio link go directly to mealzy.org? (not a link aggregator)
+3. Does the landing page (index.html) match what the ad promised?
+4. Is the signup flow < 2 minutes? (Emil to confirm)
+
+### Profile audit schedule:
+- **Before any paid campaign launches**: run the full checklist above
+- **Monthly**: re-audit all profiles for consistency
+- **After any rebrand**: update all profiles within 48h
+
+---
+
 ## WEEKLY AUTOPILOT OUTPUT
 
 1. Brand mention monitor: any mentions of Mealzy on Reddit, Twitter, Instagram (Mon)

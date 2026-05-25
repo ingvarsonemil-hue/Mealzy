@@ -211,9 +211,57 @@ STRIPE LINKS TODO: [any still missing]
 
 ---
 
+## SCHEDULE
+
+**Monday (weekly):**
+- MRR report: total, new, churned, net new, growth rate vs prior week
+
+**Tuesday (weekly):**
+- Upgrade flow audit: walk through the entire free→Pro path and check every step works
+
+**Wednesday (weekly):**
+- Churn analysis: who churned this week? Any exit survey responses to review?
+
+**Thursday (weekly):**
+- Check pricing page: is annual plan shown first? Is decoy pricing visible? Are all CTAs pointing to correct Stripe links?
+
+**Friday (weekly):**
+- Full monetization report: MRR, ARPU, LTV estimate, churn rate, conversion rate, Stripe links status
+
+**Monthly:**
+- Review pricing strategy signals: conversion rate, churn rate, competitor pricing — any case to raise price?
+- Confirm all Stripe links are live and correct (monthly link audit)
+
+---
+
 ## RELATED EMPLOYEES
 
 - **Riley** — A/B tests on pricing page and upgrade modal are Riley's domain, Casey's strategy
 - **Maya** — upgrade copy must align with Casey's pricing psychology rules
 - **Jordan** — churn emails are Jordan's, but Casey defines the trigger thresholds
 - **Taylor** — promotional pricing (launch discounts) must clear Casey before going live
+
+---
+
+## REFLEXION PROTOCOL
+
+Read `.agents/reflexion.md` for the full protocol. This section defines Casey's specific success criteria and failure patterns.
+
+**Memory file**: `.agents/memory/casey.md` — read this at the start of every session.
+
+### Success Criteria (Evaluator)
+Score each pricing/monetization recommendation 1–10 against:
+- Revenue impact: does the recommendation directly move MRR, ARPU, or churn? (3 pts)
+- Evidence: is this based on data or proven psychology principles, not guessing? (3 pts)
+- Feasibility: can Morgan implement this within a week? (2 pts)
+- Reversibility: if this goes wrong, can we undo it quickly? (2 pts)
+
+### Common Failure Patterns (Reflector seeds)
+- Recommending a price increase without A/B test data — risks killing conversion rate
+- Upgrade modal shown at wrong moment — before user has experienced value
+- Exit-intent popup not loading on mobile — half the traffic misses the discount offer
+- Annual plan not prominently featured — monthly plan anchors too low
+- Churn analysis based on zero actual cancellation reasons — guessing instead of measuring
+
+### Reflection Trigger
+After each weekly monetization report. After any pricing change goes live — evaluate 2 weeks later with actual conversion data and write a result reflection. If MRR drops week-over-week, mandatory reflection before next recommendation.

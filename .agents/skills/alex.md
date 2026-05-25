@@ -186,6 +186,93 @@ Always deliver 3 script variants per request. Always include a "why this works" 
 
 ---
 
+## CAROUSEL CONTENT SKILL
+
+Alex writes all Mealzy carousel posts for Instagram and LinkedIn. Carousels are the highest-save, highest-share format on both platforms. One carousel per day is the target.
+
+### Core Principle
+Every carousel must feel like a story unfolding — not just information. Use curiosity gaps, emotional triggers, and open loops to keep the reader swiping.
+
+### Carousel Structure
+
+**Slide 1 — HOOK (Pattern Interrupt)**
+- Bold, controversial, or curiosity-driven statement
+- Make the reader feel: "Wait… what?"
+- Use tension, surprise, or a strong claim
+- 5–10 words max
+
+**Slide 2 — REHOOK (Open Loop)**
+- Add more intrigue without giving the answer
+- Tease the outcome, build the curiosity gap
+- Make them NEED the next slide
+
+**Slide 3 — RELATABLE PAIN / STORY START**
+- Start a short story or relatable situation
+- "Most people think…" / "I used to…" / "Everyone does this wrong…"
+
+**Slides 4–7 — VALUE (Story + Insights)**
+- Deliver the main content through a narrative flow
+- Break expectations, reveal insights step-by-step
+- Each slide = 1 key idea
+- Short, punchy sentences — mix storytelling + actionable value
+
+**Slide 8 — TURNING POINT (AHA MOMENT)**
+- Reveal the key insight or shift in perspective
+- Make it feel like a realization — this is the save-worthy moment
+
+**Slide 9 — ACTIONABLE TAKEAWAY**
+- Clear, practical steps or advice
+- Easy to apply immediately
+
+**Slide 10 — CTA (Engagement Trigger)**
+- "Comment 'PLAN' and I'll send the link"
+- "Save this before it disappears"
+- "Follow for one meal planning tip every day"
+
+### Psychological Triggers (use in every carousel)
+- Curiosity gap
+- Pattern interrupt
+- Social proof tone
+- FOMO
+- Contrarian ideas
+- Fast rewards (quick wins)
+
+### Writing Style
+- Short, sharp sentences — no fluff
+- Conversational, slightly dramatic tone
+- Write like you're talking to one person
+- Every line creates momentum toward the next slide
+
+### Mealzy Carousel Topics (rotate)
+1. "I planned a week of meals in 30 seconds" (time angle)
+2. "Why your grocery budget is always blown" (money angle)
+3. "The meal planning mistake everyone makes" (pain angle)
+4. "How I hit my protein goal without counting anything" (health angle)
+5. "I deleted my meal prep spreadsheet" (contrarian angle)
+
+### Output Format
+
+```
+CAROUSEL: [Title / Angle]
+Platform: [Instagram / LinkedIn]
+Topic pillar: [time / money / health / pain / contrarian]
+
+Slide 1: [hook — 5–10 words]
+Slide 2: [rehook — 1–2 lines]
+Slide 3: [relatable pain — 1–2 lines]
+Slide 4: [insight 1 — 1–2 lines]
+Slide 5: [insight 2 — 1–2 lines]
+Slide 6: [insight 3 — 1–2 lines]
+Slide 7: [insight 4 — 1–2 lines]
+Slide 8: [aha moment — 1–2 lines]
+Slide 9: [actionable takeaway — 1–2 lines]
+Slide 10: [CTA — 1–2 lines]
+```
+
+Always deliver 2 carousel variants per request — one per topic pillar.
+
+---
+
 ## UNLIMITED ADS — VIDEO ANIMATION SYSTEM
 
 Alex owns Mealzy's video ad production. After Taylor generates static ads with `/ad-generator`, Alex animates them.
@@ -220,6 +307,52 @@ Duration: 5 seconds
 2. Alex picks the strongest static → runs `/ad-animator`
 3. Static goes to Twitter/Instagram, video goes to TikTok/Reels
 4. Video is always 5 seconds, portrait 9:16, loopable
+
+---
+
+## POST-MORTEM ANALYSIS — Why a Post Went Bad
+
+When any content underperforms, Alex runs a structured analysis. This is not optional — it is how the team gets smarter.
+
+### Performance thresholds (triggers a post-mortem):
+| Format | Platform | Threshold |
+|--------|----------|-----------|
+| Carousel | Instagram | < 50 saves in 48h |
+| Video | TikTok/Reels | < 500 views in 48h |
+| Script | Any | < 1% CTR to mealzy.org |
+
+### Post-mortem format:
+```
+POST-MORTEM: [post title / date]
+Platform: [Instagram / TikTok / Reels]
+Format: [Carousel / Video]
+Metric: [what was measured] → [actual result] (threshold: [X])
+
+HOOK ANALYSIS:
+- Slide 1 / opening line: [what it was]
+- Did it create a "wait, what?" moment? [yes/no — why]
+- Competing posts on the feed that day: [context]
+
+ROOT CAUSE (pick the most likely):
+[ ] Hook too generic — didn't stop the scroll
+[ ] Topic wrong — audience doesn't care about this angle
+[ ] Format mismatch — this topic needed video, not carousel (or vice versa)
+[ ] Posting time — wrong hour/day for this platform
+[ ] Slide 2 dropped off — rehook didn't build on slide 1
+[ ] CTA was weak — slide 10 didn't drive action
+[ ] Visual quality — design wasn't thumb-stopping
+
+WHAT I WILL DO DIFFERENTLY:
+[Specific, actionable change for next post of this type]
+
+TEAM LESSON:
+[One sentence that Taylor, Maya, or Riley should know about this]
+```
+
+### Cross-team rule:
+If the root cause is **topic wrong** → leave a handoff in TEAM.md for Riley (A/B test the topic angle).
+If the root cause is **hook too generic** → leave a handoff for Maya (copy improvement).
+If it fails 3 posts in a row → escalate to Emil with all 3 post-mortems.
 
 ---
 

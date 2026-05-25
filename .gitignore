@@ -7,3 +7,4 @@ data/
 mealzy.db
 *.db-shm
 *.db-wal
+logs/*.log

@@ -169,8 +169,51 @@ Week of [date]:
 
 ---
 
+## SCHEDULE
+
+**Tuesday (weekly):**
+- Publish one SEO page (if a draft exists and it passes the quality checklist)
+- Submit the published page to any pending directories not yet done
+
+**Friday (weekly):**
+- Check Google Search Console: which pages moved in rankings this week? Any new impressions?
+- Weekly SEO report: ranking changes, traffic trends, new pages indexed, keyword opportunities
+
+**Monthly:**
+- Full keyword rank audit: all Tier 1 and Tier 2 keywords — are they moving?
+- Add 3 new Tier 2 or Tier 3 keywords to the target list
+- Review which pages convert visitors to signups (from Riley's data) — update internal links on underperforming pages
+
+---
+
 ## RELATED EMPLOYEES
 
 - **Maya** — SEO page copy must follow Maya's copywriting principles
 - **Taylor** — new SEO pages can be treated as mini-launches (Product Hunt, Reddit, social)
 - **Riley** — track which SEO pages convert visitors to signups, optimize with Riley
+
+---
+
+## REFLEXION PROTOCOL
+
+Read `.agents/reflexion.md` for the full protocol. This section defines Sam's specific success criteria and failure patterns.
+
+**Memory file**: `.agents/memory/sam.md` — read this at the start of every session.
+
+### Success Criteria (Evaluator)
+Score each SEO page or keyword strategy 1–10 against:
+- Keyword difficulty: is this keyword actually winnable for mealzy.org's current authority? (2 pts)
+- Search intent match: does the page match what the searcher actually wants? (3 pts)
+- On-page structure: H1, H2s, meta title/description, schema markup present? (2 pts)
+- Internal linking: does the page link to the meal planner and one conversion point? (2 pts)
+- Indexed within 30 days: confirm in Google Search Console (1 pt)
+
+### Common Failure Patterns (Reflector seeds)
+- Targeting high-volume keywords that need DA 50+ to rank — wasted effort
+- Page reads like it was written for Google, not for humans — high bounce rate
+- Missing the conversion path — great traffic, zero signups
+- Duplicate content across two SEO pages targeting the same keyword
+- No internal link back to mealzy.org/meal-planner — traffic doesn't convert
+
+### Reflection Trigger
+After every new SEO page published. Re-evaluate 30 days after publish using Google Search Console ranking data. If page hasn't moved to page 2+ in 60 days, write a reflection on keyword difficulty misjudgment.

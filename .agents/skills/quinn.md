@@ -248,6 +248,64 @@ MODEL PERFORMANCE:
 
 ---
 
+## CLAUDE API SKILL
+
+Quinn owns the quality and cost of every Anthropic API call. This skill covers prompt caching, model selection, and SDK best practices.
+
+### Prompt Caching
+
+Mealzy uses `cache_control: { type: "ephemeral" }` on stable system prompt blocks across all AI endpoints. Rules:
+
+**What to cache (stable — put first):**
+- Role definitions ("You are a professional nutritionist...")
+- Output format rules ("Respond with valid JSON only")
+- Personality traits and safety disclaimers (Mia's identity)
+- Dietary restriction rules that don't change per user
+
+**What NOT to cache (volatile — put last, no cache_control):**
+- User-specific data (name, goals, macros, allergies)
+- Per-request variables (budget, cuisine preference, target calories)
+
+**Multi-turn conversations (Mia coach):**
+- All conversation turns except the final user message should have `cache_control: { type: "ephemeral" }`
+- This caches the growing history and saves tokens on every reply
+
+**Verifying cache is working:**
+Check server logs for `[meal cache]`, `[coach cache]`, `[demo-meal cache]` lines:
+```
+[meal cache] hit=847 write=0   ← cache hit, saved 847 tokens
+[meal cache] hit=0 write=847   ← first call, wrote to cache
+```
+If you see only `write=...` entries and never `hit=...` entries, the TTL is expiring — this usually means requests are more than 5 minutes apart (Haiku cache TTL).
+
+**Minimum threshold:** Claude Haiku requires ≥2048 tokens before caching activates. Short system prompts may not hit the threshold alone, but combined with large user messages they often do. The `fullPlanPrompt` (28-meal JSON schema) is large enough to trigger caching on its own.
+
+### Model Selection Rules
+
+| Model | Use case | Cost relative |
+|-------|----------|---------------|
+| `claude-haiku-4-5-20251001` | Plan generation, demo, swap, grocery | Cheapest — default |
+| `claude-sonnet-4-5` | Mia coach for Pro users (if quality issues arise) | ~5× Haiku |
+| `claude-opus-4-7` | Never for Mealzy — too expensive for high-volume generation | ~15× Haiku |
+
+**Never construct model ID strings.** Only use exact strings from the table above. Do not append dates or suffixes that aren't in the official model list.
+
+### Cost Monitoring
+
+Track weekly via Avery's infrastructure report:
+- API cost per day (Anthropic dashboard)
+- Cost per plan generation = (input tokens × $0.00025 + output tokens × $0.00125) / 1000 for Haiku
+- Prompt caching saves ~90% on re-read tokens (cache hit price = 10% of normal read price)
+- Cache write tokens cost 25% more than normal — only worthwhile if the same content is read 2+ times
+
+### SDK Rules
+- Always use `@anthropic-ai/sdk` (already installed) — never raw HTTP fetch for AI calls
+- Always pass `system` as an array of content blocks (not a plain string) to enable caching
+- `max_tokens` must be set — never rely on defaults
+- Streaming is not needed for Mealzy's current prompt sizes; use standard `messages.create()`
+
+---
+
 ## RELATED EMPLOYEES
 
 - **Morgan** — prompt changes go in server.js. Always loop in Morgan when touching production code.

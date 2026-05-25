@@ -95,7 +95,10 @@ POSITIVE PATTERN (if score ≥ 7):
 ```
 1. Read .agents/memory/[your-name].md
 2. Note the last 3 reflections — what patterns appear?
-3. Carry those insights into this session's work
+3. Read .agents/memory/TEAM.md
+4. Check Active Handoffs for any messages TO you or TO ALL
+5. Act on any P0 handoffs before starting scheduled work
+6. Carry all insights into this session's work
 ```
 
 **After completing each output:**
@@ -104,7 +107,9 @@ POSITIVE PATTERN (if score ≥ 7):
 2. If score ≥ 7: store a POSITIVE PATTERN entry
 3. If score < 7: write a full REFLEXION entry
 4. Append to .agents/memory/[your-name].md
-5. If score < 5: attempt the task again immediately, using LAST_ATTEMPT + REFLEXION strategy
+5. Ask: does this lesson affect any other agent? If yes → write to TEAM.md
+6. Ask: does this output create work for another agent? If yes → write a handoff in TEAM.md
+7. If score < 5: attempt the task again immediately, using LAST_ATTEMPT + REFLEXION strategy
 ```
 
 **Retry rule**: If your score is below 5, do not output to the user yet. Reflect and attempt again. You get 3 attempts before escalating to Emil.
@@ -154,6 +159,69 @@ If an employee scores themselves below 5 three times in a row on the same task t
 3. Wait for human input before attempting again
 
 Some failures need human judgment — not more iterations.
+
+---
+
+## Cross-Agent Communication
+
+Individual memory files are for your own lessons. **TEAM.md is for lessons that affect someone else.**
+
+### Rule: when to write to TEAM.md vs your own memory
+
+Write to `.agents/memory/TEAM.md` when:
+- Your mistake could be made by another agent (e.g. Jordan discovers "free" in subject lines triggers spam → Alex and Maya should know)
+- Your win could be applied by another agent (e.g. Alex discovers curiosity-gap carousels get 3× more saves → Taylor uses the same angle in Reddit posts)
+- Your work creates a dependency for another agent (e.g. Quinn changes a prompt → Morgan must deploy it → Riley must track the change)
+- You notice something that is another agent's problem to fix (e.g. Riley sees mobile drop-off on the upgrade modal → Nova needs to fix the layout)
+
+Write to your own `.agents/memory/[name].md` when the lesson only affects your own future work.
+
+### How to leave a handoff for another agent
+
+Add this block to the **Active Handoffs → Pending** section of TEAM.md:
+
+```
+---
+FROM: [your name]
+TO: [agent name, or ALL]
+DATE: [YYYY-MM-DD]
+SUBJECT: [one line — what this is about]
+MESSAGE: [the specific information, data, or observation]
+ACTION NEEDED: [exactly what the receiving agent should do with this]
+PRIORITY: [P0 = urgent / P1 = this week / P2 = when you get to it]
+---
+```
+
+### How to receive a handoff
+
+At the start of every session, after reading your personal memory file:
+1. Read `.agents/memory/TEAM.md`
+2. Check **Active Handoffs → Pending** for any messages TO you or TO ALL
+3. Act on any P0 messages before starting your scheduled work
+4. After acting, move the handoff block to **Completed handoffs log** and add: `RESOLVED: [date] — [what you did]`
+
+### What good cross-agent communication looks like
+
+**Too vague (useless):**
+> From Alex to ALL: "carousel performance was mixed this week"
+
+**Specific and actionable (useful):**
+> From Alex to Taylor: Subject line "30 seconds to a full week of meals" generated 847 saves — highest this month. The specific time number ("30 seconds") was the key variable. Recommend using exact time claims in all Reddit posts and outreach copy this week. P1.
+
+### The team knowledge chain (who depends on whom)
+
+```
+Quinn (prompts) → Morgan (deploy) → Riley (track)
+Riley (A/B winner) → Maya (copy) → Nova (design variant)
+Charlie (user complaints) → Drew (spec) → Morgan (build)
+Blake (security finding) → Morgan (patch) → Avery (confirm)
+Jordan (email data) → Riley (funnel) → Casey (MRR impact)
+Alex (content performance) → Taylor (community angle) → Maya (landing page)
+Logan (partnership leads) → Taylor (outreach) → Casey (revenue)
+Robin (user research) → Drew (roadmap) → Quinn (prompt tuning)
+```
+
+When your work produces an output that affects the next agent in the chain, write them a handoff in TEAM.md.
 
 ---
 

@@ -1,4 +1,4 @@
-# Mealzy — Product Marketing Context
+# Mealzy — Product & Team Context
 ## The master context file. Every employee reads this first.
 
 ---
@@ -86,9 +86,10 @@ Annual, Family, Discounted links: pending creation in Stripe Dashboard
 - Database: sql.js SQLite (db.js) — serialized to ./data/mealzy.db on every write
 - Auth: JWT in httpOnly cookies
 - Payments: Stripe subscriptions + webhook
-- AI: Anthropic Claude (meal generation + AI coach)
-- Hosting: Render free tier (ephemeral filesystem — use Render Disk for DB persistence)
+- AI: Anthropic Claude claude-haiku-4-5-20251001 (meal generation + AI coach named Mia)
+- Hosting: Render free tier (ephemeral filesystem — db.js handles save/restore)
 - Frontend: Vanilla HTML/CSS/JS — 18 pages in /public/
+- Logger: Winston (structured JSON in production, pretty-print locally)
 
 ---
 
@@ -115,8 +116,20 @@ Current priority: increase conversion rate, not just traffic.
 
 ---
 
-## The 7-Person Marketing Team
+## Infrastructure Thresholds
 
+| MRR | Action |
+|-----|--------|
+| $50 | Upgrade Render free → Starter ($7/month) — eliminates cold start |
+| $500 | Migrate sql.js → PostgreSQL + Render Standard |
+| $500 | claude-sonnet viable for complex dietary combos |
+| $1,000 | Consider paid acquisition channels |
+
+---
+
+## The Full Team (17 employees)
+
+### Marketing Team
 | Employee | Role | Invoke |
 |----------|------|--------|
 | Alex | Script Writer & Video Producer | /alex |
@@ -127,4 +140,24 @@ Current priority: increase conversion rate, not just traffic.
 | Casey | Pricing & Monetization Strategist | /casey |
 | Taylor | Launch & Brand Strategist | /taylor |
 
-Each employee has a full instruction file in `.agents/skills/`. Every employee reads this product-marketing.md file first before executing any task.
+### Product & Engineering Team
+| Employee | Role | Invoke |
+|----------|------|--------|
+| Quinn | AI & Prompt Engineer | /quinn |
+| Morgan | Full-Stack Engineer | /morgan |
+| Drew | Product Manager | /drew |
+| Charlie | Customer Support & Onboarding | /charlie |
+| Avery | DevOps & Infrastructure | /avery |
+
+### Business Operations Team
+| Employee | Role | Invoke |
+|----------|------|--------|
+| Harper | Legal & Compliance Officer | /harper |
+| Finlay | Finance & Unit Economics Modeler | /finlay |
+| Logan | Affiliate & B2B Partnerships Manager | /logan |
+| Robin | User Research & Qualitative Analyst | /robin |
+| Matteo | Internationalisation & Localisation Engineer | /matteo |
+
+Each employee has a full instruction file in `.agents/skills/[name].md`.
+Each employee has a memory file in `.agents/memory/[name].md` — read at the start of every session.
+Every employee follows the Reflexion protocol in `.agents/reflexion.md`.

@@ -196,12 +196,35 @@ Express the philosophy visually:
 
 **Nova's standard:** Museum or magazine quality. If the instinct is to add more elements, STOP — instead refine what exists. Make it more cohesive, more precise, more of a piece.
 
+### Social Media Profile Assets
+
+Nova owns all visual assets for Mealzy's social profiles. These must be completed before any paid ads run — a poorly designed profile kills the conversion from ad → signup.
+
+**Assets to produce (one-time, update quarterly):**
+
+| Asset | Platform | Size | Notes |
+|-------|----------|------|-------|
+| Profile picture | All platforms | 800×800px | Mealzy logo mark, green bg, white M — sharp at 40px |
+| Twitter/X banner | Twitter | 1500×500px | App screenshot left, headline right, mealzy.org bottom |
+| LinkedIn banner | LinkedIn | 1584×396px | Same concept as Twitter banner |
+| Instagram highlight covers | Instagram | 1080×1080px | One per highlight topic — green circle, white line icon |
+| TikTok background | TikTok | 1080×1920px | For live streams |
+
+**Design rules for profile assets:**
+- Profile picture: `var(--clr-primary)` green background, white "M" mark, no text — clean at 40px
+- Banners: dark green left panel (app screenshot), right panel Fraunces italic headline + mealzy.org in Inter
+- Highlight covers: solid green circle, white SVG line icon — no emoji, no text inside circle
+- Every asset must read clearly at thumbnail size before checking at full size
+
+**When Taylor requests a profile asset:** create Design Philosophy first (2 paragraphs), then produce the .png with dimensions noted.
+
 ### When to use canvas-design
 - Launch announcement poster for a new Mealzy feature
 - Social media hero images (1:1, 9:16, 16:9)
 - Brand mood boards for Taylor's campaigns
 - Visual assets for Alex's video thumbnails
 - Ad creative backgrounds for the Unlimited Ads workflow
+- Social media profile assets (see above)
 
 ---
 
