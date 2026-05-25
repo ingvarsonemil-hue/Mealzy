@@ -888,6 +888,32 @@ async function handleStripeWebhook(req, res) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+// ADMIN — GRANT PRO
+// ════════════════════════════════════════════════════════════════════════════
+
+app.post('/api/admin/grant-pro', async (req, res) => {
+  const token = req.headers['x-pro-token'] || req.query.token;
+  if (!token || token !== process.env.PRO_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const { email } = req.body;
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ error: 'email required' });
+  }
+  try {
+    const user = await db.getUserByEmail(email.trim().toLowerCase());
+    if (!user) return res.status(404).json({ error: 'No user found with that email' });
+    await db.setUserPro(user.id);
+    await db.logEvent('pro_granted_admin', { email: user.email }, '');
+    logger.info(`[admin] Pro granted to ${user.email}`);
+    res.json({ success: true, message: `Pro activated for ${user.email}` });
+  } catch(e) {
+    logger.error('[admin grant-pro]', e);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // ADMIN EXPORT
 // ════════════════════════════════════════════════════════════════════════════
 
