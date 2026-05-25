@@ -65,6 +65,16 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' https://js.stripe.com https://accounts.google.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src https://fonts.gstatic.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self' https://api.stripe.com https://accounts.google.com; " +
+    "frame-src https://js.stripe.com;"
+  );
   next();
 });
 
@@ -533,6 +543,8 @@ app.get('/auth/google', authLimiter, async (req, res) => {
   if (!process.env.GOOGLE_CLIENT_ID) {
     return res.redirect('/login.html?error=google_not_configured');
   }
+  const state = randomUUID();
+  res.setHeader('Set-Cookie', `oauth_state=${state}; HttpOnly; SameSite=Lax; Max-Age=300; Path=/`);
   const params = new URLSearchParams({
     client_id:     process.env.GOOGLE_CLIENT_ID,
     redirect_uri:  GOOGLE_REDIRECT_URI,
@@ -540,14 +552,20 @@ app.get('/auth/google', authLimiter, async (req, res) => {
     scope:         'openid email profile',
     access_type:   'online',
     prompt:        'select_account',
+    state,
   });
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
 
 // GET /auth/google/callback — exchange code, upsert user, issue JWT cookie
 app.get('/auth/google/callback', async (req, res) => {
-  const { code, error } = req.query;
+  const { code, error, state } = req.query;
   if (error || !code) return res.redirect('/login.html?error=google_cancelled');
+  const cookies = parseCookies(req);
+  if (!state || state !== cookies.oauth_state) {
+    logger.warn('[google-oauth] CSRF state mismatch — possible attack');
+    return res.redirect('/login.html?error=csrf_detected');
+  }
 
   try {
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -1475,7 +1493,10 @@ app.post('/api/ai-coach', async (req, res) => {
     const _miaBase = `You are Mia, a friendly, knowledgeable AI nutritionist and wellness coach for the Mealzy app.
 
 Personality: warm, encouraging, science-based. Give practical, actionable advice. Plain text only.
-Never diagnose or replace professional medical advice. Always tailor to this user's profile.`;
+Never diagnose or replace professional medical advice. Always tailor to this user's profile.
+If a user's calorie target appears dangerously low (under 1200 kcal for adults), gently note that this may be too low and suggest consulting a healthcare professional.
+If a user mentions restricting, purging, skipping meals excessively, or any disordered eating behaviour, do not engage with the restriction plan — instead warmly encourage them to speak with a healthcare professional or eating disorder support service.
+Always acknowledge that cross-contamination is possible and users with severe allergies should verify ingredients independently.`;
 
     const _userCtx = `You are talking with ${name}.
 
@@ -1768,6 +1789,14 @@ db.initDb().then(async () => {
     logger.info(`[startup] ${pass.length}/${checks.length} checks passed`);
     if (fail.length) logger.warn(`[startup] Missing/failed: ${fail.map(c => c.name).join(', ')}`);
     else logger.info('[startup] All systems go');
+
+    // ── Avery: keep-alive ping — prevents Render free tier spin-down ──────
+    if (process.env.NODE_ENV === 'production') {
+      setInterval(() => {
+        fetch('https://mealzy.org/api/health').catch(() => {});
+      }, 14 * 60 * 1000); // every 14 minutes
+      logger.info('[avery] Keep-alive ping active (14 min interval)');
+    }
   });
 }).catch(err => {
   console.error('[FATAL] Failed to initialise database:', err);
