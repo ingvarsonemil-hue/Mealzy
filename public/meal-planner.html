@@ -14,32 +14,73 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .meal-card-animated {
+        animation: fadeInUp 0.38s ease both;
+      }
+      .meal-card-animated:nth-child(1) { animation-delay: 0.00s; }
+      .meal-card-animated:nth-child(2) { animation-delay: 0.07s; }
+      .meal-card-animated:nth-child(3) { animation-delay: 0.14s; }
+      .meal-card-animated:nth-child(4) { animation-delay: 0.21s; }
+      .meal-card-animated:nth-child(5) { animation-delay: 0.28s; }
+      .meal-card-animated:nth-child(6) { animation-delay: 0.35s; }
+    }
+  </style>
 </head>
 <body>
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
   <a href="dashboard.html" class="logo" style="font-size:1rem;">
-    <span class="logo-icon" style="width:30px;height:30px;font-size:14px;">🥗</span>
+    <span class="logo-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+    </span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </span>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html" class="active"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -49,7 +90,10 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 </div>
@@ -58,16 +102,36 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </span>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html" class="active"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -77,14 +141,17 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
-  <main class="main-content" style="padding-bottom:120px;">
+  <main class="main-content" style="padding-bottom:120px;background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
     <div class="page-header">
-      <h1>📅 Meal Planner</h1>
+      <h1 style="font-family:'Fraunces',serif;font-weight:700;">Meal Planner</h1>
       <p class="text-muted" style="margin-top:0.25rem;">Plan and manage your meals day by day</p>
     </div>
 
@@ -94,24 +161,36 @@
         <button class="view-toggle-btn active" id="dayViewBtn" onclick="setView('day')">Day View</button>
         <button class="view-toggle-btn" id="weekViewBtn" onclick="setView('week')">Week View</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="window.print()" title="Print meal plan">🖨️ Print</button>
+      <button class="btn btn-outline btn-sm" onclick="window.print()" title="Print meal plan" style="display:flex;align-items:center;gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
     </div>
 
     <!-- DATE NAVIGATOR (day view only) -->
     <div class="date-navigator" id="dateNavigator">
-      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)">← Prev</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)">&#8592; Prev</button>
       <div class="date-display" id="dateDisplay">Today</div>
-      <button class="btn btn-outline btn-sm" onclick="changeDate(1)">Next →</button>
-      <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()">✨ Generate AI Plan</button>
-      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" title="Generate a completely different plan">🔄 Regenerate</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(1)">Next &#8594;</button>
+      <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" style="display:flex;align-items:center;gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Generate AI Plan
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" title="Generate a completely different plan" style="display:flex;align-items:center;gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Regenerate
+      </button>
     </div>
 
     <!-- STICKY "1 FREE PLAN LEFT" BANNER (shown when planCount >= 2 and not Pro) -->
-    <div id="planLimitBanner" style="display:none;margin-bottom:1rem;padding:0.75rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-      <span>⚡ <strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; the full grocery list.</span>
+    <div id="planLimitBanner" style="display:none;margin-bottom:1rem;padding:0.75rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; the full grocery list.
+      </span>
       <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
-        <a href="upgrade.html" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','plan_limit_banner')" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade to Pro →</a>
-        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">✕</button>
+        <a href="upgrade.html" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','plan_limit_banner')" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade to Pro &#8594;</a>
+        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">&#x2715;</button>
       </div>
     </div>
 
@@ -125,13 +204,25 @@
 
     <!-- SHARE PLAN PANEL (shown after plan generation) -->
     <div id="sharePlanPanel" style="display:none;margin-top:1.25rem;padding:1.25rem;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;">
-      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;">📤 Share this plan</div>
+      <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Share this plan
+      </div>
       <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Share your meal plan — friends can view it and generate their own from your link.</p>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
         <input id="sharePlanInput" type="text" readonly style="flex:1;min-width:200px;font-size:0.78rem;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.45rem 0.7rem;background:var(--clr-muted-bg);color:var(--clr-text);" placeholder="Generating link…" />
-        <button onclick="copySharePlanLink()" class="btn btn-outline btn-sm">📋 Copy</button>
-        <a id="shareTwitterBtn" href="#" target="_blank" class="btn btn-outline btn-sm">🐦 X</a>
-        <a id="shareWhatsAppBtn" href="#" target="_blank" class="btn btn-outline btn-sm">💬 WhatsApp</a>
+        <button onclick="copySharePlanLink()" class="btn btn-outline btn-sm" style="display:flex;align-items:center;gap:0.35rem;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+          Copy
+        </button>
+        <a id="shareTwitterBtn" href="#" target="_blank" class="btn btn-outline btn-sm" style="display:flex;align-items:center;gap:0.35rem;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+          X
+        </a>
+        <a id="shareWhatsAppBtn" href="#" target="_blank" class="btn btn-outline btn-sm" style="display:flex;align-items:center;gap:0.35rem;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          WhatsApp
+        </a>
       </div>
     </div>
 
@@ -177,6 +268,17 @@
   if (localStorage.getItem('mealzy_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
+
+  // SVG icon constants — no emoji in rendered HTML
+  const ICO = {
+    flame: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 0 1-7 7 5.78 5.78 0 0 1-4.5-2c.5-1 1.5-2 2-2.5z"/></svg>`,
+    zap:   `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+    grain: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>`,
+    drop:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    clock: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    star:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    cal:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  };
 
   // ── Auth helpers (JWT cookie — server is source of truth) ──
   async function cloudLoad(uid) { /* no-op */ }
@@ -232,7 +334,6 @@
   function setDateStr() {
     currentDateStr = currentDate.toISOString().split('T')[0];
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
     const diff = Math.round((currentDate - today) / 86400000);
 
     let label = currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -261,26 +362,28 @@
     if (!currentMeals || currentMeals.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">📅</div>
+          <div class="empty-state-icon">${ICO.cal}</div>
           <h3>No meals planned for this day</h3>
           <p>Generate an AI meal plan or navigate to a different day.</p>
-          <button class="btn btn-primary" onclick="generateMealPlan()">✨ Generate AI Plan</button>
+          <button class="btn btn-primary" onclick="generateMealPlan()" style="display:inline-flex;align-items:center;gap:0.4rem;">
+            ${ICO.star} Generate AI Plan
+          </button>
         </div>`;
       return;
     }
 
     container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => `
-      <div class="meal-card ${meal.completed ? 'completed' : ''}">
+      <div class="meal-card meal-card-animated ${meal.completed ? 'completed' : ''}">
         <img src="${getMealImage(meal)}" alt="${meal.name}" class="meal-img" loading="lazy" />
         <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
         <div class="meal-name">${meal.name}</div>
         <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
         <div class="meal-macros">
-          <span class="macro-pill">🔥 ${meal.calories} kcal</span>
-          <span class="macro-pill">💪 ${meal.protein}g protein</span>
-          <span class="macro-pill">🌾 ${meal.carbs}g carbs</span>
-          <span class="macro-pill">🥑 ${meal.fat}g fat</span>
-          ${meal.cookTime ? `<span class="macro-pill">⏱️ ${meal.cookTime} min</span>` : ''}
+          <span class="macro-pill">${ICO.flame} ${meal.calories} kcal</span>
+          <span class="macro-pill">${ICO.zap} ${meal.protein}g protein</span>
+          <span class="macro-pill">${ICO.grain} ${meal.carbs}g carbs</span>
+          <span class="macro-pill">${ICO.drop} ${meal.fat}g fat</span>
+          ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${meal.cookTime} min</span>` : ''}
         </div>
         <div class="meal-actions" style="margin-bottom:0.75rem;">
           <label class="meal-checkbox">
@@ -290,19 +393,19 @@
         </div>
         <div>
           <button class="expand-btn" onclick="toggleSection('ingredients${i}', this)">
-            ▶ Ingredients (${(meal.ingredients || []).length})
+            &#9654; Ingredients (${(meal.ingredients || []).length})
           </button>
           <div class="expandable" id="ingredients${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ul class="ingredients-list">
               ${(meal.ingredients || []).map(ing =>
-                `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` · $${ing.cost.toFixed(2)}` : ''}</span></li>`
+                `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` &middot; $${ing.cost.toFixed(2)}` : ''}</span></li>`
               ).join('')}
             </ul>
           </div>
         </div>
         <div style="margin-top:0.75rem;">
           <button class="expand-btn" onclick="toggleSection('instructions${i}', this)">
-            ▶ Instructions (${(meal.instructions || []).length} steps)
+            &#9654; Instructions (${(meal.instructions || []).length} steps)
           </button>
           <div class="expandable" id="instructions${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ol class="instructions-list">
@@ -319,10 +422,10 @@
     const isOpen = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
     if (isOpen) {
       el.style.maxHeight = '0';
-      btn.textContent = btn.textContent.replace('▼', '▶');
+      btn.innerHTML = btn.innerHTML.replace('&#9660;', '&#9654;');
     } else {
       el.style.maxHeight = el.scrollHeight + 'px';
-      btn.textContent = btn.textContent.replace('▶', '▼');
+      btn.innerHTML = btn.innerHTML.replace('&#9654;', '&#9660;');
     }
   }
 
@@ -394,9 +497,7 @@
       updateTotals();
       cloudSave();
       showToast('Meal plan generated!', 'success');
-      // Update plan limit banner
       checkPlanLimitBanner();
-      // Show share panel and generate share link
       showSharePanel(meals);
     } catch (err) {
       console.error(err);
@@ -432,7 +533,7 @@
       if (data.url) {
         input.value = data.url;
         const encoded = encodeURIComponent(data.url);
-        const text = encodeURIComponent('Check out my AI meal plan 🥗 — built with Mealzy, free: ');
+        const text = encodeURIComponent('Check out my AI meal plan — built with Mealzy, free: ');
         const tw = document.getElementById('shareTwitterBtn');
         const wa = document.getElementById('shareWhatsAppBtn');
         if (tw) tw.href = `https://twitter.com/intent/tweet?text=${text}&url=${encoded}`;
@@ -449,7 +550,7 @@
     const input = document.getElementById('sharePlanInput');
     if (!input) return;
     navigator.clipboard.writeText(input.value).then(() => {
-      showToast('Plan link copied! 📋', 'success');
+      showToast('Plan link copied!', 'success');
     }).catch(() => {
       input.select();
       document.execCommand('copy');
@@ -458,7 +559,6 @@
   }
 
   function showUpgradePrompt(message) {
-    // Remove existing prompt if any
     const existing = document.getElementById('upgradePrompt');
     if (existing) existing.remove();
 
@@ -471,12 +571,14 @@
       z-index:9999;padding:1.5rem;
     `;
     prompt.innerHTML = `
-      <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-        <div style="font-size:2rem;margin-bottom:0.75rem;">M</div>
-        <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;">Free plan limit reached</h2>
-        <p style="color:#666;font-size:0.9rem;margin-bottom:1.5rem;line-height:1.5;">${message}<br><br>Upgrade to Pro for unlimited meal plans — $8/month, cancel anytime.</p>
-        <a href="pricing.html" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">See Pro Plan — $8/month</a>
-        <button onclick="document.getElementById('upgradePrompt').remove()" style="background:none;border:none;color:#888;font-size:0.85rem;cursor:pointer;">Maybe later</button>
+      <div style="background:var(--clr-card,#fff);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <div style="width:48px;height:48px;background:hsl(152,40%,92%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+        </div>
+        <h2 style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;">Free plan limit reached</h2>
+        <p style="color:var(--clr-muted-fg,#666);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.5;">${message}<br><br>Upgrade to Pro for unlimited meal plans.</p>
+        <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">See Pro Plans &#8594;</a>
+        <button onclick="document.getElementById('upgradePrompt').remove()" style="background:none;border:none;color:var(--clr-muted-fg,#888);font-size:0.85rem;cursor:pointer;">Maybe later</button>
       </div>
     `;
     document.body.appendChild(prompt);
@@ -508,9 +610,8 @@
     const container = document.getElementById('weekViewContainer');
     const todayStr = new Date().toISOString().split('T')[0];
     const days = [];
-    // Build Mon–Sun of the week containing currentDate
     const ref = new Date(currentDate);
-    const dow = ref.getDay(); // 0=Sun
+    const dow = ref.getDay();
     const monday = new Date(ref);
     monday.setDate(ref.getDate() - ((dow + 6) % 7));
 
