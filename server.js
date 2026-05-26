@@ -460,7 +460,7 @@ app.get('/api/auth/me', async (req, res) => {
   }
 
   const profile = await db.getProfile(user.id);
-  res.json({ id: user.id, name: user.name, email: user.email, pro: serverPro, profile });
+  res.json({ id: user.id, name: user.name, email: user.email, pro: serverPro, ref_code: user.ref_code || null, profile });
 });
 
 // POST /api/auth/signout
@@ -815,6 +815,97 @@ app.post('/api/pro/activate', async (req, res) => {
   // Refresh the JWT so the pro flag is up-to-date without requiring sign-in
   setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
   res.json({ success: true, pro: true });
+});
+
+// ── POST /api/cancel-subscription ─────────────────────────────────────────
+// Cancels the user's Stripe subscription at period end and logs survey reason.
+app.post('/api/cancel-subscription', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  const user = await db.getUserById(session.userId);
+  if (!user) return res.status(404).json({ error: 'user_not_found' });
+  if (!user.pro) return res.status(400).json({ error: 'not_pro' });
+  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer' });
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(503).json({ error: 'stripe_not_configured' });
+  }
+
+  const reason = String(req.body.reason || '').slice(0, 200);
+  const detail = String(req.body.detail || '').slice(0, 500);
+
+  try {
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+    const subscriptions = await stripe.subscriptions.list({
+      customer: user.stripe_customer_id,
+      status:   'active',
+      limit:    1
+    });
+
+    if (subscriptions.data.length === 0) {
+      return res.status(404).json({ error: 'no_active_subscription' });
+    }
+
+    const sub = subscriptions.data[0];
+    await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true });
+
+    await db.logEvent('cancel_survey', { email: user.email, reason, detail }, '');
+    logger.info(`[cancel] ${user.email} — reason: ${reason}`);
+
+    const cancelAt = new Date(sub.current_period_end * 1000).toISOString().split('T')[0];
+    res.json({ success: true, cancel_at: cancelAt });
+  } catch (e) {
+    logger.error('[cancel-subscription] error:', e.message);
+    res.status(500).json({ error: 'cancel_failed' });
+  }
+});
+
+// ── GET /api/nps/check ────────────────────────────────────────────────────
+// Returns { show: true } if the user is ≥7 days old and hasn't submitted NPS.
+app.get('/api/nps/check', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.json({ show: false });
+
+  try {
+    const user = await db.getUserById(session.userId);
+    if (!user || user.nps_submitted_at) return res.json({ show: false });
+
+    const signupDate = new Date(user.signup_date || user.created_at);
+    const daysOld = (Date.now() - signupDate.getTime()) / (1000 * 60 * 60 * 24);
+    res.json({ show: daysOld >= 7 });
+  } catch (e) {
+    res.json({ show: false });
+  }
+});
+
+// ── POST /api/nps/submit ──────────────────────────────────────────────────
+// Records NPS score (0–10) and optional comment, marks user as submitted.
+app.post('/api/nps/submit', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  const score = Number(req.body.score);
+  if (!Number.isInteger(score) || score < 0 || score > 10) {
+    return res.status(400).json({ error: 'invalid_score' });
+  }
+
+  const comment = String(req.body.comment || '').slice(0, 500);
+
+  try {
+    const user = await db.getUserById(session.userId);
+    if (!user) return res.status(404).json({ error: 'user_not_found' });
+
+    await db.logEvent('nps_response', { email: user.email, score, comment }, '');
+    await db.run('UPDATE users SET nps_submitted_at = datetime(\'now\') WHERE id = ?', [user.id]);
+    logger.info(`[nps] ${user.email} — score: ${score}`);
+
+    res.json({ success: true });
+  } catch (e) {
+    logger.error('[nps/submit] error:', e.message);
+    res.status(500).json({ error: 'submit_failed' });
+  }
 });
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1781,6 +1872,7 @@ db.initDb().then(async () => {
       { name: 'STRIPE_DISCOUNT_URL',     ok: !!process.env.STRIPE_DISCOUNT_URL },
       { name: 'GOOGLE_CLIENT_ID',        ok: !!process.env.GOOGLE_CLIENT_ID },
       { name: 'GOOGLE_CLIENT_SECRET',    ok: !!process.env.GOOGLE_CLIENT_SECRET },
+      { name: 'RESEND_API_KEY',          ok: !!process.env.RESEND_API_KEY },
       { name: 'DATABASE',                ok: await db.ping() },
     ];
 

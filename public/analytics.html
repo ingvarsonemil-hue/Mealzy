@@ -15,32 +15,72 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js" defer></script>
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .anim-section { animation: fadeInUp 0.32s ease both; }
+      .anim-section:nth-child(1) { animation-delay: 0.00s; }
+      .anim-section:nth-child(2) { animation-delay: 0.06s; }
+      .anim-section:nth-child(3) { animation-delay: 0.12s; }
+      .anim-section:nth-child(4) { animation-delay: 0.18s; }
+      .anim-section:nth-child(5) { animation-delay: 0.24s; }
+      .anim-section:nth-child(6) { animation-delay: 0.30s; }
+      .anim-section:nth-child(7) { animation-delay: 0.36s; }
+    }
+  </style>
 </head>
 <body>
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
   <a href="dashboard.html" class="logo" style="font-size:1rem;">
-    <span class="logo-icon" style="width:30px;height:30px;font-size:14px;">🥗</span>
+    <span class="logo-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+    </span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </span>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html" class="active"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -50,7 +90,10 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 </div>
@@ -59,16 +102,36 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </span>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html" class="active"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -78,39 +141,45 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 
   <!-- MAIN CONTENT -->
-  <main class="main-content">
-    <div class="page-header">
-      <h1>📊 Nutrition Analytics</h1>
+  <main class="main-content" style="background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
+    <div class="page-header anim-section">
+      <h1 style="font-family:'Fraunces',serif;font-weight:700;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Nutrition Analytics
+      </h1>
       <p class="text-muted" style="margin-top:0.25rem;">Track your progress and nutrition trends over time</p>
     </div>
 
     <!-- SUMMARY STATS -->
-    <div class="grid-4" style="margin-bottom:1.5rem;">
+    <div class="grid-4 anim-section" style="margin-bottom:1.5rem;">
       <div class="stat-card">
-        <div class="stat-card-icon green">🔥</div>
+        <div class="stat-card-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <div class="stat-label">Avg Daily Calories</div>
         <div class="stat-value" id="avgCalories">—</div>
         <div class="stat-sub" id="avgCaloriesSub">vs goal</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-icon amber">💪</div>
+        <div class="stat-card-icon amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
         <div class="stat-label">Avg Protein</div>
         <div class="stat-value" id="avgProtein">—</div>
         <div class="stat-sub" id="avgProteinSub">per day</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-icon blue">📈</div>
+        <div class="stat-card-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
         <div class="stat-label">Consistency</div>
         <div class="stat-value" id="consistency">—</div>
         <div class="stat-sub">days logged this week</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-icon indigo">🔥</div>
+        <div class="stat-card-icon indigo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></div>
         <div class="stat-label">Current Streak</div>
         <div class="stat-value" id="streak">—</div>
         <div class="stat-sub">consecutive days</div>
@@ -118,7 +187,7 @@
     </div>
 
     <!-- CHARTS ROW -->
-    <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="grid-2 anim-section" style="margin-bottom:1.5rem;">
       <!-- Calories Chart -->
       <div class="chart-card">
         <h3>Daily Calories (Last 7 Days)</h3>
@@ -131,7 +200,7 @@
       </div>
     </div>
 
-    <div class="grid-2" style="margin-bottom:1.5rem;">
+    <div class="grid-2 anim-section" style="margin-bottom:1.5rem;">
       <!-- Macro Distribution -->
       <div class="chart-card">
         <h3>Macro Distribution (Weekly Avg)</h3>
@@ -147,7 +216,7 @@
     </div>
 
     <!-- GOALS PROGRESS -->
-    <div class="card" style="margin-bottom:1.5rem;">
+    <div class="card anim-section" style="margin-bottom:1.5rem;">
       <div class="card-header">
         <div class="card-title">Nutrition Goals Progress</div>
         <span class="text-muted text-sm">Weekly average vs targets</span>
@@ -156,35 +225,41 @@
     </div>
 
     <!-- CONVERSION FUNNEL (admin — requires PRO_TOKEN) -->
-    <div class="card" style="margin-bottom:1.5rem;" id="funnelCard">
+    <div class="card anim-section" style="margin-bottom:1.5rem;" id="funnelCard">
       <div class="card-header">
-        <div class="card-title">🔄 Conversion Funnel</div>
+        <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Conversion Funnel
+        </div>
         <span class="text-muted text-sm" id="funnelStatus">Loading…</span>
       </div>
       <div id="funnelBody" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;padding-top:0.5rem;">
-        <div class="stat-card"><div class="stat-card-icon green">👥</div><div class="stat-label">Total Users</div><div class="stat-value" id="fTotalUsers">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon amber">⭐</div><div class="stat-label">Pro Users</div><div class="stat-value" id="fProUsers">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon blue">📈</div><div class="stat-label">Conversion Rate</div><div class="stat-value" id="fConversion">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon indigo">💰</div><div class="stat-label">MRR Estimate</div><div class="stat-value" id="fMrr">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon green">📅</div><div class="stat-label">New This Week</div><div class="stat-value" id="fThisWeek">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon amber">🍽️</div><div class="stat-label">Plans / User</div><div class="stat-value" id="fPlansPerUser">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="stat-label">Total Users</div><div class="stat-value" id="fTotalUsers">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div class="stat-label">Pro Users</div><div class="stat-value" id="fProUsers">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="stat-label">Conversion Rate</div><div class="stat-value" id="fConversion">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon indigo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-label">MRR Estimate</div><div class="stat-value" id="fMrr">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-label">New This Week</div><div class="stat-value" id="fThisWeek">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><div class="stat-label">Plans / User</div><div class="stat-value" id="fPlansPerUser">—</div></div>
       </div>
       <div id="funnelReferrers" style="margin-top:1rem;"></div>
     </div>
 
     <!-- SITE-WIDE ANALYTICS (admin) -->
-    <div class="card" style="margin-bottom:1.5rem;" id="siteAnalyticsCard">
+    <div class="card anim-section" style="margin-bottom:1.5rem;" id="siteAnalyticsCard">
       <div class="card-header">
-        <div class="card-title">📡 Site Activity (This Month)</div>
+        <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Site Activity (This Month)
+        </div>
         <span class="text-muted text-sm" id="siteAnalyticsStatus">Loading…</span>
       </div>
       <div id="siteAnalyticsBody" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;padding-top:0.5rem;">
-        <div class="stat-card"><div class="stat-card-icon green">👤</div><div class="stat-label">Signups</div><div class="stat-value" id="saSignups">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon amber">🍽️</div><div class="stat-label">Plans Generated</div><div class="stat-value" id="saPlans">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon blue">🚧</div><div class="stat-label">Limit Hits</div><div class="stat-value" id="saLimitHits">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon indigo">💳</div><div class="stat-label">Upgrade Clicks</div><div class="stat-value" id="saUpgradeClicks">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon green">📤</div><div class="stat-label">Share Clicks</div><div class="stat-value" id="saShareClicks">—</div></div>
-        <div class="stat-card"><div class="stat-card-icon amber">📋</div><div class="stat-label">Email Leads</div><div class="stat-value" id="saLeads">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="stat-label">Signups</div><div class="stat-value" id="saSignups">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><div class="stat-label">Plans Generated</div><div class="stat-value" id="saPlans">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-label">Limit Hits</div><div class="stat-value" id="saLimitHits">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon indigo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="stat-label">Upgrade Clicks</div><div class="stat-value" id="saUpgradeClicks">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div><div class="stat-label">Share Clicks</div><div class="stat-value" id="saShareClicks">—</div></div>
+        <div class="stat-card"><div class="stat-card-icon amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div><div class="stat-label">Email Leads</div><div class="stat-value" id="saLeads">—</div></div>
       </div>
       <div style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted);">Most active day: <strong id="saMostActiveDay">—</strong></div>
       <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);">Requires <code>PRO_TOKEN</code> env var. Set via <code>?token=YOUR_TOKEN</code> or the <code>x-pro-token</code> header.</div>

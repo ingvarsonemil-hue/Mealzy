@@ -739,14 +739,26 @@
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 
-  // === REFERRAL CAPTURE (?ref=EMAIL) ===
+  // === REFERRAL CAPTURE (?ref=EMAIL or ?ref=ref_CODE) ===
   (function captureRef() {
     const params = new URLSearchParams(window.location.search);
     const ref = params.get('ref');
-    if (ref && ref.includes('@')) {
+    if (!ref) return;
+
+    if (ref.includes('@')) {
       localStorage.setItem('mealzy_pending_ref', ref);
-      // Tell the server so it can log the referral visit
       fetch('/api/referral-capture?ref=' + encodeURIComponent(ref)).catch(() => {});
+    } else if (ref.startsWith('ref_')) {
+      // Resolve short code to email, then store email for the signup step
+      fetch('/api/ref-lookup?code=' + encodeURIComponent(ref))
+        .then(r => r.json())
+        .then(d => {
+          if (d.found && d.email) {
+            localStorage.setItem('mealzy_pending_ref', d.email);
+            fetch('/api/referral-capture?ref=' + encodeURIComponent(d.email)).catch(() => {});
+          }
+        })
+        .catch(() => {});
     }
   })();
 

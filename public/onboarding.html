@@ -13,6 +13,15 @@
   <meta name="theme-color" content="#4a8a6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .onboarding-card { animation: fadeInUp 0.38s ease both; }
+    }
+  </style>
 </head>
 <body>
 
@@ -22,7 +31,7 @@
     <div style="margin-bottom:1.5rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
         <a href="index.html" class="logo" style="font-size:1rem;">
-          <span class="logo-icon" style="width:28px;height:28px;font-size:14px;">🥗</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="width:28px;height:28px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
           Mealzy
         </a>
         <span class="step-counter" id="stepCounter">Step 1 of 3</span>
@@ -35,7 +44,7 @@
     <!-- STEP 1: Name + Goal -->
     <div class="step-content" id="step1">
       <div class="onboarding-top">
-        <div class="step-title">👋 Let's personalise your plan</div>
+        <div class="step-title" style="font-family:'Fraunces',serif;">👋 Let's personalise your plan</div>
         <div class="step-sub">Two quick questions and we'll generate your first meal plan automatically.</div>
       </div>
       <div class="form-group">
@@ -76,7 +85,7 @@
     <!-- STEP 2: Budget + Dietary -->
     <div class="step-content hidden" id="step2">
       <div class="onboarding-top">
-        <div class="step-title">💰 Budget & dietary needs</div>
+        <div class="step-title" style="font-family:'Fraunces',serif;">💰 Budget & dietary needs</div>
         <div class="step-sub">We'll keep your meals affordable and safe to eat.</div>
       </div>
       <div class="form-row">
@@ -142,7 +151,7 @@
     <!-- STEP 3: Ready! -->
     <div class="step-content hidden" id="step3">
       <div class="onboarding-top">
-        <div class="step-title">🚀 You're all set!</div>
+        <div class="step-title" style="font-family:'Fraunces',serif;">🚀 You're all set!</div>
         <div class="step-sub">Your personalised meal plan is ready to generate. We'll auto-start it when you land on your dashboard.</div>
       </div>
       <div id="summaryBox" style="background:var(--clr-muted-bg);border-radius:1rem;padding:1.25rem;margin-bottom:1rem;">

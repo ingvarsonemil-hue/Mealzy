@@ -21,6 +21,17 @@
     @media (max-width: 900px) {
       .main-content { height: calc(100vh - 4rem); margin-top: 4rem; }
     }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .chat-header    { animation: fadeInUp 0.28s ease both; animation-delay: 0.00s; }
+      .chat-messages  { animation: fadeInUp 0.28s ease both; animation-delay: 0.07s; }
+      .quick-prompts  { animation: fadeInUp 0.28s ease both; animation-delay: 0.14s; }
+      .chat-input-bar { animation: fadeInUp 0.28s ease both; animation-delay: 0.20s; }
+    }
   </style>
 </head>
 <body>
@@ -28,26 +39,46 @@
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
   <a href="dashboard.html" class="logo" style="font-size:1rem;">
-    <span class="logo-icon" style="width:30px;height:30px;font-size:14px;">🥗</span>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="width:30px;height:30px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="width:32px;height:32px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html" class="active"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -57,7 +88,10 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 </div>
@@ -66,16 +100,34 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;font-size:15px;">🥗</span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="width:32px;height:32px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
       Mealzy
     </a>
     <nav class="sidebar-nav">
-      <a href="dashboard.html"><span class="nav-icon">🏠</span> Dashboard</a>
-      <a href="meal-planner.html"><span class="nav-icon">📅</span> Meal Planner</a>
-      <a href="grocery-list.html"><span class="nav-icon">🛒</span> Groceries</a>
-      <a href="analytics.html"><span class="nav-icon">📊</span> Analytics</a>
-      <a href="ai-coach.html" class="active"><span class="nav-icon">💬</span> AI Coach</a>
-      <a href="settings.html"><span class="nav-icon">⚙️</span> Settings</a>
+      <a href="dashboard.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Dashboard
+      </a>
+      <a href="meal-planner.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+        Meal Planner
+      </a>
+      <a href="grocery-list.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+        Groceries
+      </a>
+      <a href="analytics.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Analytics
+      </a>
+      <a href="ai-coach.html" class="active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+        AI Coach
+      </a>
+      <a href="settings.html">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        Settings
+      </a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -85,7 +137,10 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">🚪 Sign Out</button>
+      <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
     </div>
   </div>
 
@@ -93,15 +148,18 @@
   <main class="main-content">
     <!-- Chat Header -->
     <div class="chat-header">
-      <div class="chat-header-avatar">🤖</div>
+      <div class="chat-header-avatar" style="display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;letter-spacing:-0.01em;">M</div>
       <div style="flex:1;">
         <div style="font-weight:700;font-size:0.95rem;">Mia — AI Nutritionist</div>
         <div class="chat-status">
           <span class="chat-status-dot"></span>
-          Online · Powered by GPT
+          Online · Powered by AI
         </div>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="clearConversation()" title="Clear conversation">🗑️ Clear</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearConversation()" title="Clear conversation" style="display:flex;align-items:center;gap:0.35rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Clear
+      </button>
     </div>
 
     <!-- Messages Area -->
@@ -141,6 +199,11 @@
   if (localStorage.getItem('mealzy_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
   }
+
+  // SVG icon for Mia's avatar in chat messages
+  const ICO = {
+    miaAvatar: `<div class="chat-header-avatar" style="width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:0.95rem;letter-spacing:-0.01em;">M</div>`
+  };
 
   // ── Auth helpers (JWT cookie — server is source of truth) ──
   async function cloudLoad(uid) { /* no-op */ }
@@ -204,7 +267,7 @@
 
     container.innerHTML = conversation.map(msg => `
       <div class="chat-msg ${msg.role}">
-        ${msg.role === 'assistant' ? '<div class="chat-header-avatar" style="width:34px;height:34px;font-size:1rem;flex-shrink:0;">🤖</div>' : ''}
+        ${msg.role === 'assistant' ? ICO.miaAvatar : ''}
         <div class="chat-bubble">${formatMessage(msg.content)}</div>
       </div>
     `).join('');
@@ -231,7 +294,7 @@
     typing.className = 'chat-msg assistant';
     typing.id = 'typingIndicator';
     typing.innerHTML = `
-      <div class="chat-header-avatar" style="width:34px;height:34px;font-size:1rem;flex-shrink:0;">🤖</div>
+      ${ICO.miaAvatar}
       <div class="chat-bubble">
         <div class="chat-typing">
           <span></span><span></span><span></span>
@@ -283,7 +346,7 @@
     } catch (err) {
       console.error(err);
       const fallbackResponses = [
-        "I'd love to help! Unfortunately I'm having trouble connecting right now. Please make sure the server is running and your OpenAI API key is configured in the .env file. In the meantime, try to focus on whole foods, lean proteins, and plenty of vegetables!",
+        "I'd love to help! Unfortunately I'm having trouble connecting right now. Please make sure the server is running and your API key is configured in the .env file. In the meantime, try to focus on whole foods, lean proteins, and plenty of vegetables!",
         "It looks like I'm offline at the moment. Once the server is connected, I can give you personalized advice based on your profile. For now, remember: hydration is key — aim for 8 glasses of water daily!",
         "Connection issue detected! Once we're back online I can answer all your nutrition questions. Quick tip while you wait: aim to fill half your plate with vegetables at every meal!"
       ];

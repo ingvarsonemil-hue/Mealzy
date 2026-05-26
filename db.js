@@ -104,6 +104,7 @@ async function _applySchema() {
     `ALTER TABLE users ADD COLUMN limit_email_sent INTEGER DEFAULT 0`,
     `ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`,
     `ALTER TABLE users ADD COLUMN google_id TEXT`,
+    `ALTER TABLE users ADD COLUMN nps_submitted_at TEXT`,
   ];
   for (const sql of alters) {
     try { await _client.execute(sql); } catch(e) { /* column already exists */ }

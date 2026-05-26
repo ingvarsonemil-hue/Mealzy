@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Help &amp; Support | Mealzy</title>
+  <meta name="description" content="Get help with Mealzy — FAQ, account questions, billing support, and how to contact us." />
+  <link rel="canonical" href="https://mealzy.org/support.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#4a8a6f">
+  <style>
+    .support-wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    .support-wrap h1 { font-family: 'Fraunces', serif; font-size: 2rem; margin-bottom: 0.25rem; }
+    .support-wrap .subtitle { color: var(--clr-muted); font-size: 0.95rem; margin-bottom: 2.5rem; line-height: 1.6; }
+    .support-wrap h2 { font-size: 1rem; font-weight: 700; margin: 2.5rem 0 1rem; color: var(--clr-text); border-bottom: 1px solid var(--clr-border, #e8f0eb); padding-bottom: 0.5rem; }
+    .faq-item { margin-bottom: 1.5rem; }
+    .faq-q { font-size: 0.9rem; font-weight: 600; color: var(--clr-text); margin-bottom: 0.35rem; }
+    .faq-a { font-size: 0.88rem; line-height: 1.7; color: var(--clr-muted); }
+    .faq-a a { color: var(--clr-primary); text-decoration: none; }
+    .faq-a a:hover { text-decoration: underline; }
+    .contact-box { background: var(--clr-card, #f8fdf9); border: 1px solid var(--clr-border, #e8f0eb); border-radius: 12px; padding: 1.75rem; margin-top: 2.5rem; }
+    .contact-box h2 { border: none; margin-top: 0; padding-bottom: 0; }
+    .contact-box p { font-size: 0.9rem; color: var(--clr-muted); line-height: 1.65; margin-bottom: 1rem; }
+    .contact-btn { display: inline-block; background: var(--clr-primary, #3d8b5e); color: white; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; }
+    .contact-btn:hover { opacity: 0.9; }
+    .response-note { font-size: 0.78rem; color: var(--clr-muted); margin-top: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-icon" style="font-size:14px;">M</span>
+      Mealzy
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="pricing.html" class="nav-link">Pricing</a>
+    </div>
+  </div>
+</nav>
+
+<div class="support-wrap">
+  <h1>Help &amp; Support</h1>
+  <p class="subtitle">Find answers to common questions below. If you don't find what you need, email us — we reply within 24 hours.</p>
+
+  <!-- ── ACCOUNT ─────────────────────────────────────────────────────────── -->
+  <h2>Account</h2>
+
+  <div class="faq-item">
+    <p class="faq-q">I forgot my password. How do I reset it?</p>
+    <p class="faq-a">Email us at <a href="mailto:support@mealzy.org">support@mealzy.org</a> with the subject "Password reset" and your account email. We'll reset it within 24 hours. (Self-serve password reset is coming soon.)</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">How do I change my goal, diet, or calorie target?</p>
+    <p class="faq-a">Go to <a href="settings.html">Settings</a> and update your profile. Your next meal plan will use the new settings automatically.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">Can I try Mealzy without an account?</p>
+    <p class="faq-a">Yes — the homepage has a free demo that generates a 5-day plan with no signup. You get 3 free demos per day. To save plans and generate more, create a free account at <a href="index.html">mealzy.org</a>.</p>
+  </div>
+
+  <!-- ── MEAL PLANS ──────────────────────────────────────────────────────── -->
+  <h2>Meal Plans</h2>
+
+  <div class="faq-item">
+    <p class="faq-q">The calories in my plan don't match my target.</p>
+    <p class="faq-a">Check your calorie target in <a href="settings.html">Settings</a>. Make sure it's set correctly, then regenerate your plan. If the plan is still off by more than 200 kcal, email us — that's a bug.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">My plan includes foods I can't eat.</p>
+    <p class="faq-a">Go to <a href="settings.html">Settings</a> and update your dietary preferences. Select all restrictions that apply (vegan, gluten-free, etc.). Then regenerate your plan. If a restricted ingredient keeps appearing, email us with your account email and the specific ingredient — that's a bug we'll fix.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">How do I swap a meal I don't like?</p>
+    <p class="faq-a">Click on any meal in your plan and select "Swap this meal." The AI will replace just that one meal with something different. You can swap as many meals as you like.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">My plan disappeared after I closed the app.</p>
+    <p class="faq-a">Log in and check your <a href="dashboard.html">Dashboard</a> — your latest plan is saved automatically. If it's missing, email us with your account email and the date you generated the plan.</p>
+  </div>
+
+  <!-- ── PRO & BILLING ───────────────────────────────────────────────────── -->
+  <h2>Pro &amp; Billing</h2>
+
+  <div class="faq-item">
+    <p class="faq-q">What does Pro include?</p>
+    <p class="faq-a">Pro gives you unlimited meal plans, grocery list export, PDF download, Mia the AI nutrition coach, detailed macros per meal, and streak rewards. It's $8/month or $62/year. See the full comparison at <a href="pricing.html">pricing</a>.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">I paid but I'm still on the free plan.</p>
+    <p class="faq-a">Pro usually activates within 60 seconds. If it hasn't after 5 minutes, email <a href="mailto:support@mealzy.org">support@mealzy.org</a> with your payment confirmation email — we'll activate it manually within a few hours.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">How do I cancel my subscription?</p>
+    <p class="faq-a">Go to <a href="settings.html">Settings</a> and scroll to the Subscription section. You'll keep Pro access until the end of your current billing period. Your plans and data are never deleted.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">Can I get a refund?</p>
+    <p class="faq-a">Yes — we offer a full refund within 7 days of subscribing if you haven't found it useful. Email <a href="mailto:support@mealzy.org">support@mealzy.org</a> with your request and payment confirmation.</p>
+  </div>
+
+  <!-- ── AI COACH (MIA) ──────────────────────────────────────────────────── -->
+  <h2>AI Coach (Mia)</h2>
+
+  <div class="faq-item">
+    <p class="faq-q">Where is the AI coach?</p>
+    <p class="faq-a">Mia is a Pro feature. Once you're on Pro, she appears in the <a href="ai-coach.html">AI Coach</a> section of your dashboard. She knows your profile and can answer nutrition questions, explain your meal plan, and help you stay on track.</p>
+  </div>
+
+  <div class="faq-item">
+    <p class="faq-q">Is Mia's advice medically accurate?</p>
+    <p class="faq-a">Mia is an AI assistant providing general nutrition guidance — not a doctor or registered dietitian. For medical nutrition advice, always consult a qualified healthcare professional. If you spot a specific error in her advice, please report it to us.</p>
+  </div>
+
+  <!-- ── CONTACT ─────────────────────────────────────────────────────────── -->
+  <div class="contact-box">
+    <h2>Still need help?</h2>
+    <p>Email us directly and we'll reply within 24 hours on weekdays.</p>
+    <a href="mailto:support@mealzy.org?subject=Mealzy Support" class="contact-btn">Email support@mealzy.org</a>
+    <p class="response-note">When reporting a bug, include: your account email, what you were doing, and what happened instead.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

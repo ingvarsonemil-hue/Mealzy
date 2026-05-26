@@ -1,0 +1,17 @@
+name: Cron — Weekly Digest Emails
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Monday 8:00 UTC = 9am CET
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger weekly digest
+        run: |
+          curl -s -f -X POST https://mealzy.org/api/cron/weekly-digest \
+            -H "x-cron-secret: ${{ vars.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -o /tmp/digest-result.json
+          cat /tmp/digest-result.json

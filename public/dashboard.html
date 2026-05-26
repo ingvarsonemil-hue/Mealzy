@@ -98,7 +98,7 @@
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Download meal plan as PDF" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> Download PDF</button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share Card</button>
         <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Generate Today's Plan
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg><span id="generateBtnLabel">Generate Today's Plan</span>
         </button>
       </div>
     </div>
@@ -453,6 +453,7 @@
         serverUser = await meRes.json();
         // Freshen localStorage cache from server
         localStorage.setItem('mealzy_user', JSON.stringify({ name: serverUser.name, email: serverUser.email }));
+        if (serverUser.ref_code) localStorage.setItem('mealzy_ref_code', serverUser.ref_code);
         if (serverUser.pro) localStorage.setItem('mealzy_pro', 'true');
         else localStorage.removeItem('mealzy_pro');
         if (serverUser.profile) {
@@ -478,6 +479,7 @@
     profile = JSON.parse(profileData);
 
     updateUserUI();
+    initAbTest();
     updateGreeting();
     loadTodayData();
     renderRecentPlans();
@@ -872,6 +874,7 @@
 
   async function generateMealPlan() {
     if (!profile) { window.location.href = 'onboarding.html'; return; }
+    trackEvent('ab_cta_click', { variant: localStorage.getItem('mealzy_ab_cta') || 'A' });
     document.getElementById('loadingOverlay').classList.add('open');
     document.getElementById('generateBtn').disabled = true;
     startLoadingAnimation();
@@ -1638,8 +1641,9 @@
     const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
     const email = lsUser.email || '';
     if (!email) return;
-    // Link goes to homepage so the referral capture script fires
-    const refLink = `${window.location.origin}/?ref=${encodeURIComponent(email)}`;
+    const refCode = localStorage.getItem('mealzy_ref_code');
+    const refParam = refCode || encodeURIComponent(email);
+    const refLink = `${window.location.origin}/?ref=${refParam}`;
     const input = document.getElementById('referralLink');
     if (input) input.value = refLink;
     document.getElementById('referralBanner').style.display = '';
@@ -1869,12 +1873,123 @@
     if (e.target === document.getElementById('recipeModal')) closeModal();
   });
 
+  // === A/B TEST: CTA BUTTON LABEL ===
+  function initAbTest() {
+    let variant = localStorage.getItem('mealzy_ab_cta');
+    if (!variant) {
+      variant = Math.random() < 0.5 ? 'A' : 'B';
+      localStorage.setItem('mealzy_ab_cta', variant);
+    }
+    if (variant === 'B') {
+      const label = document.getElementById('generateBtnLabel');
+      if (label) label.textContent = 'Build My Meal Plan';
+    }
+    trackEvent('ab_cta_impression', { variant });
+  }
+
+  // === NPS PROMPT ===
+  async function checkNpsPrompt() {
+    const snoozedUntil = localStorage.getItem('mealzy_nps_snoozed');
+    if (snoozedUntil && Date.now() < Number(snoozedUntil)) return;
+
+    try {
+      const res = await fetch('/api/nps/check');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.show) setTimeout(showNpsModal, 5000);
+    } catch (e) {}
+  }
+
+  function showNpsModal() {
+    document.getElementById('npsModal').classList.add('open');
+  }
+
+  function closeNpsModal(snooze) {
+    document.getElementById('npsModal').classList.remove('open');
+    if (snooze) {
+      const threeDays = Date.now() + 3 * 24 * 60 * 60 * 1000;
+      localStorage.setItem('mealzy_nps_snoozed', String(threeDays));
+    }
+  }
+
+  let _npsScore = null;
+
+  function selectNpsScore(btn) {
+    document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    _npsScore = Number(btn.dataset.score);
+    document.getElementById('npsSubmitBtn').disabled = false;
+  }
+
+  async function submitNps() {
+    if (_npsScore === null) return;
+    const comment = document.getElementById('npsComment').value.trim();
+    try {
+      await fetch('/api/nps/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: _npsScore, comment })
+      });
+    } catch (e) {}
+    closeNpsModal(false);
+  }
+
   init();
+  checkNpsPrompt();
 
   // Register service worker for PWA offline support
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
 </script>
+
+<!-- NPS MODAL -->
+<div class="modal-overlay" id="npsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h2 style="font-size:1.1rem;font-weight:700;">Quick question</h2>
+      <button class="modal-close" onclick="closeNpsModal(true)" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <p style="font-size:0.9rem;color:var(--clr-muted-fg);margin-bottom:1.25rem;">How likely are you to recommend Mealzy to a friend or family member?</p>
+    <div style="display:flex;gap:0.3rem;justify-content:center;flex-wrap:wrap;margin-bottom:0.5rem;">
+      <button class="nps-btn" data-score="0" onclick="selectNpsScore(this)">0</button>
+      <button class="nps-btn" data-score="1" onclick="selectNpsScore(this)">1</button>
+      <button class="nps-btn" data-score="2" onclick="selectNpsScore(this)">2</button>
+      <button class="nps-btn" data-score="3" onclick="selectNpsScore(this)">3</button>
+      <button class="nps-btn" data-score="4" onclick="selectNpsScore(this)">4</button>
+      <button class="nps-btn" data-score="5" onclick="selectNpsScore(this)">5</button>
+      <button class="nps-btn" data-score="6" onclick="selectNpsScore(this)">6</button>
+      <button class="nps-btn" data-score="7" onclick="selectNpsScore(this)">7</button>
+      <button class="nps-btn" data-score="8" onclick="selectNpsScore(this)">8</button>
+      <button class="nps-btn" data-score="9" onclick="selectNpsScore(this)">9</button>
+      <button class="nps-btn" data-score="10" onclick="selectNpsScore(this)">10</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--clr-muted-fg);margin-bottom:1.25rem;">
+      <span>Not likely</span><span>Very likely</span>
+    </div>
+    <textarea id="npsComment" placeholder="What's the main reason? (optional)" rows="2"
+      style="width:100%;box-sizing:border-box;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;font-family:inherit;background:var(--clr-bg);color:var(--clr-fg);resize:none;margin-bottom:1.25rem;"></textarea>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;align-items:center;">
+      <button class="btn btn-ghost" style="font-size:0.85rem;" onclick="closeNpsModal(true)">Maybe later</button>
+      <button class="btn btn-primary" id="npsSubmitBtn" onclick="submitNps()" disabled>Submit</button>
+    </div>
+  </div>
+</div>
+<style>
+  .nps-btn {
+    width: 2.4rem; height: 2.4rem;
+    border: 1.5px solid var(--clr-border);
+    border-radius: 0.4rem;
+    background: var(--clr-bg);
+    color: var(--clr-fg);
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .nps-btn:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+  .nps-btn.selected { background: var(--clr-primary); border-color: var(--clr-primary); color: #fff; }
+</style>
 </body>
 </html>

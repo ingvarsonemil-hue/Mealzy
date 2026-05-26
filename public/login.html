@@ -12,8 +12,15 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
     body { background: var(--clr-background); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1.5rem; }
     .auth-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); }
+    @media (prefers-reduced-motion: no-preference) {
+      .auth-card { animation: fadeInUp 0.32s ease both; }
+    }
     .auth-logo { display: flex; align-items: center; gap: 0.6rem; justify-content: center; margin-bottom: 1.75rem; font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 900; color: var(--clr-text); text-decoration: none; }
     .auth-tabs { display: flex; border: 1px solid var(--clr-border); border-radius: 10px; overflow: hidden; margin-bottom: 1.75rem; }
     .auth-tab { flex: 1; padding: 0.65rem; font-size: 0.9rem; font-weight: 600; text-align: center; cursor: pointer; border: none; background: none; color: var(--clr-muted-fg); transition: all .15s; }
@@ -38,7 +45,7 @@
 <body>
 <div class="auth-card">
   <a href="index.html" class="auth-logo">
-    <span class="logo-icon" style="width:34px;height:34px;font-size:16px;">M</span>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="width:34px;height:34px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
     Mealzy
   </a>
 
@@ -72,7 +79,7 @@
       <label class="form-label">Password</label>
       <div class="pw-wrap">
         <input type="password" class="form-input" id="siPassword" placeholder="••••••••" required autocomplete="current-password" />
-        <button type="button" class="pw-toggle" onclick="togglePw('siPassword',this)">👁</button>
+        <button type="button" class="pw-toggle" onclick="togglePw('siPassword',this)" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
       <span class="reset-link" onclick="handleReset()">Forgot password?</span>
     </div>
@@ -93,7 +100,7 @@
       <label class="form-label">Password</label>
       <div class="pw-wrap">
         <input type="password" class="form-input" id="suPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" />
-        <button type="button" class="pw-toggle" onclick="togglePw('suPassword',this)">👁</button>
+        <button type="button" class="pw-toggle" onclick="togglePw('suPassword',this)" aria-label="Show password"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
     <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem;" id="btnSignUp">Create Account</button>
@@ -214,11 +221,15 @@
     btn.textContent = loading ? 'Please wait…' : (btnId === 'btnSignIn' ? 'Sign In' : 'Create Account');
   }
 
+  const _EYE_ON  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  const _EYE_OFF = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
   function togglePw(id, btn) {
     const input = document.getElementById(id);
     const isText = input.type === 'text';
     input.type = isText ? 'password' : 'text';
-    btn.textContent = isText ? '👁' : '🙈';
+    btn.innerHTML = isText ? _EYE_ON : _EYE_OFF;
+    btn.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
   }
 
   async function hashPassword(password) {

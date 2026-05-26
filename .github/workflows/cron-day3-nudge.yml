@@ -1,0 +1,17 @@
+name: Cron — Day-3 Nudge Emails
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Daily 8:00 UTC = 9am CET
+  workflow_dispatch:
+
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger day-3 nudge
+        run: |
+          curl -s -f -X POST https://mealzy.org/api/cron/day3-nudge \
+            -H "x-cron-secret: ${{ vars.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -o /tmp/nudge-result.json
+          cat /tmp/nudge-result.json
