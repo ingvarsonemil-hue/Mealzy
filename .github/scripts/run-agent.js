@@ -97,6 +97,23 @@ async function main() {
     console.log(`Memory → .agents/memory/${agentName}.md`);
   }
 
+  // ── Post to Facebook via Make webhook (if MAKE_FACEBOOK_WEBHOOK is set) ──
+  const socialMatch = output.match(/## SOCIAL POST\n([\s\S]+?)(?=\n## |\n---|\n_{3,}|$)/i);
+  const webhookUrl  = process.env.MAKE_FACEBOOK_WEBHOOK;
+  if (socialMatch && webhookUrl) {
+    const postText = socialMatch[1].trim();
+    try {
+      const res = await fetch(webhookUrl, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ text: postText, agent: agentName, date: dateStr })
+      });
+      console.log(`Facebook → posted (status ${res.status})`);
+    } catch (err) {
+      console.warn(`Facebook → failed: ${err.message}`);
+    }
+  }
+
   console.log('Done.');
 }
 
