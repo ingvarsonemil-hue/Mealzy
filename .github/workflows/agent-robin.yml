@@ -1,0 +1,11 @@
+name: Robin — Weekly Research
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Monday 8:00 UTC = 9am CET
+  workflow_dispatch:
+jobs:
+  run:
+    uses: ./.github/workflows/_run-agent.yml
+    with:
+      agent_name: robin
+    secrets: inherit
