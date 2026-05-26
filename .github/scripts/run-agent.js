@@ -114,6 +114,28 @@ async function main() {
     }
   }
 
+  // ── Save HTML carousel (if agent included one) ───────────────────────────
+  const htmlMatch = output.match(/## HTML CAROUSEL\n```html\n([\s\S]+?)```/i);
+  if (htmlMatch) {
+    const htmlPath = path.join(outputDir, `${dateStr}-${agentName}-carousel.html`);
+    fs.writeFileSync(htmlPath, htmlMatch[1].trim());
+    console.log(`HTML Carousel → .agents/outputs/${dateStr}-${agentName}-carousel.html`);
+
+    const igWebhookUrl = process.env.MAKE_INSTAGRAM_WEBHOOK;
+    if (igWebhookUrl) {
+      try {
+        const res = await fetch(igWebhookUrl, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ html: htmlMatch[1].trim(), agent: agentName, date: dateStr })
+        });
+        console.log(`Instagram → posted (status ${res.status})`);
+      } catch (err) {
+        console.warn(`Instagram → failed: ${err.message}`);
+      }
+    }
+  }
+
   console.log('Done.');
 }
 
