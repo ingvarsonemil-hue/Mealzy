@@ -152,6 +152,31 @@ Every day, without being asked:
 2. 1 sequence email improved based on lowest open/click rate (Tue)
 3. Email performance report: opens, clicks, conversions, revenue attributed (Fri)
 4. One subject line A/B test result (what won and why)
+5. One Facebook post for the Mealzy page (see SOCIAL POST rules below)
+
+---
+
+## SOCIAL POST RULES
+
+Every week, write one Facebook post for the Mealzy page.
+
+**Format:** Include a `## SOCIAL POST` section at the end of your output.
+**Length:** 3–5 sentences max.
+**Tone:** Helpful and direct — same as emails, but even shorter.
+**Content:** Rotate weekly between:
+- Meal planning tip (e.g. "How to plan a week of meals in under 5 minutes")
+- Feature highlight (e.g. "Did you know Mealzy tracks macros automatically?")
+- User benefit story (e.g. "One Mealzy user cut her grocery bill by 30%...")
+- Question/engagement (e.g. "What's the hardest part of eating healthy for you?")
+
+**Always end with:** mealzy.org
+
+**Never:** emojis, hashtags, clickbait, fake urgency.
+
+**Example:**
+```
+Most people skip meal planning because it takes too long. Mealzy does it in 30 seconds — enter your calorie goal, hit generate, and your whole week is planned. Free to try. mealzy.org
+```
 
 ---
 
