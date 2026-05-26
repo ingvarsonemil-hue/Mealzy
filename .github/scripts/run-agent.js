@@ -114,25 +114,54 @@ async function main() {
     }
   }
 
-  // ── Save HTML carousel (if agent included one) ───────────────────────────
+  // ── Save HTML carousel + screenshot slides via HTMLCSStoImage ───────────
   const htmlMatch = output.match(/## HTML CAROUSEL\n```html\n([\s\S]+?)```/i);
   if (htmlMatch) {
-    const htmlPath = path.join(outputDir, `${dateStr}-${agentName}-carousel.html`);
-    fs.writeFileSync(htmlPath, htmlMatch[1].trim());
+    const htmlContent = htmlMatch[1].trim();
+    const htmlPath    = path.join(outputDir, `${dateStr}-${agentName}-carousel.html`);
+    fs.writeFileSync(htmlPath, htmlContent);
     console.log(`HTML Carousel → .agents/outputs/${dateStr}-${agentName}-carousel.html`);
 
-    const igWebhookUrl = process.env.MAKE_INSTAGRAM_WEBHOOK;
-    if (igWebhookUrl) {
-      try {
-        const res = await fetch(igWebhookUrl, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ html: htmlMatch[1].trim(), agent: agentName, date: dateStr })
-        });
-        console.log(`Instagram → posted (status ${res.status})`);
-      } catch (err) {
-        console.warn(`Instagram → failed: ${err.message}`);
+    const hctiUser    = process.env.HCTI_USER_ID;
+    const hctiKey     = process.env.HCTI_API_KEY;
+    const igWebhook   = process.env.MAKE_INSTAGRAM_WEBHOOK;
+
+    if (hctiUser && hctiKey && igWebhook) {
+      const auth      = Buffer.from(`${hctiUser}:${hctiKey}`).toString('base64');
+      const imageUrls = [];
+
+      for (let i = 1; i <= 10; i++) {
+        try {
+          const res  = await fetch('https://hcti.io/v1/image', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${auth}` },
+            body:    JSON.stringify({ html: htmlContent, selector: `.slide:nth-child(${i})` })
+          });
+          const data = await res.json();
+          if (data.url) { imageUrls.push(data.url); console.log(`  Slide ${i}/10 → ${data.url}`); }
+          else console.warn(`  Slide ${i} — HCTI error: ${JSON.stringify(data)}`);
+        } catch (err) {
+          console.warn(`  Slide ${i} screenshot failed: ${err.message}`);
+        }
       }
+
+      if (imageUrls.length >= 2) {
+        const caption = socialMatch ? socialMatch[1].trim() : 'Free at mealzy.org';
+        try {
+          const res = await fetch(igWebhook, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ imageUrls, caption, agent: agentName, date: dateStr })
+          });
+          console.log(`Instagram → sent ${imageUrls.length} slides (status ${res.status})`);
+        } catch (err) {
+          console.warn(`Instagram → webhook failed: ${err.message}`);
+        }
+      } else {
+        console.warn(`Instagram → skipped (only ${imageUrls.length} slides screenshotted)`);
+      }
+    } else if (!hctiUser || !hctiKey) {
+      console.log('Instagram → skipped (HCTI_USER_ID / HCTI_API_KEY not set)');
     }
   }
 
