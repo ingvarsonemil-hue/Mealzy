@@ -29,10 +29,14 @@ jobs:
       - name: Run agent
         env:
           ANTHROPIC_API_KEY: ${{ vars.ANTHROPIC_API_KEY }}
-          MAKE_FACEBOOK_WEBHOOK: ${{ vars.MAKE_FACEBOOK_WEBHOOK }}
-          MAKE_INSTAGRAM_WEBHOOK: ${{ vars.MAKE_INSTAGRAM_WEBHOOK }}
+          FACEBOOK_WEBHOOK: ${{ vars.FACEBOOK_WEBHOOK }}
+          INSTAGRAM_WEBHOOK: ${{ vars.INSTAGRAM_WEBHOOK }}
           HCTI_USER_ID: ${{ vars.HCTI_USER_ID }}
           HCTI_API_KEY: ${{ vars.HCTI_API_KEY }}
+          TWITTER_API_KEY: ${{ vars.TWITTER_API_KEY }}
+          TWITTER_API_SECRET: ${{ vars.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ vars.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ vars.TWITTER_ACCESS_TOKEN_SECRET }}
         run: node .github/scripts/run-agent.js ${{ inputs.agent_name }}
 
       - name: Commit output and memory updates
