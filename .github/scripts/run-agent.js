@@ -27,6 +27,8 @@ function readFile(relPath) {
 const skillContent  = readFile(`.agents/skills/${agentName}.md`);
 const memoryContent = readFile(`.agents/memory/${agentName}.md`);
 const teamContent   = readFile('.agents/memory/TEAM.md');
+const configContent = readFile('.agents/config.json');
+const config        = configContent ? JSON.parse(configContent) : {};
 
 if (!skillContent) {
   console.error(`No skill file found: .agents/skills/${agentName}.md`);
@@ -71,8 +73,10 @@ async function main() {
   console.log(`Date:   ${dateStr} (${dayName})`);
   console.log('Calling Anthropic API...');
 
+  const agentModel = (config.agents && config.agents[agentName]) || config.defaultModel || 'claude-haiku-4-5-20251001';
+
   const message = await client.messages.create({
-    model:      'claude-opus-4-5',
+    model:      agentModel,
     max_tokens: 8192,
     messages:   [{ role: 'user', content: prompt }]
   });
