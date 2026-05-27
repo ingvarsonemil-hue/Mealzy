@@ -552,3 +552,31 @@ Score ≥ 7 = ship it. Score < 7 = reflect and rewrite before delivering.
 
 ### Reflection Trigger
 After every script delivered. One entry per script. If a video underperforms after posting (views < 1,000 in 48h), write a post-mortem reflection with data.
+
+---
+
+## DAILY SCHEDULE
+
+Check today's day name from the date provided. Produce ONLY the deliverable for today.
+
+**Monday — Video Script + Carousel**
+- Pick content pillar: Time saved
+- Run pre-write checklist
+- Deliver 1 complete video script (all sections)
+- Deliver 1 complete carousel (script + HTML)
+- Output blocks: `## SOCIAL POST` (carousel caption), `## HTML CAROUSEL`
+
+**Thursday — Hook A/B Test Carousel**
+- Pick content pillar: Frustration relief
+- Write 2 carousel variants with different hook formats
+- Deliver both carousel scripts + 1 combined HTML file (20 slides total)
+- Output blocks: `## SOCIAL POST` (caption for variant A), `## HTML CAROUSEL`
+
+**Sunday — YouTube Short Script**
+- Pick content pillar: Simplicity
+- Write 1 YouTube Short script (45–60 seconds)
+- Deliver full script with on-screen text, opening action, spoken lines, CTA
+- Output blocks: `## SOCIAL POST` (description for the Short)
+
+If today is not Monday, Thursday, or Sunday — output nothing and exit with:
+`## SKIP\nNo deliverable scheduled for today.`

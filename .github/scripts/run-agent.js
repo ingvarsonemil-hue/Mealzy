@@ -99,7 +99,7 @@ async function main() {
 
   // ── Post to Facebook via Make webhook (if MAKE_FACEBOOK_WEBHOOK is set) ──
   const socialMatch = output.match(/## SOCIAL POST\n([\s\S]+?)(?=\n## |\n---|\n_{3,}|$)/i);
-  const webhookUrl  = process.env.MAKE_FACEBOOK_WEBHOOK;
+  const webhookUrl  = process.env.FACEBOOK_WEBHOOK;
   if (socialMatch && webhookUrl) {
     const postText = socialMatch[1].trim();
     try {
@@ -124,7 +124,7 @@ async function main() {
 
     const hctiUser    = process.env.HCTI_USER_ID;
     const hctiKey     = process.env.HCTI_API_KEY;
-    const igWebhook   = process.env.MAKE_INSTAGRAM_WEBHOOK;
+    const igWebhook   = process.env.INSTAGRAM_WEBHOOK;
 
     if (hctiUser && hctiKey && igWebhook) {
       const auth      = Buffer.from(`${hctiUser}:${hctiKey}`).toString('base64');
@@ -163,6 +163,32 @@ async function main() {
     } else if (!hctiUser || !hctiKey) {
       console.log('Instagram → skipped (HCTI_USER_ID / HCTI_API_KEY not set)');
     }
+  }
+
+  // ── Post to Twitter/X (if TWITTER_ vars set and agent output has ## TWITTER POST) ──
+  const tweetMatch = output.match(/## TWITTER POST\n([\s\S]+?)(?=\n## |\n---|\n_{3,}|$)/i);
+  const twitterKey    = process.env.TWITTER_API_KEY;
+  const twitterSecret = process.env.TWITTER_API_SECRET;
+  const twitterToken  = process.env.TWITTER_ACCESS_TOKEN;
+  const twitterTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+
+  if (tweetMatch && twitterKey && twitterSecret && twitterToken && twitterTokenSecret) {
+    const tweetText = tweetMatch[1].trim();
+    try {
+      const { TwitterApi } = require('twitter-api-v2');
+      const twitterClient = new TwitterApi({
+        appKey:      twitterKey,
+        appSecret:   twitterSecret,
+        accessToken: twitterToken,
+        accessSecret: twitterTokenSecret,
+      });
+      const tweet = await twitterClient.v2.tweet(tweetText);
+      console.log(`Twitter → posted (id ${tweet.data.id})`);
+    } catch (err) {
+      console.warn(`Twitter → failed: ${err.message}`);
+    }
+  } else if (tweetMatch && (!twitterKey || !twitterSecret || !twitterToken || !twitterTokenSecret)) {
+    console.log('Twitter → skipped (TWITTER_ vars not set)');
   }
 
   console.log('Done.');

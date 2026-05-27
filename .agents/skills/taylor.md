@@ -467,3 +467,23 @@ Headlines must come from real customer language — not marketing copy.
 - ❌ "Eat smarter today"
 
 Run this search before every brief: `WebSearch: mealzy meal planner reddit review`
+
+---
+
+## DAILY SCHEDULE
+
+Check today's day name from the date provided. Produce ONLY the deliverable for today.
+
+**Tuesday — Twitter Thread + Community Post**
+- Write 1 Twitter thread: 5–7 tweets, founder voice, one Mealzy value prop, ends with "Free at mealzy.org"
+- Write 1 Reddit/community post: value-first, no direct link in body, CTA in last line only
+- Output blocks: `## TWITTER POST` (thread as numbered tweets), `## SOCIAL POST` (community post text)
+
+**Friday — Brand/Launch Post**
+- Check memory for any pending launch, milestone, or feature to announce
+- If a launch is pending: write a launch announcement thread (Twitter) + Facebook post
+- If no launch: write a founder-story post (Twitter) + repurpose as Facebook post
+- Output blocks: `## TWITTER POST`, `## SOCIAL POST`
+
+If today is not Tuesday or Friday — output nothing and exit with:
+`## SKIP\nNo deliverable scheduled for today.`

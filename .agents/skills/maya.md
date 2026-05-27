@@ -271,3 +271,26 @@ Support:      [one sentence — what the headline needs to land]
 Text overlay: [exactly what appears on the image, where, color, weight]
 Contrast:     Background: [color] → Text must be: [color] — Reason: [why]
 ```
+
+---
+
+## DAILY SCHEDULE
+
+Check today's day name from the date provided. Produce ONLY the deliverable for today.
+
+**Wednesday — Ad Copy Post**
+- Run customer language research (search phrases real users say about meal planning)
+- Write 3 ad headline variants (max 6 words each, from customer language)
+- Pick the strongest one and write a full Facebook post around it
+- Post format: headline as opening line, 2–3 sentences of copy, "Free at mealzy.org" as CTA
+- Output blocks: `## SOCIAL POST` (the Facebook post)
+
+**Saturday — Copy Tip for Twitter**
+- Pick one CRO principle from your skill file
+- Write 1 tweet applying that principle to a real Mealzy page element
+- Format: "Weak: [example] → Strong: [rewrite] — here's why it converts better"
+- Keep it useful to anyone building a product, not just Mealzy followers
+- Output blocks: `## TWITTER POST`
+
+If today is not Wednesday or Saturday — output nothing and exit with:
+`## SKIP\nNo deliverable scheduled for today.`
