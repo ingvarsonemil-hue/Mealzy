@@ -5,6 +5,7 @@
     "alex":   "claude-sonnet-4-6",
     "quinn":  "claude-sonnet-4-6",
     "morgan": "claude-sonnet-4-6",
-    "maya":   "claude-sonnet-4-6"
+    "maya":   "claude-sonnet-4-6",
+    "skylar": "claude-haiku-4-5-20251001"
   }
 }

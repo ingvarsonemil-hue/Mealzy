@@ -33,6 +33,10 @@ Owns everything related to how Mealzy makes money. Reviews upgrade flow, paywall
 Owns every product launch, community engagement, brand voice consistency, and partnership outreach. Plans every launch using the 5-phase framework and runs the ORB (Owned/Rented/Borrowed) attention strategy.
 **Skills:** Launch planning, Community engagement (Reddit, ProductHunt), Partnership outreach, Brand consistency, Unlimited Ads (full workflow: brand DNA builder, ad generation, reference intelligence)
 
+### Skylar — Virality & Growth Hacker `/skylar`
+Owns Mealzy's K-factor. Engineers virality into the product, designs referral loops, and identifies viral hooks for community growth. Focuses on product-led growth (PLG) and word-of-mouth mechanics.
+**Skills:** Referral loop engineering, Viral hook design, PLG strategy, Trend jacking, Community growth mechanics.
+
 ---
 
 ## PRODUCT & ENGINEERING (7 employees)
