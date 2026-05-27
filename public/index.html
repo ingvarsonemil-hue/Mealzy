@@ -1,6 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-27FWEVV6VD');
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mealzy — AI Meal Planner. Free.</title>
@@ -296,7 +304,7 @@
         <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
         <a href="#how-it-works" class="btn btn-outline btn-lg">See How It Works</a>
       </div>
-      <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:1rem;">Free to start. No credit card. No catch.</p>
+      <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:1rem;">Free to start. No credit card. No catch. We never sell your data.</p>
     </div>
     <div class="hero-image-wrap" style="position:relative;">
       <!-- App mockup instead of stock photo -->
@@ -638,6 +646,7 @@
       <button class="email-popup-btn" onclick="submitEmailPopup()">Create Free Account →</button>
     </div>
     <div id="emailPopupError" style="color:#e53e3e;font-size:0.8rem;margin-top:0.4rem;display:none;">Please enter a valid email.</div>
+    <p style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.75rem;">We never sell your data. Unsubscribe any time.</p>
     <button class="email-popup-dismiss" onclick="closeEmailPopup()">No thanks</button>
   </div>
 </div>
@@ -656,11 +665,13 @@
         <a href="pricing.html">Pricing</a>
         <a href="mailto:support@mealzy.org">Contact</a>
       </div>
+      <p style="color:rgba(255,255,255,0.55);font-size:0.78rem;margin-top:0.25rem;">Nutritional calculations aligned with USDA dietary guidelines.</p>
       <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:0.25rem;">
         Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,0.9);font-weight:600;">support@mealzy.org</a>
       </p>
       <p style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:0.15rem;">Usually replied to within 24 hours.</p>
       <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
+      <p style="color:rgba(255,255,255,0.35);font-size:0.75rem;margin-top:0.5rem;max-width:560px;">Mealzy is an AI tool and does not provide medical or nutritional advice. Consult a healthcare professional before making significant changes to your diet.</p>
     </div>
   </div>
 </footer>
