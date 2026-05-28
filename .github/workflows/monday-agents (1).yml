@@ -13,9 +13,111 @@ permissions:
 
 jobs:
 
+  # ── PRE-STEP: auto-update TEAM.md with live numbers ─────────────────────
+  update-team:
+    name: Update TEAM.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Fetch live stats and update TEAM.md
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          WEEK=$(date +%Y-%m-%d)
+
+          # Fetch live analytics from mealzy.org
+          ANALYTICS=$(curl -s --max-time 10 "$APP_URL/api/analytics?token=$PRO_TOKEN" || echo '{}')
+          FUNNEL=$(curl -s --max-time 10 "$APP_URL/api/analytics/funnel?token=$PRO_TOKEN" || echo '{}')
+          HEALTH=$(curl -s --max-time 10 "$APP_URL/api/health" || echo '{}')
+
+          TOTAL_USERS=$(echo $ANALYTICS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('total_users','unknown'))" 2>/dev/null || echo "unknown")
+          PRO_USERS=$(echo $ANALYTICS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('pro_users','unknown'))" 2>/dev/null || echo "unknown")
+          SIGNUPS=$(echo $ANALYTICS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('this_month',{}).get('signups','unknown'))" 2>/dev/null || echo "unknown")
+          PLANS=$(echo $ANALYTICS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('this_month',{}).get('plans_generated','unknown'))" 2>/dev/null || echo "unknown")
+          PRO_ACT=$(echo $ANALYTICS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('this_month',{}).get('pro_activations','unknown'))" 2>/dev/null || echo "unknown")
+          SERVER=$(echo $HEALTH | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('status','unknown'))" 2>/dev/null || echo "unknown")
+
+          # Write updated TEAM.md keeping the standing context but updating the numbers
+          cat > .agents/memory/TEAM.md << TEAMEOF
+# TEAM.md — Mealzy Agent Shared Context
+# Auto-updated every Monday by GitHub Actions. Do not edit the numbers section manually.
+
+## THIS WEEK — ${WEEK}
+
+### Live numbers (auto-fetched from mealzy.org)
+- Total users:       ${TOTAL_USERS}
+- Pro subscribers:   ${PRO_USERS}
+- Signups this month: ${SIGNUPS}
+- Plans generated this month: ${PLANS}
+- Pro activations this month: ${PRO_ACT}
+- Server status:     ${SERVER}
+
+### Active this week
+- Update this section manually if there is a launch or anything special happening
+
+### Blocked / don't work on
+- Update this section if anything should be skipped this week
+
+---
+
+## STANDING CONTEXT (always true)
+
+### Product
+- Free tier: 3 meal plans/month, no credit card
+- Pro: \$8/mo or \$62/yr — unlimited plans, PDF export, AI coach Mia, advanced macros
+- Family: \$16/mo or \$130/yr — everything in Pro + up to 4 profiles
+- Stack: Node.js + Express, Turso SQLite, JWT cookies, Stripe, Render free tier
+- AI: claude-haiku-4-5-20251001 for meal gen and Mia coach
+
+### Brand
+- Voice: warm, calm, direct. Friend who knows nutrition. Never wellness influencer.
+- Never use: emojis, exclamation piles, "level up", "game-changer", "transform", "clean eating", "guilt-free"
+- CTA always: "Free at mealzy.org"
+- Primary green: #3d8b5e
+- Font: Fraunces (headings) + Inter (body)
+
+### Key URLs
+- App: https://mealzy.org
+- Upgrade: https://mealzy.org/upgrade.html
+- Dashboard: https://mealzy.org/dashboard.html
+- Planner: https://mealzy.org/meal-planner.html
+
+### Founder
+- Emil, 16yo solo founder, Sweden
+- Building in public — founder story is a real asset in community posts
+
+---
+
+## CROSS-AGENT HANDOFFS
+<!-- Agents leave notes here for each other. Clear resolved ones each Monday. -->
+
+---
+
+## LAUNCH CALENDAR
+| Date | What | Owner | Status |
+|------|------|-------|--------|
+| TBD  | Family plan public launch | Drew + Taylor | planning |
+| TBD  | Product Hunt relaunch | Taylor | not started |
+
+---
+
+## RECENT WINS
+<!-- Emil updates this — used by Jordan, Taylor, Alex -->
+TEAMEOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .agents/memory/TEAM.md
+          git diff --cached --quiet || git commit -m "chore: auto-update TEAM.md with live stats ${DATE} [skip ci]"
+          git push origin main
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          PRO_TOKEN: ${{ secrets.PRO_TOKEN }}
+
   # ── WAVE 1: no dependencies ───────────────────────────────────────────────
 
   alex:
+    needs: [update-team]
     name: Alex — Scripts + Carousel
     runs-on: ubuntu-latest
     steps:
@@ -34,6 +136,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: alex, path: .agents/outputs/*alex* }
   blake:
+    needs: [update-team]
     name: Blake — Security Audit
     runs-on: ubuntu-latest
     steps:
@@ -48,6 +151,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: blake, path: .agents/outputs/*blake* }
   avery:
+    needs: [update-team]
     name: Avery — Infra Report
     runs-on: ubuntu-latest
     steps:
@@ -62,6 +166,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: avery, path: .agents/outputs/*avery* }
   morgan:
+    needs: [update-team]
     name: Morgan — Code Health
     runs-on: ubuntu-latest
     steps:
@@ -76,6 +181,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: morgan, path: .agents/outputs/*morgan* }
   riley:
+    needs: [update-team]
     name: Riley — Funnel Report
     runs-on: ubuntu-latest
     steps:
@@ -90,6 +196,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: riley, path: .agents/outputs/*riley* }
   casey:
+    needs: [update-team]
     name: Casey — MRR Report
     runs-on: ubuntu-latest
     steps:
@@ -104,6 +211,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: casey, path: .agents/outputs/*casey* }
   charlie:
+    needs: [update-team]
     name: Charlie — Support Digest
     runs-on: ubuntu-latest
     steps:
@@ -118,6 +226,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: charlie, path: .agents/outputs/*charlie* }
   harper:
+    needs: [update-team]
     name: Harper — Legal/Safety
     runs-on: ubuntu-latest
     steps:
@@ -132,6 +241,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: harper, path: .agents/outputs/*harper* }
   logan:
+    needs: [update-team]
     name: Logan — Affiliate Research
     runs-on: ubuntu-latest
     steps:
@@ -146,6 +256,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: logan, path: .agents/outputs/*logan* }
   maya:
+    needs: [update-team]
     name: Maya — CRO Audit
     runs-on: ubuntu-latest
     steps:
@@ -160,6 +271,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: maya, path: .agents/outputs/*maya* }
   quinn:
+    needs: [update-team]
     name: Quinn — AI Quality
     runs-on: ubuntu-latest
     steps:
@@ -189,6 +301,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: robin, path: .agents/outputs/*robin* }
   taylor:
+    needs: [update-team]
     name: Taylor — Brand Mentions
     runs-on: ubuntu-latest
     steps:
