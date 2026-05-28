@@ -6,3 +6,10 @@
 - **Specialty single-use items flagged in live plan:** halloumi (one lunch), star anise (pho only), shrimp (one snack) — these are the first waste risk examples to track.
 - **Key prompt suggestions queued for Quinn:** (1) add ingredient reuse instruction to fullPlanPrompt, (2) confirm pantry staple exclusion and consolidation instructions are in groceryPrompt, (3) add specialty item reuse nudge for mid-range budgets.
 - **Monday audit matrix not yet established** — first Monday session should run all three test plans (tight $50 / vegan $70 / standard $100) and generate actual grocery list JSON to calculate real overlap scores.
+
+## 2026-05-28
+- **Live plan (2026-05-28, $80/week) shows 10% single-day overlap score** — well below targets, root cause is mixed cuisine profile (Spanish + East Asian) fracturing ingredient chains; tomato is the only shared non-pantry item across meals.
+- **Chickpeas and tempeh are confirmed single-use items in current live plan** — chickpeas are a known high-reuse ingredient (from skill file) being underutilised; flag pattern for Quinn's fullPlanPrompt.
+- **Specialty single-use snack items recurring** — cheese + almonds snack follows same pattern as halloumi/shrimp flagged in 2026-05-28 memory; snack meals are consistently the weakest link for ingredient reuse.
+- **Spanish cuisine cohesion (3/4 meals) is a partial win** — pantry staples (garlic, olive oil, paprika, onion) align across meals; the grocery list benefit is real even if non-pantry overlap is low.
+- **Friday report will flag cuisine-mixing as structural inefficiency** — proposed fix is a meal plan prompt nudge toward ingredient-coherent daily planning, not cuisine uniformity; to be proposed to Quinn on Friday as the weekly prompt suggestion.

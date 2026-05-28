@@ -1,121 +1,81 @@
 # grocery-optimizer — 2026-05-28 (Thursday)
 
-*Reading memory file — no previous sessions. First run. Today is Thursday 2026-05-28.*
+## THURSDAY CHECK-IN — 2026-05-28
 
-*Checking schedule: Thursday has no explicitly listed tasks. My schedule covers Monday, Wednesday, Friday, and Monthly. The nearest scheduled deliverable is tomorrow (Friday): Weekly Grocery Optimisation Report. Today is Thursday — no scheduled deliverables for today.*
+Thursday has no scheduled tasks in my SCHEDULE section (Monday, Wednesday, and Friday are the active days). However, there is meaningful work I can do today from the live data available in TEAM.md — specifically, I can analyse the live test meal plan to prepare sharper Friday report output, and I can review any cross-agent context.
 
-*However, I have live meal plan data in TEAM.md that I can analyse right now. I'll note this for tomorrow's report and use today productively to pre-analyse the live plan data, since the Monday audit didn't run (first session). I'll produce what I can based on real data rather than nothing.*
-
-*One note: I can see a real test plan in TEAM.md. I'll analyse it and prepare a pre-audit note. I will NOT fabricate a full Monday audit report as if I ran it — that would be dishonest. I'll document what I actually have.*
+Let me work through what's available.
 
 ---
 
-## THURSDAY PRE-AUDIT ANALYSIS — 2026-05-28
+## LIVE PLAN ANALYSIS — 2026-05-28
 
-Today has no scheduled deliverables. However, this is the first session with no prior memory, and a live test meal plan is available in TEAM.md. I'm using today to:
+Today's live plan (standard profile, $80/week, 2000 kcal):
 
-1. Analyse the live plan data
-2. Flag what's needed before Friday's report can run properly
-3. Document baseline observations for memory
+| Meal | Name | Key ingredients (inferred) |
+|------|------|---------------------------|
+| Breakfast | Spanish Tomato and Egg Scramble | eggs, tomato, olive oil, onion, garlic |
+| Lunch | Tempeh and Pepper Stir-fry with Rice | tempeh, bell pepper, rice, soy sauce, garlic, oil |
+| Dinner | Spanish Chicken with Chickpea Stew | chicken breast, chickpeas, tomato, garlic, onion, paprika, olive oil |
+| Snack | Spanish Cheese and Almond Plate | cheese (manchego-style), almonds |
 
----
+This is a single-day plan, not a full week, so a formal overlap score cannot be calculated. But I can run a preliminary ingredient reuse analysis across the four meals as a directional signal.
 
-## LIVE PLAN ANALYSIS — Real Test Plan (standard, $80/week, 2000kcal)
+### Shared ingredients (inferred)
+- **Tomato** — breakfast + dinner (2 meals) ✓
+- **Garlic** — breakfast + lunch + dinner (3 meals — but this is a pantry staple and should NOT appear on the grocery list) ✓ pantry staple
+- **Olive oil / cooking oil** — breakfast + lunch + dinner (pantry staple, should be excluded) ✓ pantry staple
+- **Onion** — breakfast + dinner (pantry staple, should be excluded) ✓ pantry staple
 
-**Meals observed:**
+### Single-use items (waste risk, inferred)
+- **Tempeh** — lunch only. Specialty protein. Not reused.
+- **Bell pepper** — lunch only. One appearance.
+- **Rice** — lunch only. Could appear in more meals.
+- **Soy sauce** — lunch only. Pantry, but specialty for this plan.
+- **Chickpeas** — dinner only. High-reuse ingredient not being reused in this plan.
+- **Paprika** — dinner only (pantry staple — should be excluded).
+- **Cheese** (manchego-style) — snack only. Specialty item. Single-use waste risk.
+- **Almonds** — snack only. Single-use.
+- **Chicken breast** — dinner only. Single-use protein.
+- **Eggs** — breakfast only.
 
-| Meal | Type | Key ingredients (inferred) |
-|---|---|---|
-| Vietnamese Egg and Tomato Rice | Breakfast | Eggs, tomato, rice, oil, spring onion likely |
-| Halloumi and Vegetable Stir-Fry | Lunch | Halloumi, mixed veg (bell pepper, courgette, onion likely), oil |
-| Pork Pho Noodle Soup | Dinner | Pork, rice noodles, bean sprouts, star anise, spring onion, broth |
-| Shrimp and Cucumber Salad | Snack | Shrimp, cucumber, dressing (rice vinegar, sesame likely) |
+### Preliminary overlap calculation (non-pantry items only, single day)
 
-**Initial ingredient overlap assessment (inferred — no grocery list JSON available):**
+This is a one-day plan, so "multi-meal" means appearing in 2 of 4 meals.
 
-Scanning for reuse potential across these four meals:
+Unique non-pantry items: tomato, eggs, tempeh, bell pepper, rice, soy sauce, chickpeas, cheese, almonds, chicken breast ≈ 10 items
 
-| Ingredient | Meals it could serve | Reuse potential |
-|---|---|---|
-| Spring onion / scallion | Vietnamese Rice + Pho | ✅ natural overlap |
-| Rice / rice noodles | Vietnamese Rice + Pho | ⚠️ different form — both rice-based but separate SKUs |
-| Oil (sesame/neutral) | Stir-fry + Pho + salad dressing | ✅ possible but depends on type |
-| Ginger | Pho + stir-fry | ✅ natural overlap |
-| Bean sprouts | Pho + stir-fry | ✅ possible |
-| Garlic | Stir-fry + Pho | ✅ pantry staple — should be excluded from list |
-| Tomato | Vietnamese Rice only | ❌ single-use |
-| Halloumi | Lunch only | ❌ single-use specialty cheese |
-| Shrimp | Snack only | ❌ single-use protein |
-| Pork | Dinner only | ❌ single-use protein |
-| Eggs | Breakfast only | ❌ single-use (no plan reuse shown) |
-| Cucumber | Snack only | ❌ single-use |
-| Star anise | Pho only | ❌ single-use specialty spice |
+Items appearing in 2+ meals: tomato (2 meals) = 1 item
 
-**Preliminary overlap score estimate (single-day plan, not a full week — important caveat):**
+Overlap score (single day): 1/10 × 100 = **10%**
 
-This is a single day's meals, not a 7-day plan. The grocery list endpoint operates on a full week. So this data alone cannot produce a valid weekly audit score. That said, the single-day view is instructive:
+This is well below even the loosest target (≥30%). However, this is a one-day plan — full-week plans have more surface area for reuse. The Spanish cuisine cohesion (breakfast + dinner both Spanish) is a positive structural signal, but the lunch (Tempeh stir-fry, East Asian profile) breaks the ingredient chain entirely, preventing tomato, chickpeas, or eggs from bridging into that meal.
 
-- Estimated unique ingredients: ~18–22 items
-- Likely single-use items: ~14–16 items
-- Estimated overlap score: **roughly 20–30%** — below the ≥40% standard target
+### Observations for Friday report
 
-This is concerning even accounting for the single-day limitation. The four meals selected are cuisines that don't naturally share ingredients (Vietnamese, Levantine/Mediterranean, Southeast Asian). This is a structural meal plan prompt issue, not a grocery list prompt issue.
+**Positive signals:**
+- Tomato bridges breakfast and dinner — this is exactly the kind of reuse the grocery optimizer targets
+- Spanish cuisine cohesion across 3 of 4 meals gives structural reuse opportunity (paprika, olive oil, garlic all consistent)
+- Cost efficiency is strong: $11.43 for 2000 kcal is excellent
 
-**Specialty single-use items flagged:**
-
-| Item | Problem |
-|---|---|
-| Halloumi | Expensive specialty cheese, used in one meal |
-| Star anise | Specialty spice, one use, typically sold in bags of 20 |
-| Shrimp | Bought for one snack — low quantity, high cost-per-use |
-| Pork (pho cut) | Single protein for one meal |
-
-**Budget observation:**
-
-The plan shows $11.43 for one day. At that rate, a 7-day plan would run approximately $80/week — which matches the $80 budget target. So cost compliance looks fine. The issue is not budget overshoot, it's ingredient waste risk from low overlap.
+**Efficiency gaps:**
+- Chickpeas purchased for one dinner — in a full week plan, chickpeas should appear in a lunch wrap or snack too
+- Tempeh is a single-use specialty protein. If the plan had used chicken breast at lunch (leftover from dinner prep), protein cost and waste would drop
+- Cheese + almonds snack creates two single-use specialty items. Greek yogurt with almonds (if almonds reused from a different meal) or an egg-based snack would be more efficient
+- Lunch breaking from Spanish profile to a stir-fry is the root cause of the ingredient chain fracture — this is a meal plan prompt structural issue, not a grocery list prompt issue
 
 ---
 
-## FLAGS FOR QUINN (prepared for Wednesday delivery — noting now while data is fresh)
+## CROSS-AGENT FLAG — Thursday note for Quinn
 
-**1. Meal plan prompt — ingredient reuse instruction missing**
-
-The four meals in the live test plan span Vietnamese, Levantine, and Southeast Asian cuisines. They share almost no ingredients. This is a valid variety choice but produces a grocery list with high single-use item count. The fullPlanPrompt should include:
-
-> *"Where possible, plan meals that share common ingredients — use the same protein in 2–3 meals, use the same leafy green or vegetable in 2+ meals, and favour pantry staples that span multiple dishes. This reduces grocery waste and respects the user's budget."*
-
-**2. Grocery list prompt — consolidation and pantry exclusion**
-
-Based on known failure patterns (and this being a first session with no confirmed fixes deployed), the grocery prompt should explicitly state:
-
-> *"Do not include standard pantry staples that most households already own: olive oil, neutral cooking oil, salt, black pepper, garlic, water. Do not list the same ingredient twice — if an ingredient appears in multiple meals, combine it into one line item with the total quantity."*
-
-**3. Specialty item guidance for standard budgets**
-
-Star anise bought for one pho, halloumi bought for one stir-fry, shrimp bought for one snack — on an $80 budget these are defensible, but the model should be nudged to consider whether a specialty purchase can be reused. Proposed addition to meal plan prompt:
-
-> *"If a specialty ingredient (unusual cheese, whole spice, or premium protein) is included in a meal, try to include it in at least one other meal that week to justify the purchase."*
-
----
-
-## WHAT'S NEEDED BEFORE FRIDAY'S REPORT CAN BE COMPLETE
-
-Friday's scheduled deliverable is the Weekly Grocery Optimisation Report. That report requires:
-
-1. ✅ One live plan to analyse — available (partial, single-day)
-2. ❌ Monday's 3-plan audit (tight budget / vegan / standard) — **not run** (first session, no Monday coverage)
-3. ❌ Actual grocery list JSON output from `/api/generate-grocery-list` — not available in TEAM.md
-4. ❌ Overlap scores calculated from real grocery list outputs — cannot calculate without the JSON
-5. ❌ Consolidation failure check — requires actual grocery list output
-
-**Friday's report will be a partial report**, flagging this as a first-session gap and using the live plan data for qualitative findings. This is noted honestly.
+The live plan's ingredient fracture is caused by mixing cuisine profiles within a single day's plan. When meals span Spanish and Southeast Asian cuisines, shared ingredients become arithmetically unlikely. The fullPlanPrompt should consider a soft constraint toward internal cuisine or at minimum ingredient coherence — not rigid (variety is good), but enough to allow the same protein or produce to appear twice. This aligns with the reuse instruction flagged in memory from 2026-05-28.
 
 ---
 
 ## MEMORY UPDATE
 
-- **First session, no prior memory.** No Monday audit was run before this session — first Friday report will be partial, based only on live plan data from TEAM.md.
-- **Live test plan (2026-05-28) shows low ingredient overlap** — four meals span Vietnamese, Levantine, and Southeast Asian cuisines with minimal shared ingredients. Estimated overlap score ~20–30%, below the ≥40% target. Root cause is structural (meal plan prompt), not grocery list prompt.
-- **Specialty single-use items flagged in live plan:** halloumi (one lunch), star anise (pho only), shrimp (one snack) — these are the first waste risk examples to track.
-- **Key prompt suggestions queued for Quinn:** (1) add ingredient reuse instruction to fullPlanPrompt, (2) confirm pantry staple exclusion and consolidation instructions are in groceryPrompt, (3) add specialty item reuse nudge for mid-range budgets.
-- **Monday audit matrix not yet established** — first Monday session should run all three test plans (tight $50 / vegan $70 / standard $100) and generate actual grocery list JSON to calculate real overlap scores.
+- **Live plan (2026-05-28, $80/week) shows 10% single-day overlap score** — well below targets, root cause is mixed cuisine profile (Spanish + East Asian) fracturing ingredient chains; tomato is the only shared non-pantry item across meals.
+- **Chickpeas and tempeh are confirmed single-use items in current live plan** — chickpeas are a known high-reuse ingredient (from skill file) being underutilised; flag pattern for Quinn's fullPlanPrompt.
+- **Specialty single-use snack items recurring** — cheese + almonds snack follows same pattern as halloumi/shrimp flagged in 2026-05-28 memory; snack meals are consistently the weakest link for ingredient reuse.
+- **Spanish cuisine cohesion (3/4 meals) is a partial win** — pantry staples (garlic, olive oil, paprika, onion) align across meals; the grocery list benefit is real even if non-pantry overlap is low.
+- **Friday report will flag cuisine-mixing as structural inefficiency** — proposed fix is a meal plan prompt nudge toward ingredient-coherent daily planning, not cuisine uniformity; to be proposed to Quinn on Friday as the weekly prompt suggestion.
