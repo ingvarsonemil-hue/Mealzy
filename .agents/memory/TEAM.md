@@ -1,71 +1,56 @@
-# TEAM.md — Mealzy Agent Shared Context
-# Updated manually by Emil. All 19 agents read this every run.
-# Keep under 300 lines. Remove stale entries weekly.
+# TEAM.md - Mealzy Agent Shared Context
+# Auto-updated every Monday. Last updated: 2026-05-28
 
-## THIS WEEK — context every agent needs
+## THIS WEEK - 2026-05-28
 
-**Week of:** <!-- UPDATE THIS each Monday -->
-**Focus:** <!-- e.g. "AI coach relaunch" / "hitting 1,000 users" / "Family plan launch" -->
-
-### Live numbers (update weekly)
-- Total users:       <!-- e.g. 847 -->
-- Pro subscribers:   <!-- e.g. 23 -->
-- Plans generated:   <!-- e.g. 4,291 this month -->
-- Weekly signups:    <!-- e.g. 38 last week -->
+### Live numbers (auto-fetched from mealzy.org)
+- Total users: 1
+- Pro subscribers: 1
+- Signups this month: 1
+- Plans generated this month: 8
+- Pro activations this month: 0
+- Server status: ok
 
 ### Active this week
-<!-- List what's live, launched, or in-progress -->
-- [ ] Example: Family plan — launching Thursday
-- [ ] Example: New onboarding flow — A/B test running
+- Update manually if there is a launch or anything special
 
 ### Blocked / don't work on
-<!-- Anything agents should explicitly skip this week -->
-- Example: Don't mention annual pricing — Casey is reworking it
+- Update if anything should be skipped this week
 
 ---
 
-## STANDING CONTEXT (always true)
+## STANDING CONTEXT
 
 ### Product
-- Free tier: 3 meal plans/month, no credit card
-- Pro: $8/mo or $62/yr — unlimited plans, PDF export, AI coach Mia, advanced macros
-- Family: $16/mo or $130/yr — everything in Pro + up to 4 profiles
+- Free tier: 3 plans/month, no credit card
+- Pro: $8/mo or $62/yr - unlimited plans, PDF export, AI coach Mia, advanced macros
+- Family: $16/mo or $130/yr - everything in Pro + up to 4 profiles
 - Stack: Node.js + Express, Turso SQLite, JWT cookies, Stripe, Render free tier
 - AI: claude-haiku-4-5-20251001 for meal gen and Mia coach
 
 ### Brand
-- Voice: warm, calm, direct. Friend who knows nutrition. Never wellness influencer.
-- Never use: emojis, exclamation piles, "level up", "game-changer", "transform", "clean eating", "guilt-free"
-- CTA always: "Free at mealzy.org"
+- Voice: warm, calm, direct. Friend who knows nutrition.
+- Never use: emojis, "level up", "game-changer", "transform", "clean eating", "guilt-free"
+- CTA always: Free at mealzy.org
 - Primary green: #3d8b5e
-- Font: Fraunces (headings) + Inter (body)
 
 ### Key URLs
 - App: https://mealzy.org
 - Upgrade: https://mealzy.org/upgrade.html
 - Dashboard: https://mealzy.org/dashboard.html
-- Planner: https://mealzy.org/meal-planner.html
 
 ### Founder
 - Emil, 16yo solo founder, Sweden
-- Building in public — founder story is a real asset in community posts
+- Building in public
 
 ---
 
 ## CROSS-AGENT HANDOFFS
-<!-- Agents leave notes here for each other. Format: [From → To]: task/note -->
-<!-- Clear resolved handoffs each Monday -->
-
-<!-- Example: -->
-<!-- [taylor → alex]: r/mealprep post about "Sunday planning" got 47 upvotes — repurpose as a video hook -->
-<!-- [riley → casey]: trial-to-paid conversion dropped to 18% this week — review pricing page copy -->
-<!-- [jordan → taylor]: day-3 nudge email open rate 34% — subject line "You've got 2 free plans left" is working -->
+(Agents leave notes here for each other)
 
 ---
 
 ## LAUNCH CALENDAR
-<!-- Upcoming launches agents should coordinate around -->
-
 | Date | What | Owner | Status |
 |------|------|-------|--------|
 | TBD  | Family plan public launch | Drew + Taylor | planning |
@@ -73,10 +58,5 @@
 
 ---
 
-## RECENT WINS (keep agents motivated and informed)
-<!-- Emil updates this — used by Jordan for email copy, Taylor for community posts, Alex for hooks -->
-
-<!-- Example: -->
-<!-- - 2026-05-20: Hit 800 users -->
-<!-- - 2026-05-15: First Family plan subscriber -->
-<!-- - 2026-05-10: r/EatCheapAndHealthy post hit 200 upvotes -->
+## RECENT WINS
+(Emil updates this)
