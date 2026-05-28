@@ -33,12 +33,6 @@ jobs:
           HCTI_API_KEY:      ${{ secrets.HCTI_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: alex, path: .agents/outputs/*alex* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: alex monday [skip ci]"
-          file_pattern: ".agents/outputs/*alex* .agents/memory/alex.md"
-
   blake:
     name: Blake — Security Audit
     runs-on: ubuntu-latest
@@ -53,12 +47,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: blake, path: .agents/outputs/*blake* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: blake monday [skip ci]"
-          file_pattern: ".agents/outputs/*blake* .agents/memory/blake.md"
-
   avery:
     name: Avery — Infra Report
     runs-on: ubuntu-latest
@@ -73,12 +61,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: avery, path: .agents/outputs/*avery* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: avery monday [skip ci]"
-          file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
-
   morgan:
     name: Morgan — Code Health
     runs-on: ubuntu-latest
@@ -93,12 +75,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: morgan, path: .agents/outputs/*morgan* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: morgan monday [skip ci]"
-          file_pattern: ".agents/outputs/*morgan* .agents/memory/morgan.md"
-
   riley:
     name: Riley — Funnel Report
     runs-on: ubuntu-latest
@@ -113,12 +89,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: riley, path: .agents/outputs/*riley* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: riley monday [skip ci]"
-          file_pattern: ".agents/outputs/*riley* .agents/memory/riley.md"
-
   casey:
     name: Casey — MRR Report
     runs-on: ubuntu-latest
@@ -133,12 +103,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: casey, path: .agents/outputs/*casey* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: casey monday [skip ci]"
-          file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
-
   charlie:
     name: Charlie — Support Digest
     runs-on: ubuntu-latest
@@ -153,12 +117,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: charlie, path: .agents/outputs/*charlie* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: charlie monday [skip ci]"
-          file_pattern: ".agents/outputs/*charlie* .agents/memory/charlie.md"
-
   harper:
     name: Harper — Legal/Safety
     runs-on: ubuntu-latest
@@ -173,12 +131,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: harper, path: .agents/outputs/*harper* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: harper monday [skip ci]"
-          file_pattern: ".agents/outputs/*harper* .agents/memory/harper.md"
-
   logan:
     name: Logan — Affiliate Research
     runs-on: ubuntu-latest
@@ -193,12 +145,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: logan, path: .agents/outputs/*logan* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: logan monday [skip ci]"
-          file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
-
   maya:
     name: Maya — CRO Audit
     runs-on: ubuntu-latest
@@ -213,12 +159,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: maya, path: .agents/outputs/*maya* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: maya monday [skip ci]"
-          file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
-
   quinn:
     name: Quinn — AI Quality
     runs-on: ubuntu-latest
@@ -233,12 +173,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: quinn, path: .agents/outputs/*quinn* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: quinn monday [skip ci]"
-          file_pattern: ".agents/outputs/*quinn* .agents/memory/quinn.md"
-
   robin:
     name: Robin — NPS + Research
     runs-on: ubuntu-latest
@@ -254,12 +188,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: robin, path: .agents/outputs/*robin* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: robin monday [skip ci]"
-          file_pattern: ".agents/outputs/*robin* .agents/memory/robin.md"
-
   taylor:
     name: Taylor — Brand Mentions
     runs-on: ubuntu-latest
@@ -278,12 +206,6 @@ jobs:
           TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
       - uses: actions/upload-artifact@v4
         with: { name: taylor, path: .agents/outputs/*taylor* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: taylor monday [skip ci]"
-          file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
-
   # ── WAVE 2: depends on wave 1 ────────────────────────────────────────────
 
   finlay:
@@ -301,12 +223,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: finlay, path: .agents/outputs/*finlay* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: finlay monday [skip ci]"
-          file_pattern: ".agents/outputs/*finlay* .agents/memory/finlay.md"
-
   matteo:
     name: Matteo — i18n Signals
     runs-on: ubuntu-latest
@@ -322,12 +238,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: matteo, path: .agents/outputs/*matteo* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: matteo monday [skip ci]"
-          file_pattern: ".agents/outputs/*matteo* .agents/memory/matteo.md"
-
   budget-guard:
     name: Budget Guard — Cost Tests
     runs-on: ubuntu-latest
@@ -343,12 +253,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: budget-guard, path: .agents/outputs/*budget-guard* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: budget-guard monday [skip ci]"
-          file_pattern: ".agents/outputs/*budget-guard* .agents/memory/budget-guard.md"
-
   macro-specialist:
     name: Macro Specialist — Nutrition Tests
     runs-on: ubuntu-latest
@@ -364,12 +268,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: macro-specialist, path: .agents/outputs/*macro-specialist* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: macro-specialist monday [skip ci]"
-          file_pattern: ".agents/outputs/*macro-specialist* .agents/memory/macro-specialist.md"
-
   culinary-critic:
     name: Culinary Critic — Flavour Review
     runs-on: ubuntu-latest
@@ -385,12 +283,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: culinary-critic, path: .agents/outputs/*culinary-critic* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: culinary-critic monday [skip ci]"
-          file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"
-
   grocery-optimizer:
     name: Grocery Optimizer — List Efficiency
     runs-on: ubuntu-latest
@@ -406,12 +298,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: grocery-optimizer, path: .agents/outputs/*grocery-optimizer* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: grocery-optimizer monday [skip ci]"
-          file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"
-
   # ── WAVE 3: reads wave 1+2 outputs ───────────────────────────────────────
 
   drew:
@@ -429,12 +315,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: drew, path: .agents/outputs/*drew* }
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: drew monday [skip ci]"
-          file_pattern: ".agents/outputs/*drew* .agents/memory/drew.md"
-
   # ── DIGEST ────────────────────────────────────────────────────────────────
 
   digest:
@@ -447,6 +327,15 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: actions/download-artifact@v4
         with: { path: .agents/outputs/, merge-multiple: true }
+      - name: Commit all agent outputs
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add .agents/outputs/ .agents/memory/ || true
+          git diff --cached --quiet || git commit -m "agents: monday outputs [skip ci]"
+          git push origin main
       - name: Build digest
         run: |
           DATE=$(date +%Y-%m-%d)
@@ -460,8 +349,3 @@ jobs:
             [ -f "$F" ] && echo "| $a | ✅ |" >> $OUT || echo "| $a | ❌ |" >> $OUT
           done
           cat $OUT
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          push_options: --force
-          commit_message: "agents: monday digest [skip ci]"
-          file_pattern: ".agents/outputs/*digest*"
