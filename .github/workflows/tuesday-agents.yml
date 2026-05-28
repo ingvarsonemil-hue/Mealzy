@@ -33,6 +33,7 @@ jobs:
         with: { name: alex-tue, path: .agents/outputs/*alex* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: alex tuesday [skip ci]"
           file_pattern: ".agents/outputs/*alex* .agents/memory/alex.md"
 
@@ -52,6 +53,7 @@ jobs:
         with: { name: avery-tue, path: .agents/outputs/*avery* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: avery tuesday [skip ci]"
           file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
 
@@ -71,6 +73,7 @@ jobs:
         with: { name: casey-tue, path: .agents/outputs/*casey* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: casey tuesday [skip ci]"
           file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
 
@@ -90,6 +93,7 @@ jobs:
         with: { name: drew-tue, path: .agents/outputs/*drew* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: drew tuesday [skip ci]"
           file_pattern: ".agents/outputs/*drew* .agents/memory/drew.md"
 
@@ -109,6 +113,7 @@ jobs:
         with: { name: logan-tue, path: .agents/outputs/*logan* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: logan tuesday [skip ci]"
           file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
 
@@ -128,6 +133,7 @@ jobs:
         with: { name: sam-tue, path: .agents/outputs/*sam* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: sam tuesday [skip ci]"
           file_pattern: ".agents/outputs/*sam* .agents/memory/sam.md"
 
@@ -151,6 +157,7 @@ jobs:
         with: { name: taylor-tue, path: .agents/outputs/*taylor* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: taylor tuesday [skip ci]"
           file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
 
@@ -170,5 +177,6 @@ jobs:
         with: { name: culinary-critic-tue, path: .agents/outputs/*culinary-critic* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: culinary-critic tuesday [skip ci]"
           file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"

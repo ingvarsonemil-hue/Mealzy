@@ -30,6 +30,7 @@ jobs:
         with: { name: casey-wed, path: .agents/outputs/*casey* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: casey wednesday [skip ci]"
           file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
 
@@ -49,6 +50,7 @@ jobs:
         with: { name: jordan-wed, path: .agents/outputs/*jordan* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: jordan wednesday [skip ci]"
           file_pattern: ".agents/outputs/*jordan* .agents/memory/jordan.md"
 
@@ -68,6 +70,7 @@ jobs:
         with: { name: logan-wed, path: .agents/outputs/*logan* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: logan wednesday [skip ci]"
           file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
 
@@ -87,6 +90,7 @@ jobs:
         with: { name: maya-wed, path: .agents/outputs/*maya* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: maya wednesday [skip ci]"
           file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
 
@@ -106,6 +110,7 @@ jobs:
         with: { name: morgan-wed, path: .agents/outputs/*morgan* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: morgan wednesday [skip ci]"
           file_pattern: ".agents/outputs/*morgan* .agents/memory/morgan.md"
 
@@ -125,6 +130,7 @@ jobs:
         with: { name: nova-wed, path: .agents/outputs/*nova* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: nova wednesday [skip ci]"
           file_pattern: ".agents/outputs/*nova* .agents/memory/nova.md"
 
@@ -144,6 +150,7 @@ jobs:
         with: { name: quinn-wed, path: .agents/outputs/*quinn* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: quinn wednesday [skip ci]"
           file_pattern: ".agents/outputs/*quinn* .agents/memory/quinn.md"
 
@@ -167,6 +174,7 @@ jobs:
         with: { name: taylor-wed, path: .agents/outputs/*taylor* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: taylor wednesday [skip ci]"
           file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
 
@@ -187,6 +195,7 @@ jobs:
         with: { name: budget-guard-wed, path: .agents/outputs/*budget-guard* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: budget-guard wednesday [skip ci]"
           file_pattern: ".agents/outputs/*budget-guard* .agents/memory/budget-guard.md"
 
@@ -207,6 +216,7 @@ jobs:
         with: { name: macro-specialist-wed, path: .agents/outputs/*macro-specialist* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: macro-specialist wednesday [skip ci]"
           file_pattern: ".agents/outputs/*macro-specialist* .agents/memory/macro-specialist.md"
 
@@ -227,6 +237,7 @@ jobs:
         with: { name: culinary-critic-wed, path: .agents/outputs/*culinary-critic* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: culinary-critic wednesday [skip ci]"
           file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"
 
@@ -247,5 +258,6 @@ jobs:
         with: { name: grocery-optimizer-wed, path: .agents/outputs/*grocery-optimizer* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: grocery-optimizer wednesday [skip ci]"
           file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"

@@ -35,6 +35,7 @@ jobs:
         with: { name: alex, path: .agents/outputs/*alex* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: alex monday [skip ci]"
           file_pattern: ".agents/outputs/*alex* .agents/memory/alex.md"
 
@@ -54,6 +55,7 @@ jobs:
         with: { name: blake, path: .agents/outputs/*blake* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: blake monday [skip ci]"
           file_pattern: ".agents/outputs/*blake* .agents/memory/blake.md"
 
@@ -73,6 +75,7 @@ jobs:
         with: { name: avery, path: .agents/outputs/*avery* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: avery monday [skip ci]"
           file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
 
@@ -92,6 +95,7 @@ jobs:
         with: { name: morgan, path: .agents/outputs/*morgan* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: morgan monday [skip ci]"
           file_pattern: ".agents/outputs/*morgan* .agents/memory/morgan.md"
 
@@ -111,6 +115,7 @@ jobs:
         with: { name: riley, path: .agents/outputs/*riley* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: riley monday [skip ci]"
           file_pattern: ".agents/outputs/*riley* .agents/memory/riley.md"
 
@@ -130,6 +135,7 @@ jobs:
         with: { name: casey, path: .agents/outputs/*casey* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: casey monday [skip ci]"
           file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
 
@@ -149,6 +155,7 @@ jobs:
         with: { name: charlie, path: .agents/outputs/*charlie* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: charlie monday [skip ci]"
           file_pattern: ".agents/outputs/*charlie* .agents/memory/charlie.md"
 
@@ -168,6 +175,7 @@ jobs:
         with: { name: harper, path: .agents/outputs/*harper* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: harper monday [skip ci]"
           file_pattern: ".agents/outputs/*harper* .agents/memory/harper.md"
 
@@ -187,6 +195,7 @@ jobs:
         with: { name: logan, path: .agents/outputs/*logan* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: logan monday [skip ci]"
           file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
 
@@ -206,6 +215,7 @@ jobs:
         with: { name: maya, path: .agents/outputs/*maya* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: maya monday [skip ci]"
           file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
 
@@ -225,6 +235,7 @@ jobs:
         with: { name: quinn, path: .agents/outputs/*quinn* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: quinn monday [skip ci]"
           file_pattern: ".agents/outputs/*quinn* .agents/memory/quinn.md"
 
@@ -245,6 +256,7 @@ jobs:
         with: { name: robin, path: .agents/outputs/*robin* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: robin monday [skip ci]"
           file_pattern: ".agents/outputs/*robin* .agents/memory/robin.md"
 
@@ -268,6 +280,7 @@ jobs:
         with: { name: taylor, path: .agents/outputs/*taylor* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: taylor monday [skip ci]"
           file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
 
@@ -290,6 +303,7 @@ jobs:
         with: { name: finlay, path: .agents/outputs/*finlay* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: finlay monday [skip ci]"
           file_pattern: ".agents/outputs/*finlay* .agents/memory/finlay.md"
 
@@ -310,6 +324,7 @@ jobs:
         with: { name: matteo, path: .agents/outputs/*matteo* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: matteo monday [skip ci]"
           file_pattern: ".agents/outputs/*matteo* .agents/memory/matteo.md"
 
@@ -330,6 +345,7 @@ jobs:
         with: { name: budget-guard, path: .agents/outputs/*budget-guard* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: budget-guard monday [skip ci]"
           file_pattern: ".agents/outputs/*budget-guard* .agents/memory/budget-guard.md"
 
@@ -350,6 +366,7 @@ jobs:
         with: { name: macro-specialist, path: .agents/outputs/*macro-specialist* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: macro-specialist monday [skip ci]"
           file_pattern: ".agents/outputs/*macro-specialist* .agents/memory/macro-specialist.md"
 
@@ -370,6 +387,7 @@ jobs:
         with: { name: culinary-critic, path: .agents/outputs/*culinary-critic* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: culinary-critic monday [skip ci]"
           file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"
 
@@ -390,6 +408,7 @@ jobs:
         with: { name: grocery-optimizer, path: .agents/outputs/*grocery-optimizer* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: grocery-optimizer monday [skip ci]"
           file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"
 
@@ -412,6 +431,7 @@ jobs:
         with: { name: drew, path: .agents/outputs/*drew* }
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: drew monday [skip ci]"
           file_pattern: ".agents/outputs/*drew* .agents/memory/drew.md"
 
@@ -442,5 +462,6 @@ jobs:
           cat $OUT
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
+          push_options: --force
           commit_message: "agents: monday digest [skip ci]"
           file_pattern: ".agents/outputs/*digest*"
