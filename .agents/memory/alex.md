@@ -21,3 +21,10 @@ Running accuracy: no data yet
 - Clarification needed from Emil: should Wednesday be added to the DAILY SCHEDULE for the YouTube Short script, or should the WEEKLY AUTOPILOT OUTPUT section be updated to match the Monday/Thursday/Sunday cadence?
 - First full production week begins tomorrow (Thursday) with the Hook A/B Test Carousel on the "Frustration relief" pillar.
 - Team context note: this week's priority is first conversions — content should emphasize the free tier's 3-plan limit and the value of upgrading to Pro. Thursday's carousel should lean into the pain of inconsistent meal planning as a conversion driver.
+
+## 2026-05-28
+- **"Wednesday" is a named failure point.** Specificity about the day of failure (not "midweek" but "Wednesday") functions as a scroll-stopper in carousel format. Use named days of the week in hooks wherever there's a recognisable pattern — they feel like a mirror.
+- **Absurd specificity creates credibility in Slide 1.** "11 minutes" outperforms "a long time" because it implies the creator actually measured it. Precise numbers in carousel hooks signal authenticity and stop the scan reflex. Apply this to video scripts too.
+- **Financial reframe on Slide 2 sharpens emotional hooks.** When the hook is frustration-based (fridge stare, planning collapse), attaching a dollar cost on the rehook slide converts a vague feeling into a concrete problem. "$23 at the takeaway" is more motivating than "it was frustrating."
+- **Save-CTA vs. comment-CTA serve different goals.** "Save this" drives reach and return visits. "Comment PLAN" drives engagement rate and DM conversion. This week: test both. At 48h, if saves > 80 on Variant A and comments > 30 on Variant B, both formats are worth keeping in rotation for different objectives.
+- **First conversion week context applied:** Both carousels land on the free tier (mealzy.org, no credit card) rather than leading with Pro pricing. This is correct for top-of-funnel frustration-relief content. The free plan's 3-plan limit will do its own conversion work once users are inside the product. Do not add Pro upsell language to frustration-relief carousels — it breaks the trust tone.
