@@ -7,7 +7,7 @@
 - Total users: 1
 - Pro subscribers: 1
 - Signups this month: 1
-- Plans generated this month: 8
+- Plans generated this month: 12
 - Pro activations this month: 0
 - Server status: ok
 
