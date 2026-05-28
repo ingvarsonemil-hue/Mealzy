@@ -1,11 +1,24 @@
 #!/usr/bin/env node
 /**
  * Mealzy Agent Runner — GitHub Actions
- * Reads skill + memory + team context, calls Anthropic API, saves output.
  *
- * Usage: node .github/scripts/run-agent.js <agent-name>
- * Env:   ANTHROPIC_API_KEY
+ * Fixes applied vs previous version:
+ * 1. Fetches real data from mealzy.org before building prompt
+ *    (analytics, funnel stats, health check, test meal plan)
+ * 2. Each agent only gets the data relevant to their job
+ * 3. Daily workflow conflict removed — day-specific files handle everything
+ *
+ * Required env vars:
+ *   ANTHROPIC_API_KEY  — always required
+ *   APP_URL            — https://mealzy.org (add as GitHub secret)
+ *   PRO_TOKEN          — same value as in your .env (add as GitHub secret)
+ *
+ * Optional env vars (for social posting):
+ *   FACEBOOK_WEBHOOK, INSTAGRAM_WEBHOOK, HCTI_USER_ID, HCTI_API_KEY
+ *   TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET
  */
+
+'use strict';
 
 const Anthropic = require('@anthropic-ai/sdk');
 const fs        = require('fs');
@@ -17,66 +30,213 @@ if (!agentName) {
   process.exit(1);
 }
 
-const ROOT = path.join(__dirname, '..', '..');
+const ROOT    = path.join(__dirname, '..', '..');
+const APP_URL = (process.env.APP_URL || 'https://mealzy.org').replace(/\/$/, '');
+const TOKEN   = process.env.PRO_TOKEN || '';
 
 function readFile(relPath) {
   const full = path.join(ROOT, relPath);
   return fs.existsSync(full) ? fs.readFileSync(full, 'utf8') : '';
 }
 
+// ── Which agents need which data ──────────────────────────────────────────
+// analytics  → signups, plans generated, pro users, page views
+// funnel     → conversion rates at each step
+// health     → server status, db status
+// test_plan  → generate a real meal plan to inspect quality
+const DATA_NEEDS = {
+  casey:            ['analytics', 'funnel'],
+  riley:            ['analytics', 'funnel'],
+  finlay:           ['analytics', 'funnel'],
+  morgan:           ['health'],
+  avery:            ['health'],
+  quinn:            ['health', 'test_plan'],
+  'budget-guard':   ['test_plan'],
+  'macro-specialist': ['test_plan'],
+  'culinary-critic':  ['test_plan'],
+  'grocery-optimizer':['test_plan'],
+  charlie:          ['analytics'],
+  drew:             ['analytics', 'funnel'],
+  robin:            ['analytics'],
+  logan:            ['analytics'],
+  harper:           ['analytics'],
+};
+
+// ── Fetch real data from mealzy.org ───────────────────────────────────────
+async function fetchLiveData(needs) {
+  const data = {};
+
+  if (needs.includes('health')) {
+    try {
+      const r = await fetch(`${APP_URL}/api/health`, { signal: AbortSignal.timeout(10000) });
+      data.health = await r.json();
+      console.log(`[data] health: ${data.health.status}`);
+    } catch (e) {
+      data.health = { status: 'unreachable', error: e.message };
+      console.warn(`[data] health fetch failed: ${e.message}`);
+    }
+  }
+
+  if (needs.includes('analytics') && TOKEN) {
+    try {
+      const r = await fetch(`${APP_URL}/api/analytics?token=${TOKEN}`, { signal: AbortSignal.timeout(15000) });
+      data.analytics = await r.json();
+      console.log(`[data] analytics: ${data.analytics.total_users} users, ${data.analytics.pro_users} pro`);
+    } catch (e) {
+      data.analytics = { error: e.message };
+      console.warn(`[data] analytics fetch failed: ${e.message}`);
+    }
+  }
+
+  if (needs.includes('funnel') && TOKEN) {
+    try {
+      const r = await fetch(`${APP_URL}/api/analytics/funnel?token=${TOKEN}`, { signal: AbortSignal.timeout(15000) });
+      data.funnel = await r.json();
+      console.log(`[data] funnel: fetched`);
+    } catch (e) {
+      data.funnel = { error: e.message };
+      console.warn(`[data] funnel fetch failed: ${e.message}`);
+    }
+  }
+
+  if (needs.includes('test_plan')) {
+    // Generate one real test meal plan so quality agents have actual output to review
+    try {
+      const r = await fetch(`${APP_URL}/api/generate-meal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(30000),
+        body: JSON.stringify({
+          plan_token: TOKEN, // admin bypass — skips freemium gate
+          profile: {
+            name: 'Test User',
+            fitness_goal: 'lose weight',
+            dietary_preferences: [],
+            allergies: [],
+            cooking_skill: 'intermediate',
+            daily_calories: 2000,
+            daily_protein: 150,
+            daily_carbs: 200,
+            daily_fat: 67,
+            budget_weekly: 80,
+            currency: 'USD',
+            cooking_time_minutes: 30,
+            language: 'en',
+          },
+          date: new Date().toISOString().split('T')[0],
+        }),
+      });
+      data.test_plan = await r.json();
+      console.log(`[data] test_plan: generated (${data.test_plan.mealPlan?.meals?.length || 0} meals)`);
+    } catch (e) {
+      data.test_plan = { error: e.message };
+      console.warn(`[data] test_plan fetch failed: ${e.message}`);
+    }
+  }
+
+  return data;
+}
+
+// ── Format live data for the prompt ──────────────────────────────────────
+function formatLiveData(data) {
+  if (!data || Object.keys(data).length === 0) return '';
+
+  const lines = ['## LIVE DATA FROM MEALZY.ORG (fetched just now — these are real numbers)'];
+
+  if (data.health) {
+    lines.push(`\n### Server health\n- Status: ${data.health.status}\n- DB: ${data.health.db || 'unknown'}\n- Checked at: ${data.health.timestamp || 'now'}`);
+  }
+
+  if (data.analytics && !data.analytics.error) {
+    const a = data.analytics;
+    lines.push(`\n### Analytics\n- Total users: ${a.total_users}\n- Pro users: ${a.pro_users}\n- This month: ${a.this_month?.signups || 0} signups, ${a.this_month?.plans_generated || 0} plans generated, ${a.this_month?.pro_activations || 0} pro activations\n- Free limit hits this month: ${a.this_month?.free_limit_hits || 0}\n- Upgrade clicks this month: ${a.this_month?.upgrade_clicks || 0}\n- All-time plans generated: ${a.all_time?.plans_generated || 0}`);
+  } else if (data.analytics?.error) {
+    lines.push(`\n### Analytics\n- Fetch failed: ${data.analytics.error} — use estimates and flag data unavailability`);
+  }
+
+  if (data.funnel && !data.funnel.error) {
+    lines.push(`\n### Funnel stats\n${JSON.stringify(data.funnel, null, 2)}`);
+  } else if (data.funnel?.error) {
+    lines.push(`\n### Funnel\n- Fetch failed: ${data.funnel.error}`);
+  }
+
+  if (data.test_plan && !data.test_plan.error) {
+    const meals = data.test_plan.mealPlan?.meals || [];
+    const summary = meals.map(m =>
+      `- ${m.type}: ${m.name} | ${m.calories}kcal | P:${m.protein}g C:${m.carbs}g F:${m.fat}g | $${m.estimatedCost}`
+    ).join('\n');
+    const total = data.test_plan.mealPlan?.totalCalories;
+    const cost  = data.test_plan.mealPlan?.totalCost;
+    lines.push(`\n### Real test meal plan (standard profile, $80/week, 2000kcal)\nTotal: ${total}kcal | $${cost}\n${summary}`);
+  } else if (data.test_plan?.error) {
+    lines.push(`\n### Test plan\n- Fetch failed: ${data.test_plan.error}`);
+  }
+
+  return lines.join('\n');
+}
+
+// ── Build the prompt ──────────────────────────────────────────────────────
 const skillContent  = readFile(`.agents/skills/${agentName}.md`);
 const memoryContent = readFile(`.agents/memory/${agentName}.md`);
 const teamContent   = readFile('.agents/memory/TEAM.md');
-const configContent = readFile('.agents/config.json');
-const config        = configContent ? JSON.parse(configContent) : {};
 
 if (!skillContent) {
   console.error(`No skill file found: .agents/skills/${agentName}.md`);
   process.exit(1);
 }
 
-const today   = new Date();
-const dateStr = today.toISOString().split('T')[0];
-const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][today.getDay()];
+const today    = new Date();
+const dateStr  = today.toISOString().split('T')[0];
+const dayName  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][today.getDay()];
+const isMonday = today.getDay() === 1;
 
-const prompt = `You are the ${agentName} agent for Mealzy (mealzy.org) — a free AI meal planner that generates a week of personalised meals in 30 seconds, hitting calorie/macro targets and grocery budget.
-Tiers: Free (3 plans/month) · Pro $8/mo · Family $16/mo
-
-Your complete skill file (defines who you are, your rules, and your weekly schedule):
----
-${skillContent}
----
-
-Your memory from previous sessions:
----
-${memoryContent || '(No memory yet — this is your first run.)'}
----
-
-Team context for this week:
----
-${teamContent || '(No team context file found.)'}
----
-
-Today is ${dayName}, ${dateStr}.
-
-Run your scheduled weekly tasks exactly as defined in your WEEKLY AUTOPILOT OUTPUT (or SCHEDULE) section.
-Produce all deliverables in full — do not abbreviate or summarise. Emil will review this output and use it directly.
-
-Format your output with clear ## headers for each deliverable.
-
-At the end, add a ## MEMORY UPDATE section with 3-5 bullet points of new lessons or observations to remember for next time.`;
+const DAY_KICKOFF = `
+TODAY IS ${dayName.toUpperCase()}, ${dateStr}.
+Run ONLY the tasks listed under ${dayName} in your SCHEDULE section (and WEEKLY AUTOPILOT OUTPUT if today is Monday).
+Produce all deliverables in full — not summaries, not plans, the actual output.
+Use ## headers for every deliverable. End with ## MEMORY UPDATE (3-5 bullet points).
+${isMonday ? 'Include ## TWITTER POST and/or ## SOCIAL POST if your Monday output includes one.' : ''}
+`;
 
 async function main() {
   const client = new Anthropic();
 
   console.log(`Agent:  ${agentName}`);
   console.log(`Date:   ${dateStr} (${dayName})`);
+
+  // Fetch live data for agents that need it
+  const needs   = DATA_NEEDS[agentName] || [];
+  const liveData = needs.length > 0 ? await fetchLiveData(needs) : {};
+  const liveDataBlock = formatLiveData(liveData);
+
+  if (liveDataBlock) {
+    console.log(`[data] Injecting live data into prompt (${liveDataBlock.length} chars)`);
+  }
+
+  const prompt = `You are the ${agentName} agent for Mealzy (mealzy.org) — a free AI meal planner.
+Tiers: Free (3 plans/month) · Pro $8/mo · Family $16/mo
+
+Your skill file:
+---
+${skillContent}
+---
+
+Your memory from previous sessions:
+---
+${memoryContent || '(No memory yet — first run.)'}
+---
+
+Team context:
+---
+${teamContent || '(No TEAM.md found.)'}
+---
+${liveDataBlock ? `\n${liveDataBlock}\n` : ''}
+${DAY_KICKOFF}`;
+
   console.log('Calling Anthropic API...');
 
-  const agentModel = (config.agents && config.agents[agentName]) || config.defaultModel || 'claude-haiku-4-5-20251001';
-
   const message = await client.messages.create({
-    model:      agentModel,
+    model:      'claude-opus-4-5',
     max_tokens: 8192,
     messages:   [{ role: 'user', content: prompt }]
   });
@@ -86,113 +246,79 @@ async function main() {
   // ── Save output ──────────────────────────────────────────────────────────
   const outputDir = path.join(ROOT, '.agents', 'outputs');
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
   const outputFile = path.join(outputDir, `${dateStr}-${agentName}.md`);
-  fs.writeFileSync(outputFile, `# ${agentName} — ${dateStr}\n\n${output}`);
+  fs.writeFileSync(outputFile, `# ${agentName} — ${dateStr} (${dayName})\n\n${output}`);
   console.log(`Output → .agents/outputs/${dateStr}-${agentName}.md`);
 
-  // ── Append memory update (if agent included one) ─────────────────────────
+  // ── Save memory update ───────────────────────────────────────────────────
   const memMatch = output.match(/## MEMORY UPDATE\n([\s\S]+?)(?=\n## |\n---|\n_{3,}|$)/i);
   if (memMatch) {
     const memoryPath = path.join(ROOT, `.agents/memory/${agentName}.md`);
     const existing   = fs.existsSync(memoryPath) ? fs.readFileSync(memoryPath, 'utf8') : '';
-    const newEntry   = `\n\n## ${dateStr}\n${memMatch[1].trim()}`;
-    fs.writeFileSync(memoryPath, existing + newEntry);
+    fs.writeFileSync(memoryPath, existing + `\n\n## ${dateStr}\n${memMatch[1].trim()}`);
     console.log(`Memory → .agents/memory/${agentName}.md`);
+  } else {
+    console.warn(`[warn] No ## MEMORY UPDATE block in ${agentName} output`);
   }
 
-  // ── Post to Facebook via Make webhook (if MAKE_FACEBOOK_WEBHOOK is set) ──
+  // ── Facebook ──────────────────────────────────────────────────────────────
   const socialMatch = output.match(/## SOCIAL POST\n([\s\S]+?)(?=\n## |\n---|\n_{3,}|$)/i);
-  const webhookUrl  = process.env.FACEBOOK_WEBHOOK;
-  if (socialMatch && webhookUrl) {
-    const postText = socialMatch[1].trim();
+  if (socialMatch && process.env.FACEBOOK_WEBHOOK) {
     try {
-      const res = await fetch(webhookUrl, {
-        method:  'POST',
+      const res = await fetch(process.env.FACEBOOK_WEBHOOK, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ text: postText, agent: agentName, date: dateStr })
+        body: JSON.stringify({ text: socialMatch[1].trim(), agent: agentName, date: dateStr })
       });
-      console.log(`Facebook → posted (status ${res.status})`);
-    } catch (err) {
-      console.warn(`Facebook → failed: ${err.message}`);
-    }
+      console.log(`Facebook → posted (${res.status})`);
+    } catch (e) { console.warn(`Facebook → failed: ${e.message}`); }
   }
 
-  // ── Save HTML carousel + screenshot slides via HTMLCSStoImage ───────────
+  // ── HTML Carousel → HCTI → Instagram ────────────────────────────────────
   const htmlMatch = output.match(/## HTML CAROUSEL\n```html\n([\s\S]+?)```/i);
   if (htmlMatch) {
     const htmlContent = htmlMatch[1].trim();
-    const htmlPath    = path.join(outputDir, `${dateStr}-${agentName}-carousel.html`);
-    fs.writeFileSync(htmlPath, htmlContent);
-    console.log(`HTML Carousel → .agents/outputs/${dateStr}-${agentName}-carousel.html`);
-
-    const hctiUser    = process.env.HCTI_USER_ID;
-    const hctiKey     = process.env.HCTI_API_KEY;
-    const igWebhook   = process.env.INSTAGRAM_WEBHOOK;
-
-    if (hctiUser && hctiKey && igWebhook) {
-      const auth      = Buffer.from(`${hctiUser}:${hctiKey}`).toString('base64');
+    fs.writeFileSync(path.join(outputDir, `${dateStr}-${agentName}-carousel.html`), htmlContent);
+    const { HCTI_USER_ID, HCTI_API_KEY, INSTAGRAM_WEBHOOK } = process.env;
+    if (HCTI_USER_ID && HCTI_API_KEY && INSTAGRAM_WEBHOOK) {
+      const auth = Buffer.from(`${HCTI_USER_ID}:${HCTI_API_KEY}`).toString('base64');
       const imageUrls = [];
-
       for (let i = 1; i <= 10; i++) {
         try {
           const res  = await fetch('https://hcti.io/v1/image', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Basic ${auth}` },
-            body:    JSON.stringify({ html: htmlContent, selector: `.slide:nth-child(${i})` })
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
+            body: JSON.stringify({ html: htmlContent, selector: `.slide:nth-child(${i})` })
           });
-          const data = await res.json();
-          if (data.url) { imageUrls.push(data.url); console.log(`  Slide ${i}/10 → ${data.url}`); }
-          else console.warn(`  Slide ${i} — HCTI error: ${JSON.stringify(data)}`);
-        } catch (err) {
-          console.warn(`  Slide ${i} screenshot failed: ${err.message}`);
-        }
+          const d = await res.json();
+          if (d.url) { imageUrls.push(d.url); console.log(`  Slide ${i} → ${d.url}`); }
+        } catch (e) { console.warn(`  Slide ${i} failed: ${e.message}`); }
       }
-
       if (imageUrls.length >= 2) {
         const caption = socialMatch ? socialMatch[1].trim() : 'Free at mealzy.org';
-        try {
-          const res = await fetch(igWebhook, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ imageUrls, caption, agent: agentName, date: dateStr })
-          });
-          console.log(`Instagram → sent ${imageUrls.length} slides (status ${res.status})`);
-        } catch (err) {
-          console.warn(`Instagram → webhook failed: ${err.message}`);
-        }
-      } else {
-        console.warn(`Instagram → skipped (only ${imageUrls.length} slides screenshotted)`);
+        await fetch(INSTAGRAM_WEBHOOK, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ imageUrls, caption, agent: agentName, date: dateStr })
+        }).catch(e => console.warn(`Instagram → failed: ${e.message}`));
+        console.log(`Instagram → sent ${imageUrls.length} slides`);
       }
-    } else if (!hctiUser || !hctiKey) {
-      console.log('Instagram → skipped (HCTI_USER_ID / HCTI_API_KEY not set)');
     }
   }
 
-  // ── Post to Twitter/X (if TWITTER_ vars set and agent output has ## TWITTER POST) ──
+  // ── Twitter ───────────────────────────────────────────────────────────────
   const tweetMatch = output.match(/## TWITTER POST\n([\s\S]+?)(?=\n## |\n---|\n_{3,}|$)/i);
-  const twitterKey    = process.env.TWITTER_API_KEY;
-  const twitterSecret = process.env.TWITTER_API_SECRET;
-  const twitterToken  = process.env.TWITTER_ACCESS_TOKEN;
-  const twitterTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
-
-  if (tweetMatch && twitterKey && twitterSecret && twitterToken && twitterTokenSecret) {
-    const tweetText = tweetMatch[1].trim();
+  const { TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET } = process.env;
+  if (tweetMatch && TWITTER_API_KEY && TWITTER_API_SECRET && TWITTER_ACCESS_TOKEN && TWITTER_ACCESS_TOKEN_SECRET) {
     try {
       const { TwitterApi } = require('twitter-api-v2');
-      const twitterClient = new TwitterApi({
-        appKey:      twitterKey,
-        appSecret:   twitterSecret,
-        accessToken: twitterToken,
-        accessSecret: twitterTokenSecret,
+      const tw = new TwitterApi({
+        appKey: TWITTER_API_KEY, appSecret: TWITTER_API_SECRET,
+        accessToken: TWITTER_ACCESS_TOKEN, accessSecret: TWITTER_ACCESS_TOKEN_SECRET
       });
-      const tweet = await twitterClient.v2.tweet(tweetText);
+      const tweet = await tw.v2.tweet(tweetMatch[1].trim());
       console.log(`Twitter → posted (id ${tweet.data.id})`);
-    } catch (err) {
-      console.warn(`Twitter → failed: ${err.message}`);
-    }
-  } else if (tweetMatch && (!twitterKey || !twitterSecret || !twitterToken || !twitterTokenSecret)) {
-    console.log('Twitter → skipped (TWITTER_ vars not set)');
+    } catch (e) { console.warn(`Twitter → failed: ${e.message}`); }
   }
 
   console.log('Done.');

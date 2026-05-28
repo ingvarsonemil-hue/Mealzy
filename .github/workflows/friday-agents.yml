@@ -1,0 +1,384 @@
+# .github/workflows/friday-agents.yml
+# All 19 agents deliver weekly reports on Friday + nova ships design fix + skylar viral hooks
+
+name: Friday Agents
+
+on:
+  schedule:
+    - cron: '0 7 * * 5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  alex:
+    name: Alex — Hook A/B Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js alex
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FACEBOOK_WEBHOOK:  ${{ secrets.FACEBOOK_WEBHOOK }}
+          INSTAGRAM_WEBHOOK: ${{ secrets.INSTAGRAM_WEBHOOK }}
+          HCTI_USER_ID:      ${{ secrets.HCTI_USER_ID }}
+          HCTI_API_KEY:      ${{ secrets.HCTI_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: alex-fri, path: .agents/outputs/*alex* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: alex friday [skip ci]"
+          file_pattern: ".agents/outputs/*alex* .agents/memory/alex.md"
+
+  avery:
+    name: Avery — API Cost Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js avery
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: avery-fri, path: .agents/outputs/*avery* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: avery friday [skip ci]"
+          file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
+
+  casey:
+    name: Casey — Monetization Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js casey
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: casey-fri, path: .agents/outputs/*casey* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: casey friday [skip ci]"
+          file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
+
+  charlie:
+    name: Charlie — Support Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js charlie
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: charlie-fri, path: .agents/outputs/*charlie* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: charlie friday [skip ci]"
+          file_pattern: ".agents/outputs/*charlie* .agents/memory/charlie.md"
+
+  drew:
+    name: Drew — Product Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js drew
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: drew-fri, path: .agents/outputs/*drew* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: drew friday [skip ci]"
+          file_pattern: ".agents/outputs/*drew* .agents/memory/drew.md"
+
+  jordan:
+    name: Jordan — Email Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js jordan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: jordan-fri, path: .agents/outputs/*jordan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: jordan friday [skip ci]"
+          file_pattern: ".agents/outputs/*jordan* .agents/memory/jordan.md"
+
+  logan:
+    name: Logan — Partnership Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js logan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: logan-fri, path: .agents/outputs/*logan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: logan friday [skip ci]"
+          file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
+
+  maya:
+    name: Maya — CRO Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js maya
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: maya-fri, path: .agents/outputs/*maya* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: maya friday [skip ci]"
+          file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
+
+  morgan:
+    name: Morgan — Engineering Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js morgan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: morgan-fri, path: .agents/outputs/*morgan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: morgan friday [skip ci]"
+          file_pattern: ".agents/outputs/*morgan* .agents/memory/morgan.md"
+
+  nova:
+    name: Nova — Ship Design Fix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js nova
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: nova-fri, path: .agents/outputs/*nova* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: nova friday [skip ci]"
+          file_pattern: ".agents/outputs/*nova* .agents/memory/nova.md"
+
+  quinn:
+    name: Quinn — AI Quality Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js quinn
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: quinn-fri, path: .agents/outputs/*quinn* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: quinn friday [skip ci]"
+          file_pattern: ".agents/outputs/*quinn* .agents/memory/quinn.md"
+
+  riley:
+    name: Riley — Growth Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js riley
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: riley-fri, path: .agents/outputs/*riley* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: riley friday [skip ci]"
+          file_pattern: ".agents/outputs/*riley* .agents/memory/riley.md"
+
+  sam:
+    name: Sam — SEO Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js sam
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: sam-fri, path: .agents/outputs/*sam* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: sam friday [skip ci]"
+          file_pattern: ".agents/outputs/*sam* .agents/memory/sam.md"
+
+  skylar:
+    name: Skylar — Viral Hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js skylar
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FACEBOOK_WEBHOOK:  ${{ secrets.FACEBOOK_WEBHOOK }}
+      - uses: actions/upload-artifact@v4
+        with: { name: skylar-fri, path: .agents/outputs/*skylar* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: skylar friday [skip ci]"
+          file_pattern: ".agents/outputs/*skylar* .agents/memory/skylar.md"
+
+  taylor:
+    name: Taylor — Brand Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js taylor
+        env:
+          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
+          TWITTER_API_KEY:               ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET:            ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN:          ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+      - uses: actions/upload-artifact@v4
+        with: { name: taylor-fri, path: .agents/outputs/*taylor* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: taylor friday [skip ci]"
+          file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
+
+  budget-guard:
+    name: Budget Guard — Compliance Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js budget-guard
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: budget-guard-fri, path: .agents/outputs/*budget-guard* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: budget-guard friday [skip ci]"
+          file_pattern: ".agents/outputs/*budget-guard* .agents/memory/budget-guard.md"
+
+  macro-specialist:
+    name: Macro Specialist — Accuracy Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js macro-specialist
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: macro-specialist-fri, path: .agents/outputs/*macro-specialist* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: macro-specialist friday [skip ci]"
+          file_pattern: ".agents/outputs/*macro-specialist* .agents/memory/macro-specialist.md"
+
+  culinary-critic:
+    name: Culinary Critic — Quality Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js culinary-critic
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: culinary-critic-fri, path: .agents/outputs/*culinary-critic* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: culinary-critic friday [skip ci]"
+          file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"
+
+  grocery-optimizer:
+    name: Grocery Optimizer — Efficiency Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js grocery-optimizer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: grocery-optimizer-fri, path: .agents/outputs/*grocery-optimizer* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: grocery-optimizer friday [skip ci]"
+          file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"

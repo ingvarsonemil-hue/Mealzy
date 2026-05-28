@@ -1,0 +1,251 @@
+# .github/workflows/wednesday-agents.yml
+# casey, jordan, logan, maya, morgan, nova, quinn, taylor
+# budget-guard, macro-specialist, culinary-critic, grocery-optimizer
+
+name: Wednesday Agents
+
+on:
+  schedule:
+    - cron: '0 7 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  casey:
+    name: Casey — Churn Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js casey
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: casey-wed, path: .agents/outputs/*casey* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: casey wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
+
+  jordan:
+    name: Jordan — Email Sequence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js jordan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: jordan-wed, path: .agents/outputs/*jordan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: jordan wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*jordan* .agents/memory/jordan.md"
+
+  logan:
+    name: Logan — Pipeline Update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js logan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: logan-wed, path: .agents/outputs/*logan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: logan wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
+
+  maya:
+    name: Maya — CRO + Headline Rewrites
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js maya
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: maya-wed, path: .agents/outputs/*maya* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: maya wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
+
+  morgan:
+    name: Morgan — Bug Fix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js morgan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: morgan-wed, path: .agents/outputs/*morgan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: morgan wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*morgan* .agents/memory/morgan.md"
+
+  nova:
+    name: Nova — Design Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js nova
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: nova-wed, path: .agents/outputs/*nova* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: nova wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*nova* .agents/memory/nova.md"
+
+  quinn:
+    name: Quinn — Prompt Fix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js quinn
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: quinn-wed, path: .agents/outputs/*quinn* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: quinn wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*quinn* .agents/memory/quinn.md"
+
+  taylor:
+    name: Taylor — Competitor Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js taylor
+        env:
+          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
+          TWITTER_API_KEY:               ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET:            ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN:          ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+      - uses: actions/upload-artifact@v4
+        with: { name: taylor-wed, path: .agents/outputs/*taylor* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: taylor wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
+
+  budget-guard:
+    name: Budget Guard — Prompt Fix
+    runs-on: ubuntu-latest
+    needs: [quinn]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js budget-guard
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: budget-guard-wed, path: .agents/outputs/*budget-guard* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: budget-guard wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*budget-guard* .agents/memory/budget-guard.md"
+
+  macro-specialist:
+    name: Macro Specialist — Prompt Fix
+    runs-on: ubuntu-latest
+    needs: [quinn]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js macro-specialist
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: macro-specialist-wed, path: .agents/outputs/*macro-specialist* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: macro-specialist wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*macro-specialist* .agents/memory/macro-specialist.md"
+
+  culinary-critic:
+    name: Culinary Critic — Prompt Fix
+    runs-on: ubuntu-latest
+    needs: [quinn]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js culinary-critic
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: culinary-critic-wed, path: .agents/outputs/*culinary-critic* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: culinary-critic wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"
+
+  grocery-optimizer:
+    name: Grocery Optimizer — Prompt Fix
+    runs-on: ubuntu-latest
+    needs: [quinn]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js grocery-optimizer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: grocery-optimizer-wed, path: .agents/outputs/*grocery-optimizer* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: grocery-optimizer wednesday [skip ci]"
+          file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"

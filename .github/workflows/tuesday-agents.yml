@@ -1,0 +1,174 @@
+# .github/workflows/tuesday-agents.yml
+# alex, avery, casey, drew, logan, sam, taylor, culinary-critic
+
+name: Tuesday Agents
+
+on:
+  schedule:
+    - cron: '0 7 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  alex:
+    name: Alex — Video Script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js alex
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FACEBOOK_WEBHOOK:  ${{ secrets.FACEBOOK_WEBHOOK }}
+          INSTAGRAM_WEBHOOK: ${{ secrets.INSTAGRAM_WEBHOOK }}
+          HCTI_USER_ID:      ${{ secrets.HCTI_USER_ID }}
+          HCTI_API_KEY:      ${{ secrets.HCTI_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: alex-tue, path: .agents/outputs/*alex* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: alex tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*alex* .agents/memory/alex.md"
+
+  avery:
+    name: Avery — PageSpeed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js avery
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: avery-tue, path: .agents/outputs/*avery* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: avery tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
+
+  casey:
+    name: Casey — Upgrade Flow Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js casey
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: casey-tue, path: .agents/outputs/*casey* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: casey tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
+
+  drew:
+    name: Drew — Specs + ICE Scores
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js drew
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: drew-tue, path: .agents/outputs/*drew* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: drew tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*drew* .agents/memory/drew.md"
+
+  logan:
+    name: Logan — Outreach Drafts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js logan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: logan-tue, path: .agents/outputs/*logan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: logan tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
+
+  sam:
+    name: Sam — Publish SEO Page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js sam
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: sam-tue, path: .agents/outputs/*sam* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: sam tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*sam* .agents/memory/sam.md"
+
+  taylor:
+    name: Taylor — Community Post + Outreach
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js taylor
+        env:
+          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
+          TWITTER_API_KEY:               ${{ secrets.TWITTER_API_KEY }}
+          TWITTER_API_SECRET:            ${{ secrets.TWITTER_API_SECRET }}
+          TWITTER_ACCESS_TOKEN:          ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+      - uses: actions/upload-artifact@v4
+        with: { name: taylor-tue, path: .agents/outputs/*taylor* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: taylor tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
+
+  culinary-critic:
+    name: Culinary Critic — Description Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js culinary-critic
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: culinary-critic-tue, path: .agents/outputs/*culinary-critic* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: culinary-critic tuesday [skip ci]"
+          file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"

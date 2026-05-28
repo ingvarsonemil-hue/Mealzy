@@ -1,59 +1,82 @@
-# MEALZY TEAM — SHARED MEMORY
-## Cross-agent knowledge base | Updated by all 19 agents
+# TEAM.md — Mealzy Agent Shared Context
+# Updated manually by Emil. All 19 agents read this every run.
+# Keep under 300 lines. Remove stale entries weekly.
 
-Every agent reads this file at the start of every session, after their personal memory file.
-Every agent writes to this file when they learn something that affects another agent's work.
+## THIS WEEK — context every agent needs
 
----
+**Week of:** <!-- UPDATE THIS each Monday -->
+**Focus:** <!-- e.g. "AI coach relaunch" / "hitting 1,000 users" / "Family plan launch" -->
 
-## ACTIVE LESSONS (things every agent must know right now)
+### Live numbers (update weekly)
+- Total users:       <!-- e.g. 847 -->
+- Pro subscribers:   <!-- e.g. 23 -->
+- Plans generated:   <!-- e.g. 4,291 this month -->
+- Weekly signups:    <!-- e.g. 38 last week -->
 
-*Agents: add lessons here when something you learned affects the whole team. Keep it short and specific.*
+### Active this week
+<!-- List what's live, launched, or in-progress -->
+- [ ] Example: Family plan — launching Thursday
+- [ ] Example: New onboarding flow — A/B test running
 
-- (empty — first agent to learn something cross-team adds it here)
-
----
-
-## WHAT'S WORKING (wins to repeat across the team)
-
-*When something works well and other agents could apply the same principle, log it here.*
-
-| Date | Agent | Win | Who else should use this |
-|------|-------|-----|--------------------------|
-| — | — | — | — |
-
----
-
-## WHAT FAILED (mistakes the whole team should avoid)
-
-*When you make a mistake that another agent could make too, log it here so they don't repeat it.*
-
-| Date | Agent | Mistake | Root cause | What to do instead |
-|------|-------|---------|------------|-------------------|
-| — | — | — | — | — |
+### Blocked / don't work on
+<!-- Anything agents should explicitly skip this week -->
+- Example: Don't mention annual pricing — Casey is reworking it
 
 ---
 
-## ACTIVE HANDOFFS (messages between agents)
+## STANDING CONTEXT (always true)
 
-*Use this section to leave a message for a specific agent. They will pick it up at their next session start.*
-*Once the receiving agent acts on it, they mark it DONE and move it to the log below.*
+### Product
+- Free tier: 3 meal plans/month, no credit card
+- Pro: $8/mo or $62/yr — unlimited plans, PDF export, AI coach Mia, advanced macros
+- Family: $16/mo or $130/yr — everything in Pro + up to 4 profiles
+- Stack: Node.js + Express, Turso SQLite, JWT cookies, Stripe, Render free tier
+- AI: claude-haiku-4-5-20251001 for meal gen and Mia coach
 
-### Pending
-*(none)*
+### Brand
+- Voice: warm, calm, direct. Friend who knows nutrition. Never wellness influencer.
+- Never use: emojis, exclamation piles, "level up", "game-changer", "transform", "clean eating", "guilt-free"
+- CTA always: "Free at mealzy.org"
+- Primary green: #3d8b5e
+- Font: Fraunces (headings) + Inter (body)
 
-### Completed handoffs log
-*(none yet)*
+### Key URLs
+- App: https://mealzy.org
+- Upgrade: https://mealzy.org/upgrade.html
+- Dashboard: https://mealzy.org/dashboard.html
+- Planner: https://mealzy.org/meal-planner.html
+
+### Founder
+- Emil, 16yo solo founder, Sweden
+- Building in public — founder story is a real asset in community posts
 
 ---
 
-## THIS WEEK'S CONTEXT
+## CROSS-AGENT HANDOFFS
+<!-- Agents leave notes here for each other. Format: [From → To]: task/note -->
+<!-- Clear resolved handoffs each Monday -->
 
-*Updated each Monday by Drew. Gives the whole team shared situational awareness.*
+<!-- Example: -->
+<!-- [taylor → alex]: r/mealprep post about "Sunday planning" got 47 upvotes — repurpose as a video hook -->
+<!-- [riley → casey]: trial-to-paid conversion dropped to 18% this week — review pricing page copy -->
+<!-- [jordan → taylor]: day-3 nudge email open rate 34% — subject line "You've got 2 free plans left" is working -->
 
-- Week of: 26 May 2026
-- MRR: pre-$1k (exact figure unknown — first measurement week)
-- Active A/B test: none yet
-- Last feature shipped: Google OAuth login, full Stripe 4-tier setup, dashboard Nova redesign (SVG icons, animations, Fraunces headings, atmosphere gradient)
-- Top user complaint this week: unknown (first data week)
-- Key priority this week: first conversions — get free users to hit 3-plan limit and convert to Pro. /schedule permanent agents going live Tuesday.
+---
+
+## LAUNCH CALENDAR
+<!-- Upcoming launches agents should coordinate around -->
+
+| Date | What | Owner | Status |
+|------|------|-------|--------|
+| TBD  | Family plan public launch | Drew + Taylor | planning |
+| TBD  | Product Hunt relaunch | Taylor | not started |
+
+---
+
+## RECENT WINS (keep agents motivated and informed)
+<!-- Emil updates this — used by Jordan for email copy, Taylor for community posts, Alex for hooks -->
+
+<!-- Example: -->
+<!-- - 2026-05-20: Hit 800 users -->
+<!-- - 2026-05-15: First Family plan subscriber -->
+<!-- - 2026-05-10: r/EatCheapAndHealthy post hit 200 upvotes -->

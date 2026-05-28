@@ -1,0 +1,128 @@
+# .github/workflows/thursday-agents.yml
+# casey, charlie, harper, jordan, maya, riley
+
+name: Thursday Agents
+
+on:
+  schedule:
+    - cron: '0 7 * * 4'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  casey:
+    name: Casey — Pricing Page Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js casey
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: casey-thu, path: .agents/outputs/*casey* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: casey thursday [skip ci]"
+          file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
+
+  charlie:
+    name: Charlie — Onboarding Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js charlie
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: charlie-thu, path: .agents/outputs/*charlie* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: charlie thursday [skip ci]"
+          file_pattern: ".agents/outputs/*charlie* .agents/memory/charlie.md"
+
+  harper:
+    name: Harper — Legal Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js harper
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: harper-thu, path: .agents/outputs/*harper* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: harper thursday [skip ci]"
+          file_pattern: ".agents/outputs/*harper* .agents/memory/harper.md"
+
+  jordan:
+    name: Jordan — Weekly Digest Send
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js jordan
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: jordan-thu, path: .agents/outputs/*jordan* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: jordan thursday [skip ci]"
+          file_pattern: ".agents/outputs/*jordan* .agents/memory/jordan.md"
+
+  maya:
+    name: Maya — A/B Copy Variants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js maya
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: maya-thu, path: .agents/outputs/*maya* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: maya thursday [skip ci]"
+          file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
+
+  riley:
+    name: Riley — Design A/B Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js riley
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: riley-thu, path: .agents/outputs/*riley* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "agents: riley thursday [skip ci]"
+          file_pattern: ".agents/outputs/*riley* .agents/memory/riley.md"
