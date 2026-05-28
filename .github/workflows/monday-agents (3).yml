@@ -443,12 +443,65 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: drew, path: .agents/outputs/*drew* }
+
+  stripe-guard:
+    name: Stripe Guard — Payment Health
+    runs-on: ubuntu-latest
+    needs: [update-team]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js stripe-guard
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          APP_URL:           ${{ secrets.APP_URL }}
+          PRO_TOKEN:         ${{ secrets.PRO_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with: { name: stripe-guard, path: .agents/outputs/*stripe-guard* }
+
+  retention:
+    name: Retention — Drop-off Analysis
+    runs-on: ubuntu-latest
+    needs: [update-team, charlie]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js retention
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          APP_URL:           ${{ secrets.APP_URL }}
+          PRO_TOKEN:         ${{ secrets.PRO_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with: { name: retention, path: .agents/outputs/*retention* }
+
+  ab-writer:
+    name: A/B Writer — Test Variants
+    runs-on: ubuntu-latest
+    needs: [update-team, maya, riley]
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js ab-writer
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: ab-writer, path: .agents/outputs/*ab-writer* }
+
   # ── DIGEST ────────────────────────────────────────────────────────────────
 
   digest:
     name: Monday Digest
     runs-on: ubuntu-latest
-    needs: [alex, blake, avery, morgan, riley, casey, charlie, harper, logan, maya, quinn, robin, taylor, finlay, matteo, budget-guard, macro-specialist, culinary-critic, grocery-optimizer, drew]
+    needs: [alex, blake, avery, morgan, riley, casey, charlie, harper, logan, maya, quinn, robin, taylor, finlay, matteo, budget-guard, macro-specialist, culinary-critic, grocery-optimizer, drew, stripe-guard, retention, ab-writer]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -472,7 +525,7 @@ jobs:
           echo "" >> $OUT
           echo "| Agent | Status |" >> $OUT
           echo "|-------|--------|" >> $OUT
-          for a in alex blake avery morgan riley casey charlie harper logan maya quinn robin taylor finlay matteo budget-guard macro-specialist culinary-critic grocery-optimizer drew; do
+          for a in alex blake avery morgan riley casey charlie harper logan maya quinn robin taylor finlay matteo budget-guard macro-specialist culinary-critic grocery-optimizer drew stripe-guard retention ab-writer; do
             F=".agents/outputs/${DATE}-${a}.md"
             [ -f "$F" ] && echo "| $a | ✅ |" >> $OUT || echo "| $a | ❌ |" >> $OUT
           done
