@@ -1834,6 +1834,9 @@ app.post('/api/cron/weekly-digest', async (req, res) => {
   }
 });
 
+// ── Recipe routes (photo import, save, list) ──────────────────────────────
+require('./routes/recipes')(app, { anthropic, getSessionFromReq, generateLimiter, db });
+
 // ── Catch-all: serve index.html ────────────────────────────────────────────
 app.get('*', async (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -1846,9 +1849,6 @@ app.use((err, req, res, next) => {
 });
 
 // Catch unhandled promise rejections
-// ── Recipe routes (photo import, save, list) ──────────────────────────────
-require('./routes/recipes')(app, { anthropic, getSessionFromReq, generateLimiter, db });
-
 process.on('unhandledRejection', (reason) => {
   console.error('[unhandledRejection]', reason);
 });
