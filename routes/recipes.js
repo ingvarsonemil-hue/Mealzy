@@ -1,0 +1,96 @@
+'use strict';
+
+const { randomUUID } = require('crypto');
+
+const EXTRACT_PROMPT =
+  'Extract the recipe from this image as JSON only — no markdown, no explanation.\n' +
+  'Schema: { "name": string, "servings": number, "ingredients": [{ "name": string, "amount": string }], "instructions": [string], "estimatedCalories": number, "estimatedProtein": number }\n' +
+  'If any field is unclear from the image, make a reasonable estimate. Always return valid JSON.';
+
+const VALID_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromReq, generateLimiter, db }) {
+
+  // POST /api/recipes/import-photo — Pro only, vision extraction, image never stored
+  app.post('/api/recipes/import-photo', generateLimiter, async (req, res) => {
+    const session = getSessionFromReq(req);
+    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+    // Fresh DB lookup — never trust JWT payload for Pro gate
+    const user = await db.getUserById(session.userId);
+    if (!user)     return res.status(401).json({ error: 'user_not_found' });
+    if (!user.pro) return res.status(403).json({ error: 'pro_required', message: 'Photo import requires a Pro plan.' });
+
+    const { imageData, mimeType } = req.body;
+    if (!imageData || typeof imageData !== 'string') {
+      return res.status(400).json({ error: 'imageData (base64 string) required' });
+    }
+    const mime = VALID_MIME_TYPES.includes(mimeType) ? mimeType : 'image/jpeg';
+
+    try {
+      const message = await anthropic.messages.create({
+        model:      'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mime, data: imageData } },
+            { type: 'text',  text: EXTRACT_PROMPT }
+          ]
+        }]
+      });
+
+      const raw = message.content[0].text.trim();
+      let recipe;
+      try {
+        recipe = JSON.parse(raw);
+      } catch {
+        const match = raw.match(/\{[\s\S]+\}/);
+        if (!match) return res.status(422).json({ error: 'extraction_failed', message: 'Could not parse recipe from image.' });
+        recipe = JSON.parse(match[0]);
+      }
+
+      // Image is not stored — only the extracted JSON is returned
+      res.json({ success: true, recipe });
+
+    } catch (err) {
+      console.error('[recipes/import-photo]', err.message);
+      res.status(500).json({ error: 'extraction_failed', message: 'Failed to extract recipe from image.' });
+    }
+  });
+
+  // POST /api/recipes/save — authenticated, saves reviewed/edited recipe to library
+  app.post('/api/recipes/save', async (req, res) => {
+    const session = getSessionFromReq(req);
+    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+    const { recipe } = req.body;
+    if (!recipe || typeof recipe !== 'object') {
+      return res.status(400).json({ error: 'recipe object required' });
+    }
+
+    try {
+      const id = randomUUID();
+      await db.saveRecipe(id, session.userId, recipe);
+      await db.logEvent('recipe_imported', { userId: session.userId }, '');
+      res.json({ success: true, id });
+    } catch (err) {
+      console.error('[recipes/save]', err.message);
+      res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+  });
+
+  // GET /api/recipes — authenticated, returns all saved recipes for the user
+  app.get('/api/recipes', async (req, res) => {
+    const session = getSessionFromReq(req);
+    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+    try {
+      const recipes = await db.getRecipes(session.userId);
+      res.json({ success: true, recipes });
+    } catch (err) {
+      console.error('[recipes]', err.message);
+      res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+  });
+};

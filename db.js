@@ -89,6 +89,12 @@ async function _applySchema() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       sent_at    TEXT
     )`,
+    `CREATE TABLE IF NOT EXISTS recipes (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      data       TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`,
   ];
 
   for (const sql of tables) {
@@ -387,6 +393,28 @@ async function getUsersForWeeklyDigest() {
   `);
 }
 
+// ── Recipes ───────────────────────────────────────────────────────────────────
+
+async function saveRecipe(id, userId, recipeObj) {
+  await run(
+    `INSERT INTO recipes (id, user_id, data) VALUES (?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET data = excluded.data`,
+    [id, userId, JSON.stringify(recipeObj)]
+  );
+}
+
+async function getRecipes(userId) {
+  const rows = await all(
+    'SELECT id, data, created_at FROM recipes WHERE user_id = ? ORDER BY created_at DESC',
+    [userId]
+  );
+  return rows.map(r => ({
+    id:        r.id,
+    createdAt: r.created_at,
+    ...(() => { try { return JSON.parse(r.data); } catch(e) { return {}; } })(),
+  }));
+}
+
 // ── Share links ───────────────────────────────────────────────────────────────
 
 async function saveShareLink(shareId, planId, userId, planData) {
@@ -497,6 +525,8 @@ module.exports = {
   getFamilyProfiles, saveFamilyProfile, deleteFamilyProfile, countFamilyProfiles,
   // referrals
   saveReferral, markReferralConverted, getReferralCount, addBonusPlan, getUserBonusPlans,
+  // recipes
+  saveRecipe, getRecipes,
   // health
   ping,
 };
