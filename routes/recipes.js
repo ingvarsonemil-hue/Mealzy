@@ -93,4 +93,24 @@ module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromR
       res.status(500).json({ error: 'Something went wrong. Please try again.' });
     }
   });
+
+  // DELETE /api/recipes/:id — authenticated, only deletes recipes owned by current user
+  app.delete('/api/recipes/:id', async (req, res) => {
+    const session = getSessionFromReq(req);
+    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'id required' });
+
+    try {
+      await db.run(
+        'DELETE FROM recipes WHERE id = ? AND user_id = ?',
+        [id, session.userId]
+      );
+      res.json({ success: true });
+    } catch (err) {
+      console.error('[recipes/delete]', err.message);
+      res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+  });
 };
