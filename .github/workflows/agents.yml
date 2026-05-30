@@ -1,0 +1,66 @@
+name: Agents
+
+on:
+  schedule:
+    - cron: '0 14 * * 1'
+    - cron: '0 20 * * 3'
+    - cron: '0 20 * * 5'
+    - cron: '0 15 * * 4'
+
+jobs:
+  growth:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 14 * * 1' || github.event.schedule == '0 20 * * 3' || github.event.schedule == '0 20 * * 5'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm install
+      - run: node .github/scripts/run-agent.js growth
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .agents/
+          git commit -m "chore: growth run" || true
+          git push
+
+  cs:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 15 * * 4'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm install
+      - run: node .github/scripts/run-agent.js cs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .agents/
+          git commit -m "chore: cs run" || true
+          git push
+
+  contentops:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 14 * * 1' || github.event.schedule == '0 20 * * 3' || github.event.schedule == '0 20 * * 5'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm install
+      - run: node .github/scripts/run-agent.js contentops
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .agents/
+          git commit -m "chore: contentops run" || true
+          git push
