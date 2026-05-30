@@ -1,6 +1,4 @@
 # .github/workflows/monday-agents.yml
-# 17 agents run on Monday. Run order respects dependencies.
-
 name: Monday Agents
 
 on:
@@ -12,8 +10,6 @@ permissions:
   contents: write
 
 jobs:
-
-  # ── WAVE 1: no dependencies ───────────────────────────────────────────────
 
   alex:
     name: Alex — Scripts + Carousel
@@ -284,7 +280,45 @@ jobs:
           commit_message: "agents: taylor monday [skip ci]"
           file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
 
-  # ── WAVE 2: depends on wave 1 ────────────────────────────────────────────
+  growth:
+    name: Growth — Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js growth
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: growth, path: .agents/outputs/*growth* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
+          commit_message: "agents: growth monday [skip ci]"
+          file_pattern: ".agents/outputs/*growth* .agents/memory/growth.md"
+
+  contentops:
+    name: Content Ops — Calendar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: node .github/scripts/run-agent.js contentops
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with: { name: contentops, path: .agents/outputs/*contentops* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
+          commit_message: "agents: contentops monday [skip ci]"
+          file_pattern: ".agents/outputs/*contentops* .agents/memory/contentops.md"
 
   finlay:
     name: Finlay — Unit Economics
@@ -412,12 +446,10 @@ jobs:
           commit_message: "agents: grocery-optimizer monday [skip ci]"
           file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"
 
-  # ── WAVE 3: reads wave 1+2 outputs ───────────────────────────────────────
-
   drew:
     name: Drew — PM Priorities
     runs-on: ubuntu-latest
-    needs: [riley, casey, morgan, avery, charlie, robin]
+    needs: [riley, casey, morgan, avery, charlie, robin, growth, contentops]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -435,12 +467,10 @@ jobs:
           commit_message: "agents: drew monday [skip ci]"
           file_pattern: ".agents/outputs/*drew* .agents/memory/drew.md"
 
-  # ── DIGEST ────────────────────────────────────────────────────────────────
-
   digest:
     name: Monday Digest
     runs-on: ubuntu-latest
-    needs: [alex, blake, avery, morgan, riley, casey, charlie, harper, logan, maya, quinn, robin, taylor, finlay, matteo, budget-guard, macro-specialist, culinary-critic, grocery-optimizer, drew]
+    needs: [alex, blake, avery, morgan, riley, casey, charlie, harper, logan, maya, quinn, robin, taylor, finlay, matteo, budget-guard, macro-specialist, culinary-critic, grocery-optimizer, drew, growth, contentops]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -455,7 +485,7 @@ jobs:
           echo "" >> $OUT
           echo "| Agent | Status |" >> $OUT
           echo "|-------|--------|" >> $OUT
-          for a in alex blake avery morgan riley casey charlie harper logan maya quinn robin taylor finlay matteo budget-guard macro-specialist culinary-critic grocery-optimizer drew; do
+          for a in alex blake avery morgan riley casey charlie harper logan maya quinn robin taylor finlay matteo budget-guard macro-specialist culinary-critic grocery-optimizer drew growth contentops; do
             F=".agents/outputs/${DATE}-${a}.md"
             [ -f "$F" ] && echo "| $a | ✅ |" >> $OUT || echo "| $a | ❌ |" >> $OUT
           done
