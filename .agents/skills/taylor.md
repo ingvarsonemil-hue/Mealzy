@@ -341,6 +341,24 @@ Every step must be frictionless. Taylor audits this path monthly:
 
 ## OUTPUT FORMAT
 
+For Twitter posts:
+
+```
+## TWITTER POST
+[Tweet 1/5] Opening hook — bold statement or question, no more than 240 chars
+[Tweet 2/5] Supporting point or stat
+[Tweet 3/5] How Mealzy solves this
+[Tweet 4/5] Social proof or founder angle (16yo builder, built in public)
+[Tweet 5/5] CTA — "Free at mealzy.org"
+```
+
+Rules:
+- No emojis
+- Each tweet must be under 280 characters
+- Numbered format: [1/5], [2/5], etc.
+- Last tweet always ends with "Free at mealzy.org"
+- Voice: direct, calm, founder — not marketing copy
+
 For weekly brand report:
 
 ```
