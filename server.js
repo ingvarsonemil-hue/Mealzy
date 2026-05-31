@@ -1488,6 +1488,24 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       mealPlan = parseJsonResponse(retryCompletion.content[0].text);
     }
 
+    // ── Allergy enforcement — server-side scan after AI generation ───────────
+    if (allergies.length > 0 && mealPlan.meals) {
+      const lowerAllergies = allergies.map(a => a.toLowerCase());
+      for (const meal of mealPlan.meals) {
+        const haystack = [
+          meal.name || '',
+          meal.description || '',
+          ...(meal.ingredients || []).map(i => i.name || '')
+        ].join(' ').toLowerCase();
+        const match = lowerAllergies.find(a => haystack.includes(a));
+        if (match) {
+          await db.logEvent('allergy_violation_detected', { allergen: match, meal: meal.name, userId: session?.userId || 'anon' }, '');
+          logger.warn(`[allergy] Violation detected: "${match}" in "${meal.name}"`);
+          return res.status(400).json({ error: 'allergy_violation', retry: true, allergen: match, message: `Generated meal "${meal.name}" may contain "${match}". Please regenerate your plan.` });
+        }
+      }
+    }
+
     // Attach images if Unsplash is configured
     if (process.env.UNSPLASH_ACCESS_KEY && mealPlan.meals) {
       await Promise.all(mealPlan.meals.map(async (meal) => {
