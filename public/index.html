@@ -126,8 +126,8 @@
       justify-content: space-between;
     }
     .mockup-footer-stat { text-align: center; }
-    .mockup-footer-stat-num { font-size: 0.9rem; font-weight: 800; color: var(--clr-primary); }
-    .mockup-footer-stat-label { font-size: 0.68rem; color: var(--clr-muted-fg); }
+    .mockup-footer-stat-num { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: var(--clr-primary); }
+    .mockup-footer-stat-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; color: #888; }
     .mockup-timer {
       position: absolute;
       bottom: -1rem;
@@ -223,24 +223,12 @@
       }
     }
 
-    /* 3. Hero atmosphere — warm radial light pools + subtle dot grid texture */
+    /* 3. Hero — flat background */
+    body { background: #f8f5f0; }
     .hero {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(ellipse 70% 60% at 65% 35%, hsl(152,52%,88%,0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 55% at 12% 80%, hsl(32,88%,88%,0.5) 0%, transparent 60%),
-        var(--gradient-hero);
+      background: #f8f5f0;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(hsl(152,52%,36%,0.055) 1px, transparent 1px);
-      background-size: 24px 24px;
-      pointer-events: none;
-      z-index: 0;
-    }
+    .hero::before { display: none; }
     .hero-inner {
       position: relative;
       z-index: 1;
@@ -257,7 +245,7 @@
 <body>
 
 <!-- NAV -->
-<nav class="nav-fixed">
+<nav class="nav-fixed" style="background:#ffffff;border-bottom:1px solid #e8ede9;">
   <div class="nav-inner">
     <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
     <ul class="nav-links">
@@ -298,8 +286,8 @@
       <h1 class="hero-headline">A full week of meals in 30 seconds.</h1>
       <p class="hero-sub" style="max-width:480px;margin-top:1rem;">For anyone who wants to eat well without the planning headache. Set your calorie goal, weekly budget, and preferences — Mealzy builds the full week, hits your macros, and writes the grocery list.</p>
       <div class="hero-actions" style="margin-top:1.75rem;">
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
-        <a href="#how-it-works" class="btn btn-outline btn-lg">See How It Works</a>
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — No Credit Card</a>
+        <a href="#how-it-works" style="color:#1a1a1a;font-size:1rem;font-weight:600;text-decoration:none;">See how it works →</a>
       </div>
       <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:1rem;">3,000+ meal plans generated · Free forever · No credit card</p>
     </div>
@@ -344,7 +332,7 @@
               <div class="mockup-day-meal-name">Stir-fried beef &amp; veg</div>
               <div class="mockup-day-meal-cal">520 kcal · 41g protein</div>
             </div>
-            <div class="mockup-day-dot" style="background:var(--clr-border);"></div>
+            <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#3d8b5e;background:#e8f5ee;padding:2px 8px;border-radius:12px;">Pro</span>
           </div>
           <div class="mockup-day" style="opacity:0.3;">
             <div class="mockup-day-label">Fri</div>
@@ -352,7 +340,7 @@
               <div class="mockup-day-meal-name">Salmon with potatoes</div>
               <div class="mockup-day-meal-cal">490 kcal · 36g protein</div>
             </div>
-            <div class="mockup-day-dot" style="background:var(--clr-border);"></div>
+            <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#3d8b5e;background:#e8f5ee;padding:2px 8px;border-radius:12px;">Pro</span>
           </div>
         </div>
         <div class="mockup-footer">
