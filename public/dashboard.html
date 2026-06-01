@@ -1623,7 +1623,7 @@
     const params = new URLSearchParams(window.location.search);
     const isNew = params.get('new') === 'true' || localStorage.getItem('mealzy_is_new_user') === '1';
     if (isNew) {
-      showToast(``Welcome to Mealzy, ${profile.name || 'there'}! Generate your first meal plan below.`, 'success');
+      showToast(`Welcome to Mealzy, ${profile.name || 'there'}! Generate your first meal plan below.`, 'success');
       localStorage.removeItem('mealzy_is_new_user');
       const url = new URL(window.location.href);
       url.searchParams.delete('new');
