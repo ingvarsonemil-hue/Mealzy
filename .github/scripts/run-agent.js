@@ -236,7 +236,7 @@ ${DAY_KICKOFF}`;
   console.log('Calling Anthropic API...');
 
   const message = await client.messages.create({
-    model:      ['alex', 'drew'].includes(agentName) ? 'claude-opus-4-5' : 'claude-sonnet-4-6',
+    model:      ['alex', 'drew'].includes(agentName) ? 'claude-sonnet-4-6' : 'claude-sonnet-4-6',
     max_tokens: 8192,
     messages:   [{ role: 'user', content: prompt }]
   });
