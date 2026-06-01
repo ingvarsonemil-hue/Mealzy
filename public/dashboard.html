@@ -109,7 +109,7 @@
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Download meal plan as PDF" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> <span data-i18n="btn_download_pdf">Download PDF</span></button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> <span data-i18n="btn_share_card">Share Card</span></button>
         <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;border-radius:6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg><span id="generateBtnLabel">Generate Today's Plan</span>
+          <span id="generateBtnLabel">Generate Today's Plan</span>
         </button>
       </div>
     </div>
@@ -566,7 +566,7 @@
     if (hour < 12) greeting = 'Good morning';
     else if (hour < 17) greeting = 'Good afternoon';
 
-    document.getElementById('greeting').textContent = `${greeting}, ${profile.name || 'there'}! 👋`;
+    document.getElementById('greeting').textContent = `${greeting}, ${profile.name || 'there'}!`;
     const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     document.getElementById('greetingSub').textContent = dateStr;
     document.getElementById('macroDate').textContent = dateStr;
@@ -590,7 +590,7 @@
       localStorage.setItem('mealzy_profile', JSON.stringify(profile));
     }
 
-    document.getElementById('streakBadge').innerHTML = `${ICO.fire} ${streak} day${streak !== 1 ? 's' : ''} streak`;
+    document.getElementById('streakBadge').textContent = `${streak} day${streak !== 1 ? 's' : ''} streak`;
   }
 
   function loadTodayData() {
@@ -807,6 +807,24 @@
   }
 
   function updateStats() {
+    const noPlan = !todayMeals || todayMeals.length === 0;
+    const ringsGrid = document.querySelector('.rings-grid');
+    let macroEmpty = document.getElementById('macroEmptyState');
+    if (noPlan) {
+      if (ringsGrid) ringsGrid.style.display = 'none';
+      if (!macroEmpty) {
+        macroEmpty = document.createElement('p');
+        macroEmpty.id = 'macroEmptyState';
+        macroEmpty.style.cssText = 'text-align:center;color:var(--clr-muted-fg);font-size:0.88rem;padding:1.25rem 0;margin:0;';
+        macroEmpty.textContent = "Generate today's plan to see your macros.";
+        if (ringsGrid) ringsGrid.parentNode.insertBefore(macroEmpty, ringsGrid.nextSibling);
+      }
+      if (macroEmpty) macroEmpty.style.display = '';
+    } else {
+      if (ringsGrid) ringsGrid.style.display = '';
+      if (macroEmpty) macroEmpty.style.display = 'none';
+    }
+
     const completedMeals = todayMeals.filter(m => m.completed);
     const totalCals = completedMeals.reduce((s, m) => s + (m.calories || 0), 0);
     const totalProtein = completedMeals.reduce((s, m) => s + (m.protein || 0), 0);
@@ -1201,7 +1219,7 @@
       bannerText.textContent = 'Sunday evening — a great time to plan your meals for the week ahead.';
       banner.style.display = 'flex';
     } else if (daysSinceLast >= 7 && isFinite(daysSinceLast)) {
-      bannerText.textContent = `👋 Welcome back! It's been ${Math.floor(daysSinceLast)} days since your last meal plan. Generate a fresh one?`;
+      bannerText.textContent = `Welcome back! It's been ${Math.floor(daysSinceLast)} days since your last meal plan. Generate a fresh one?`;
       banner.style.display = 'flex';
     }
   }
@@ -1427,8 +1445,8 @@
     document.getElementById('xpLevelTitle').textContent = levelObj.title;
     document.getElementById('xpBar').style.width = pct + '%';
     document.getElementById('xpLabel').textContent = nextObj ? `${xp} / ${nextObj.xpNeeded} XP` : `${xp} XP — MAX LEVEL`;
-    document.getElementById('xpStreakBadge').innerHTML = `${ICO.fire} ${weekStreak} week${weekStreak !== 1 ? 's' : ''} streak`;
-    document.getElementById('xpBadgeCount').innerHTML = `${ICO.medal} ${earnedBadges.length} badge${earnedBadges.length !== 1 ? 's' : ''}`;
+    document.getElementById('xpStreakBadge').textContent = `${weekStreak} week${weekStreak !== 1 ? 's' : ''} streak`;
+    document.getElementById('xpBadgeCount').textContent = `${earnedBadges.length} badge${earnedBadges.length !== 1 ? 's' : ''}`;
 
     renderBadges(earnedBadges);
     const earnedEl = document.getElementById('badgesEarned');
@@ -2323,6 +2341,7 @@
 <div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,#3d8b5e);">Privacy Policy</a></div>
 </body>
 </html>
+
 
 
 
