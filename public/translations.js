@@ -34,6 +34,12 @@ window.MEALZY_TRANSLATIONS = {
     use_in_plan: 'Use in plan', btn_delete: 'Delete',
     // Misc
     coach_placeholder: 'Ask me anything about nutrition…',
+    recent_plans: 'Recent Plans', btn_edit_toggle: 'Edit ▾',
+    dietary_prefs_hint: 'Changes apply to your next meal plan generation.',
+    pro_unlock: 'Unlock the full experience', btn_trial: 'Start 7-Day Free Trial →',
+    btn_dismiss: 'Dismiss', btn_upgrade: 'Upgrade →', btn_copy: 'Copy', btn_copy_msg: 'Copy message',
+    referral_title: 'Get 1 extra free plan for every friend you invite',
+    referral_desc: 'Share your link. When a friend signs up, you both unlock an extra free plan this month.',
     saving: 'Saving…', loading: 'Loading…'
   },
   sv: {
@@ -61,6 +67,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Inga recept ännu', no_recipes_desc: 'Importera ditt första från ett foto.',
     use_in_plan: 'Använd i plan', btn_delete: 'Ta bort',
     coach_placeholder: 'Fråga mig vad som helst om kost…',
+    recent_plans: 'Senaste planer', btn_edit_toggle: 'Redigera ▾',
+    dietary_prefs_hint: 'Ändringar gäller vid nästa generering av måltidsplan.',
+    pro_unlock: 'Lås upp hela upplevelsen', btn_trial: 'Starta 7 dagars gratis provperiod →',
+    btn_dismiss: 'Stäng', btn_upgrade: 'Uppgradera →', btn_copy: 'Kopiera', btn_copy_msg: 'Kopiera meddelande',
+    referral_title: 'Få 1 extra gratis plan för varje vän du bjuder in',
+    referral_desc: 'Dela din länk. När en vän registrerar sig låser ni båda upp en extra gratis plan.',
     saving: 'Sparar…', loading: 'Laddar…'
   },
   no: {
@@ -88,6 +100,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Ingen oppskrifter ennå', no_recipes_desc: 'Importer din første fra et bilde.',
     use_in_plan: 'Bruk i plan', btn_delete: 'Slett',
     coach_placeholder: 'Spør meg hva som helst om ernæring…',
+    recent_plans: 'Siste planer', btn_edit_toggle: 'Rediger ▾',
+    dietary_prefs_hint: 'Endringer gjelder ved neste generering av måltidsplan.',
+    pro_unlock: 'Lås opp hele opplevelsen', btn_trial: 'Start 7-dagers gratis prøveperiode →',
+    btn_dismiss: 'Lukk', btn_upgrade: 'Oppgrader →', btn_copy: 'Kopier', btn_copy_msg: 'Kopier melding',
+    referral_title: 'Få 1 ekstra gratis plan for hver venn du inviterer',
+    referral_desc: 'Del lenken din. Når en venn registrerer seg, låser dere begge opp en ekstra gratis plan.',
     saving: 'Lagrer…', loading: 'Laster…'
   },
   da: {
@@ -115,6 +133,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Ingen opskrifter endnu', no_recipes_desc: 'Importér din første fra et foto.',
     use_in_plan: 'Brug i plan', btn_delete: 'Slet',
     coach_placeholder: 'Spørg mig om alt inden for ernæring…',
+    recent_plans: 'Seneste planer', btn_edit_toggle: 'Rediger ▾',
+    dietary_prefs_hint: 'Ændringer gælder ved næste generering af måltidsplan.',
+    pro_unlock: 'Lås op for den fulde oplevelse', btn_trial: 'Start 7-dages gratis prøveperiode →',
+    btn_dismiss: 'Luk', btn_upgrade: 'Opgrader →', btn_copy: 'Kopier', btn_copy_msg: 'Kopier besked',
+    referral_title: 'Få 1 ekstra gratis plan for hver ven du inviterer',
+    referral_desc: 'Del dit link. Når en ven tilmelder sig, låser I begge en ekstra gratis plan op.',
     saving: 'Gemmer…', loading: 'Indlæser…'
   },
   de: {
@@ -142,6 +166,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Noch keine Rezepte', no_recipes_desc: 'Importiere dein erstes aus einem Foto.',
     use_in_plan: 'Im Plan verwenden', btn_delete: 'Löschen',
     coach_placeholder: 'Frag mich alles über Ernährung…',
+    recent_plans: 'Letzte Pläne', btn_edit_toggle: 'Bearbeiten ▾',
+    dietary_prefs_hint: 'Änderungen gelten für deine nächste Mahlzeitenplanerstellung.',
+    pro_unlock: 'Das volle Erlebnis freischalten', btn_trial: '7-tägige kostenlose Testphase starten →',
+    btn_dismiss: 'Schließen', btn_upgrade: 'Upgrade →', btn_copy: 'Kopieren', btn_copy_msg: 'Nachricht kopieren',
+    referral_title: '1 kostenlosen Plan für jeden eingeladenen Freund erhalten',
+    referral_desc: 'Teile deinen Link. Wenn sich ein Freund anmeldet, erhaltet ihr beide einen kostenlosen Plan.',
     saving: 'Speichern…', loading: 'Laden…'
   },
   fr: {
@@ -169,6 +199,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Pas encore de recettes', no_recipes_desc: 'Importez votre première depuis une photo.',
     use_in_plan: 'Utiliser dans le plan', btn_delete: 'Supprimer',
     coach_placeholder: 'Posez-moi des questions sur la nutrition…',
+    recent_plans: 'Plans récents', btn_edit_toggle: 'Modifier ▾',
+    dietary_prefs_hint: 'Les modifications s\'appliquent à votre prochain plan repas.',
+    pro_unlock: 'Débloquer l\'expérience complète', btn_trial: 'Commencer l\'essai gratuit 7 jours →',
+    btn_dismiss: 'Fermer', btn_upgrade: 'Passer Pro →', btn_copy: 'Copier', btn_copy_msg: 'Copier le message',
+    referral_title: 'Obtenez 1 plan gratuit supplémentaire pour chaque ami invité',
+    referral_desc: 'Partagez votre lien. Quand un ami s\'inscrit, vous débloquez tous les deux un plan gratuit.',
     saving: 'Enregistrement…', loading: 'Chargement…'
   },
   es: {
@@ -196,6 +232,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Aún no hay recetas', no_recipes_desc: 'Importa tu primera desde una foto.',
     use_in_plan: 'Usar en plan', btn_delete: 'Eliminar',
     coach_placeholder: 'Pregúntame sobre nutrición…',
+    recent_plans: 'Planes recientes', btn_edit_toggle: 'Editar ▾',
+    dietary_prefs_hint: 'Los cambios se aplican a tu próxima generación de plan.',
+    pro_unlock: 'Desbloquea la experiencia completa', btn_trial: 'Iniciar prueba gratuita de 7 días →',
+    btn_dismiss: 'Cerrar', btn_upgrade: 'Actualizar →', btn_copy: 'Copiar', btn_copy_msg: 'Copiar mensaje',
+    referral_title: 'Obtén 1 plan extra gratuito por cada amigo que invites',
+    referral_desc: 'Comparte tu enlace. Cuando un amigo se registre, ambos obtendrán un plan gratuito extra.',
     saving: 'Guardando…', loading: 'Cargando…'
   },
   it: {
@@ -223,6 +265,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Nessuna ricetta ancora', no_recipes_desc: 'Importa la tua prima da una foto.',
     use_in_plan: 'Usa nel piano', btn_delete: 'Elimina',
     coach_placeholder: 'Chiedimi qualsiasi cosa sulla nutrizione…',
+    recent_plans: 'Piani recenti', btn_edit_toggle: 'Modifica ▾',
+    dietary_prefs_hint: 'Le modifiche si applicano alla tua prossima generazione di piano.',
+    pro_unlock: 'Sblocca l\'esperienza completa', btn_trial: 'Inizia la prova gratuita di 7 giorni →',
+    btn_dismiss: 'Chiudi', btn_upgrade: 'Aggiorna →', btn_copy: 'Copia', btn_copy_msg: 'Copia messaggio',
+    referral_title: 'Ottieni 1 piano gratuito extra per ogni amico che inviti',
+    referral_desc: 'Condividi il tuo link. Quando un amico si registra, entrambi sblocate un piano gratuito.',
     saving: 'Salvataggio…', loading: 'Caricamento…'
   },
   pt: {
@@ -250,6 +298,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Ainda sem receitas', no_recipes_desc: 'Importa a tua primeira a partir de uma foto.',
     use_in_plan: 'Usar no plano', btn_delete: 'Eliminar',
     coach_placeholder: 'Pergunte-me sobre nutrição…',
+    recent_plans: 'Planos recentes', btn_edit_toggle: 'Editar ▾',
+    dietary_prefs_hint: 'As alterações aplicam-se à sua próxima geração de plano.',
+    pro_unlock: 'Desbloquear a experiência completa', btn_trial: 'Iniciar teste gratuito de 7 dias →',
+    btn_dismiss: 'Fechar', btn_upgrade: 'Atualizar →', btn_copy: 'Copiar', btn_copy_msg: 'Copiar mensagem',
+    referral_title: 'Obtenha 1 plano gratuito extra por cada amigo que convidar',
+    referral_desc: 'Partilhe o seu link. Quando um amigo se registar, ambos desbloqueiam um plano gratuito.',
     saving: 'A guardar…', loading: 'A carregar…'
   },
   nl: {
@@ -277,6 +331,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'Nog geen recepten', no_recipes_desc: 'Importeer je eerste vanuit een foto.',
     use_in_plan: 'Gebruik in plan', btn_delete: 'Verwijderen',
     coach_placeholder: 'Vraag me alles over voeding…',
+    recent_plans: 'Recente plannen', btn_edit_toggle: 'Bewerken ▾',
+    dietary_prefs_hint: 'Wijzigingen gelden voor je volgende maaltijdplangeneratie.',
+    pro_unlock: 'De volledige ervaring ontgrendelen', btn_trial: 'Start 7-daagse gratis proefperiode →',
+    btn_dismiss: 'Sluiten', btn_upgrade: 'Upgraden →', btn_copy: 'Kopiëren', btn_copy_msg: 'Bericht kopiëren',
+    referral_title: 'Krijg 1 extra gratis plan voor elke vriend die je uitnodigt',
+    referral_desc: 'Deel je link. Als een vriend zich aanmeldt, ontgrendelen jullie beiden een gratis plan.',
     saving: 'Opslaan…', loading: 'Laden…'
   },
   ja: {
@@ -304,6 +364,12 @@ window.MEALZY_TRANSLATIONS = {
     no_recipes_title: 'まだレシピがありません', no_recipes_desc: '写真から最初のレシピをインポートしよう。',
     use_in_plan: 'プランに使用', btn_delete: '削除',
     coach_placeholder: '栄養について何でも聞いてください…',
+    recent_plans: '最近のプラン', btn_edit_toggle: '編集 ▾',
+    dietary_prefs_hint: '変更は次回の食事プラン生成時に適用されます。',
+    pro_unlock: '完全な体験を解除する', btn_trial: '7日間無料トライアル開始 →',
+    btn_dismiss: '閉じる', btn_upgrade: 'アップグレード →', btn_copy: 'コピー', btn_copy_msg: 'メッセージをコピー',
+    referral_title: '招待した友達ごとに無料プランを1つ追加獲得',
+    referral_desc: 'リンクを共有しよう。友達が登録すると、二人とも今月の無料プランが追加されます。',
     saving: '保存中…', loading: '読み込み中…'
   }
 };

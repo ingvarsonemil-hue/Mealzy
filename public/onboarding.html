@@ -38,10 +38,7 @@
     <!-- Progress Bar -->
     <div style="margin-bottom:1.5rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-        <a href="index.html" class="logo" style="font-size:1rem;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="width:28px;height:28px;" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-          Mealzy
-        </a>
+        <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
         <span class="step-counter" id="stepCounter">Step 1 of 3</span>
       </div>
       <div class="progress-bar-wrap">
@@ -52,7 +49,7 @@
     <!-- STEP 1: Name + Goal -->
     <div class="step-content" id="step1">
       <div class="onboarding-top">
-        <div class="step-title" style="font-family:'Fraunces',serif;">👋 Let's personalise your plan</div>
+        <div class="step-title" style="font-family:'Fraunces',serif;">Let's personalise your plan</div>
         <div class="step-sub">Two quick questions and we'll generate your first meal plan automatically.</div>
       </div>
       <div class="form-group">
@@ -63,27 +60,21 @@
         <label class="form-label">What's your main goal?</label>
         <div class="goal-grid">
           <div class="goal-card" data-goal="build_muscle" onclick="selectGoal(this)">
-            <div class="goal-emoji">💪</div>
             <div class="goal-label">Build Muscle</div>
           </div>
           <div class="goal-card" data-goal="lose_weight" onclick="selectGoal(this)">
-            <div class="goal-emoji">⬇️</div>
             <div class="goal-label">Lose Weight</div>
           </div>
           <div class="goal-card" data-goal="maintain_weight" onclick="selectGoal(this)">
-            <div class="goal-emoji">⚖️</div>
             <div class="goal-label">Maintain Weight</div>
           </div>
           <div class="goal-card" data-goal="eat_healthier" onclick="selectGoal(this)">
-            <div class="goal-emoji">🥗</div>
             <div class="goal-label">Eat Healthier</div>
           </div>
           <div class="goal-card" data-goal="gain_weight" onclick="selectGoal(this)">
-            <div class="goal-emoji">⬆️</div>
             <div class="goal-label">Gain Weight</div>
           </div>
           <div class="goal-card" data-goal="improve_energy" onclick="selectGoal(this)">
-            <div class="goal-emoji">⚡</div>
             <div class="goal-label">Improve Energy</div>
           </div>
         </div>
@@ -93,7 +84,7 @@
     <!-- STEP 2: Budget + Dietary -->
     <div class="step-content hidden" id="step2">
       <div class="onboarding-top">
-        <div class="step-title" style="font-family:'Fraunces',serif;">💰 Budget & dietary needs</div>
+        <div class="step-title" style="font-family:'Fraunces',serif;">Budget & dietary needs</div>
         <div class="step-sub">We'll keep your meals affordable and safe to eat.</div>
       </div>
       <div class="form-row">
@@ -140,18 +131,18 @@
       <div class="form-group" style="margin-top:0.75rem;">
         <label class="form-label">Any dietary restrictions? <span style="font-weight:400;color:var(--clr-muted-fg);">(optional)</span></label>
         <div class="chips-group" id="dietChips">
-          <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)">🌿 Vegetarian</button>
-          <button class="chip" data-pref="vegan" onclick="toggleChip(this)">🌱 Vegan</button>
-          <button class="chip" data-pref="keto" onclick="toggleChip(this)">🥑 Keto</button>
-          <button class="chip" data-pref="paleo" onclick="toggleChip(this)">🦴 Paleo</button>
-          <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)">🫒 Mediterranean</button>
-          <button class="chip" data-pref="halal" onclick="toggleChip(this)">☪️ Halal</button>
-          <button class="chip" data-pref="kosher" onclick="toggleChip(this)">✡️ Kosher</button>
-          <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)">🌾 Gluten-Free</button>
-          <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)">🥛 Dairy-Free</button>
-          <button class="chip" data-pref="nut_free" onclick="toggleChip(this)">🥜 Nut-Free</button>
-          <button class="chip" data-pref="no_pork" onclick="toggleChip(this)">🐷 No Pork</button>
-          <button class="chip" data-pref="fish_free" onclick="toggleChip(this)">🐟 Fish-Free</button>
+          <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)">Vegetarian</button>
+          <button class="chip" data-pref="vegan" onclick="toggleChip(this)">Vegan</button>
+          <button class="chip" data-pref="keto" onclick="toggleChip(this)">Keto</button>
+          <button class="chip" data-pref="paleo" onclick="toggleChip(this)">Paleo</button>
+          <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)">Mediterranean</button>
+          <button class="chip" data-pref="halal" onclick="toggleChip(this)">Halal</button>
+          <button class="chip" data-pref="kosher" onclick="toggleChip(this)">Kosher</button>
+          <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)">Gluten-Free</button>
+          <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)">Dairy-Free</button>
+          <button class="chip" data-pref="nut_free" onclick="toggleChip(this)">Nut & Peanut-Free</button>
+          <button class="chip" data-pref="no_pork" onclick="toggleChip(this)">No Pork</button>
+          <button class="chip" data-pref="fish_free" onclick="toggleChip(this)">Fish-Free</button>
         </div>
       </div>
     </div>
@@ -159,15 +150,12 @@
     <!-- STEP 3: Ready! -->
     <div class="step-content hidden" id="step3">
       <div class="onboarding-top">
-        <div class="step-title" style="font-family:'Fraunces',serif;">🚀 You're all set!</div>
+        <div class="step-title" style="font-family:'Fraunces',serif;">You're all set!</div>
         <div class="step-sub">Your personalised meal plan is ready to generate. We'll auto-start it when you land on your dashboard.</div>
       </div>
       <div id="summaryBox" style="background:var(--clr-muted-bg);border-radius:1rem;padding:1.25rem;margin-bottom:1rem;">
         <div style="font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;">Your plan summary</div>
         <div id="summaryContent" style="font-size:0.85rem;color:var(--clr-muted-fg);line-height:1.8;"></div>
-      </div>
-      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:0.75rem;padding:0.85rem 1rem;font-size:0.85rem;color:#166534;">
-        🎮 <strong>+100 XP</strong> for completing your profile — you're already a <strong>Level 1 Planner</strong>!
       </div>
     </div>
 
@@ -177,7 +165,10 @@
     <!-- Navigation Buttons -->
     <div class="onboarding-nav" style="margin-top:1.25rem;">
       <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;">← Back</button>
-      <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Continue →</button>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button id="btnSkip" onclick="skipStep()" style="background:none;border:none;color:var(--clr-muted-fg);font-size:0.85rem;cursor:pointer;text-decoration:underline;padding:0;">Skip</button>
+        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Continue →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -251,7 +242,8 @@
     document.getElementById('stepCounter').textContent = `Step ${step} of ${totalSteps}`;
     document.getElementById('progressBar').style.width = `${(step / totalSteps) * 100}%`;
     document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
-    document.getElementById('btnNext').textContent = step === totalSteps ? '🚀 Create My Plan' : 'Continue →';
+    document.getElementById('btnSkip').style.display = step < totalSteps ? 'inline-block' : 'none';
+    document.getElementById('btnNext').textContent = step === totalSteps ? 'Create My Plan' : 'Continue →';
     if (step === totalSteps) buildSummary();
   }
 
@@ -268,6 +260,11 @@
   function prevStep() {
     hideStepError();
     if (currentStep > 1) { currentStep--; showStep(currentStep); }
+  }
+
+  function skipStep() {
+    hideStepError();
+    if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
   }
 
   function validateStep(step) {
@@ -331,10 +328,10 @@
     const goalLabels = { build_muscle:'Build Muscle', lose_weight:'Lose Weight', maintain_weight:'Maintain Weight', eat_healthier:'Eat Healthier', gain_weight:'Gain Weight', improve_energy:'Improve Energy' };
     const restrictions = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.textContent.trim()).join(', ') || 'None';
     document.getElementById('summaryContent').innerHTML = `
-      <div>🎯 Goal: <strong>${goalLabels[userData.goal] || userData.goal}</strong></div>
-      <div>🔥 Daily calories: <strong>${calories} kcal</strong> (P:${protein}g / C:${carbs}g / F:${fat}g)</div>
-      <div>💰 Weekly budget: <strong>${userData.currency} ${userData.budget}</strong></div>
-      <div>🥦 Restrictions: <strong>${restrictions}</strong></div>
+      <div>Goal: <strong>${goalLabels[userData.goal] || userData.goal}</strong></div>
+      <div>Daily calories: <strong>${calories} kcal</strong> (P:${protein}g / C:${carbs}g / F:${fat}g)</div>
+      <div>Weekly budget: <strong>${userData.currency} ${userData.budget}</strong></div>
+      <div>Restrictions: <strong>${restrictions}</strong></div>
     `;
   }
 

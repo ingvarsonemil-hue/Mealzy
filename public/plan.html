@@ -61,10 +61,7 @@
 <!-- NAV -->
 <nav class="nav-fixed">
   <div class="nav-inner">
-    <a href="index.html" class="logo">
-      <span class="logo-icon" style="font-size:18px;">M</span>
-      Mealzy
-    </a>
+    <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
     <div class="nav-actions">
       <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
       <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start Free</a>
@@ -76,13 +73,11 @@
 
   <!-- Loading state -->
   <div class="loading" id="loadingState">
-    <div style="font-size:2rem;margin-bottom:0.75rem;">🥗</div>
     <p>Loading meal plan…</p>
   </div>
 
   <!-- Error state -->
   <div class="error" id="errorState" style="display:none;">
-    <div style="font-size:2.5rem;margin-bottom:0.75rem;">😕</div>
     <h2>Plan not found</h2>
     <p style="color:var(--clr-muted-fg);margin:0.5rem 0 1.5rem;">This link may have expired or been removed.</p>
     <a href="index.html">← Back to Mealzy</a>
@@ -92,7 +87,7 @@
   <div id="planContent" style="display:none;">
 
     <div class="plan-hero">
-      <div class="plan-badge" id="planBadge">📅 Shared Meal Plan</div>
+      <div class="plan-badge" id="planBadge">Shared Meal Plan</div>
       <h1 id="planTitle">This week's meal plan</h1>
       <div id="planStats" class="plan-stats"></div>
     </div>
@@ -101,14 +96,13 @@
 
     <!-- Share this plan -->
     <div class="share-row" id="shareRow">
-      <button class="share-btn" onclick="copyLink()">📋 Copy link</button>
-      <a class="share-btn" id="twitterShare" href="#" target="_blank">🐦 Share on X</a>
-      <a class="share-btn" id="whatsappShare" href="#" target="_blank">💬 Share on WhatsApp</a>
+      <button class="share-btn" onclick="copyLink()">Copy link</button>
+      <a class="share-btn" id="twitterShare" href="#" target="_blank">Share on X</a>
+      <a class="share-btn" id="whatsappShare" href="#" target="_blank">Share on WhatsApp</a>
     </div>
 
     <!-- CTA banner -->
     <div class="cta-banner">
-      <div style="font-size:1.75rem;margin-bottom:0.75rem;">🥗</div>
       <h2>Generate your own free plan</h2>
       <p>Tell Mealzy your calorie goal, budget, and dietary preferences. It builds your full week of meals and writes the grocery list — in 30 seconds. Free, no credit card.</p>
       <a href="login.html?signup=1">Get My Free Meal Plan →</a>
@@ -199,9 +193,9 @@ function renderPlan(plan, shareId) {
             <div class="meal-name">${m.name}</div>
             ${m.description ? `<div class="meal-desc">${m.description}</div>` : ''}
             <div class="meal-macros">
-              <span class="macro">🔥 ${m.calories || 0} kcal</span>
-              ${m.protein ? `<span class="macro">💪 ${m.protein}g protein</span>` : ''}
-              ${m.cookTime ? `<span class="macro">⏱ ${m.cookTime} min</span>` : ''}
+              <span class="macro">${m.calories || 0} kcal</span>
+              ${m.protein ? `<span class="macro">${m.protein}g protein</span>` : ''}
+              ${m.cookTime ? `<span class="macro">${m.cookTime} min</span>` : ''}
             </div>
           </div>
           ${m.estimatedCost ? `<span class="meal-cost">$${m.estimatedCost.toFixed(2)}</span>` : ''}
@@ -212,7 +206,7 @@ function renderPlan(plan, shareId) {
 
   // Share buttons
   const url   = window.location.href;
-  const text  = encodeURIComponent(`Check out my AI meal plan 🥗 — built with Mealzy, free: `);
+  const text  = encodeURIComponent(`Check out my AI meal plan — built with Mealzy, free: `);
   document.getElementById('twitterShare').href  = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`;
   document.getElementById('whatsappShare').href = `https://wa.me/?text=${text}${encodeURIComponent(url)}`;
 }
@@ -220,14 +214,15 @@ function renderPlan(plan, shareId) {
 function copyLink() {
   navigator.clipboard.writeText(window.location.href).then(() => {
     const btn = document.querySelector('.share-btn');
-    btn.textContent = '✅ Copied!';
-    setTimeout(() => { btn.textContent = '📋 Copy link'; }, 2000);
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy link'; }, 2000);
   }).catch(() => {
     prompt('Copy this link:', window.location.href);
   });
 }
 </script>
 
-<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:#888;"><a href="privacy-policy.html" style="color:#3d8b5e;">Privacy Policy</a></div>`n</body>
+<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:#888;"><a href="privacy-policy.html" style="color:#3d8b5e;">Privacy Policy</a> · <a href="terms.html" style="color:#3d8b5e;">Terms</a></div>
+</body>
 </html>
 

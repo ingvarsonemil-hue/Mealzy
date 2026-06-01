@@ -1,6 +1,4 @@
 # .github/workflows/friday-agents.yml
-# All 19 agents deliver weekly reports on Friday + nova ships design fix + skylar viral hooks
-
 name: Friday Agents
 
 on:
@@ -31,6 +29,12 @@ jobs:
           HCTI_API_KEY:      ${{ secrets.HCTI_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: alex-fri, path: .agents/outputs/*alex* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
+          commit_message: "agents: alex friday [skip ci]"
+          file_pattern: ".agents/outputs/*alex* .agents/memory/alex.md"
+
   avery:
     name: Avery — API Cost Review
     runs-on: ubuntu-latest
@@ -45,8 +49,14 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: avery-fri, path: .agents/outputs/*avery* }
-  casey:
-    name: Casey — Monetization Report
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
+          commit_message: "agents: avery friday [skip ci]"
+          file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
+
+  growth:
+    name: Growth — Weekly Dashboard
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -54,13 +64,19 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20', cache: 'npm' }
       - run: npm ci
-      - run: node .github/scripts/run-agent.js casey
+      - run: node .github/scripts/run-agent.js growth
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
-        with: { name: casey-fri, path: .agents/outputs/*casey* }
-  charlie:
-    name: Charlie — Support Report
+        with: { name: growth-fri, path: .agents/outputs/*growth* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
+          commit_message: "agents: growth friday [skip ci]"
+          file_pattern: ".agents/outputs/*growth* .agents/memory/growth.md"
+
+  contentops:
+    name: Content Ops — Performance Report
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -68,223 +84,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20', cache: 'npm' }
       - run: npm ci
-      - run: node .github/scripts/run-agent.js charlie
+      - run: node .github/scripts/run-agent.js contentops
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
-        with: { name: charlie-fri, path: .agents/outputs/*charlie* }
-  drew:
-    name: Drew — Product Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js drew
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: drew-fri, path: .agents/outputs/*drew* }
-  jordan:
-    name: Jordan — Email Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js jordan
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: jordan-fri, path: .agents/outputs/*jordan* }
-  logan:
-    name: Logan — Partnership Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js logan
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: logan-fri, path: .agents/outputs/*logan* }
-  maya:
-    name: Maya — CRO Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js maya
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: maya-fri, path: .agents/outputs/*maya* }
-  morgan:
-    name: Morgan — Engineering Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js morgan
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: morgan-fri, path: .agents/outputs/*morgan* }
-  nova:
-    name: Nova — Ship Design Fix
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js nova
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: nova-fri, path: .agents/outputs/*nova* }
-  quinn:
-    name: Quinn — AI Quality Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js quinn
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: quinn-fri, path: .agents/outputs/*quinn* }
-  riley:
-    name: Riley — Growth Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js riley
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: riley-fri, path: .agents/outputs/*riley* }
-  sam:
-    name: Sam — SEO Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js sam
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: sam-fri, path: .agents/outputs/*sam* }
-  skylar:
-    name: Skylar — Viral Hooks
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js skylar
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          FACEBOOK_WEBHOOK:  ${{ secrets.FACEBOOK_WEBHOOK }}
-      - uses: actions/upload-artifact@v4
-        with: { name: skylar-fri, path: .agents/outputs/*skylar* }
-  taylor:
-    name: Taylor — Brand Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js taylor
-        env:
-          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
-          TWITTER_API_KEY:               ${{ secrets.TWITTER_API_KEY }}
-          TWITTER_API_SECRET:            ${{ secrets.TWITTER_API_SECRET }}
-          TWITTER_ACCESS_TOKEN:          ${{ secrets.TWITTER_ACCESS_TOKEN }}
-          TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-      - uses: actions/upload-artifact@v4
-        with: { name: taylor-fri, path: .agents/outputs/*taylor* }
-  budget-guard:
-    name: Budget Guard — Compliance Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js budget-guard
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: budget-guard-fri, path: .agents/outputs/*budget-guard* }
-  macro-specialist:
-    name: Macro Specialist — Accuracy Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js macro-specialist
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: macro-specialist-fri, path: .agents/outputs/*macro-specialist* }
-  culinary-critic:
-    name: Culinary Critic — Quality Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js culinary-critic
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: culinary-critic-fri, path: .agents/outputs/*culinary-critic* }
-  grocery-optimizer:
-    name: Grocery Optimizer — Efficiency Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - run: npm ci
-      - run: node .github/scripts/run-agent.js grocery-optimizer
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      - uses: actions/upload-artifact@v4
-        with: { name: grocery-optimizer-fri, path: .agents/outputs/*grocery-optimizer* }
+        with: { name: contentops-fri, path: .agents/outputs/*contentops* }
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          push_options: --force
+          commit_message: "agents: contentops friday [skip ci]"
+          file_pattern: ".agents/outputs/*contentops* .agents/memory/contentops.md"
