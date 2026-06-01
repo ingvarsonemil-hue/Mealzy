@@ -13,3 +13,10 @@
 - Top priority remains acquisition — no channel data exists; Reddit organic post recommended as first action.
 - Riley test (free limit hit message A/B) remains queued; threshold of 20+ free-tier users not yet reached; copy should be drafted now so it is ready to deploy.
 - Product Hunt relaunch and Family plan launch remain undated; Emil should assign a target month to Product Hunt to unblock Taylor's planning.
+
+## 2026-06-01
+- Monday 2026-06-01: Weekly priorities delivered. Sole focus for the week is getting first 10 real signups — all optimization work remains paused until acquisition baseline exists.
+- Reddit post (r/MealPrepSunday or r/EatCheapAndHealthy) confirmed as top priority action; not yet verified as sent from Friday recommendation.
+- Emil asked to confirm whether 17 plans this month reflect real user activity or founder testing — answer affects baseline WAU accuracy.
+- Riley tasked with drafting two versions of free limit hit message A/B copy this week, ahead of the 20-user threshold needed to launch the test.
+- Product Hunt relaunch remains undated; Emil needs to assign a target month to unblock Taylor's channel planning — flagged again as a five-minute action with meaningful downstream impact.
