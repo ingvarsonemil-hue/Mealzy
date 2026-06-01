@@ -44,12 +44,7 @@
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
-  <a href="dashboard.html" class="logo" style="font-size:1rem;">
-    <span class="logo-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-    </span>
-    Mealzy
-  </a>
+  <a href="dashboard.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--clr-primary);text-decoration:none;">Mealzy</a>
   <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
@@ -58,12 +53,7 @@
 <!-- MOBILE SIDEBAR OVERLAY -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
   <div class="sidebar">
-    <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-      </span>
-      Mealzy
-    </a>
+    <a href="dashboard.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--clr-primary);text-decoration:none;display:block;margin-bottom:0.75rem;">Mealzy</a>
     <nav class="sidebar-nav">
       <a href="dashboard.html">
         <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
@@ -109,12 +99,7 @@
 <div class="app-layout">
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <a href="dashboard.html" class="sidebar-logo">
-      <span class="logo-icon" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-      </span>
-      Mealzy
-    </a>
+    <a href="dashboard.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--clr-primary);text-decoration:none;display:block;margin-bottom:0.75rem;">Mealzy</a>
     <nav class="sidebar-nav">
       <a href="dashboard.html">
         <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
@@ -177,14 +162,14 @@
 
     <!-- DATE NAVIGATOR (day view only) -->
     <div class="date-navigator" id="dateNavigator">
-      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)">&#8592; Prev</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;">&#8592; Prev</button>
       <div class="date-display" id="dateDisplay">Today</div>
-      <button class="btn btn-outline btn-sm" onclick="changeDate(1)">Next &#8594;</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(1)" style="min-height:44px;">Next &#8594;</button>
       <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Generate AI Plan
       </button>
-      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" title="Generate a completely different plan" style="display:flex;align-items:center;gap:0.4rem;">
+      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" style="min-height:44px;" title="Generate a completely different plan" style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         Regenerate
       </button>
@@ -756,5 +741,6 @@
 <div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,#3d8b5e);">Privacy Policy</a></div>
 </body>
 </html>
+
 
 

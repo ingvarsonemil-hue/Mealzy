@@ -134,10 +134,7 @@
 <!-- NAV -->
 <nav class="nav-fixed">
   <div class="nav-inner">
-    <a href="index.html" class="logo">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-      Mealzy
-    </a>
+    <a href="index.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--clr-primary);text-decoration:none;">Mealzy</a>
     <ul class="nav-links">
       <li><a href="index.html#features">Features</a></li>
       <li><a href="index.html#testimonials">Reviews</a></li>
@@ -181,9 +178,9 @@
     </p>
 
     <!-- BILLING TOGGLE -->
-    <div class="pricing-toggle" id="billingToggle">
-      <button class="active" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
-      <button id="btnYearly" onclick="setBilling('yearly')">Yearly <span class="badge badge-accent" style="margin-left:0.25rem;font-size:0.72rem;">Save 33%</span></button>
+    <div class="pricing-toggle" id="billingToggle" style="display:flex;">
+      <button class="active" id="btnMonthly" style="min-height:44px;" onclick="setBilling('monthly')">Monthly</button>
+      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Yearly <span class="badge badge-accent" style="margin-left:0.25rem;font-size:0.72rem;">Save 33%</span></button>
     </div>
   </div>
 </section>
@@ -225,7 +222,7 @@
           <span class="badge badge-primary">Most Popular</span>
         </div>
         <div class="countdown-badge" style="background:hsl(152,52%,94%);color:var(--clr-primary);border-color:var(--clr-primary);">
-          📈 Introductory pricing — we started at $5/mo and the price has already increased once.
+          Introductory pricing — we started at $5/mo and the price has already increased once.
         </div>
         <div class="pricing-card-top">
           <div class="pricing-plan-name">Pro</div>
@@ -237,7 +234,7 @@
           <div class="pricing-billed" id="billedPremium">&nbsp;</div>
         </div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
-        <p style="font-size:0.78rem;color:var(--clr-muted-fg);text-align:center;margin-top:0.6rem;" id="proCtaNote">🔒 Lock in $8/mo — price may increase as we grow.</p>
+        <p style="font-size:0.78rem;color:var(--clr-muted-fg);text-align:center;margin-top:0.6rem;" id="proCtaNote">Lock in $8/mo — price may increase as we grow.</p>
         <ul class="pricing-features">
           <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> <strong>Unlimited</strong> meal plans</li>
           <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Automatic grocery list</li>
@@ -417,10 +414,7 @@
 <footer>
   <div class="container">
     <div class="footer-inner">
-      <a href="index.html" class="logo" style="color:white;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-        Mealzy
-      </a>
+      <a href="index.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:white;text-decoration:none;">Mealzy</a>
       <div class="footer-links">`n        <a href="privacy-policy.html">Privacy Policy</a>
         <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
@@ -441,7 +435,7 @@
   <button class="popup-close" onclick="closeDecidingPopup()" aria-label="Close">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
   </button>
-  <div style="font-size:1.35rem;margin-bottom:0.5rem;">🤔</div>
+  
   <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.35rem;">Still deciding?</div>
   <p style="font-size:0.84rem;color:var(--clr-muted-fg);line-height:1.5;margin-bottom:1rem;">
     Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.
@@ -510,11 +504,11 @@
     if (mode === 'yearly') {
       cta.href = STRIPE_YEARLY;
       cta.textContent = 'Start Pro Annual — 7 Days Free';
-      ctaNote.textContent = '🎉 Best value — $62/year saves you $34 vs monthly.';
+      ctaNote.textContent = 'Best value — $62/year saves you $34 vs monthly.';
     } else {
       cta.href = STRIPE_MONTHLY;
       cta.textContent = 'Start Pro — 7 Days Free';
-      ctaNote.textContent = '🔒 Lock in $8/mo — price may increase as we grow.';
+      ctaNote.textContent = 'Lock in $8/mo — price may increase as we grow.';
     }
 
     // Swap Family CTA link based on billing mode
@@ -571,4 +565,5 @@
 </script>
 </body>
 </html>
+
 

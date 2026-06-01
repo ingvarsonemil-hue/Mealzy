@@ -104,11 +104,11 @@
         <div class="greeting-sub" id="greetingSub">Loading your plan...</div>
       </div>
       <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-        <span class="badge badge-accent" id="streakBadge">🔥 1 day streak</span>
+        <span class="badge badge-accent" id="streakBadge">1 day streak</span>
         <span id="proBadge" style="display:none;background:var(--clr-primary);color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Download meal plan as PDF" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> <span data-i18n="btn_download_pdf">Download PDF</span></button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> <span data-i18n="btn_share_card">Share Card</span></button>
-        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;">
+        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;border-radius:6px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg><span id="generateBtnLabel">Generate Today's Plan</span>
         </button>
       </div>
@@ -133,8 +133,8 @@
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
-        <span id="xpStreakBadge" style="background:hsl(32,88%,95%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">🔥 0 week streak</span>
-        <span id="xpBadgeCount" style="background:var(--clr-muted-bg);border:1px solid var(--clr-border);color:var(--clr-text);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">🏅 0 badges</span>
+        <span id="xpStreakBadge" style="background:hsl(32,88%,95%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">0 week streak</span>
+        <span id="xpBadgeCount" style="background:var(--clr-muted-bg);border:1px solid var(--clr-border);color:var(--clr-text);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">0 badges</span>
       </div>
     </div>
 
@@ -145,7 +145,7 @@
           <div style="font-size:0.72rem;font-weight:800;letter-spacing:0.08em;opacity:0.75;text-transform:uppercase;margin-bottom:0.3rem;" data-i18n="pro_unlock">Unlock the full experience</div>
           <div style="font-size:1.05rem;font-weight:800;margin-bottom:0.5rem;">Upgrade to Pro — $8/month</div>
           <div style="font-size:0.82rem;opacity:0.88;line-height:1.6;">
-            ✅ Unlimited AI meal plans &nbsp;·&nbsp; ✅ PDF export &nbsp;·&nbsp; ✅ AI coaching &nbsp;·&nbsp; ✅ Advanced analytics
+            Unlimited AI meal plans &nbsp;·&nbsp; PDF export &nbsp;·&nbsp; AI coaching &nbsp;·&nbsp; Advanced analytics
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;">
@@ -269,7 +269,7 @@
 
     <!-- SOFT UPGRADE BANNER (after 2nd plan) -->
     <div id="softUpgradeBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;align-items:center;justify-content:space-between;gap:1rem;">
-      <span>🔥 <strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; PDF export.</span>
+      <span><strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; PDF export.</span>
       <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
         <a href="upgrade.html" onclick="trackEvent('upgrade_click',{source:'soft_banner'})" style="background:hsl(32,88%,50%);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;" data-i18n="btn_upgrade">Upgrade →</a>
         <button onclick="dismissSoftBanner()" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">✕</button>
@@ -278,7 +278,7 @@
 
     <!-- REFERRAL BANNER (after first plan) -->
     <div id="referralBanner" style="display:none;margin-bottom:1.5rem;padding:1.25rem;border-radius:0.75rem;background:var(--clr-card);border:1px solid var(--clr-border);">
-      <div style="font-weight:700;margin-bottom:0.4rem;">🎁 <span data-i18n="referral_title">Get 1 extra free plan for every friend you invite</span></div>
+      <div style="font-weight:700;margin-bottom:0.4rem;"><span data-i18n="referral_title">Get 1 extra free plan for every friend you invite</span></div>
       <p style="font-size:0.84rem;color:var(--clr-muted);margin-bottom:0.75rem;" data-i18n="referral_desc">Share your link. When a friend signs up, you both unlock an extra free plan this month.</p>
       <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
         <input id="referralLink" type="text" readonly style="flex:1;font-size:0.78rem;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.45rem 0.7rem;background:var(--clr-muted-bg);color:var(--clr-text);" />
@@ -429,11 +429,11 @@
 <!-- LEVEL UP MODAL -->
 <div class="modal-overlay" id="levelUpModal" onclick="if(event.target===this)closeLevelUp()">
   <div class="modal" style="max-width:340px;text-align:center;padding:2.5rem;">
-    <div style="font-size:3rem;margin-bottom:0.75rem;" id="levelUpEmoji">⭐</div>
+
     <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:0.35rem;" id="levelUpTitle">Level 2 Unlocked!</h2>
     <p style="color:var(--clr-muted-fg);font-size:0.9rem;margin-bottom:1.25rem;" id="levelUpSub">You're on your way to becoming a nutrition pro.</p>
     <div id="levelUpBadge" style="display:inline-block;background:var(--clr-primary);color:#fff;font-weight:800;font-size:0.9rem;padding:0.4rem 1.2rem;border-radius:2rem;margin-bottom:1.25rem;"></div>
-    <button class="btn btn-primary" style="width:100%;" onclick="closeLevelUp()">Let's go! 🚀</button>
+    <button class="btn btn-primary" style="width:100%;" onclick="closeLevelUp()">Let's go!</button>
   </div>
 </div>
 
@@ -888,7 +888,7 @@
     }
     renderMeals();
     updateStats();
-    if (checked) showToast(`✅ ${todayMeals[index].name} marked as done!`, 'success');
+    if (checked) showToast(`${todayMeals[index].name} marked as done`, 'success');
   }
 
   function openRecipeModal(index) {
@@ -974,7 +974,7 @@
       // Award XP for generating a plan
       awardXP('generate_plan');
 
-      showToast('Meal plan generated! +50 XP 🎉', 'success');
+      showToast('Meal plan generated! +50 XP', 'success');
       updateWeeklyStreak();
 
       // Growth triggers — only show to free users
@@ -1006,14 +1006,14 @@
       <div id="upgradeCard" style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
         <!-- Primary offer -->
         <div id="upgradeStage1">
-          <div style="background:#e8f5ee;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 0.75rem;">🚀</div>
+          
           <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;color:#111;">You've hit your free limit</h2>
           <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$8/month</strong>. Your grocery list is waiting.</p>
           <div style="background:#f0fdf4;border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;text-align:left;">
-            ✅ Unlimited AI meal plans<br>
-            ✅ Full recipes with steps & ingredients<br>
-            ✅ Advanced macros & nutrition tracking<br>
-            ✅ Priority AI coaching
+            Unlimited AI meal plans<br>
+            Full recipes with steps & ingredients<br>
+            Advanced macros & nutrition tracking<br>
+            Priority AI coaching
           </div>
           <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
           <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
@@ -1109,7 +1109,7 @@
     const overlay = document.getElementById('abandonEmailOverlay');
     if (overlay) {
       overlay.querySelector('div').innerHTML = `
-        <div style="font-size:2.5rem;margin-bottom:0.5rem;">✅</div>
+
         <h3 style="font-size:1.1rem;font-weight:800;color:#111;">You're on the list!</h3>
         <p style="color:#555;font-size:0.85rem;margin-top:0.5rem;">We'll be in touch with exclusive offers. Your free plans reset in 30 days.</p>`;
       setTimeout(() => { overlay.remove(); showZeroPlansBanner(); }, 2500);
@@ -1198,7 +1198,7 @@
     const daysSinceLast = lastGen ? (Date.now() - new Date(lastGen).getTime()) / 86400000 : Infinity;
 
     if (day === 0 && hour >= 17) {
-      bannerText.textContent = '🌿 Sunday evening — a great time to plan your meals for the week ahead.';
+      bannerText.textContent = 'Sunday evening — a great time to plan your meals for the week ahead.';
       banner.style.display = 'flex';
     } else if (daysSinceLast >= 7 && isFinite(daysSinceLast)) {
       bannerText.textContent = `👋 Welcome back! It's been ${Math.floor(daysSinceLast)} days since your last meal plan. Generate a fresh one?`;
@@ -1208,7 +1208,7 @@
 
   // === SHARE PLAN ===
   async function sharePlan() {
-    const text = "I'm eating healthy with Mealzy! Check out my meal plan at mealzy.org 🥗";
+    const text = "I'm eating healthy with Mealzy! Check out my meal plan at mealzy.org";
     if (navigator.share) {
       try {
         await navigator.share({ title: 'My Mealzy Meal Plan', text, url: 'https://mealzy.org' });
@@ -1514,7 +1514,7 @@
       const prev = new Set(JSON.parse(_lastBadgeIds));
       const newOnes = earned.filter(b => !prev.has(b.id));
       newOnes.forEach(b => {
-        setTimeout(() => showToast(`🏅 Badge unlocked: ${b.label}!`, 'success'), 400);
+        setTimeout(() => showToast(`Badge unlocked: ${b.label}`, 'success'), 400);
       });
     }
     _lastBadgeIds = ids;
@@ -1561,7 +1561,7 @@
       localStorage.setItem('mealzy_profile', JSON.stringify(profile));
 
       if (streak > 1) {
-        showToast(`🔥 ${streak} week streak! Keep it up!`, 'success');
+        showToast(`${streak} week streak! Keep it up!`, 'success');
       }
     }
   }
@@ -1608,8 +1608,8 @@
     const planLabel = document.getElementById('planLabel');
     const mobilePlanLabel = document.getElementById('mobilePlanLabel');
     if (proBadge) proBadge.style.display = isPro ? 'inline-block' : 'none';
-    if (planLabel) planLabel.textContent = isPro ? '⭐ Pro Plan' : 'Free Plan';
-    if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? '⭐ Pro Plan' : 'Free Plan';
+    if (planLabel) planLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
+    if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
     // Show upgrade card only for free users who haven't dismissed it
     const upgradeCard = document.getElementById('proUpgradeCard');
     if (upgradeCard) {
@@ -1623,7 +1623,7 @@
     const params = new URLSearchParams(window.location.search);
     const isNew = params.get('new') === 'true' || localStorage.getItem('mealzy_is_new_user') === '1';
     if (isNew) {
-      showToast(`🎉 Welcome to Mealzy, ${profile.name || 'there'}! Generate your first meal plan below.`, 'success');
+      showToast(``Welcome to Mealzy, ${profile.name || 'there'}! Generate your first meal plan below.`, 'success');
       localStorage.removeItem('mealzy_is_new_user');
       const url = new URL(window.location.href);
       url.searchParams.delete('new');
@@ -1710,7 +1710,7 @@
   function shareWhatsApp() {
     const input = document.getElementById('referralLink');
     const link = input ? input.value : 'https://mealzy.org';
-    const msg = encodeURIComponent(`I've been using Mealzy to plan my meals with AI — it's brilliant! 🥗 Try it free: ${link}`);
+    const msg = encodeURIComponent(`I've been using Mealzy to plan my meals with AI — it's brilliant! Try it free: ${link}`);
     window.open(`https://wa.me/?text=${msg}`, '_blank');
     trackEvent('share_click', { type: 'whatsapp' });
   }
@@ -1725,7 +1725,7 @@
   function copyShareMessage() {
     const input = document.getElementById('referralLink');
     const link = input ? input.value : 'https://mealzy.org';
-    const msg = `I've been using Mealzy to plan my meals with AI — it's brilliant! 🥗 Try it free: ${link}`;
+    const msg = `I've been using Mealzy to plan my meals with AI — it's brilliant! Try it free: ${link}`;
     navigator.clipboard.writeText(msg).then(() => {
       showToast('Message copied!', 'success');
       trackEvent('share_click', { type: 'copy_message' });
@@ -1820,14 +1820,14 @@
       prompt.innerHTML = `
         <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
           <button onclick="document.getElementById('upgradePrompt').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button>
-          <div style="font-size:2rem;margin-bottom:0.75rem;">📄</div>
+
           <h2 style="font-size:1.25rem;font-weight:800;margin-bottom:0.5rem;color:#111;">PDF Export is a Pro feature</h2>
           <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro to download your meal plan and grocery list as a clean PDF you can print or share.</p>
           <div style="background:#f0fdf4;border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;text-align:left;">
-            📄 Download meal plan as PDF<br>
-            🛒 Grocery list as PDF<br>
-            ✅ Unlimited meal plans<br>
-            💬 Unlimited AI coaching
+            Download meal plan as PDF<br>
+            Grocery list as PDF<br>
+            Unlimited meal plans<br>
+            Unlimited AI coaching
           </div>
           <input type="email" id="upgradeEmailPdf" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
           <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="(function(){const e=document.getElementById('upgradeEmailPdf');if(e&&e.value)fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),source:'pdf_upgrade'})}).catch(()=>{});trackEvent('upgrade_click',{source:'pdf_btn'});document.getElementById('upgradePrompt').remove();})()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
@@ -1844,16 +1844,16 @@
 
   // === DIETARY PREFERENCES QUICK-EDIT ===
   const DIETARY_OPTIONS = [
-    { id: 'vegetarian', label: '🌿 Vegetarian' },
-    { id: 'vegan', label: '🌱 Vegan' },
-    { id: 'gluten_free', label: '🌾 Gluten-Free' },
-    { id: 'dairy_free', label: '🥛 Dairy-Free' },
-    { id: 'keto', label: '🥩 Keto' },
-    { id: 'paleo', label: '🍖 Paleo' },
-    { id: 'low_carb', label: '🥦 Low-Carb' },
-    { id: 'halal', label: '☪️ Halal' },
-    { id: 'kosher', label: '✡️ Kosher' },
-    { id: 'nut_free', label: '🚫 Nut-Free' },
+    { id: 'vegetarian', label: 'Vegetarian' },
+    { id: 'vegan', label: 'Vegan' },
+    { id: 'gluten_free', label: 'Gluten-Free' },
+    { id: 'dairy_free', label: 'Dairy-Free' },
+    { id: 'keto', label: 'Keto' },
+    { id: 'paleo', label: 'Paleo' },
+    { id: 'low_carb', label: 'Low-Carb' },
+    { id: 'halal', label: 'Halal' },
+    { id: 'kosher', label: 'Kosher' },
+    { id: 'nut_free', label: 'Nut-Free' },
   ];
 
   function renderDietaryEdit() {
@@ -1874,7 +1874,7 @@
     else profile.dietaryRestrictions.splice(idx, 1);
     localStorage.setItem('mealzy_profile', JSON.stringify(profile));
     renderDietaryEdit();
-    showToast('Dietary preference updated ✓', 'success');
+    showToast('Dietary preference updated', 'success');
   }
 
   function toggleDietaryEdit() {
@@ -2323,5 +2323,6 @@
 <div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,#3d8b5e);">Privacy Policy</a></div>
 </body>
 </html>
+
 
 
