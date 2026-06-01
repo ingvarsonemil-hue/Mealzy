@@ -23,8 +23,8 @@ jobs:
     steps:
       - name: Ping /api/health
         run: |
-          echo "Pinging https://mealzy.org/api/health ..."
-          response=$(curl -s -o /tmp/health.json -w "%{http_code}" https://mealzy.org/api/health)
+          echo "Pinging https://www.mealzy.org/api/health ..."
+          response=$(curl -s -o /tmp/health.json -w "%{http_code}" https://www.mealzy.org/api/health)
           echo "HTTP status: $response"
           echo "Response body:"
           cat /tmp/health.json
