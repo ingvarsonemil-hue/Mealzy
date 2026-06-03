@@ -93,10 +93,10 @@
   <div class="upgrade-card">
     <div class="price-display">
       <div>
-        <span class="price-amount" id="upgrPrice">$8</span>
+        <span class="price-amount" id="upgrPrice">$5</span>
         <span class="price-period">/month</span>
       </div>
-      <div class="price-annual" id="upgrBilled">Billed $96/year — saves $48</div>
+      <div class="price-annual" id="upgrBilled">Billed $62/year — saves $82</div>
     </div>
 
     <ul class="features-list">
@@ -268,8 +268,8 @@
     document.getElementById('lblYearly').classList.toggle('active', mode === 'yearly');
     if (mode === 'yearly') {
       dot.style.left = '23px';
-      document.getElementById('upgrPrice').textContent = '$8';
-      document.getElementById('upgrBilled').textContent = 'Billed $96/year — saves $48';
+      document.getElementById('upgrPrice').textContent = '$5';
+      document.getElementById('upgrBilled').textContent = 'Billed $62/year — saves $82';
       document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free →';
     } else {
