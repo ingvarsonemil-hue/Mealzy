@@ -97,10 +97,10 @@
       The free plan is real — not a 7-day trial. Use it as long as you want. Upgrade if you need more.
     </p>
 
-    <!-- BILLING TOGGLE -->
-    <div class="pricing-toggle" id="billingToggle" style="animation:slideUp 0.45s var(--ease-edit) 0.3s both;opacity:0;">
+    <!-- BILLING TOGGLE — only rendered when STRIPE_ANNUAL_READY -->
+    <div class="pricing-toggle" id="billingToggle" style="display:none;animation:slideUp 0.45s var(--ease-edit) 0.3s both;" aria-label="Billing period">
       <button class="active" id="btnMonthly" style="min-height:44px;" onclick="setBilling('monthly')">Monthly</button>
-      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Yearly <span style="background:var(--brick);color:var(--parchment);font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:var(--radius);margin-left:0.25rem;">Save 33%</span></button>
+      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Annual — save $82</button>
     </div>
   </div>
 </section>
@@ -313,6 +313,10 @@
   const STRIPE_YEARLY  = window.STRIPE_ANNUAL  || STRIPE_MONTHLY;
   document.getElementById('proCta').href = STRIPE_MONTHLY;
   document.getElementById('popupCta').href = STRIPE_MONTHLY;
+
+  if (window.STRIPE_ANNUAL_READY) {
+    document.getElementById('billingToggle').style.display = '';
+  }
 
   const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
   const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
