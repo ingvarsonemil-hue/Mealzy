@@ -1,422 +1,233 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-27FWEVV6VD');
-</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mealzy — AI Meal Planner. Free.</title>
-  <meta name="description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free." />
-  <meta property="og:title" content="Mealzy — AI Meal Planner. Free." />
-  <meta property="og:description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free." />
-  <meta property="og:image" content="https://mealzy.org/card-cta.svg" />
-  <meta property="og:url" content="https://mealzy.org" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Mealzy — AI Meal Planner. Free." />
-  <meta name="twitter:description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free." />
-  <meta name="twitter:image" content="https://mealzy.org/card-cta.svg" />
-  <link rel="canonical" href="https://mealzy.org/" />
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Mealzy",
-    "url": "https://mealzy.org",
-    "applicationCategory": "HealthApplication",
-    "operatingSystem": "Web",
-    "offers": [
-      { "@type": "Offer", "price": "0", "priceCurrency": "EUR", "name": "Free plan" },
-      { "@type": "Offer", "price": "8.00", "priceCurrency": "USD", "name": "Pro plan", "billingIncrement": "P1M" }
-    ],
-    "description": "AI-powered meal planner that builds a personalised weekly meal plan, hits your macros, and writes the grocery list in about 30 seconds.",
-    "screenshot": "https://mealzy.org/card-cta.svg"
-  }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#4a8a6f">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Mealzy">
-  <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
-  <style>
-    /* ── Demo section ── */
-    .demo-section { background: var(--clr-muted-bg); border-top: 1px solid var(--clr-border); border-bottom: 1px solid var(--clr-border); padding: 3rem 0; }
-    .demo-form-wrap { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; justify-content: center; margin-bottom: 1.5rem; }
-    .demo-field { display: flex; flex-direction: column; gap: 0.3rem; }
-    .demo-field label { font-size: 0.8rem; font-weight: 700; color: var(--clr-muted-fg); text-transform: uppercase; letter-spacing: 0.05em; }
-    .demo-field input, .demo-field select { border: 1.5px solid var(--clr-border); border-radius: 0.5rem; padding: 0.6rem 0.85rem; font-size: 0.95rem; font-family: inherit; background: var(--clr-card); color: var(--clr-foreground); min-width: 140px; }
-    .demo-result { max-width: 680px; margin: 0 auto; }
-    .demo-plan-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 1rem; overflow: hidden; box-shadow: var(--shadow-sm); }
-    .demo-plan-header { background: var(--clr-primary); padding: 1rem 1.25rem; color: white; display: flex; justify-content: space-between; align-items: center; }
-    .demo-plan-title { font-weight: 700; font-size: 0.95rem; }
-    .demo-plan-sub { font-size: 0.78rem; opacity: 0.8; }
-    .demo-day-group { padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--clr-border); }
-    .demo-day-group:last-child { border-bottom: none; }
-    .demo-day-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--clr-primary); margin-bottom: 0.5rem; }
-    .demo-meal-row { display: flex; justify-content: space-between; align-items: center; padding: 0.35rem 0; }
-    .demo-meal-name { font-size: 0.88rem; font-weight: 600; }
-    .demo-meal-type { font-size: 0.72rem; color: var(--clr-muted-fg); }
-    .demo-meal-meta { font-size: 0.78rem; color: var(--clr-muted-fg); text-align: right; }
-    .demo-cta-row { background: var(--clr-primary-light); border: 1px solid var(--clr-primary); border-radius: 0.75rem; padding: 1.25rem 1.5rem; text-align: center; margin-top: 1.25rem; }
-    .demo-spinner { display: none; width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    /* ── Founder note ── */
-    .founder-note { background: var(--clr-muted-bg); border: 1px solid var(--clr-border); border-radius: 1rem; padding: 2rem 2.5rem; max-width: 680px; margin: 0 auto; }
-    /* ── App mockup ── */
-    .app-mockup {
-      background: var(--clr-card);
-      border-radius: 1.25rem;
-      border: 1px solid var(--clr-border);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      width: 100%;
-      max-width: 480px;
-    }
-    .mockup-topbar {
-      background: var(--clr-primary);
-      padding: 0.85rem 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .mockup-topbar-title { color: white; font-weight: 700; font-size: 0.95rem; }
-    .mockup-topbar-sub { color: rgba(255,255,255,0.75); font-size: 0.75rem; }
-    .mockup-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
-    .mockup-day {
-      background: var(--clr-muted-bg);
-      border-radius: 0.75rem;
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .mockup-day-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--clr-primary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      width: 28px;
-      flex-shrink: 0;
-    }
-    .mockup-day-meal { flex: 1; }
-    .mockup-day-meal-name { font-size: 0.82rem; font-weight: 600; color: var(--clr-foreground); }
-    .mockup-day-meal-cal { font-size: 0.72rem; color: var(--clr-muted-fg); margin-top: 0.1rem; }
-    .mockup-day-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--clr-primary);
-      flex-shrink: 0;
-    }
-    .mockup-footer {
-      border-top: 1px solid var(--clr-border);
-      padding: 0.75rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .mockup-footer-stat { text-align: center; }
-    .mockup-footer-stat-num { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 700; color: #1a1a1a; }
-    .mockup-footer-stat-label { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; color: #888; }
-    .mockup-timer {
-      position: absolute;
-      bottom: -1rem;
-      right: 1.5rem;
-      background: var(--clr-accent);
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.35rem 0.85rem;
-      border-radius: 2rem;
-      box-shadow: 0 4px 12px hsl(32,88%,54%,0.4);
-    }
-    /* ── Testimonial no-photo style ── */
-    .testimonial-initial {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--clr-primary-light);
-      color: var(--clr-primary);
-      font-weight: 800; font-size: 1rem;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    /* ── Honest stats strip ── */
-    .honest-strip {
-      background: var(--clr-primary);
-      padding: 1.25rem 0;
-    }
-    .honest-strip-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2.5rem;
-      flex-wrap: wrap;
-    }
-    .honest-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: white;
-      font-size: 0.88rem;
-      font-weight: 500;
-    }
-    .honest-item-icon {
-      width: 22px; height: 22px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.7rem;
-    }
-
-    /* ── NOVA AUDIT 2026-05-24 ── */
-
-    /* 1. section-title + cta-banner h2 Fraunces now in style.css globally */
-
-    /* Properly responsive hero headline — removes the need for inline style override */
-    .hero-headline {
-      font-size: clamp(2rem, 5vw, 3.8rem);
-      line-height: 1.08;
-    }
-
-    /* 2. Staggered hero entrance — uses the slideUp keyframe already in style.css */
-    .hero-text .section-label {
-      opacity: 0;
-      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.05s both;
-    }
-    .hero-text .hero-headline {
-      opacity: 0;
-      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.18s both;
-    }
-    .hero-text .hero-sub {
-      opacity: 0;
-      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.28s both;
-    }
-    .hero-text .hero-actions {
-      opacity: 0;
-      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.36s both;
-    }
-    .hero-text > p:not(.hero-sub) {
-      opacity: 0;
-      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.44s both;
-    }
-    .hero-image-wrap {
-      opacity: 0;
-      animation: slideUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.5s both;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .hero-text .section-label, .hero-text .hero-headline, .hero-text .hero-sub,
-      .hero-text .hero-actions, .hero-text > p:not(.hero-sub), .hero-image-wrap {
-        animation: none;
-        opacity: 1;
-      }
-    }
-
-    /* 3. Hero — flat background */
-    body { background: #f8f5f0; }
-    .hero {
-      background: #f8f5f0;
-    }
-    .hero::before { display: none; }
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-    }
-    /* Mockup glow — anchors it to the brand colour, makes it feel premium */
-    .app-mockup {
-      box-shadow:
-        0 0 0 1px var(--clr-border),
-        0 24px 64px rgba(60,80,40,0.2),
-        0 0 80px hsl(152,52%,36%,0.1);
-    }
-    @media (max-width: 768px) {
-      .hero-inner { padding-top: 48px; }
-      .hero-image-wrap { margin-top: 32px; }
-    }
-  </style>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-27FWEVV6VD');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mealzy — AI Meal Planner. Free.</title>
+<meta name="description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free.">
+<meta property="og:title" content="Mealzy — AI Meal Planner. Free.">
+<meta property="og:description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free.">
+<meta property="og:image" content="https://mealzy.org/card-cta.svg">
+<meta property="og:url" content="https://mealzy.org">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mealzy — AI Meal Planner. Free.">
+<meta name="twitter:description" content="Tell Mealzy your goals and budget. It builds a full week of meals, hits your macros, and writes the grocery list. Takes about 30 seconds. Free.">
+<meta name="twitter:image" content="https://mealzy.org/card-cta.svg">
+<link rel="canonical" href="https://mealzy.org/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mealzy","url":"https://mealzy.org","applicationCategory":"HealthApplication","operatingSystem":"Web","offers":[{"@type":"Offer","price":"0","priceCurrency":"EUR","name":"Free plan"},{"@type":"Offer","price":"8.00","priceCurrency":"USD","name":"Pro plan","billingIncrement":"P1M"}],"description":"AI-powered meal planner that builds a personalised weekly meal plan, hits your macros, and writes the grocery list in about 30 seconds."}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3529">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mealzy">
+<script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+<style>
+html{font-size:16px;}
+body{font-size:1.0625rem;line-height:1.7;}
+/* Nav */
+.nav-logo-text{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;letter-spacing:-.02em;text-decoration:none;color:var(--clr-foreground);}
+/* Hero */
+.hero-mktg{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 8% 95%,hsl(32,42%,22%,0.5) 0%,transparent 55%),radial-gradient(ellipse 65% 75% at 90% 8%,hsl(152,58%,24%,0.4) 0%,transparent 50%),linear-gradient(148deg,hsl(155,56%,7%) 0%,hsl(148,48%,12%) 48%,hsl(105,28%,17%) 100%);}
+.hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%;padding:0 1.25rem clamp(2.5rem,6vw,5rem);display:grid;grid-template-columns:1fr 380px;gap:3.5rem;align-items:end;}
+.hero-copy{color:white;padding-top:5rem;}
+.hero-eyebrow{display:block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:hsl(152,60%,72%);margin-bottom:1.1rem;}
+.hero-h1{font-family:var(--font-display);font-style:italic;font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-bottom:1.25rem;color:white;max-width:14ch;}
+.hero-sub{font-size:1.0625rem;line-height:1.7;color:rgba(255,255,255,.76);max-width:44ch;margin-bottom:2rem;}
+.hero-actions{display:flex;gap:.85rem;flex-wrap:wrap;}
+.hero-fine{font-size:.78rem;color:rgba(255,255,255,.45);margin-top:1.1rem;display:flex;flex-wrap:wrap;gap:1.25rem;}
+.hero-fine span{display:flex;align-items:center;gap:.3rem;}
+.form-card{background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:1rem;padding:1.75rem;box-shadow:0 24px 56px rgba(10,25,15,.45);}
+[data-theme="dark"] .form-card{background:hsl(150,15%,11%,.97);}
+.form-card-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--clr-muted-fg);margin-bottom:1.1rem;display:block;}
+.hff{margin-bottom:.85rem;}
+.hff label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--clr-muted-fg);margin-bottom:.3rem;}
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr;align-items:start;}.hero-copy{padding-top:6rem;}.form-card{max-width:460px;}.hero-h1{max-width:none;}}
+@media(max-width:600px){.hero-mktg{align-items:flex-start;}.hero-h1{font-size:2.2rem;}.hero-inner{padding-bottom:2.5rem;}}
+/* Honest strip */
+.honest-strip{background:var(--clr-primary);padding:.85rem 0;}
+.honest-inner{max-width:1200px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;justify-content:center;gap:2.5rem;flex-wrap:wrap;}
+.honest-item{display:flex;align-items:center;gap:.45rem;color:rgba(255,255,255,.88);font-size:.82rem;font-weight:500;}
+/* Demo */
+.demo-section{background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);padding:5rem 0;}
+.demo-form-wrap{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end;margin:0 auto 2rem;}
+@media(max-width:700px){.demo-form-wrap{grid-template-columns:1fr;}}
+.demo-field label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--clr-muted-fg);margin-bottom:.3rem;}
+.demo-spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+.demo-result{animation:fadeIn .4s ease;}
+.demo-plan-card{background:var(--clr-foreground);color:rgba(255,255,255,.88);border-radius:1rem;padding:1.75rem;}
+[data-theme="dark"] .demo-plan-card{background:var(--clr-card);border:1px solid var(--clr-border);}
+.demo-plan-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,.1);}
+.demo-plan-title{font-family:var(--font-display);font-style:italic;font-size:1.15rem;color:white;margin-bottom:.2rem;}
+.demo-plan-sub{font-size:.82rem;color:rgba(255,255,255,.45);}
+.demo-tag{background:rgba(255,255,255,.08);color:rgba(255,255,255,.55);font-size:.72rem;font-weight:700;padding:.2rem .65rem;border-radius:999px;}
+.demo-day-group{margin-bottom:1.1rem;}
+.demo-day-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:hsl(152,52%,62%);margin-bottom:.55rem;}
+.demo-meal-row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;padding:.55rem 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.demo-meal-row:last-child{border-bottom:none;}
+.demo-meal-name{font-weight:600;font-size:.9rem;}
+.demo-meal-type{font-size:.75rem;color:rgba(255,255,255,.4);margin-top:.12rem;}
+.demo-meal-meta{font-size:.8rem;color:rgba(255,255,255,.55);text-align:right;white-space:nowrap;}
+.demo-cta-row{text-align:center;padding:2rem 0 1rem;}
+.demo-cta-h{font-family:var(--font-display);font-style:italic;font-size:1.3rem;margin-bottom:.4rem;}
+/* Showcase */
+.showcase{padding:5rem 0;}
+.showcase-grid{display:grid;grid-template-columns:3fr 2fr;gap:2.5rem;align-items:start;}
+@media(max-width:860px){.showcase-grid{grid-template-columns:1fr;}}
+.recipe-card-mktg{background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
+.recipe-card-title{font-family:var(--font-display);font-style:italic;font-size:1rem;padding-bottom:.75rem;margin-bottom:.75rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap;}
+.recipe-meta{font-size:.72rem;color:var(--clr-muted-fg);font-style:normal;font-family:var(--font-body);}
+.meal-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.meal-table{width:100%;border-collapse:collapse;font-size:.78rem;min-width:480px;}
+.meal-table th{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--clr-muted-fg);text-align:left;padding:.4rem .6rem;border-bottom:1px solid var(--clr-border);}
+.meal-table td{padding:.5rem .6rem;border-bottom:1px solid var(--clr-border);vertical-align:top;}
+.meal-table tr:last-child td{border-bottom:none;}
+.day-col{font-weight:700;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--clr-muted-fg);white-space:nowrap;}
+.meal-name-cell{font-family:var(--font-display);font-size:.82rem;color:var(--clr-foreground);display:block;}
+.kcal-cell{font-size:.65rem;color:var(--clr-muted-fg);display:block;margin-top:2px;}
+.grocery-panel{background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
+.grocery-panel h3{font-size:1rem;font-weight:700;padding-bottom:.75rem;margin-bottom:.5rem;border-bottom:1px solid var(--clr-border);}
+.grocery-cat{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--clr-muted-fg);margin:1rem 0 .4rem;}
+.grocery-list{list-style:none;display:flex;flex-direction:column;gap:.3rem;}
+.grocery-list li{font-size:.85rem;color:var(--clr-foreground);display:flex;align-items:baseline;gap:.4rem;}
+.grocery-list li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--clr-primary);flex-shrink:0;margin-top:.42rem;}
+.showcase-caption{font-family:var(--font-display);font-style:italic;color:var(--clr-muted-fg);font-size:.88rem;text-align:center;margin-top:2rem;}
+/* How it works */
+.how{padding:5rem 0;}
+.how-step{display:grid;grid-template-columns:5.5rem 1fr;gap:2rem;padding:2.5rem 0;border-top:1px solid var(--clr-border);}
+.how-step:last-child{border-bottom:1px solid var(--clr-border);}
+.how-numeral{font-family:var(--font-display);font-style:italic;font-size:clamp(2.4rem,5vw,3.4rem);color:var(--clr-border);line-height:1;font-weight:700;letter-spacing:-.02em;}
+.how-title{font-size:1.05rem;font-weight:700;margin-bottom:.5rem;}
+.how-body{color:var(--clr-muted-fg);max-width:52ch;}
+@media(max-width:600px){.how-step{grid-template-columns:3rem 1fr;gap:1rem;}}
+/* Features */
+.features-section{padding:5rem 0;background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);}
+.feature-icon-wrap{width:48px;height:48px;border-radius:.75rem;background:var(--clr-primary-light);display:flex;align-items:center;justify-content:center;color:var(--clr-primary);margin-bottom:1rem;}
+/* Founder */
+.pullquote-section{background:var(--clr-foreground);padding:5rem 0;}
+.pullquote-inner{max-width:680px;margin:0 auto;padding:0 1.25rem;text-align:center;}
+.pullquote-mark{display:block;font-family:var(--font-display);font-size:4.5rem;color:var(--clr-primary);line-height:.4;margin-bottom:1.75rem;user-select:none;}
+.pullquote-text{font-family:var(--font-display);font-style:italic;font-size:clamp(1.25rem,2.5vw,1.6rem);color:rgba(255,255,255,.88);line-height:1.4;margin-bottom:1.25rem;}
+.pullquote-attr{font-size:.78rem;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;}
+/* FAQ */
+.faq-section{padding:5rem 0;}
+.faq-item{border-bottom:1px solid var(--clr-border);}
+.faq-item:first-child{border-top:1px solid var(--clr-border);}
+.faq-btn{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:none;text-align:left;cursor:pointer;padding:1.25rem 0;font-family:var(--font-body);font-size:1rem;font-weight:600;color:var(--clr-foreground);gap:1rem;min-height:44px;touch-action:manipulation;}
+.faq-chevron{flex-shrink:0;transition:transform .3s;color:var(--clr-muted-fg);}
+.faq-item.open .faq-chevron{transform:rotate(180deg);}
+.faq-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.faq-item.open .faq-body{max-height:400px;}
+.faq-body-inner{font-size:1rem;color:var(--clr-muted-fg);line-height:1.7;max-width:65ch;padding-bottom:1.25rem;}
+/* CTA section */
+.cta-section{padding:5rem 0;background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);}
+.cta-lede{font-size:1.05rem;color:var(--clr-muted-fg);margin:1rem 0 2rem;max-width:52ch;}
+/* Footer */
+.site-footer{background:var(--clr-foreground);color:white;padding:3.5rem 0 2rem;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2.5rem;margin-bottom:2.5rem;}
+.footer-brand-name{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;text-decoration:none;color:white;letter-spacing:-.02em;}
+.footer-brand-tagline{font-size:.85rem;color:rgba(255,255,255,.38);margin-top:.5rem;max-width:24ch;line-height:1.55;}
+.footer-col-heading{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:.85rem;}
+.footer-link-list{list-style:none;display:flex;flex-direction:column;gap:.45rem;}
+.footer-link-list a{font-size:.88rem;color:rgba(255,255,255,.55);text-decoration:none;transition:color .15s;}
+.footer-link-list a:hover{color:white;}
+.footer-bottom-bar{border-top:1px solid rgba(255,255,255,.08);padding-top:1.25rem;font-size:.78rem;color:rgba(255,255,255,.28);display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr;}}
+/* Reveal */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;}
+.reveal.in-view{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none!important;}}
+[data-delay="80"]{transition-delay:.08s;}[data-delay="100"]{transition-delay:.1s;}
+[data-delay="120"]{transition-delay:.12s;}[data-delay="160"]{transition-delay:.16s;}
+[data-delay="200"]{transition-delay:.2s;}
+/* Section layout */
+.section-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--clr-primary);margin-bottom:.5rem;}
+.section-title{font-family:var(--font-display);font-style:italic;font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.75rem;}
+.section-sub{font-size:1rem;color:var(--clr-muted-fg);max-width:52ch;margin:0 auto;}
+.section-header{text-align:center;margin-bottom:3rem;}
+</style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="nav-fixed" style="background:#ffffff;border-bottom:1px solid #e8ede9;">
+<nav class="nav-fixed" id="navbar" aria-label="Main navigation">
   <div class="nav-inner">
-    <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
-    <ul class="nav-links">
+    <a href="/" class="nav-logo-text" aria-label="Mealzy home">Mealzy</a>
+    <ul class="nav-links" role="list">
       <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#testimonials">Our Story</a></li>
+      <li><a href="#testimonials">Our story</a></li>
       <li><a href="pricing.html">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-actions">
-      <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
-      <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start Free</a>
-      <button class="hamburger" id="hamburger" aria-label="Menu">
+      <a href="login.html" class="btn btn-ghost btn-sm">Sign in</a>
+      <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start free</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- MOBILE NAV OVERLAY -->
-<div class="mobile-nav-overlay" id="mobileNavOverlay">
-  <div class="mobile-nav-panel" id="mobileNavPanel">
-    <button class="mobile-nav-close" id="mobileNavClose">×</button>
-    <ul class="mobile-nav-links">
+<!-- MOBILE NAV -->
+<div class="mobile-nav-overlay" id="mobileNavOverlay" aria-hidden="true">
+  <div class="mobile-nav-panel" id="mobileNavPanel" role="dialog" aria-label="Navigation menu">
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu">&times;</button>
+    <ul class="mobile-nav-links" role="list">
       <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#testimonials">Our Story</a></li>
+      <li><a href="#testimonials">Our story</a></li>
       <li><a href="pricing.html">Pricing</a></li>
-      <li><a href="login.html">Sign In</a></li>
-      <li><a href="login.html?signup=1" style="color:var(--clr-primary);font-weight:700;">Start Free</a></li>
+      <li><a href="login.html">Sign in</a></li>
+      <li><a href="login.html?signup=1" style="color:var(--clr-primary);font-weight:700;">Start free</a></li>
     </ul>
   </div>
 </div>
 
+<main>
+
 <!-- HERO -->
-<section class="hero" style="padding-top:1.5rem;">
+<section class="hero-mktg" id="hero" aria-labelledby="hero-heading">
   <div class="hero-inner">
-    <div class="hero-text">
-      <span class="section-label">Free AI Meal Planner</span>
-      <h1 class="hero-headline">A full week of meals in 30 seconds.</h1>
-      <p class="hero-sub" style="max-width:480px;margin-top:1rem;">For anyone who wants to eat well without the planning headache. Set your calorie goal, weekly budget, and preferences — Mealzy builds the full week, hits your macros, and writes the grocery list.</p>
-      <div class="hero-actions" style="margin-top:1.75rem;">
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — No Credit Card</a>
-        <a href="#how-it-works" style="color:#888;font-size:1rem;font-weight:400;text-decoration:none;">See how it works →</a>
+    <div class="hero-copy reveal">
+      <span class="hero-eyebrow">Free AI meal planner — built by Emil, 16, Sweden</span>
+      <h1 id="hero-heading" class="hero-h1">A full week of meals in 30 seconds.</h1>
+      <p class="hero-sub">I built Mealzy because meal planning was eating my Sundays. Tell it your goals and budget — it builds the week, hits your macros, and writes the grocery list.</p>
+      <div class="hero-actions">
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg">
+          Start Free — No Credit Card
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a href="#demo" class="btn btn-outline btn-lg" style="color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.08);">See a sample plan</a>
       </div>
-      <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:1rem;">3,000+ meal plans generated · Free forever · Takes 30 seconds</p>
-    </div>
-    <div class="hero-image-wrap" style="position:relative;">
-      <!-- App mockup instead of stock photo -->
-      <div class="app-mockup">
-        <div class="mockup-topbar">
-          <div>
-            <div class="mockup-topbar-title">This week's plan</div>
-            <div class="mockup-topbar-sub">1,800 kcal/day · $85 budget</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.2);color:white;font-size:0.72rem;font-weight:700;padding:0.3rem 0.7rem;border-radius:2rem;">Generated in 28s</div>
-        </div>
-        <div class="mockup-body">
-          <div class="mockup-day">
-            <div class="mockup-day-label">Mon</div>
-            <div class="mockup-day-meal">
-              <div class="mockup-day-meal-name">Chicken &amp; rice bowl</div>
-              <div class="mockup-day-meal-cal">480 kcal · 38g protein</div>
-            </div>
-            <div class="mockup-day-dot"></div>
-          </div>
-          <div class="mockup-day">
-            <div class="mockup-day-label">Tue</div>
-            <div class="mockup-day-meal">
-              <div class="mockup-day-meal-name">Pasta with tomato &amp; tuna</div>
-              <div class="mockup-day-meal-cal">510 kcal · 34g protein</div>
-            </div>
-            <div class="mockup-day-dot"></div>
-          </div>
-          <div class="mockup-day">
-            <div class="mockup-day-label">Wed</div>
-            <div class="mockup-day-meal">
-              <div class="mockup-day-meal-name">Lentil soup + bread</div>
-              <div class="mockup-day-meal-cal">440 kcal · 22g protein</div>
-            </div>
-            <div class="mockup-day-dot"></div>
-          </div>
-          <div class="mockup-day" style="opacity:0.5;">
-            <div class="mockup-day-label">Thu</div>
-            <div class="mockup-day-meal">
-              <div class="mockup-day-meal-name">Stir-fried beef &amp; veg</div>
-              <div class="mockup-day-meal-cal">520 kcal · 41g protein</div>
-            </div>
-            <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#3d8b5e;background:#e8f5ee;padding:2px 8px;border-radius:12px;">Pro</span>
-          </div>
-          <div class="mockup-day" style="opacity:0.3;">
-            <div class="mockup-day-label">Fri</div>
-            <div class="mockup-day-meal">
-              <div class="mockup-day-meal-name">Salmon with potatoes</div>
-              <div class="mockup-day-meal-cal">490 kcal · 36g protein</div>
-            </div>
-            <span style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#3d8b5e;background:#e8f5ee;padding:2px 8px;border-radius:12px;">Pro</span>
-          </div>
-        </div>
-        <div class="mockup-footer">
-          <div class="mockup-footer-stat">
-            <div class="mockup-footer-stat-num">1,794</div>
-            <div class="mockup-footer-stat-label">avg kcal/day</div>
-          </div>
-          <div class="mockup-footer-stat">
-            <div class="mockup-footer-stat-num">34g</div>
-            <div class="mockup-footer-stat-label">avg protein</div>
-          </div>
-          <div class="mockup-footer-stat">
-            <div class="mockup-footer-stat-num">$83</div>
-            <div class="mockup-footer-stat-label">est. weekly cost</div>
-          </div>
-          <div class="mockup-footer-stat">
-            <div class="mockup-footer-stat-num">28s</div>
-            <div class="mockup-footer-stat-label">to generate</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- HONEST STRIP -->
-<div class="honest-strip">
-  <div class="honest-strip-inner">
-    <div class="honest-item">
-      <div class="honest-item-icon">+</div>
-      Full week of meals in 30 seconds
-    </div>
-    <div class="honest-item">
-      <div class="honest-item-icon">+</div>
-      Hits your exact calorie and macro targets
-    </div>
-    <div class="honest-item">
-      <div class="honest-item-icon">+</div>
-      Grocery list built automatically
-    </div>
-    <div class="honest-item">
-      <div class="honest-item-icon">+</div>
-      Free — no credit card
-    </div>
-    <div class="honest-item">
-      <div class="honest-item-icon">+</div>
-      11 languages supported
-    </div>
-  </div>
-</div>
-
-<!-- INTERACTIVE DEMO -->
-<section class="demo-section" id="demo">
-  <div class="container">
-    <div class="section-header" style="margin-bottom:2rem;">
-      <span class="section-label">See It In Action</span>
-      <h2 class="section-title" style="margin-bottom:0.5rem;">Generate a real sample plan — no account needed.</h2>
-      <p class="section-sub">Enter your goals and see what Mealzy builds. No email. No sign up. Just the plan.</p>
+      <p class="hero-fine">
+        <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> 3 free plans/month</span>
+        <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> No credit card</span>
+        <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Takes 30 seconds</span>
+      </p>
     </div>
 
-    <div class="demo-form-wrap">
-      <div class="demo-field">
+    <!-- Demo form — visible immediately, no scroll needed -->
+    <div class="form-card reveal" data-delay="100" aria-label="Generate a sample plan">
+      <span class="form-card-label">Try it — no account needed</span>
+      <div class="hff">
         <label for="demoCals">Daily calorie goal</label>
-        <input type="number" id="demoCals" value="2000" min="1200" max="4000" step="50" placeholder="2000" />
+        <input type="number" id="demoCals" class="form-input" value="2000" min="1200" max="4000" step="50" placeholder="2000">
       </div>
-      <div class="demo-field">
+      <div class="hff">
         <label for="demoBudget">Weekly budget ($)</label>
-        <input type="number" id="demoBudget" value="60" min="20" max="500" step="5" placeholder="60" />
+        <input type="number" id="demoBudget" class="form-input" value="60" min="20" max="500" step="5" placeholder="60">
       </div>
-      <div class="demo-field">
+      <div class="hff">
         <label for="demoDiet">Dietary preference</label>
-        <select id="demoDiet">
+        <select id="demoDiet" class="form-select">
           <option value="none">No restriction</option>
           <option value="vegetarian">Vegetarian</option>
           <option value="vegan">Vegan</option>
@@ -425,421 +236,447 @@
           <option value="high-protein">High protein</option>
         </select>
       </div>
-      <button id="demoBtn" onclick="runDemo()" class="btn btn-primary" style="padding:0.65rem 1.5rem;font-size:0.95rem;"><span id="demoBtnText">Generate Sample Plan</span><span class="demo-spinner" id="demoSpinner"></span></button>
-    </div>
-
-    <div id="demoError" style="text-align:center;color:var(--clr-destructive);font-size:0.88rem;display:none;margin-bottom:1rem;"></div>
-
-    <div class="demo-result" id="demoResult" style="display:none;">
-      <div class="demo-plan-card">
-        <div class="demo-plan-header">
-          <div>
-            <div class="demo-plan-title">Sample Meal Plan — Mon to Fri</div>
-            <div class="demo-plan-sub" id="demoPlanSub">Lunch &amp; dinner · tailored to your goals</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.2);color:white;font-size:0.72rem;font-weight:700;padding:0.3rem 0.7rem;border-radius:2rem;">AI Generated</div>
-        </div>
-        <div id="demoPlanBody"></div>
-      </div>
-
-      <div class="demo-cta-row" style="margin-top:1.25rem;">
-        <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;">This is just 5 days of lunches and dinners.</div>
-        <p style="font-size:0.88rem;color:var(--clr-muted-fg);margin-bottom:1rem;">The full Mealzy plan includes all 7 days, breakfast, snacks, and a complete sorted grocery list with estimated costs.</p>
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg" onclick="trackDemoToSignup()">Get the Full Week Free — Takes 30 Seconds →</a>
-        <p style="font-size:0.78rem;color:var(--clr-muted-fg);margin-top:0.5rem;">No credit card. No catch. Resets every 30 days.</p>
-      </div>
+      <button id="demoBtn" onclick="runDemo()" class="btn btn-primary btn-full" style="margin-top:.25rem;">
+        <span id="demoBtnText">Generate Sample Plan</span>
+        <span class="demo-spinner" id="demoSpinner" aria-hidden="true"></span>
+      </button>
     </div>
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
-<section class="section" id="how-it-works">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-label">How It Works</span>
-      <h2 class="section-title">Three steps. Under 2 minutes.</h2>
-      <p class="section-sub">No complicated setup. Answer a few questions, get your plan instantly.</p>
+<!-- HONEST STRIP -->
+<div class="honest-strip" role="complementary" aria-label="Key facts">
+  <div class="honest-inner">
+    <div class="honest-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      Full week of meals in 30 seconds
     </div>
-    <div class="grid-3">
-      <div style="text-align:center;padding:1.5rem;">
-        <div style="width:56px;height:56px;border-radius:50%;background:var(--clr-primary);color:white;font-weight:900;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">1</div>
-        <h3 style="margin-bottom:0.5rem;">Tell Mealzy about you</h3>
-        <p class="text-muted" style="font-size:0.9rem;">Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes.</p>
+    <div class="honest-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      Hits your exact calorie and macro targets
+    </div>
+    <div class="honest-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      Grocery list written automatically
+    </div>
+    <div class="honest-item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      Free — no credit card needed
+    </div>
+  </div>
+</div>
+
+<!-- DEMO RESULT -->
+<section class="demo-section" id="demo" aria-label="Sample meal plan result">
+  <div class="container">
+    <div id="demoError" style="text-align:center;color:var(--clr-destructive);font-size:.9rem;display:none;margin-bottom:1.5rem;" role="alert"></div>
+    <div class="demo-result" id="demoResult" style="display:none;" aria-live="polite">
+      <div class="demo-plan-card">
+        <div class="demo-plan-hdr">
+          <div>
+            <div class="demo-plan-title">Sample Meal Plan — Mon to Fri</div>
+            <div class="demo-plan-sub" id="demoPlanSub">Lunch &amp; dinner · tailored to your goals</div>
+          </div>
+          <span class="demo-tag">AI Generated</span>
+        </div>
+        <div id="demoPlanBody"></div>
       </div>
-      <div style="text-align:center;padding:1.5rem;">
-        <div style="width:56px;height:56px;border-radius:50%;background:var(--clr-accent);color:white;font-weight:900;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">2</div>
-        <h3 style="margin-bottom:0.5rem;">Get your week in 30 seconds</h3>
-        <p class="text-muted" style="font-size:0.9rem;">Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like something — swap it in one click.</p>
+      <div class="demo-cta-row">
+        <p class="demo-cta-h">This is just 5 days of lunches and dinners.</p>
+        <p style="font-size:.9rem;color:var(--clr-muted-fg);margin-bottom:1.5rem;max-width:50ch;margin-inline:auto;">The full Mealzy plan includes all 7 days, breakfast, snacks, and a sorted grocery list with estimated costs.</p>
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg" onclick="trackDemoToSignup()">Get the Full Week Free — Takes 30 Seconds</a>
+        <p style="font-size:.78rem;color:var(--clr-muted-fg);margin-top:.65rem;">No credit card. No catch. Resets every 30 days.</p>
       </div>
-      <div style="text-align:center;padding:1.5rem;">
-        <div style="width:56px;height:56px;border-radius:50%;background:var(--clr-primary);color:white;font-weight:900;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">3</div>
-        <h3 style="margin-bottom:0.5rem;">Shop from the list, cook, repeat</h3>
-        <p class="text-muted" style="font-size:0.9rem;">The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system.</p>
+    </div>
+    <!-- Static teaser shown before demo runs -->
+    <div id="demoTeaser" class="section-header reveal">
+      <span class="section-label">See it in action</span>
+      <h2 class="section-title">Generate a real sample plan — no account needed.</h2>
+      <p class="section-sub">Enter your goals above and see what Mealzy actually builds. No email. No sign-up. Just the plan.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT SHOWCASE -->
+<section class="showcase" id="features" aria-labelledby="showcase-heading">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">What you get</span>
+      <h2 id="showcase-heading" class="section-title">Your week, planned and ready to shop.</h2>
+    </div>
+    <div class="showcase-grid">
+      <div class="recipe-card-mktg reveal">
+        <div class="recipe-card-title">
+          Week of March 18
+          <span class="recipe-meta">7 days · 2,100 kcal/day target</span>
+        </div>
+        <div class="meal-scroll">
+          <table class="meal-table" aria-label="Sample weekly meal plan">
+            <thead><tr><th scope="col">Day</th><th scope="col">Breakfast</th><th scope="col">Lunch</th><th scope="col">Dinner</th></tr></thead>
+            <tbody>
+              <tr><td class="day-col">Mon</td><td><span class="meal-name-cell">Greek Yogurt Parfait</span><span class="kcal-cell">320 kcal</span></td><td><span class="meal-name-cell">Quinoa Buddha Bowl</span><span class="kcal-cell">480 kcal</span></td><td><span class="meal-name-cell">Herb-Crusted Salmon</span><span class="kcal-cell">540 kcal</span></td></tr>
+              <tr><td class="day-col">Tue</td><td><span class="meal-name-cell">Avocado Toast</span><span class="kcal-cell">290 kcal</span></td><td><span class="meal-name-cell">Lentil Soup</span><span class="kcal-cell">380 kcal</span></td><td><span class="meal-name-cell">Chicken Stir-Fry</span><span class="kcal-cell">490 kcal</span></td></tr>
+              <tr><td class="day-col">Wed</td><td><span class="meal-name-cell">Oat Porridge &amp; Berries</span><span class="kcal-cell">310 kcal</span></td><td><span class="meal-name-cell">Greek Salad &amp; Pitta</span><span class="kcal-cell">350 kcal</span></td><td><span class="meal-name-cell">Beef &amp; Black Bean Tacos</span><span class="kcal-cell">520 kcal</span></td></tr>
+              <tr><td class="day-col">Thu</td><td><span class="meal-name-cell">Scrambled Eggs on Rye</span><span class="kcal-cell">280 kcal</span></td><td><span class="meal-name-cell">Roasted Tomato Soup</span><span class="kcal-cell">320 kcal</span></td><td><span class="meal-name-cell">Pasta Pomodoro</span><span class="kcal-cell">560 kcal</span></td></tr>
+              <tr><td class="day-col">Fri</td><td><span class="meal-name-cell">Banana Smoothie Bowl</span><span class="kcal-cell">250 kcal</span></td><td><span class="meal-name-cell">Tuna &amp; Corn Wrap</span><span class="kcal-cell">420 kcal</span></td><td><span class="meal-name-cell">Coconut Veggie Curry</span><span class="kcal-cell">480 kcal</span></td></tr>
+              <tr><td class="day-col">Sat</td><td><span class="meal-name-cell">French Toast</span><span class="kcal-cell">380 kcal</span></td><td><span class="meal-name-cell">Caesar Salad</span><span class="kcal-cell">410 kcal</span></td><td><span class="meal-name-cell">Roast Chicken &amp; Veg</span><span class="kcal-cell">620 kcal</span></td></tr>
+              <tr><td class="day-col">Sun</td><td><span class="meal-name-cell">Blueberry Pancakes</span><span class="kcal-cell">420 kcal</span></td><td><span class="meal-name-cell">Mushroom Risotto</span><span class="kcal-cell">450 kcal</span></td><td><span class="meal-name-cell">Baked Cod &amp; Greens</span><span class="kcal-cell">460 kcal</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grocery-panel reveal" data-delay="100">
+        <h3>Grocery list</h3>
+        <p class="grocery-cat">Produce</p>
+        <ul class="grocery-list"><li>Cherry tomatoes</li><li>Avocados &times;3</li><li>Baby spinach 200 g</li><li>Lemons &times;4</li><li>Garlic bulb</li></ul>
+        <p class="grocery-cat">Protein</p>
+        <ul class="grocery-list"><li>Salmon fillet 400 g</li><li>Chicken breast 600 g</li><li>Greek yogurt 500 g</li><li>Free-range eggs &times;12</li></ul>
+        <p class="grocery-cat">Pantry</p>
+        <ul class="grocery-list"><li>Quinoa 250 g</li><li>Red lentils 400 g</li><li>Pasta 400 g</li><li>Olive oil</li></ul>
+      </div>
+    </div>
+    <p class="showcase-caption reveal" data-delay="200">Generated in about 30 seconds from your preferences.</p>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how-it-works" aria-labelledby="how-heading">
+  <div class="container">
+    <div class="how-header reveal" style="margin-bottom:clamp(2rem,4vw,3.5rem);">
+      <span class="section-label">How it works</span>
+      <h2 id="how-heading" class="section-title">Three steps. Under 2 minutes.</h2>
+    </div>
+    <div class="how-step reveal" data-delay="0">
+      <span class="how-numeral" aria-hidden="true">01</span>
+      <div>
+        <h3 class="how-title">Tell Mealzy about you</h3>
+        <p class="how-body">Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes and it remembers everything.</p>
+      </div>
+    </div>
+    <div class="how-step reveal" data-delay="80">
+      <span class="how-numeral" aria-hidden="true">02</span>
+      <div>
+        <h3 class="how-title">Get your week in 30 seconds</h3>
+        <p class="how-body">Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like something — swap it in one click.</p>
+      </div>
+    </div>
+    <div class="how-step reveal" data-delay="160">
+      <span class="how-numeral" aria-hidden="true">03</span>
+      <div>
+        <h3 class="how-title">Shop from the list, cook, repeat</h3>
+        <p class="how-body">The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FEATURES -->
-<section class="section" style="background:var(--clr-muted-bg);" id="features">
+<section class="features-section" aria-labelledby="features-heading">
   <div class="container">
-    <div class="section-header">
-      <span class="section-label">What Mealzy Does</span>
-      <h2 class="section-title">Everything in one place. Nothing you don't need.</h2>
-    </div>
-    <div class="grid-3">
-      <div class="card feature-card">
-        <h3>AI Meal Planning</h3>
-        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Tell it your calories, your budget, and what you like. It builds the whole week — practical, home-cooked meals using ingredients from any regular supermarket.</p>
-      </div>
-      <div class="card feature-card">
-        <h3>Automatic Grocery List</h3>
-        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Every ingredient from your week's plan, organised by category, with estimated costs. You only buy what you need. Nothing goes to waste.</p>
-      </div>
-      <div class="card feature-card">
-        <h3>Budget That Holds</h3>
-        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Set your weekly grocery budget once. Mealzy builds every plan around it. The number doesn't move unless you change it.</p>
-      </div>
-      <div class="card feature-card">
-        <h3>AI Nutrition Coach</h3>
-        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Ask Mia — your AI nutritionist — anything. Recipe ideas, macro questions, what to cook with what's in your fridge. Available any time.</p>
-      </div>
-      <div class="card feature-card">
-        <h3>Calorie and Macro Tracking</h3>
-        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">Every meal is already calculated. Log what you eat, see your weekly trends, and watch how your nutrition stacks up against your targets.</p>
-      </div>
-      <div class="card feature-card">
-        <h3>11 Languages</h3>
-        <p class="text-muted" style="margin-top:0.5rem;font-size:0.9rem;">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese. The whole app — meals, coach, interface — works in your language.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHY NOT THE ALTERNATIVES -->
-<section class="section" id="vs" style="background:var(--clr-card);">
-  <div class="container">
-    <div class="section-header">
-      <span class="section-label">Why Mealzy</span>
-      <h2 class="section-title">Better than the alternatives. Here's why.</h2>
-      <p class="section-sub">The average person spends 2 hours planning meals every week. Mealzy does it in 30 seconds.</p>
+    <div class="section-header reveal">
+      <span class="section-label">What Mealzy does</span>
+      <h2 id="features-heading" class="section-title">Everything in one place. Nothing you don't need.</h2>
     </div>
     <div class="grid-3" style="gap:1.5rem;">
-      <div style="background:var(--clr-muted-bg);border-radius:1rem;padding:1.5rem;border:1px solid var(--clr-border);">
-        <h3 style="margin-bottom:0.5rem;font-size:1rem;">ChatGPT gives you a plan. Mealzy gives you a system.</h3>
-        <p style="font-size:0.88rem;color:var(--clr-muted-fg);line-height:1.65;">Unlike ChatGPT, Mealzy remembers your goals, tracks your macros automatically, and writes your grocery list in one click — every single week. No copy-pasting. No reformatting. Just your plan, ready to use.</p>
-      </div>
-      <div style="background:var(--clr-muted-bg);border-radius:1rem;padding:1.5rem;border:1px solid var(--clr-border);">
-        <h3 style="margin-bottom:0.5rem;font-size:1rem;">MyFitnessPal tracks what you ate. Mealzy plans what you'll eat.</h3>
-        <p style="font-size:0.88rem;color:var(--clr-muted-fg);line-height:1.65;">MyFitnessPal is a food diary — you log after the fact. Mealzy is a meal planner — you decide in advance. Planning beats tracking for weight loss and budget control because decisions happen before you're standing hungry in a supermarket.</p>
-      </div>
-      <div style="background:var(--clr-muted-bg);border-radius:1rem;padding:1.5rem;border:1px solid var(--clr-border);">
-        <h3 style="margin-bottom:0.5rem;font-size:1rem;">Doing it manually? You're spending 2 days a month on this.</h3>
-        <p style="font-size:0.88rem;color:var(--clr-muted-fg);line-height:1.65;">2 hours per week × 52 weeks = over 100 hours a year planning meals. Mealzy does each plan in 30 seconds. That's the difference between a Sunday morning project and clicking one button. The grocery list is already sorted by supermarket aisle.</p>
-      </div>
+      <article class="card reveal" data-delay="0">
+        <div class="feature-icon-wrap" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h3>AI Meal Planning</h3>
+        <p class="text-muted" style="margin-top:.5rem;">Tell it your calories, your budget, and what you like. It builds the whole week — practical, home-cooked meals using ingredients from any regular supermarket.</p>
+      </article>
+      <article class="card reveal" data-delay="80">
+        <div class="feature-icon-wrap" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h3>Automatic Grocery List</h3>
+        <p class="text-muted" style="margin-top:.5rem;">Every ingredient from your week's plan, organised by category, with estimated costs. You only buy what you need. Nothing goes to waste.</p>
+      </article>
+      <article class="card reveal" data-delay="160">
+        <div class="feature-icon-wrap" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.5" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="2.5" fill="currentColor" stroke="none"/><circle cx="10" cy="17" r="2.5" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <h3>Budget That Holds</h3>
+        <p class="text-muted" style="margin-top:.5rem;">Set your weekly grocery budget once. Mealzy builds every plan around it. The number doesn't move unless you change it.</p>
+      </article>
+      <article class="card reveal" data-delay="0">
+        <div class="feature-icon-wrap" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>AI Nutrition Coach</h3>
+        <p class="text-muted" style="margin-top:.5rem;">Ask Mia — your AI nutritionist — anything. Recipe ideas, macro questions, what to cook with what's in your fridge. Available any time.</p>
+      </article>
+      <article class="card reveal" data-delay="80">
+        <div class="feature-icon-wrap" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </div>
+        <h3>Calorie and Macro Tracking</h3>
+        <p class="text-muted" style="margin-top:.5rem;">Every meal is already calculated. Log what you eat, see your weekly trends, and watch how your nutrition stacks up against your targets.</p>
+      </article>
+      <article class="card reveal" data-delay="160">
+        <div class="feature-icon-wrap" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <h3>11 Languages</h3>
+        <p class="text-muted" style="margin-top:.5rem;">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese. The whole app works in your language.</p>
+      </article>
     </div>
   </div>
 </section>
 
 <!-- FOUNDER NOTE -->
-<section class="section" id="testimonials">
-  <div class="container" style="max-width:720px;">
-    <div class="founder-note">
-      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
-        <div class="testimonial-initial" style="width:48px;height:48px;font-size:1.1rem;flex-shrink:0;">E</div>
-        <div>
-          <div style="font-weight:700;font-size:1rem;">Emil, founder</div>
-          <div style="font-size:0.82rem;color:var(--clr-muted-fg);">16 years old · Built Mealzy solo</div>
-        </div>
-      </div>
-      <p style="font-size:0.95rem;line-height:1.75;color:var(--clr-foreground);margin-bottom:1rem;">
-        I built Mealzy because meal planning was eating my Sundays. I'd spend 30–45 minutes figuring out what to eat, checking macros, writing a grocery list — and then forget half of it at the store anyway.
-      </p>
-      <p style="font-size:0.95rem;line-height:1.75;color:var(--clr-foreground);margin-bottom:1rem;">
-        Mealzy is new — you'd be one of the first users. No fake reviews, no inflated numbers. Just a tool I built to solve a real problem, now free for anyone who needs it.
-      </p>
-      <p style="font-size:0.95rem;line-height:1.75;color:var(--clr-foreground);">
-        If it saves you time, I'd love to hear about it. If something's broken, I want to know. <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);font-weight:600;">support@mealzy.org</a>
-      </p>
+<section class="pullquote-section" id="testimonials" aria-labelledby="founder-heading">
+  <div class="pullquote-inner">
+    <div class="reveal">
+      <span class="pullquote-mark" aria-hidden="true">&ldquo;</span>
+      <p id="founder-heading" class="pullquote-text">I built Mealzy because meal planning was eating my Sundays. Mealzy is new — you'd be one of the first users. No fake reviews, no inflated numbers. Just a tool I built to solve a real problem, now free for anyone who needs it.</p>
+      <p class="pullquote-attr">— Emil, founder &middot; 16 years old &middot; Built Mealzy solo</p>
+      <p style="margin-top:1.5rem;font-size:.85rem;color:rgba(255,255,255,.4);">Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,.65);font-weight:600;text-decoration:none;">support@mealzy.org</a> — usually replied to within 24 hours.</p>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section class="section" id="faq" style="background:var(--clr-muted-bg);">
+<section class="faq-section" id="faq" aria-labelledby="faq-heading">
   <div class="container" style="max-width:720px;">
-    <div class="section-header">
+    <div class="section-header reveal">
       <span class="section-label">FAQ</span>
-      <h2 class="section-title">Common questions.</h2>
+      <h2 id="faq-heading" class="section-title">Common questions.</h2>
     </div>
-    <div style="display:flex;flex-direction:column;gap:1rem;">
-      <div class="card card-sm">
-        <h3 style="margin-bottom:0.4rem;">Is it actually free?</h3>
-        <p class="text-muted" style="font-size:0.88rem;">Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro is $8/month for unlimited everything.</p>
+    <div class="reveal" data-delay="80">
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" aria-controls="faq-1">Is it actually free?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-body" id="faq-1" role="region"><p class="faq-body-inner">Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro is $8/month for unlimited everything.</p></div>
       </div>
-      <div class="card card-sm">
-        <h3 style="margin-bottom:0.4rem;">How does the budget work?</h3>
-        <p class="text-muted" style="font-size:0.88rem;">You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over.</p>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" aria-controls="faq-2">How does the budget work?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-body" id="faq-2" role="region"><p class="faq-body-inner">You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over.</p></div>
       </div>
-      <div class="card card-sm">
-        <h3 style="margin-bottom:0.4rem;">Can it handle dietary restrictions?</h3>
-        <p class="text-muted" style="font-size:0.88rem;">Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.</p>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" aria-controls="faq-3">Can it handle dietary restrictions?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-body" id="faq-3" role="region"><p class="faq-body-inner">Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.</p></div>
       </div>
-      <div class="card card-sm">
-        <h3 style="margin-bottom:0.4rem;">How accurate are the calorie calculations?</h3>
-        <p class="text-muted" style="font-size:0.88rem;">We use the Mifflin-St Jeor equation with your activity level to calculate your daily target. Meals are generated to hit that target within about 50 calories per day.</p>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" aria-controls="faq-4">How accurate are the calorie calculations?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-body" id="faq-4" role="region"><p class="faq-body-inner">We use the Mifflin-St Jeor equation with your activity level to calculate your daily target. Meals are generated to hit that target within about 50 calories per day.</p></div>
       </div>
-      <div class="card card-sm">
-        <h3 style="margin-bottom:0.4rem;">What languages does Mealzy support?</h3>
-        <p class="text-muted" style="font-size:0.88rem;">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false" aria-controls="faq-5">What languages does Mealzy support?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-body" id="faq-5" role="region"><p class="faq-body-inner">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-
-<!-- CTA BANNER -->
-<section class="section">
+<!-- CTA BAND -->
+<section class="cta-section" aria-labelledby="cta-heading">
   <div class="container">
-    <div class="cta-banner">
-      <h2>Stop planning meals by hand.</h2>
-      <p style="max-width:480px;margin:0.75rem auto 0;">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
-        <a href="login.html?signup=1" class="btn btn-accent btn-lg">Start Free — Takes 2 Minutes</a>
-        <a href="pricing.html" class="btn btn-outline btn-lg" style="background:rgba(255,255,255,0.15);color:white;border-color:rgba(255,255,255,0.3);">See Pricing</a>
+    <div class="reveal">
+      <span class="section-label">Get started</span>
+      <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;">Stop planning meals by hand.</h2>
+      <p class="cta-lede">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
+        <a href="pricing.html" class="btn btn-outline btn-lg">See pricing</a>
       </div>
     </div>
   </div>
 </section>
+
+</main>
 
 <!-- EMAIL CAPTURE POPUP -->
-<div class="email-popup-overlay" id="emailPopupOverlay">
-  <div class="email-popup-card">
-    <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;display:block;margin-bottom:0.5rem;">Mealzy</a>
-    <h2>Save your meal plan</h2>
+<div class="email-popup-overlay" id="emailPopupOverlay" aria-hidden="true">
+  <div class="email-popup-card" role="dialog" aria-labelledby="popup-title" aria-modal="true">
+    <a href="/" style="font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;color:white;text-decoration:none;display:block;margin-bottom:.5rem;">Mealzy</a>
+    <h2 id="popup-title">Save your meal plan</h2>
     <p>Enter your email to create a free account — your plan stays saved and resets every 30 days. No card needed.</p>
-    <p style="font-size:0.78rem;background:var(--clr-muted-bg);border-radius:0.5rem;padding:0.5rem 0.75rem;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Free: 3 meal plans/month. Pro: unlimited for $8/month.</p>
+    <p style="font-size:.8rem;background:rgba(255,255,255,.08);border-radius:.5rem;padding:.5rem .75rem;color:rgba(255,255,255,.55);margin-bottom:.75rem;">Free: 3 meal plans/month. Pro: unlimited for $8/month.</p>
     <div class="email-popup-form" id="emailPopupForm">
-      <input type="email" class="email-popup-input" id="popupEmailInput" placeholder="your@email.com" />
-      <button class="email-popup-btn" onclick="submitEmailPopup()">Create Free Account →</button>
+      <input type="email" class="email-popup-input" id="popupEmailInput" placeholder="your@email.com" aria-label="Email address">
+      <button class="email-popup-btn" onclick="submitEmailPopup()">Create Free Account</button>
     </div>
-    <div id="emailPopupError" style="color:#e53e3e;font-size:0.8rem;margin-top:0.4rem;display:none;">Please enter a valid email.</div>
-    <p style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.75rem;">We never sell your data. Unsubscribe any time.</p>
+    <div id="emailPopupError" style="color:rgba(255,200,200,.9);font-size:.8rem;margin-top:.4rem;display:none;" role="alert">Please enter a valid email.</div>
+    <p style="font-size:.78rem;color:rgba(255,255,255,.4);margin-top:.75rem;">We never sell your data. Unsubscribe any time.</p>
     <button class="email-popup-dismiss" onclick="closeEmailPopup()">No thanks</button>
   </div>
 </div>
 
 <!-- FOOTER -->
-<footer>
+<footer class="site-footer">
   <div class="container">
-    <div class="footer-inner">
-      <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:white;text-decoration:none;">Mealzy</a>
-      <div class="footer-links">
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="mailto:support@mealzy.org">Contact</a>
+    <div class="footer-grid">
+      <div>
+        <a href="/" class="footer-brand-name" aria-label="Mealzy home">Mealzy</a>
+        <p class="footer-brand-tagline">AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
       </div>
-      <p style="color:rgba(255,255,255,0.55);font-size:0.78rem;margin-top:0.25rem;">Nutritional calculations aligned with USDA dietary guidelines.</p>
-      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;margin-top:0.25rem;">
-        Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,0.9);font-weight:600;">support@mealzy.org</a>
-      </p>
-      <p style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:0.15rem;">Usually replied to within 24 hours.</p>
-      <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
-      <p style="color:rgba(255,255,255,0.35);font-size:0.75rem;margin-top:0.5rem;max-width:560px;">Mealzy is an AI tool and does not provide medical or nutritional advice. Consult a healthcare professional before making significant changes to your diet.</p>
+      <div>
+        <p class="footer-col-heading">Product</p>
+        <ul class="footer-link-list" role="list">
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="dashboard.html">My plans</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-heading">Account</p>
+        <ul class="footer-link-list" role="list">
+          <li><a href="login.html">Sign in</a></li>
+          <li><a href="login.html?signup=1">Start free</a></li>
+          <li><a href="reset-password.html">Reset password</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-col-heading">Legal</p>
+        <ul class="footer-link-list" role="list">
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="mailto:support@mealzy.org">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom-bar">
+      <span>&copy; 2026 Mealzy &mdash; Built by Emil, 16, Sweden. Nutritional calculations aligned with USDA dietary guidelines.</span>
+      <span>Mealzy is an AI tool and does not provide medical or nutritional advice.</span>
     </div>
   </div>
 </footer>
 
+<script src="motion.js" defer></script>
 <script>
-  // === EMAIL POPUP ===
-  function openEmailPopup() {
-    document.getElementById('emailPopupOverlay').classList.add('open');
+// === EMAIL POPUP ===
+function openEmailPopup(){const o=document.getElementById('emailPopupOverlay');o.classList.add('open');o.removeAttribute('aria-hidden');}
+function closeEmailPopup(){const o=document.getElementById('emailPopupOverlay');o.classList.remove('open');o.setAttribute('aria-hidden','true');}
+function submitEmailPopup(){
+  const input=document.getElementById('popupEmailInput');
+  const err=document.getElementById('emailPopupError');
+  const email=input.value.trim();
+  if(!email||!email.includes('@')){err.style.display='block';input.focus();return;}
+  err.style.display='none';
+  fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,source:'popup'})}).catch(()=>{});
+  localStorage.setItem('mealzy_email_submitted','1');
+  window.location.href='login.html?signup=1&email='+encodeURIComponent(email);
+}
+if(!localStorage.getItem('mealzy_email_submitted')){setTimeout(openEmailPopup,12000);}
+document.getElementById('emailPopupOverlay').addEventListener('click',function(e){if(e.target===this)closeEmailPopup();});
+
+// === EXIT INTENT ===
+let _exitFired=false;
+document.addEventListener('mouseleave',(e)=>{
+  if(_exitFired||localStorage.getItem('mealzy_email_submitted'))return;
+  if(e.clientY<=0){
+    _exitFired=true;
+    const h=document.querySelector('.email-popup-card h2');
+    const p=document.querySelector('.email-popup-card p');
+    if(h)h.textContent='Wait — save your free plan';
+    if(p)p.textContent='Create a free account and your meal plan is always saved — access it any time, on any device.';
+    openEmailPopup();
   }
-  function closeEmailPopup() {
-    document.getElementById('emailPopupOverlay').classList.remove('open');
-  }
-  function submitEmailPopup() {
-    const input = document.getElementById('popupEmailInput');
-    const errorEl = document.getElementById('emailPopupError');
-    const email = input.value.trim();
-    if (!email || !email.includes('@')) {
-      errorEl.style.display = 'block';
-      input.focus();
-      return;
-    }
-    errorEl.style.display = 'none';
-    // Store lead silently then redirect to signup with email pre-filled
-    fetch('/api/email-leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, source: 'popup' })
-    }).catch(() => {});
-    localStorage.setItem('mealzy_email_submitted', '1');
-    window.location.href = 'login.html?signup=1&email=' + encodeURIComponent(email);
-  }
-  if (!localStorage.getItem('mealzy_email_submitted')) {
-    setTimeout(openEmailPopup, 12000);
-  }
-  document.getElementById('emailPopupOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeEmailPopup();
+});
+
+// === MOBILE NAV ===
+const hamburger=document.getElementById('hamburger');
+const mobileNavOverlay=document.getElementById('mobileNavOverlay');
+const mobileNavPanel=document.getElementById('mobileNavPanel');
+const mobileNavClose=document.getElementById('mobileNavClose');
+function openMobileNav(){mobileNavOverlay.classList.add('open');mobileNavPanel.classList.add('open');hamburger.setAttribute('aria-expanded','true');}
+function closeMobileNav(){mobileNavOverlay.classList.remove('open');mobileNavPanel.classList.remove('open');hamburger.setAttribute('aria-expanded','false');}
+hamburger.addEventListener('click',openMobileNav);
+mobileNavClose.addEventListener('click',closeMobileNav);
+mobileNavOverlay.addEventListener('click',e=>{if(e.target===mobileNavOverlay)closeMobileNav();});
+
+// === SMOOTH SCROLL ===
+document.querySelectorAll('a[href^="#"]').forEach(link=>{
+  link.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(link.getAttribute('href'));
+    if(t){t.scrollIntoView({behavior:'smooth',block:'start'});closeMobileNav();}
   });
+});
 
-  // === EXIT INTENT ===
-  let _exitFired = false;
-  document.addEventListener('mouseleave', (e) => {
-    if (_exitFired) return;
-    if (localStorage.getItem('mealzy_email_submitted')) return;
-    if (e.clientY <= 0) { // Mouse left through the top (toward browser chrome / new tab)
-      _exitFired = true;
-      // Update popup copy for exit intent context
-      const h2 = document.querySelector('.email-popup-card h2');
-      const p  = document.querySelector('.email-popup-card p');
-      if (h2) h2.textContent = 'Wait — save your free plan';
-      if (p)  p.textContent  = 'Create a free account and your meal plan is always saved — access it any time, on any device.';
-      openEmailPopup();
-    }
+// === FAQ ACCORDION ===
+document.querySelectorAll('.faq-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.closest('.faq-item');
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+    if(!isOpen)item.classList.add('open');
+    btn.setAttribute('aria-expanded',String(!isOpen));
   });
+});
 
-  // === MOBILE NAV ===
-  const hamburger = document.getElementById('hamburger');
-  const mobileNavOverlay = document.getElementById('mobileNavOverlay');
-  const mobileNavPanel = document.getElementById('mobileNavPanel');
-  const mobileNavClose = document.getElementById('mobileNavClose');
-  function openMobileNav() { mobileNavOverlay.classList.add('open'); mobileNavPanel.classList.add('open'); }
-  function closeMobileNav() { mobileNavOverlay.classList.remove('open'); mobileNavPanel.classList.remove('open'); }
-  hamburger.addEventListener('click', openMobileNav);
-  mobileNavClose.addEventListener('click', closeMobileNav);
-  mobileNavOverlay.addEventListener('click', e => { if (e.target === mobileNavOverlay) closeMobileNav(); });
+// === NAV SCROLL ===
+const navbar=document.getElementById('navbar');
+if(navbar){
+  const upd=()=>navbar.classList.toggle('scrolled',window.scrollY>24);
+  window.addEventListener('scroll',upd,{passive:true});
+  upd();
+}
 
-  // === SMOOTH SCROLL ===
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      const target = document.querySelector(link.getAttribute('href'));
-      if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); closeMobileNav(); }
-    });
-  });
+// === SERVICE WORKER ===
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+// === REFERRAL CAPTURE ===
+(function(){
+  const params=new URLSearchParams(window.location.search);
+  const ref=params.get('ref');
+  if(!ref)return;
+  if(ref.includes('@')){localStorage.setItem('mealzy_pending_ref',ref);fetch('/api/referral-capture?ref='+encodeURIComponent(ref)).catch(()=>{});}
+  else if(ref.startsWith('ref_')){fetch('/api/ref-lookup?code='+encodeURIComponent(ref)).then(r=>r.json()).then(d=>{if(d.found&&d.email){localStorage.setItem('mealzy_pending_ref',d.email);fetch('/api/referral-capture?ref='+encodeURIComponent(d.email)).catch(()=>{});}}).catch(()=>{});}
+})();
+
+// === DEMO ===
+async function runDemo(){
+  const btn=document.getElementById('demoBtn');
+  const spinner=document.getElementById('demoSpinner');
+  const errorEl=document.getElementById('demoError');
+  const result=document.getElementById('demoResult');
+  const teaser=document.getElementById('demoTeaser');
+  const cals=parseInt(document.getElementById('demoCals').value)||2000;
+  const budget=parseFloat(document.getElementById('demoBudget').value)||60;
+  const diet=document.getElementById('demoDiet').value;
+  btn.disabled=true;
+  document.getElementById('demoBtnText').textContent='Generating...';
+  spinner.style.display='inline-block';
+  errorEl.style.display='none';
+  result.style.display='none';
+  if(teaser)teaser.style.display='none';
+  // Scroll to demo result area
+  document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'});
+  try{
+    const res=await fetch('/api/demo-meal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({calorieGoal:cals,budget,dietary:diet})});
+    if(res.status===429){errorEl.textContent="You've used today's 3 free demos. Create a free account for unlimited access — it's free.";errorEl.style.display='block';return;}
+    const data=await res.json();
+    if(!data.success||!data.plan?.meals)throw new Error(data.error||'Generation failed');
+    renderDemoPlan(data.plan,cals,budget);
+    result.style.display='block';
+    fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_generated',data:{cals,budget,diet}})}).catch(()=>{});
+  }catch(err){
+    errorEl.textContent=err.message||'Something went wrong. Please try again.';
+    errorEl.style.display='block';
+    if(teaser)teaser.style.display='block';
+  }finally{
+    btn.disabled=false;
+    document.getElementById('demoBtnText').textContent='Generate Sample Plan';
+    spinner.style.display='none';
   }
+}
 
-  // === REFERRAL CAPTURE (?ref=EMAIL or ?ref=ref_CODE) ===
-  (function captureRef() {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get('ref');
-    if (!ref) return;
+function renderDemoPlan(plan,cals,budget){
+  const byDay={};
+  const dayOrder=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  plan.meals.forEach(m=>{if(!byDay[m.day])byDay[m.day]=[];byDay[m.day].push(m);});
+  document.getElementById('demoPlanSub').textContent=`${cals} kcal/day · $${budget}/week budget`;
+  document.getElementById('demoPlanBody').innerHTML=dayOrder.map(day=>{
+    const meals=byDay[day]||[];
+    if(!meals.length)return'';
+    return`<div class="demo-day-group"><div class="demo-day-label">${day}</div>${meals.map(m=>`<div class="demo-meal-row"><div><div class="demo-meal-name">${m.name}</div><div class="demo-meal-type">${m.type}</div></div><div class="demo-meal-meta">${m.calories} kcal &middot; ${m.protein}g protein<br><span style="color:hsl(152,52%,62%);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span></div></div>`).join('')}</div>`;
+  }).join('');
+}
 
-    if (ref.includes('@')) {
-      localStorage.setItem('mealzy_pending_ref', ref);
-      fetch('/api/referral-capture?ref=' + encodeURIComponent(ref)).catch(() => {});
-    } else if (ref.startsWith('ref_')) {
-      // Resolve short code to email, then store email for the signup step
-      fetch('/api/ref-lookup?code=' + encodeURIComponent(ref))
-        .then(r => r.json())
-        .then(d => {
-          if (d.found && d.email) {
-            localStorage.setItem('mealzy_pending_ref', d.email);
-            fetch('/api/referral-capture?ref=' + encodeURIComponent(d.email)).catch(() => {});
-          }
-        })
-        .catch(() => {});
-    }
-  })();
-
-  // === DEMO SECTION ===
-  async function runDemo() {
-    const btn     = document.getElementById('demoBtn');
-    const spinner = document.getElementById('demoSpinner');
-    const errorEl = document.getElementById('demoError');
-    const result  = document.getElementById('demoResult');
-
-    const cals   = parseInt(document.getElementById('demoCals').value) || 2000;
-    const budget = parseFloat(document.getElementById('demoBudget').value) || 60;
-    const diet   = document.getElementById('demoDiet').value;
-
-    btn.disabled = true;
-    document.getElementById('demoBtnText').textContent = 'Generating...';
-    spinner.style.display = 'block';
-    errorEl.style.display = 'none';
-    result.style.display  = 'none';
-
-    try {
-      const res = await fetch('/api/demo-meal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ calorieGoal: cals, budget, dietary: diet })
-      });
-
-      if (res.status === 429) {
-        errorEl.textContent = "You've used today's 3 free demos. Create a free account for unlimited access — it's free.";
-        errorEl.style.display = 'block';
-        return;
-      }
-
-      const data = await res.json();
-      if (!data.success || !data.plan?.meals) {
-        throw new Error(data.error || 'Generation failed');
-      }
-
-      renderDemoPlan(data.plan, cals, budget);
-      result.style.display = 'block';
-      result.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      // Track demo view
-      fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ event:'demo_generated', data: { cals, budget, diet } }) }).catch(()=>{});
-
-    } catch(err) {
-      errorEl.textContent = err.message || 'Something went wrong. Please try again.';
-      errorEl.style.display = 'block';
-    } finally {
-      btn.disabled = false;
-      document.getElementById('demoBtnText').textContent = 'Generate Sample Plan';
-      spinner.style.display = 'none';
-    }
-  }
-
-  function renderDemoPlan(plan, cals, budget) {
-    // Group meals by day
-    const byDay = {};
-    const dayOrder = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
-    plan.meals.forEach(m => {
-      if (!byDay[m.day]) byDay[m.day] = [];
-      byDay[m.day].push(m);
-    });
-
-    const sub = document.getElementById('demoPlanSub');
-    sub.textContent = `${cals} kcal/day · $${budget}/week budget`;
-
-    const body = document.getElementById('demoPlanBody');
-    body.innerHTML = dayOrder.map(day => {
-      const meals = byDay[day] || [];
-      if (!meals.length) return '';
-      return `<div class="demo-day-group">
-        <div class="demo-day-label">${day}</div>
-        ${meals.map(m => `
-          <div class="demo-meal-row">
-            <div>
-              <div class="demo-meal-name">${m.name}</div>
-              <div class="demo-meal-type">${m.type}</div>
-            </div>
-            <div class="demo-meal-meta">
-              ${m.calories} kcal · ${m.protein}g protein<br>
-              <span style="color:var(--clr-primary);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span>
-            </div>
-          </div>`).join('')}
-      </div>`;
-    }).join('');
-  }
-
-  function trackDemoToSignup() {
-    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ event:'demo_to_signup_click', data:{} }) }).catch(()=>{});
-  }
+function trackDemoToSignup(){
+  fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_to_signup_click',data:{}})}).catch(()=>{});
+}
 </script>
 </body>
 </html>
-

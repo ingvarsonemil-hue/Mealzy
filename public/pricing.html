@@ -1,14 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-27FWEVV6VD');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-27FWEVV6VD');</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pricing | Mealzy — Free & Pro Plans</title>
@@ -21,324 +16,216 @@
   <link rel="canonical" href="https://mealzy.org/pricing.html" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#4a8a6f">
+  <meta name="theme-color" content="#1A1208">
   <script src="/stripe-config.js"></script>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Mealzy">
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
-    @keyframes pricePop { 0% { transform: scale(0.95); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes pricePop { 0%{transform:scale(0.95);opacity:0.7} 100%{transform:scale(1);opacity:1} }
+    @keyframes pricingPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+    @keyframes cardRise { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
     .price-animated { animation: pricePop 0.25s ease; }
-    /* 30-second popup */
+    #cardFree    { opacity:0; animation: cardRise 0.5s var(--ease-edit,cubic-bezier(0.16,1,0.3,1)) 0.10s both; }
+    #cardPremium { opacity:0; animation: cardRise 0.5s var(--ease-edit,cubic-bezier(0.16,1,0.3,1)) 0.22s both; }
+    #cardFamily  { opacity:0; animation: cardRise 0.5s var(--ease-edit,cubic-bezier(0.16,1,0.3,1)) 0.34s both; }
+    @media (prefers-reduced-motion:reduce) {
+      #cardFree,#cardPremium,#cardFamily { animation:none; opacity:1; }
+    }
     #decidingPopup {
-      display: none;
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      background: var(--clr-card);
-      border: 1px solid var(--clr-border);
-      border-radius: 1rem;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-      padding: 1.25rem 1.5rem;
-      max-width: 320px;
-      z-index: 9999;
-      animation: slideUp 0.35s ease;
+      display:none; position:fixed; bottom:1.5rem; right:1.5rem;
+      background:var(--parchment); border:1px solid var(--hairline);
+      border-radius:var(--radius-lg); box-shadow:0 8px 40px rgba(26,18,8,0.18);
+      padding:1.25rem 1.5rem; max-width:320px; z-index:9999;
+      animation:cardRise 0.35s ease;
     }
-    @keyframes slideUp { from { transform: translateY(30px); opacity:0; } to { transform: translateY(0); opacity:1; } }
-    #decidingPopup.show { display: block; }
+    #decidingPopup.show { display:block; }
     #decidingPopup .popup-close {
-      position: absolute; top: 0.7rem; right: 0.9rem;
-      background: none; border: none; cursor: pointer;
-      font-size: 1.1rem; color: var(--clr-muted-fg); line-height: 1;
-    }
-    /* countdown badge */
-    .countdown-badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      background: #fff3cd; color: #856404;
-      border: 1px solid #ffc107;
-      border-radius: 0.5rem; padding: 0.35rem 0.75rem;
-      font-size: 0.8rem; font-weight: 600;
-      margin-bottom: 0.75rem;
-    }
-
-    /* ── NOVA AUDIT 2026-05-24 ── */
-
-    /* 1. Fraunces on pricing hero — the most conversion-critical headline on the site */
-    .pricing-hero-headline {
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 700;
-      font-size: clamp(2rem, 4vw, 3rem);
-      letter-spacing: -0.03em;
-      line-height: 1.1;
-      margin-bottom: 0.75rem;
-    }
-
-    /* 2. Hero atmosphere — same warm depth treatment as index.html */
-    .pricing-hero {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(ellipse 60% 70% at 80% 20%, hsl(152,52%,88%,0.5) 0%, transparent 65%),
-        radial-gradient(ellipse 50% 50% at 10% 85%, hsl(32,88%,88%,0.4) 0%, transparent 60%),
-        var(--gradient-hero);
-    }
-    .pricing-hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(hsl(152,52%,36%,0.05) 1px, transparent 1px);
-      background-size: 24px 24px;
-      pointer-events: none;
-    }
-    .pricing-hero-inner {
-      position: relative;
-      z-index: 1;
-    }
-
-    /* 3. Staggered pricing card entrances */
-    @keyframes cardRise {
-      from { opacity: 0; transform: translateY(32px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    #cardFree    { opacity: 0; animation: cardRise 0.5s cubic-bezier(0.16,1,0.3,1) 0.1s both; }
-    #cardPremium { opacity: 0; animation: cardRise 0.5s cubic-bezier(0.16,1,0.3,1) 0.22s both; }
-    #cardFamily  { opacity: 0; animation: cardRise 0.5s cubic-bezier(0.16,1,0.3,1) 0.34s both; }
-
-    /* Hero text entrance */
-    .pricing-hero .section-label { opacity: 0; animation: slideUp 0.45s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
-    .pricing-hero-headline        { opacity: 0; animation: slideUp 0.45s cubic-bezier(0.16,1,0.3,1) 0.15s both; }
-    .pricing-hero-sub             { opacity: 0; animation: slideUp 0.45s cubic-bezier(0.16,1,0.3,1) 0.23s both; }
-    #billingToggle                { opacity: 0; animation: slideUp 0.45s cubic-bezier(0.16,1,0.3,1) 0.3s both; }
-
-    @media (prefers-reduced-motion: reduce) {
-      #cardFree, #cardPremium, #cardFamily,
-      .pricing-hero .section-label, .pricing-hero-headline,
-      .pricing-hero-sub, #billingToggle {
-        animation: none; opacity: 1;
-      }
-    }
-
-    /* 4. Popular card glow — makes the Pro card feel premium, not just scaled */
-    .pricing-card.popular {
-      box-shadow: 0 0 0 2px var(--clr-primary), 0 24px 48px hsl(152,52%,36%,0.18);
+      position:absolute; top:0.7rem; right:0.9rem;
+      background:none; border:none; cursor:pointer;
+      font-size:1.1rem; color:var(--ink-muted); line-height:1;
     }
   </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav class="nav-fixed">
+<nav class="nav-fixed" id="navbar" aria-label="Main navigation">
   <div class="nav-inner">
-    <a href="index.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:var(--clr-primary);text-decoration:none;">Mealzy</a>
+    <a href="index.html" class="nav-logo-text" aria-label="Mealzy home">Mealzy</a>
     <ul class="nav-links">
       <li><a href="index.html#features">Features</a></li>
       <li><a href="index.html#testimonials">Reviews</a></li>
-      <li><a href="pricing.html" style="color:var(--clr-primary);font-weight:600;">Pricing</a></li>
+      <li><a href="pricing.html" style="color:var(--brick);font-weight:700;">Pricing</a></li>
     </ul>
     <div class="nav-actions">
       <a href="dashboard.html" class="btn btn-ghost btn-sm">Sign In</a>
       <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started Free</a>
-      <button class="hamburger" id="hamburger">
+      <button class="hamburger" id="hamburger" aria-label="Open menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 </nav>
 
-<!-- MOBILE NAV OVERLAY -->
+<!-- MOBILE NAV -->
 <div class="mobile-nav-overlay" id="mobileNavOverlay">
   <div class="mobile-nav-panel" id="mobileNavPanel">
-    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu">&times;</button>
     <ul class="mobile-nav-links">
       <li><a href="index.html#features">Features</a></li>
       <li><a href="index.html#testimonials">Reviews</a></li>
       <li><a href="pricing.html">Pricing</a></li>
       <li><a href="dashboard.html">Sign In</a></li>
-      <li><a href="onboarding.html" style="color:var(--clr-primary);font-weight:700;">Get Started Free →</a></li>
+      <li><a href="onboarding.html" style="color:var(--brick);font-weight:700;">Get Started Free →</a></li>
     </ul>
   </div>
 </div>
 
+<main>
+
 <!-- HERO -->
-<section class="pricing-hero" style="padding:8rem 0 4rem;">
-  <div class="container pricing-hero-inner" style="text-align:center;">
-    <span class="section-label">Simple Pricing</span>
-    <h1 class="pricing-hero-headline">
+<section style="padding:clamp(6rem,12vw,9rem) 0 clamp(3rem,6vw,5rem);border-bottom:1px solid var(--hairline);">
+  <div class="container" style="text-align:center;">
+    <span class="section-label" style="animation:slideUp 0.45s var(--ease-edit) 0.05s both;opacity:0;">Simple Pricing</span>
+    <h1 class="pricing-hero-headline" style="animation:slideUp 0.45s var(--ease-edit) 0.15s both;opacity:0;">
       Start free. Upgrade when you're ready.
     </h1>
-    <p class="pricing-hero-sub" style="font-size:1.05rem;color:var(--clr-muted-fg);max-width:480px;margin:0 auto 2.5rem;">
+    <p class="pricing-hero-sub" style="font-size:var(--text-lg);color:var(--ink-muted);max-width:480px;margin:0.75rem auto 2.5rem;animation:slideUp 0.45s var(--ease-edit) 0.23s both;opacity:0;">
       The free plan is real — not a 7-day trial. Use it as long as you want. Upgrade if you need more.
     </p>
 
     <!-- BILLING TOGGLE -->
-    <div class="pricing-toggle" id="billingToggle" style="display:flex;">
+    <div class="pricing-toggle" id="billingToggle" style="animation:slideUp 0.45s var(--ease-edit) 0.3s both;opacity:0;">
       <button class="active" id="btnMonthly" style="min-height:44px;" onclick="setBilling('monthly')">Monthly</button>
-      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Yearly <span class="badge badge-accent" style="margin-left:0.25rem;font-size:0.72rem;">Save 33%</span></button>
+      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Yearly <span style="background:var(--brick);color:var(--parchment);font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:var(--radius);margin-left:0.25rem;">Save 33%</span></button>
     </div>
   </div>
 </section>
 
 <!-- PRICING CARDS -->
-<section style="padding:3rem 0 5rem;background:var(--clr-background);">
+<section style="padding:clamp(3rem,6vw,5rem) 0;">
   <div class="container">
     <div class="pricing-grid">
 
       <!-- FREE -->
       <div class="pricing-card" id="cardFree">
         <div class="pricing-card-top">
-          <div class="pricing-plan-name">Free</div>
-          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">Try it. No credit card, no expiry.</p>
+          <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Free</div>
+          <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">Try it. No credit card, no expiry.</p>
           <div class="pricing-price">
-            <span class="amount" id="priceFreeMo">$0</span>
-            <span class="period">/month</span>
+            <span class="amount" id="priceFreeMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$0</span>
+            <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
           </div>
-          <div class="pricing-billed" id="billedFree">&nbsp;</div>
+          <div class="pricing-billed" id="billedFree" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
         </div>
-        <a href="login.html?signup=1" class="btn btn-outline btn-full">Start Free</a>
+        <a href="login.html?signup=1" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:1.5rem;">Start Free</a>
         <ul class="pricing-features">
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> 3 meal plans per month</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Automatic grocery list</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Budget tracking</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Calorie and macro targets</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> AI Coach — 10 messages/day</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> 11 languages</li>
-          <li><span class="cross"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span> <span class="feat-disabled">Unlimited plan generation</span></li>
-          <li><span class="cross"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span> <span class="feat-disabled">Unlimited AI coach</span></li>
-          <li><span class="cross"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span> <span class="feat-disabled">Priority generation speed</span></li>
-          <li><span class="cross"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></span> <span class="feat-disabled">PDF export</span></li>
+          <li><span class="check">✓</span> 3 meal plans per month</li>
+          <li><span class="check">✓</span> Automatic grocery list</li>
+          <li><span class="check">✓</span> Budget tracking</li>
+          <li><span class="check">✓</span> Calorie and macro targets</li>
+          <li><span class="check">✓</span> AI Coach — 10 messages/day</li>
+          <li><span class="check">✓</span> 11 languages</li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">Unlimited plan generation</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">Unlimited AI coach</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">Priority generation speed</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">PDF export</span></li>
         </ul>
       </div>
 
       <!-- PRO (POPULAR) -->
-      <div class="pricing-card popular" id="cardPremium">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">
-          <span class="badge badge-primary">Most Popular</span>
-        </div>
-        <div class="countdown-badge" style="background:hsl(152,52%,94%);color:var(--clr-primary);border-color:var(--clr-primary);">
-          Introductory pricing — we started at $5/mo and the price has already increased once.
+      <div class="pricing-card popular" id="cardPremium" style="position:relative;">
+        <span class="menu-card__ribbon" aria-label="Most popular">Chef's choice</span>
+        <div style="margin-bottom:0.75rem;">
+          <p style="font-size:var(--text-xs);color:var(--brick);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Introductory pricing</p>
+          <p style="font-size:var(--text-xs);color:var(--ink-muted);margin-top:0.2rem;">We started at $5/mo and the price has already increased once.</p>
         </div>
         <div class="pricing-card-top">
-          <div class="pricing-plan-name">Pro</div>
-          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">For people who plan every week.</p>
+          <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Pro</div>
+          <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">For people who plan every week.</p>
           <div class="pricing-price">
-            <span class="amount" id="pricePremiumMo">$8</span>
-            <span class="period">/month</span>
+            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$8</span>
+            <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
           </div>
-          <div class="pricing-billed" id="billedPremium">&nbsp;</div>
+          <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
         </div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary btn-full" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
-        <p style="font-size:0.78rem;color:var(--clr-muted-fg);text-align:center;margin-top:0.6rem;" id="proCtaNote">Lock in $8/mo — price may increase as we grow.</p>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
+        <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $8/mo — price may increase as we grow.</p>
         <ul class="pricing-features">
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> <strong>Unlimited</strong> meal plans</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Automatic grocery list</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Budget tracking</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Calorie and macro targets</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> <strong>Unlimited</strong> AI Coach</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> 11 languages</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Priority generation — 2x faster</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> PDF meal plan export</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Advanced macro splits per meal</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Cancel anytime</li>
+          <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
+          <li><span class="check">✓</span> Automatic grocery list</li>
+          <li><span class="check">✓</span> Budget tracking</li>
+          <li><span class="check">✓</span> Calorie and macro targets</li>
+          <li><span class="check">✓</span> <strong>Unlimited</strong> AI Coach</li>
+          <li><span class="check">✓</span> 11 languages</li>
+          <li><span class="check">✓</span> Priority generation — 2x faster</li>
+          <li><span class="check">✓</span> PDF meal plan export</li>
+          <li><span class="check">✓</span> Advanced macro splits per meal</li>
+          <li><span class="check">✓</span> Cancel anytime</li>
         </ul>
       </div>
 
       <!-- FAMILY -->
       <div class="pricing-card" id="cardFamily">
         <div class="pricing-card-top">
-          <div class="pricing-plan-name">Family</div>
-          <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-top:0.25rem;">For households that eat together.</p>
+          <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Family</div>
+          <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">For households that eat together.</p>
           <div class="pricing-price">
-            <span class="amount" id="priceFamilyMo">$16</span>
-            <span class="period">/month</span>
+            <span class="amount" id="priceFamilyMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$16</span>
+            <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
           </div>
-          <div class="pricing-billed" id="billedFamily">&nbsp;</div>
+          <div class="pricing-billed" id="billedFamily" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
         </div>
-        <a href="#" target="_blank" class="btn btn-outline btn-full" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
-        <p style="font-size:0.78rem;color:var(--clr-muted-fg);text-align:center;margin-top:0.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
+        <a href="#" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
+        <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-bottom:1.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> <strong>Everything</strong> in Pro</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Up to <strong>4 individual profiles</strong></li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Separate calorie &amp; macro goals per person</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Allergen management per profile</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Combined grocery list (one shop, everyone covered)</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Unlimited meal plans for all profiles</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Priority support</li>
-          <li><span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span> Cancel anytime</li>
+          <li><span class="check">✓</span> <strong>Everything</strong> in Pro</li>
+          <li><span class="check">✓</span> Up to <strong>4 individual profiles</strong></li>
+          <li><span class="check">✓</span> Separate calorie &amp; macro goals per person</li>
+          <li><span class="check">✓</span> Allergen management per profile</li>
+          <li><span class="check">✓</span> Combined grocery list (one shop, everyone covered)</li>
+          <li><span class="check">✓</span> Unlimited meal plans for all profiles</li>
+          <li><span class="check">✓</span> Priority support</li>
+          <li><span class="check">✓</span> Cancel anytime</li>
         </ul>
       </div>
 
     </div>
 
-    <!-- FAQ / Guarantee -->
-    <div style="text-align:center;margin-top:3rem;padding:2rem;background:var(--clr-muted-bg);border-radius:1rem;">
-      <h3 style="margin-bottom:0.5rem;">7-day free trial on Pro. No credit card to start.</h3>
-      <p style="color:var(--clr-muted-fg);font-size:0.9rem;max-width:480px;margin:0 auto;">
-        Try Pro free for 7 days. If you don't love it, you won't be charged. Cancel any time — no questions, one click.
-      </p>
+    <!-- Guarantee note -->
+    <div class="reveal" style="text-align:center;margin-top:3rem;padding:2rem;background:var(--parchment-deep);border-radius:var(--radius-lg);border:1px solid var(--hairline);max-width:580px;margin-inline:auto;">
+      <h3 style="font-family:var(--font-display);font-weight:500;margin-bottom:0.5rem;">7-day free trial on Pro. No credit card to start.</h3>
+      <p style="color:var(--ink-muted);font-size:var(--text-sm);max-width:none;">Try Pro free for 7 days. If you don't love it, you won't be charged. Cancel any time — no questions, one click.</p>
     </div>
   </div>
 </section>
 
 <!-- COMPARISON TABLE -->
-<section class="section" style="background:var(--clr-muted-bg);">
+<section style="padding-block:var(--pad-section);background:var(--parchment-deep);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);">
   <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Compare Plans</h2>
+    <div class="section-header reveal" style="text-align:center;">
+      <h2 class="section-title">Compare plans</h2>
     </div>
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;background:var(--clr-card);border-radius:0.75rem;overflow:hidden;box-shadow:var(--shadow-sm);">
+    <div class="reveal" style="overflow-x:auto;">
+      <table class="comp-table" aria-label="Feature comparison">
         <thead>
-          <tr style="background:var(--clr-muted-bg);">
-            <th style="padding:1rem 1.25rem;text-align:left;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);">Feature</th>
-            <th style="padding:1rem;text-align:center;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);">Free</th>
-            <th style="padding:1rem;text-align:center;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);">Pro</th>
-            <th style="padding:1rem;text-align:center;font-size:0.88rem;font-weight:700;border-bottom:1px solid var(--clr-border);">Family</th>
+          <tr>
+            <th scope="col">Feature</th>
+            <th scope="col" style="text-align:center;">Free</th>
+            <th scope="col" style="text-align:center;color:var(--brick);">Pro</th>
+            <th scope="col" style="text-align:center;">Family</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">AI Meal Plans</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">3/month</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">Unlimited</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Unlimited</td>
-          </tr>
-          <tr style="background:var(--clr-muted-bg);">
-            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">AI Coach Messages</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">10/day</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">Unlimited</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Unlimited</td>
-          </tr>
-          <tr>
-            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">Auto Grocery Lists</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);">✓</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);font-weight:700;">✓</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;">✓</td>
-          </tr>
-          <tr style="background:var(--clr-muted-bg);">
-            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">Analytics Dashboard</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);">Basic</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);font-weight:600;">Advanced</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-weight:600;">Advanced</td>
-          </tr>
-          <tr>
-            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;border-bottom:1px solid var(--clr-border);">Profiles</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;">1</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;color:var(--clr-primary);font-weight:600;">1</td>
-            <td style="padding:0.85rem;text-align:center;border-bottom:1px solid var(--clr-border);font-size:0.85rem;font-weight:600;">Up to 4</td>
-          </tr>
-          <tr style="background:var(--clr-muted-bg);">
-            <td style="padding:0.85rem 1.25rem;font-size:0.88rem;">Priority Support</td>
-            <td style="padding:0.85rem;text-align:center;">✗</td>
-            <td style="padding:0.85rem;text-align:center;">Email</td>
-            <td style="padding:0.85rem;text-align:center;color:var(--clr-primary);font-weight:700;">Priority</td>
-          </tr>
+          <tr><td>AI Meal Plans</td><td style="text-align:center;">3/month</td><td class="pro-val" style="text-align:center;">Unlimited</td><td style="text-align:center;font-weight:600;">Unlimited</td></tr>
+          <tr><td>AI Coach Messages</td><td style="text-align:center;">10/day</td><td class="pro-val" style="text-align:center;">Unlimited</td><td style="text-align:center;font-weight:600;">Unlimited</td></tr>
+          <tr><td>Auto Grocery Lists</td><td style="text-align:center;">✓</td><td class="pro-val" style="text-align:center;">✓</td><td style="text-align:center;font-weight:600;">✓</td></tr>
+          <tr><td>Analytics Dashboard</td><td style="text-align:center;">Basic</td><td class="pro-val" style="text-align:center;">Advanced</td><td style="text-align:center;font-weight:600;">Advanced</td></tr>
+          <tr><td>Profiles</td><td style="text-align:center;">1</td><td class="pro-val" style="text-align:center;">1</td><td style="text-align:center;font-weight:600;">Up to 4</td></tr>
+          <tr><td>Priority Support</td><td style="text-align:center;color:var(--hairline);">✗</td><td style="text-align:center;">Email</td><td class="pro-val" style="text-align:center;">Priority</td></tr>
         </tbody>
       </table>
     </div>
@@ -346,224 +233,149 @@
 </section>
 
 <!-- FAQ -->
-<section class="section">
-  <div class="container">
-    <div class="section-header">
-      <h2 class="section-title">Common questions</h2>
+<section class="faq-section" aria-labelledby="faq-heading">
+  <div class="container" style="max-width:680px;">
+    <div class="section-header reveal" style="text-align:center;">
+      <h2 id="faq-heading" class="section-title">Common questions</h2>
     </div>
-    <div style="max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:1rem;">
-
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
-          Can I cancel at any time?
-          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted-fg);">Yes — cancel in one click from your Stripe billing portal. You keep Pro access until the end of your current billing period. No penalties, no fine print.</p>
-      </details>
-
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
-          What happens to my free plan when it runs out?
-          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted-fg);">Your 3 free generations reset automatically every 30 days from the date of your first generation in that cycle. You never lose access to plans you have already generated.</p>
-      </details>
-
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
-          Is my data safe?
-          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted-fg);">Yes. Passwords are hashed with bcrypt and never stored in plain text. All traffic is served over HTTPS. We do not sell your data to third parties. Payments are handled entirely by Stripe — we never see your card number.</p>
-      </details>
-
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem 1.5rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.95rem;list-style:none;display:flex;justify-content:space-between;align-items:center;">
-          Do you store my meal plans?
-          <span style="font-size:1.2rem;color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.75rem;font-size:0.88rem;line-height:1.7;color:var(--clr-muted-fg);">Your meal plans and profile preferences are stored securely on our servers, tied to your account. You can access them from any device as long as you're signed in. We do not sell your data.</p>
-      </details>
-
+    <div class="faq-list reveal" data-delay="80">
+      <div class="faq-item"><button class="faq-btn" aria-expanded="false" aria-controls="faq-1">Can I cancel at any time?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-body" id="faq-1" role="region"><p class="faq-body__inner">Yes — cancel in one click from your Stripe billing portal. You keep Pro access until the end of your current billing period. No penalties, no fine print.</p></div></div>
+      <div class="faq-item"><button class="faq-btn" aria-expanded="false" aria-controls="faq-2">What happens to my free plan when it runs out?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-body" id="faq-2" role="region"><p class="faq-body__inner">Your 3 free generations reset automatically every 30 days. You never lose access to plans you have already generated.</p></div></div>
+      <div class="faq-item"><button class="faq-btn" aria-expanded="false" aria-controls="faq-3">Is my data safe?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-body" id="faq-3" role="region"><p class="faq-body__inner">Yes. Passwords are hashed with bcrypt and never stored in plain text. All traffic is served over HTTPS. We do not sell your data to third parties. Payments are handled entirely by Stripe — we never see your card number.</p></div></div>
+      <div class="faq-item"><button class="faq-btn" aria-expanded="false" aria-controls="faq-4">Do you store my meal plans?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-body" id="faq-4" role="region"><p class="faq-body__inner">Your meal plans and profile preferences are stored securely on our servers, tied to your account. You can access them from any device as long as you're signed in. We do not sell your data.</p></div></div>
     </div>
-  </div>
-</section>
-
-<!-- STILL NOT SURE -->
-<section class="section" style="padding-top:0;">
-  <div class="container" style="text-align:center;">
-    <p style="font-size:0.95rem;color:var(--clr-muted-fg);">
-      Still not sure? <a href="upgrade.html" style="color:var(--clr-primary);font-weight:600;text-decoration:none;">See a full breakdown of what Pro unlocks →</a>
+    <p class="reveal" style="text-align:center;margin-top:2rem;font-size:var(--text-sm);color:var(--ink-muted);">
+      Still not sure? <a href="upgrade.html" style="color:var(--brick);font-weight:600;text-decoration:none;">See a full breakdown of what Pro unlocks →</a><br>
+      <span style="font-size:var(--text-xs);">Questions? <a href="mailto:support@mealzy.org" style="color:var(--brick);">support@mealzy.org</a> — usually replied to within 24 hours.</span>
     </p>
-    <p style="font-size:0.84rem;color:var(--clr-muted-fg);margin-top:0.5rem;">Questions? <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a> — usually replied to within 24 hours.</p>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="section">
+<!-- CTA BAND -->
+<section class="cta-band">
   <div class="container">
-    <div class="cta-banner">
+    <div class="reveal">
+      <span class="section-label">Ready?</span>
       <h2>Stop planning meals by hand.</h2>
-      <p>Mealzy builds the full week in 30 seconds. Free to start — no credit card.</p>
-      <a href="login.html?signup=1" class="btn btn-accent btn-lg">Start Free — Takes 2 Minutes</a>
+      <p class="cta-lede">Mealzy builds the full week in 30 seconds. Free to start — no credit card.</p>
+      <a href="login.html?signup=1" class="btn btn-primary btn-lg">
+        Start Free — Takes 2 Minutes
+        <svg class="fork-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" y1="11" x2="7" y2="22"/><line x1="21" y1="15" x2="21" y2="22"/><path d="M21 2c0 3.5-3 6-3 9s3 5.5 3 9"/></svg>
+      </a>
     </div>
   </div>
 </section>
+
+</main>
 
 <!-- FOOTER -->
 <footer>
   <div class="container">
-    <div class="footer-inner">
-      <a href="index.html" style="font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;color:white;text-decoration:none;">Mealzy</a>
-      <div class="footer-links">`n        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="mailto:support@mealzy.org">Contact</a>
-        <a href="pricing.html">Pricing</a>
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a href="index.html" class="footer__logo">Mealzy</a>
+        <p>AI meal planning that fits your budget, your diet, and your week.</p>
       </div>
-      <p style="color:rgba(255,255,255,0.75);font-size:0.85rem;margin-top:0.25rem;">
-        Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,0.9);font-weight:600;">support@mealzy.org</a>
-      </p>
-      <p style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:0.1rem;">Usually replied to within 24 hours.</p>
-      <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
+      <div class="footer__col">
+        <h4>Product</h4>
+        <ul class="footer__links"><li><a href="index.html#features">Features</a></li><li><a href="pricing.html">Pricing</a></li></ul>
+      </div>
+      <div class="footer__col">
+        <h4>Account</h4>
+        <ul class="footer__links"><li><a href="dashboard.html">Sign In</a></li><li><a href="onboarding.html">Get Started</a></li></ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul class="footer__links"><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="terms.html">Terms</a></li><li><a href="mailto:support@mealzy.org">Contact</a></li></ul>
+      </div>
     </div>
+    <div style="border-top:1px solid rgba(253,246,236,0.1);margin-top:3rem;padding-top:1.5rem;font-size:var(--text-xs);color:rgba(253,246,236,0.4);">© 2026 Mealzy. All rights reserved.</div>
   </div>
 </footer>
 
 <!-- 30-SECOND "STILL DECIDING?" POPUP -->
 <div id="decidingPopup" role="dialog" aria-label="Special offer">
-  <button class="popup-close" onclick="closeDecidingPopup()" aria-label="Close">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  </button>
-  
-  <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.35rem;">Still deciding?</div>
-  <p style="font-size:0.84rem;color:var(--clr-muted-fg);line-height:1.5;margin-bottom:1rem;">
-    Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.
-  </p>
-  <a href="#" id="popupCta" target="_blank" class="btn btn-primary btn-full" style="font-size:0.88rem;" onclick="trackUpgradeClick();closeDecidingPopup();">
-    Start 7-Day Free Trial →
-  </a>
-  <p style="font-size:0.75rem;color:var(--clr-muted-fg);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
+  <button class="popup-close" onclick="closeDecidingPopup()" aria-label="Close">&times;</button>
+  <div style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:500;margin-bottom:0.35rem;">Still deciding?</div>
+  <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.5;margin-bottom:1rem;">Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.</p>
+  <a href="#" id="popupCta" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;font-size:var(--text-sm);" onclick="trackUpgradeClick();closeDecidingPopup();">Start 7-Day Free Trial →</a>
+  <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
 </div>
 
+<script src="motion.js" defer></script>
 <script>
   function trackUpgradeClick(plan) {
-    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event:'upgrade_click', data:{ source:'pricing_page', plan: plan || 'pro' } }) }).catch(()=>{});
+    fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'pricing_page',plan:plan||'pro'}})}).catch(()=>{});
   }
 
   let billingMode = 'monthly';
-
   const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
   const STRIPE_YEARLY  = window.STRIPE_ANNUAL  || STRIPE_MONTHLY;
   document.getElementById('proCta').href = STRIPE_MONTHLY;
   document.getElementById('popupCta').href = STRIPE_MONTHLY;
 
-  const prices = {
-    monthly: { free: '$0', premium: '$8',  family: '$16' },
-    yearly:  { free: '$0', premium: '$5',  family: '$10' }
-  };
-
-  const billedText = {
-    monthly: { free: '', premium: '', family: '' },
-    yearly:  {
-      free: '',
-      premium: 'Billed $62/year — save $34 vs monthly',
-      family:  'Billed $120/year — save $72 vs monthly'
-    }
-  };
-
   const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
   const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
   document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
 
+  const prices    = { monthly:{free:'$0',premium:'$8',family:'$16'}, yearly:{free:'$0',premium:'$5',family:'$10'} };
+  const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $62/year — save $34 vs monthly',family:'Billed $120/year — save $72 vs monthly'} };
+
   function setBilling(mode) {
     billingMode = mode;
-
-    document.getElementById('btnMonthly').classList.toggle('active', mode === 'monthly');
-    document.getElementById('btnYearly').classList.toggle('active', mode === 'yearly');
-
-    const p = prices[mode];
-    const b = billedText[mode];
-
-    function updatePrice(id, billedId, price, billed) {
+    document.getElementById('btnMonthly').classList.toggle('active', mode==='monthly');
+    document.getElementById('btnYearly').classList.toggle('active',  mode==='yearly');
+    const p = prices[mode]; const b = billedTxt[mode];
+    function upd(id, billedId, price, billed) {
       const el = document.getElementById(id);
-      el.textContent = price;
-      el.classList.remove('price-animated');
-      void el.offsetWidth;
-      el.classList.add('price-animated');
+      el.textContent = price; el.classList.remove('price-animated');
+      void el.offsetWidth; el.classList.add('price-animated');
       document.getElementById(billedId).textContent = billed;
     }
-
-    updatePrice('priceFreeMo', 'billedFree', p.free, b.free);
-    updatePrice('pricePremiumMo', 'billedPremium', p.premium, b.premium);
-    updatePrice('priceFamilyMo', 'billedFamily', p.family, b.family);
-
-    // Swap Pro CTA link and label based on billing mode
+    upd('priceFreeMo','billedFree',p.free,b.free);
+    upd('pricePremiumMo','billedPremium',p.premium,b.premium);
+    upd('priceFamilyMo','billedFamily',p.family,b.family);
     const cta = document.getElementById('proCta');
     const ctaNote = document.getElementById('proCtaNote');
     if (mode === 'yearly') {
-      cta.href = STRIPE_YEARLY;
-      cta.textContent = 'Start Pro Annual — 7 Days Free';
+      cta.href = STRIPE_YEARLY; cta.textContent = 'Start Pro Annual — 7 Days Free';
       ctaNote.textContent = 'Best value — $62/year saves you $34 vs monthly.';
     } else {
-      cta.href = STRIPE_MONTHLY;
-      cta.textContent = 'Start Pro — 7 Days Free';
+      cta.href = STRIPE_MONTHLY; cta.textContent = 'Start Pro — 7 Days Free';
       ctaNote.textContent = 'Lock in $8/mo — price may increase as we grow.';
     }
-
-    // Swap Family CTA link based on billing mode
     const familyCta = document.getElementById('familyCta');
     if (familyCta) {
       familyCta.href = mode === 'yearly' ? STRIPE_FAMILY_YEARLY : STRIPE_FAMILY_MONTHLY;
       familyCta.textContent = mode === 'yearly' ? 'Start Family Annual →' : 'Start Family Plan →';
     }
-
-    // Subtle pulse on premium card when switching to yearly
     if (mode === 'yearly') {
       const card = document.getElementById('cardPremium');
-      card.style.animation = 'none';
-      void card.offsetWidth;
+      card.style.animation = 'none'; void card.offsetWidth;
       card.style.animation = 'pricingPulse 0.5s ease';
       setTimeout(() => card.style.animation = '', 500);
     }
   }
 
-  // ── "Still deciding?" popup — fires after 30s, once per session ──
   function closeDecidingPopup() {
-    const el = document.getElementById('decidingPopup');
-    el.classList.remove('show');
-    sessionStorage.setItem('pricing_popup_seen', '1');
+    document.getElementById('decidingPopup').classList.remove('show');
+    sessionStorage.setItem('pricing_popup_seen','1');
   }
   if (!sessionStorage.getItem('pricing_popup_seen')) {
-    setTimeout(() => {
-      document.getElementById('decidingPopup').classList.add('show');
-    }, 30000);
+    setTimeout(() => document.getElementById('decidingPopup').classList.add('show'), 30000);
   }
 
-  // Countdown removed — replaced with static introductory pricing note.
-
-  // Hamburger
   const hamburger = document.getElementById('hamburger');
   const mobileNavOverlay = document.getElementById('mobileNavOverlay');
   const mobileNavPanel = document.getElementById('mobileNavPanel');
   const mobileNavClose = document.getElementById('mobileNavClose');
+  hamburger.addEventListener('click', () => { mobileNavOverlay.classList.add('open'); mobileNavPanel.classList.add('open'); });
+  mobileNavClose.addEventListener('click', () => { mobileNavOverlay.classList.remove('open'); mobileNavPanel.classList.remove('open'); });
+  mobileNavOverlay.addEventListener('click', e => { if(e.target===mobileNavOverlay){mobileNavOverlay.classList.remove('open');mobileNavPanel.classList.remove('open');} });
 
-  hamburger.addEventListener('click', () => {
-    mobileNavOverlay.classList.add('open');
-    mobileNavPanel.classList.add('open');
-  });
-  mobileNavClose.addEventListener('click', () => {
-    mobileNavOverlay.classList.remove('open');
-    mobileNavPanel.classList.remove('open');
-  });
-  mobileNavOverlay.addEventListener('click', (e) => {
-    if (e.target === mobileNavOverlay) {
-      mobileNavOverlay.classList.remove('open');
-      mobileNavPanel.classList.remove('open');
-    }
-  });
+  // Nav scroll
+  const nav = document.getElementById('navbar');
+  if (nav) { const t = () => nav.classList.toggle('scrolled', window.scrollY > 24); window.addEventListener('scroll', t, {passive:true}); t(); }
 </script>
 </body>
 </html>
-
-
