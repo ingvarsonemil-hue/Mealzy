@@ -147,13 +147,13 @@
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Pro</div>
           <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">For people who plan every week.</p>
           <div class="pricing-price">
-            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$8</span>
+            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$12</span>
             <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
           </div>
           <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
         </div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
-        <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $8/mo — price may increase as we grow.</p>
+        <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $12/mo — cancel any time.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
           <li><span class="check">✓</span> Automatic grocery list</li>
@@ -318,7 +318,7 @@
   const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
   document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
 
-  const prices    = { monthly:{free:'$0',premium:'$8',family:'$16'}, yearly:{free:'$0',premium:'$5',family:'$10'} };
+  const prices    = { monthly:{free:'$0',premium:'$12',family:'$20'}, yearly:{free:'$0',premium:'$8',family:'$13'} };
   const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $62/year — save $34 vs monthly',family:'Billed $120/year — save $72 vs monthly'} };
 
   function setBilling(mode) {
@@ -342,7 +342,7 @@
       ctaNote.textContent = 'Best value — $62/year saves you $34 vs monthly.';
     } else {
       cta.href = STRIPE_MONTHLY; cta.textContent = 'Start Pro — 7 Days Free';
-      ctaNote.textContent = 'Lock in $8/mo — price may increase as we grow.';
+      ctaNote.textContent = 'Lock in $12/mo — cancel any time.';
     }
     const familyCta = document.getElementById('familyCta');
     if (familyCta) {

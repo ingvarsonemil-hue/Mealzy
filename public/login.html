@@ -117,12 +117,9 @@
         <label class="form-label" for="resetEmail">Email</label>
         <input type="email" class="form-input" id="resetEmail" style="font-size:16px;" placeholder="you@example.com" autocomplete="email" />
       </div>
-      <button class="btn btn-primary" id="btnGetReset" style="width:100%;justify-content:center;margin-bottom:0.75rem;min-height:44px;" onclick="requestReset()">Generate Reset Link</button>
+      <button class="btn btn-primary" id="btnGetReset" style="width:100%;justify-content:center;margin-bottom:0.75rem;min-height:44px;" onclick="requestReset()">Send Reset Link</button>
       <div id="resetStep2" style="display:none;">
-        <p style="font-size:var(--text-xs);font-weight:700;color:var(--espresso);margin-bottom:0.35rem;letter-spacing:0.05em;text-transform:uppercase;">Your reset link:</p>
-        <div class="reset-token-box" id="resetUrlDisplay" style="cursor:pointer;" onclick="copyResetUrl()" title="Click to copy"></div>
-        <p style="font-size:var(--text-xs);color:var(--ink-muted);margin-top:0.4rem;margin-bottom:0.75rem;">Copy this link and open it to reset your password. This link expires in 1 hour. <strong>Do not share it.</strong></p>
-        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;min-height:44px;" onclick="openResetLink()">Open Reset Link →</button>
+        <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.6;">Check your inbox — we've sent a reset link to your email address. It expires in 1 hour.</p>
       </div>
       <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:var(--text-sm);min-height:44px;" onclick="switchTab('signin')">← Back to Sign In</button>
     </div>
@@ -287,8 +284,6 @@
     switchTab('reset');
   }
 
-  let _resetUrl = '';
-
   async function requestReset() {
     hideError();
     const email = document.getElementById('resetEmail').value.trim().toLowerCase();
@@ -298,26 +293,11 @@
     try {
       const res  = await fetch('/api/auth/reset-request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email}) });
       const data = await res.json();
-      btn.disabled = false; btn.textContent = 'Generate Reset Link';
-      if (!data.found) { showSuccess('If that email has an account, a reset link has been generated below.'); return; }
-      _resetUrl = data.resetUrl;
-      document.getElementById('resetUrlDisplay').textContent = _resetUrl;
+      btn.disabled = false; btn.textContent = 'Send Reset Link';
       document.getElementById('resetStep2').style.display = '';
-      showSuccess('Reset link generated — it expires in 1 hour. Open it to set your new password.');
-    } catch(err) { btn.disabled = false; btn.textContent = 'Generate Reset Link'; showError('Could not connect. Email support@mealzy.org if this persists.'); }
+      showSuccess('If that email has an account, a reset link is on its way. Check your inbox.');
+    } catch(err) { btn.disabled = false; btn.textContent = 'Send Reset Link'; showError('Could not connect. Email support@mealzy.org if this persists.'); }
   }
-
-  function copyResetUrl() {
-    if (!_resetUrl) return;
-    navigator.clipboard.writeText(_resetUrl).then(() => { showSuccess('Link copied to clipboard!'); }).catch(() => {
-      const range = document.createRange();
-      range.selectNode(document.getElementById('resetUrlDisplay'));
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(range);
-    });
-  }
-
-  function openResetLink() { if (_resetUrl) window.open(_resetUrl, '_blank'); }
 </script>
 </body>
 </html>

@@ -470,7 +470,6 @@ app.post('/api/auth/signout', async (req, res) => {
 });
 
 // POST /api/auth/reset-request
-// Returns a reset URL (no email sending — shows link on screen, honest about it)
 app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
   try {
     await db.purgeExpiredTokens(); // housekeeping
@@ -495,7 +494,7 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
     sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl))
       .catch(e => console.error('[reset-email] send error:', e));
 
-    res.json({ success: true, found: true, resetUrl });
+    res.json({ success: true, found: true });
   } catch(err) {
     console.error('Reset request error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
