@@ -4,121 +4,203 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pricing | Mealzy</title>
-  <meta name="description" content="3 free AI meal plans every month. Upgrade to Pro for unlimited plans at €9.99/month.">
+  <meta name="description" content="3 free AI meal plans every month. Upgrade to Pro for unlimited plans at $12/month.">
   <meta property="og:title" content="Pricing | Mealzy">
-  <meta property="og:description" content="3 free AI meal plans every month. Upgrade to Pro for unlimited plans at €9.99/month.">
-  <meta property="og:image" content="https://meal-plan-app-2nn3.onrender.com/og-image.png">
-  <meta property="og:url" content="https://meal-plan-app-2nn3.onrender.com/pricing">
+  <meta property="og:description" content="3 free AI meal plans every month. Upgrade to Pro for unlimited plans at $12/month.">
+  <meta property="og:image" content="https://mealzy.org/og-image.png">
+  <meta property="og:url" content="https://mealzy.org/pricing">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config = { theme: { extend: { colors: { primary: '#16a34a' } } } }</script>
-</head>
-<body class="bg-white text-gray-900">
 
-  <!-- Nav -->
-  <nav class="border-b border-gray-100 py-4">
-    <div class="max-w-5xl mx-auto px-4 flex items-center justify-between">
-      <a href="/" class="text-xl font-bold text-primary">Mealzy</a>
-      <div class="flex items-center gap-4">
-        <a href="/login" class="text-sm text-gray-500 hover:text-gray-900">Log in</a>
-        <a href="/login#register" class="text-sm bg-primary text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">Sign up free</a>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<header>
+  <nav class="nav" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo" aria-label="Mealzy home">Mealzy</a>
+      <div class="nav__links">
+        <a href="/" class="nav__link nav__link--hide-sm">Home</a>
+        <a href="/login" class="nav__link">Log in</a>
+        <a href="/login#register" class="nav__cta">Sign up free</a>
       </div>
     </div>
   </nav>
+</header>
 
-  <!-- Hero -->
-  <section class="py-16 text-center px-4">
-    <h1 class="text-4xl font-extrabold mb-4">Simple, honest pricing</h1>
-    <p class="text-gray-500 text-lg max-w-xl mx-auto">Start free. Upgrade only when you want more. No hidden fees, no long-term contracts.</p>
-  </section>
+<main>
 
-  <!-- Time comparison -->
-  <section class="bg-green-50 py-12 px-4">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="text-xl font-bold text-center mb-8 text-gray-900">What manual meal planning actually costs you</h2>
-      <div class="grid sm:grid-cols-3 gap-4 text-center">
-        <div class="bg-white rounded-2xl p-6 border border-gray-200">
-          <div class="text-3xl font-extrabold text-gray-400 mb-2">3 hrs</div>
-          <p class="text-sm text-gray-500">Time spent planning meals, researching recipes, and writing grocery lists — every week</p>
-        </div>
-        <div class="bg-white rounded-2xl p-6 border border-gray-200">
-          <div class="text-3xl font-extrabold text-gray-400 mb-2">156 hrs</div>
-          <p class="text-sm text-gray-500">That is 156 hours per year — nearly 4 full working weeks — lost to meal planning</p>
-        </div>
-        <div class="bg-primary text-white rounded-2xl p-6">
-          <div class="text-3xl font-extrabold mb-2">30 sec</div>
-          <p class="text-sm text-green-100">With Mealzy Pro — your whole week planned, grocery list included, every month</p>
-        </div>
-      </div>
-      <p class="text-center text-sm text-gray-500 mt-6">At €9.99/month, Mealzy Pro costs less than one takeaway meal — and gives you 155 hours back every year.</p>
-    </div>
-  </section>
-
-  <!-- Pricing cards -->
-  <section class="py-16 px-4">
-    <div class="max-w-3xl mx-auto grid sm:grid-cols-2 gap-6">
-
-      <!-- Free -->
-      <div class="border border-gray-200 rounded-2xl p-8">
-        <div class="text-2xl font-bold mb-1">Free</div>
-        <div class="text-gray-400 text-sm mb-2">Forever, no card needed</div>
-        <div class="text-4xl font-extrabold mb-6">€0</div>
-        <ul class="space-y-3 text-sm text-gray-600 mb-8">
-          <li class="flex items-start gap-3"><span class="text-primary font-bold mt-0.5">✓</span> 3 AI meal plans per month</li>
-          <li class="flex items-start gap-3"><span class="text-primary font-bold mt-0.5">✓</span> Auto grocery lists</li>
-          <li class="flex items-start gap-3"><span class="text-primary font-bold mt-0.5">✓</span> AI nutrition coach</li>
-          <li class="flex items-start gap-3"><span class="text-primary font-bold mt-0.5">✓</span> 8 dietary styles</li>
-          <li class="flex items-start gap-3"><span class="text-gray-300 font-bold mt-0.5">✗</span> <span class="text-gray-400">Unlimited plans</span></li>
-          <li class="flex items-start gap-3"><span class="text-gray-300 font-bold mt-0.5">✗</span> <span class="text-gray-400">Priority support</span></li>
-        </ul>
-        <a href="/login#register" class="block text-center border border-primary text-primary px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition-colors">Get started free</a>
-      </div>
-
-      <!-- Pro -->
-      <div class="bg-primary text-white rounded-2xl p-8 relative overflow-hidden">
-        <div class="absolute top-4 right-4 bg-white text-primary text-xs font-bold px-2 py-1 rounded-full">Best value</div>
-        <div class="text-2xl font-bold mb-1">Pro</div>
-        <div class="text-green-200 text-sm mb-2">Billed monthly, cancel anytime</div>
-        <div class="text-4xl font-extrabold mb-6">€9.99<span class="text-lg font-normal text-green-200">/mo</span></div>
-        <ul class="space-y-3 text-sm text-green-100 mb-8">
-          <li class="flex items-start gap-3"><span class="font-bold mt-0.5">✓</span> Unlimited AI meal plans</li>
-          <li class="flex items-start gap-3"><span class="font-bold mt-0.5">✓</span> Full grocery lists every time</li>
-          <li class="flex items-start gap-3"><span class="font-bold mt-0.5">✓</span> AI nutrition coach, unlimited</li>
-          <li class="flex items-start gap-3"><span class="font-bold mt-0.5">✓</span> All dietary styles + cuisines</li>
-          <li class="flex items-start gap-3"><span class="font-bold mt-0.5">✓</span> Priority support</li>
-          <li class="flex items-start gap-3"><span class="font-bold mt-0.5">✓</span> New features first</li>
-        </ul>
-        <button onclick="upgrade()" id="upgrade-btn"
-          class="w-full bg-white text-primary px-6 py-3 rounded-xl font-semibold hover:bg-green-50 transition-colors disabled:opacity-60">
-          Upgrade to Pro
-        </button>
+  <!-- HERO / INTRO -->
+  <section class="pricing-hero" aria-labelledby="pricing-heading">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="section-label">Pricing</span>
+        <h1 id="pricing-heading">Simple, honest pricing.</h1>
+        <p class="pricing-intro">
+          Meal planning should not cost more than the meals themselves. Mealzy's free tier is genuinely free — three full plans every month, grocery lists included, no expiry date, no credit card ever required. Upgrade when you want more.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Comparison table -->
-  <section class="py-10 px-4 bg-gray-50">
-    <div class="max-w-3xl mx-auto">
-      <h2 class="text-2xl font-bold text-center mb-8">Full feature comparison</h2>
-      <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <table class="w-full text-sm">
+  <!-- PRICING CARDS -->
+  <section aria-labelledby="plans-heading" style="padding-block: var(--pad-section);">
+    <div class="wrap">
+      <h2 id="plans-heading" class="hidden">Plans</h2>
+      <div class="menu-cards" data-stagger>
+
+        <!-- Free plan -->
+        <div class="menu-card" aria-label="Free plan">
+          <p class="menu-card__name">Free</p>
+          <p class="menu-card__sub">Forever — no card needed</p>
+          <div class="menu-card__price" aria-label="Price: free">
+            <span class="price-amount">€0</span>
+            <span class="price-per">/ month</span>
+          </div>
+          <ul class="menu-card__list" aria-label="Free plan features">
+            <li><span class="check" aria-hidden="true">✓</span> 3 AI meal plans per month</li>
+            <li><span class="check" aria-hidden="true">✓</span> Auto grocery lists</li>
+            <li><span class="check" aria-hidden="true">✓</span> AI nutrition coach</li>
+            <li><span class="check" aria-hidden="true">✓</span> 8 dietary styles</li>
+            <li><span class="check" aria-hidden="true">✓</span> 1–14 day plan duration</li>
+            <li><span class="cross" aria-hidden="true">✗</span> <span style="color:var(--ink-muted)">Unlimited plans</span></li>
+            <li><span class="cross" aria-hidden="true">✗</span> <span style="color:var(--ink-muted)">Priority support</span></li>
+          </ul>
+          <a href="/login#register" class="btn btn--outline" style="width:100%;justify-content:center;">Get started free</a>
+        </div>
+
+        <!-- Pro plan (featured) -->
+        <div class="menu-card menu-card--featured" aria-label="Pro plan — recommended">
+          <span class="menu-card__ribbon" aria-label="Chef's choice">Chef's choice</span>
+          <p class="menu-card__name">Pro</p>
+          <p class="menu-card__sub">Billed monthly — cancel anytime</p>
+          <div class="menu-card__price" aria-label="Price: $12 per month">
+            <span class="price-amount">$12</span>
+            <span class="price-per">/ month</span>
+          </div>
+          <ul class="menu-card__list" aria-label="Pro plan features">
+            <li><span class="check" aria-hidden="true">✓</span> Unlimited AI meal plans</li>
+            <li><span class="check" aria-hidden="true">✓</span> Full grocery lists every time</li>
+            <li><span class="check" aria-hidden="true">✓</span> AI nutrition coach, unlimited</li>
+            <li><span class="check" aria-hidden="true">✓</span> All dietary styles &amp; cuisines</li>
+            <li><span class="check" aria-hidden="true">✓</span> Priority support</li>
+            <li><span class="check" aria-hidden="true">✓</span> New features first</li>
+          </ul>
+          <button id="upgrade-btn" onclick="upgrade()"
+            class="btn btn--espresso" style="width:100%;justify-content:center;background:var(--brick);border-color:var(--brick);"
+            aria-label="Upgrade to Pro — 7 days free">
+            Upgrade to Pro
+          </button>
+          <p style="font-size:var(--text-xs);color:rgba(253,246,236,0.5);margin-top:0.75rem;text-align:center;max-width:none;">
+            7-day free trial. No card until you decide to stay.
+          </p>
+        </div>
+
+        <!-- Family plan -->
+        <div class="menu-card" aria-label="Family plan">
+          <p class="menu-card__name">Family</p>
+          <p class="menu-card__sub">Up to 4 members — one bill</p>
+          <div class="menu-card__price" aria-label="Price: $20 per month">
+            <span class="price-amount">$20</span>
+            <span class="price-per">/ month</span>
+          </div>
+          <ul class="menu-card__list" aria-label="Family plan features">
+            <li><span class="check" aria-hidden="true">✓</span> 4 individual member profiles</li>
+            <li><span class="check" aria-hidden="true">✓</span> Separate plans per member</li>
+            <li><span class="check" aria-hidden="true">✓</span> Combined family grocery list</li>
+            <li><span class="check" aria-hidden="true">✓</span> Unlimited plans for all members</li>
+            <li><span class="check" aria-hidden="true">✓</span> AI coach for every member</li>
+            <li><span class="check" aria-hidden="true">✓</span> All Pro features included</li>
+          </ul>
+          <a href="/login#register" class="btn btn--outline" style="width:100%;justify-content:center;">
+            Coming soon — join waitlist
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Value framing -->
+      <p class="reveal" style="margin-top:2rem;font-size:var(--text-sm);color:var(--ink-muted);max-width:55ch;">
+        At $12 / month, Mealzy Pro costs less than one takeaway meal and gives you 155 hours back every year.
+        Cancel anytime — no long-term contracts.
+      </p>
+    </div>
+  </section>
+
+  <!-- COMPARISON TABLE -->
+  <section class="comp-section" aria-labelledby="compare-heading">
+    <div class="wrap">
+      <h2 id="compare-heading" class="reveal" style="margin-bottom:2.5rem;">Full feature comparison</h2>
+      <div class="reveal" style="overflow-x:auto;">
+        <table class="comp-table" aria-label="Feature comparison between Free, Pro, and Family plans">
           <thead>
-            <tr class="border-b border-gray-100">
-              <th class="text-left px-6 py-4 font-semibold text-gray-700">Feature</th>
-              <th class="text-center px-6 py-4 font-semibold text-gray-700">Free</th>
-              <th class="text-center px-6 py-4 font-semibold text-primary">Pro</th>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Free</th>
+              <th scope="col">Pro <span style="font-weight:400;font-size:.8em;">$12/mo</span></th>
+              <th scope="col">Family <span style="font-weight:400;font-size:.8em;">$20/mo</span></th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
-            <tr><td class="px-6 py-3 text-gray-600">AI meal plans</td><td class="text-center px-6 py-3 text-gray-500">3/month</td><td class="text-center px-6 py-3 text-primary font-semibold">Unlimited</td></tr>
-            <tr class="bg-gray-50"><td class="px-6 py-3 text-gray-600">Auto grocery lists</td><td class="text-center px-6 py-3">✓</td><td class="text-center px-6 py-3 text-primary">✓</td></tr>
-            <tr><td class="px-6 py-3 text-gray-600">AI nutrition coach</td><td class="text-center px-6 py-3">✓</td><td class="text-center px-6 py-3 text-primary">✓ Unlimited</td></tr>
-            <tr class="bg-gray-50"><td class="px-6 py-3 text-gray-600">Dietary styles</td><td class="text-center px-6 py-3">All 8</td><td class="text-center px-6 py-3 text-primary">All 8</td></tr>
-            <tr><td class="px-6 py-3 text-gray-600">Plan duration</td><td class="text-center px-6 py-3">1–14 days</td><td class="text-center px-6 py-3 text-primary">1–14 days</td></tr>
-            <tr class="bg-gray-50"><td class="px-6 py-3 text-gray-600">Cuisine preferences</td><td class="text-center px-6 py-3">✓</td><td class="text-center px-6 py-3 text-primary">✓</td></tr>
-            <tr><td class="px-6 py-3 text-gray-600">Priority support</td><td class="text-center px-6 py-3 text-gray-300">✗</td><td class="text-center px-6 py-3 text-primary">✓</td></tr>
-            <tr class="bg-gray-50"><td class="px-6 py-3 text-gray-600">Early access to new features</td><td class="text-center px-6 py-3 text-gray-300">✗</td><td class="text-center px-6 py-3 text-primary">✓</td></tr>
+          <tbody>
+            <tr>
+              <td>AI meal plans</td>
+              <td>3 / month</td>
+              <td class="pro-val">Unlimited</td>
+              <td class="pro-val">Unlimited × 4</td>
+            </tr>
+            <tr>
+              <td>Auto grocery lists</td>
+              <td>✓</td>
+              <td class="pro-val">✓</td>
+              <td class="pro-val">✓ Combined family list</td>
+            </tr>
+            <tr>
+              <td>AI nutrition coach</td>
+              <td>✓</td>
+              <td class="pro-val">✓ Unlimited</td>
+              <td class="pro-val">✓ Per member</td>
+            </tr>
+            <tr>
+              <td>Member profiles</td>
+              <td>1</td>
+              <td class="pro-val">1</td>
+              <td class="pro-val">Up to 4</td>
+            </tr>
+            <tr>
+              <td>Dietary styles</td>
+              <td>All 8</td>
+              <td class="pro-val">All 8</td>
+              <td class="pro-val">All 8 per member</td>
+            </tr>
+            <tr>
+              <td>Plan duration</td>
+              <td>1–14 days</td>
+              <td class="pro-val">1–14 days</td>
+              <td class="pro-val">1–14 days</td>
+            </tr>
+            <tr>
+              <td>Cuisine preferences</td>
+              <td>✓</td>
+              <td class="pro-val">✓</td>
+              <td class="pro-val">✓</td>
+            </tr>
+            <tr>
+              <td>Priority support</td>
+              <td style="color:var(--hairline)">✗</td>
+              <td class="pro-val">✓</td>
+              <td class="pro-val">✓ Priority</td>
+            </tr>
+            <tr>
+              <td>Early access to new features</td>
+              <td style="color:var(--hairline)">✗</td>
+              <td class="pro-val">✓</td>
+              <td class="pro-val">✓</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -126,73 +208,181 @@
   </section>
 
   <!-- FAQ -->
-  <section class="py-16 px-4">
-    <div class="max-w-2xl mx-auto">
-      <h2 class="text-2xl font-bold text-center mb-10">Frequently asked questions</h2>
-      <div class="space-y-6">
-        <div>
-          <h3 class="font-semibold mb-1">What exactly is in a meal plan?</h3>
-          <p class="text-gray-500 text-sm">Each plan includes breakfast, lunch, dinner, and a snack for every day. Each meal has ingredient quantities, an estimated cost in euros, and prep time. You also get a full categorised grocery list and a nutrition summary.</p>
+  <section class="faq-section" aria-labelledby="faq-heading">
+    <div class="wrap" style="max-width:720px;">
+      <h2 id="faq-heading" class="reveal">Frequently asked questions</h2>
+
+      <div class="faq-list reveal" data-delay="80">
+
+        <div class="faq-item">
+          <button class="faq-btn" aria-expanded="false" aria-controls="faq-1">
+            What exactly is in a meal plan?
+            <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="faq-body" id="faq-1" role="region">
+            <p class="faq-body__inner">Each plan includes breakfast, lunch, dinner, and a snack for every day. Each meal has ingredient quantities, an estimated cost in euros, and prep time. You also get a full categorised grocery list and a nutrition summary.</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-semibold mb-1">Can I cancel my Pro subscription?</h3>
-          <p class="text-gray-500 text-sm">Yes, any time. You keep Pro access until the end of your billing period. No penalties, no questions.</p>
+
+        <div class="faq-item">
+          <button class="faq-btn" aria-expanded="false" aria-controls="faq-2">
+            Can I cancel my Pro subscription?
+            <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="faq-body" id="faq-2" role="region">
+            <p class="faq-body__inner">Yes, any time. You keep Pro access until the end of your billing period. No penalties, no questions asked.</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-semibold mb-1">What dietary styles do you support?</h3>
-          <p class="text-gray-500 text-sm">Balanced, vegan, vegetarian, keto, high-protein, carnivore, flexitarian, and Mediterranean. More on the way.</p>
+
+        <div class="faq-item">
+          <button class="faq-btn" aria-expanded="false" aria-controls="faq-3">
+            What dietary styles do you support?
+            <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="faq-body" id="faq-3" role="region">
+            <p class="faq-body__inner">Balanced, vegan, vegetarian, keto, high-protein, carnivore, flexitarian, and Mediterranean. More styles are on the way.</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-semibold mb-1">How accurate are the cost estimates?</h3>
-          <p class="text-gray-500 text-sm">Costs are approximations based on typical European supermarket prices. They will vary by location and season. Use them as a guide, not a guarantee.</p>
+
+        <div class="faq-item">
+          <button class="faq-btn" aria-expanded="false" aria-controls="faq-4">
+            How accurate are the cost estimates?
+            <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="faq-body" id="faq-4" role="region">
+            <p class="faq-body__inner">Costs are approximations based on typical European supermarket prices. They will vary by location and season. Use them as a guide, not a guarantee.</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-semibold mb-1">Do the free plans reset every month?</h3>
-          <p class="text-gray-500 text-sm">Yes. You get 3 free plans every 30 days. Your dashboard shows how many you have left and exactly when they reset.</p>
+
+        <div class="faq-item">
+          <button class="faq-btn" aria-expanded="false" aria-controls="faq-5">
+            Do the free plans reset every month?
+            <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="faq-body" id="faq-5" role="region">
+            <p class="faq-body__inner">Yes. You get 3 free plans every 30 days. Your dashboard shows how many you have left and exactly when they reset.</p>
+          </div>
         </div>
+
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="border-t border-gray-100 py-10">
-    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-      <div class="text-gray-400 text-sm">Mealzy &copy; 2025</div>
-      <div class="flex gap-6 text-sm text-gray-400">
-        <a href="/" class="hover:text-gray-700">Home</a>
-        <a href="/login" class="hover:text-gray-700">Log in</a>
-        <a href="/privacy" class="hover:text-gray-700">Privacy</a>
-        <a href="/terms" class="hover:text-gray-700">Terms</a>
+  <!-- TESTIMONIALS -->
+  <section style="padding-block:var(--pad-section);background:var(--parchment-deep);" aria-labelledby="testimonials-heading">
+    <div class="wrap">
+      <div class="reveal" style="margin-bottom:2.5rem;">
+        <span class="section-label">Early access</span>
+        <h2 id="testimonials-heading">No reviews yet — be one of the first.</h2>
+      </div>
+      <p class="reveal" style="font-size:var(--text-sm);color:var(--ink-muted);max-width:55ch;">
+        Mealzy launched recently. There are no reviews to show yet — and I'm not going to make any up.
+        Try it free, and if it saves you time this week, I'd genuinely love to hear about it at
+        <a href="mailto:support@mealzy.org" style="color:var(--brick);">support@mealzy.org</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="cta-band" aria-labelledby="pricing-cta-heading">
+    <div class="wrap">
+      <div class="reveal">
+        <span class="section-label">Ready?</span>
+        <h2 id="pricing-cta-heading">Start your 7-day free trial.</h2>
+        <p class="cta-lede">No card until you decide to stay. Cancel from your account at any time.</p>
+        <a href="/login#register" class="btn btn--primary">
+          Start 7-day free trial
+          <svg class="fork-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+            <line x1="7" y1="11" x2="7" y2="22"/>
+            <line x1="21" y1="15" x2="21" y2="22"/>
+            <path d="M21 2c0 3.5-3 6-3 9s3 5.5 3 9"/>
+          </svg>
+        </a>
+        <p class="fine">Or stay on the free plan — forever.</p>
       </div>
     </div>
-  </footer>
+  </section>
 
-  <script>
-    async function upgrade() {
-      const btn = document.getElementById('upgrade-btn');
-      btn.disabled = true;
-      btn.textContent = 'Redirecting...';
-      try {
-        const res = await fetch('/api/create-checkout-session', {
-          method: 'POST',
-          credentials: 'include'
-        });
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else if (data.error === 'Please log in first') {
-          window.location.href = '/login';
-        } else {
-          alert(data.error || 'Could not start checkout. Please try again.');
-          btn.disabled = false;
-          btn.textContent = 'Upgrade to Pro';
-        }
-      } catch {
-        alert('Connection error. Please try again.');
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo">Mealzy</a>
+        <p>AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Product</h4>
+        <ul class="footer__links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/dashboard">My plans</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Account</h4>
+        <ul class="footer__links">
+          <li><a href="/login">Log in</a></li>
+          <li><a href="/login#register">Sign up free</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul class="footer__links">
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="mailto:support@mealzy.org">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>Mealzy &copy; 2025. Meal plans are AI-generated — consult a qualified dietitian for medical dietary advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/motion.js" defer></script>
+<script>
+  async function upgrade() {
+    const btn = document.getElementById('upgrade-btn');
+    btn.disabled = true;
+    btn.textContent = 'Redirecting…';
+    try {
+      const res = await fetch('/api/create-checkout-session', { method: 'POST', credentials: 'include' });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.error === 'Please log in first') {
+        window.location.href = '/login';
+      } else {
+        alert(data.error || 'Could not start checkout. Please try again.');
         btn.disabled = false;
         btn.textContent = 'Upgrade to Pro';
       }
+    } catch {
+      alert('Connection error. Please try again.');
+      btn.disabled = false;
+      btn.textContent = 'Upgrade to Pro';
     }
-  </script>
+  }
+</script>
 </body>
 </html>

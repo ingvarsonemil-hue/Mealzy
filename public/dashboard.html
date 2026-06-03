@@ -178,13 +178,31 @@
 
         <!-- Result -->
         <div id="result-section" class="hidden space-y-4">
+          <!-- Prominent summary bar -->
+          <div id="plan-summary-bar" class="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-5 text-white">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+              <div><div class="text-2xl font-bold" id="sum-cost">—</div><div class="text-xs text-green-100 mt-0.5">weekly cost</div></div>
+              <div><div class="text-2xl font-bold" id="sum-calories">—</div><div class="text-xs text-green-100 mt-0.5">kcal / day</div></div>
+              <div><div class="text-2xl font-bold" id="sum-protein">—</div><div class="text-xs text-green-100 mt-0.5">protein / day</div></div>
+              <div><div class="text-2xl font-bold" id="sum-cooktime">—</div><div class="text-xs text-green-100 mt-0.5">cook time / day</div></div>
+            </div>
+          </div>
+          <!-- Plan cards + toggle -->
           <div class="bg-white rounded-2xl border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
               <h2 class="font-bold text-gray-900">Your meal plan</h2>
-              <button onclick="copyGroceryList()" id="copy-btn"
-                class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors flex items-center gap-1">
-                Copy grocery list
-              </button>
+              <div class="flex items-center gap-2">
+                <div class="flex bg-gray-100 rounded-lg p-1 gap-0.5">
+                  <button id="view-list-btn" onclick="setView('list')"
+                    class="text-xs px-3 py-1 rounded-md font-semibold bg-white shadow-sm text-gray-700 transition-all">List</button>
+                  <button id="view-grid-btn" onclick="setView('grid')"
+                    class="text-xs px-3 py-1 rounded-md font-semibold text-gray-400 transition-all">Grid</button>
+                </div>
+                <button onclick="copyGroceryList()" id="copy-btn"
+                  class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors">
+                  Copy grocery list
+                </button>
+              </div>
             </div>
             <div id="meal-output" class="meal-output"></div>
           </div>
@@ -196,32 +214,45 @@
 
   <!-- Upgrade modal (after first generation) -->
   <div id="upgrade-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl text-center">
-      <div class="text-4xl mb-4">*</div>
-      <h2 class="text-xl font-bold mb-2">That took 30 seconds.</h2>
-      <p id="modal-body" class="text-gray-500 mb-6">You have <strong id="modal-remaining" class="text-gray-900">2 free plans</strong> left this month. Want unlimited?</p>
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+      <div class="text-3xl mb-3">✨</div>
+      <h2 class="text-xl font-bold mb-1">Love your plan? Go unlimited.</h2>
+      <p class="text-gray-500 text-sm mb-5">You have <strong id="modal-remaining" class="text-gray-900">2 free plans</strong> left this month. Pro removes every limit.</p>
+      <ul class="space-y-2 mb-6 text-sm text-gray-700">
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Unlimited AI meal plans — generate whenever you want</li>
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Regenerate plans without burning a credit</li>
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Unlimited AI coach Mia — ask anything, any time</li>
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Priority support &amp; first access to new features</li>
+      </ul>
       <div class="space-y-3">
         <button onclick="upgradeFromModal()" id="modal-upgrade-btn"
           class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60">
-          Upgrade to Pro — €9.99/month
+          Unlock Pro — $12/month
         </button>
-        <button onclick="closeModal()" class="w-full text-gray-400 text-sm hover:text-gray-600">Maybe later</button>
+        <button onclick="closeModal()" class="w-full text-gray-400 text-sm hover:text-gray-600">Keep free plan for now</button>
       </div>
     </div>
   </div>
 
   <!-- Limit reached modal -->
   <div id="limit-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl text-center">
-      <div class="text-4xl mb-4">!</div>
-      <h2 class="text-xl font-bold mb-2">Monthly limit reached</h2>
-      <p id="limit-message" class="text-gray-500 mb-6"></p>
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+      <div class="text-3xl mb-3">🔓</div>
+      <h2 class="text-xl font-bold mb-1">You've hit the free limit</h2>
+      <p id="limit-message" class="text-gray-500 text-sm mb-5"></p>
+      <p class="text-sm font-semibold text-gray-700 mb-3">Upgrade to Pro and unlock:</p>
+      <ul class="space-y-2 mb-6 text-sm text-gray-700">
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Unlimited plans — no monthly cap, ever</li>
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Generate a new plan right now, instantly</li>
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Regenerate plans without limits</li>
+        <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Unlimited AI nutrition coach</li>
+      </ul>
       <div class="space-y-3">
         <button onclick="upgradeFromModal()" id="limit-upgrade-btn"
           class="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-green-700 transition-colors disabled:opacity-60">
-          Upgrade to Pro — €9.99/month
+          Unlock Pro — $12/month
         </button>
-        <button onclick="document.getElementById('limit-modal').classList.add('hidden')" class="w-full text-gray-400 text-sm hover:text-gray-600">Close</button>
+        <button onclick="document.getElementById('limit-modal').classList.add('hidden')" class="w-full text-gray-400 text-sm hover:text-gray-600">Wait until reset</button>
       </div>
     </div>
   </div>
@@ -250,6 +281,7 @@
   <script>
     let userPremium = false;
     let userRemaining = 3;
+    let currentPlanSummary = null;
 
     // Check auth + load user info
     async function init() {
@@ -370,7 +402,7 @@
           localStorage.setItem('mealzy_first_plan', '1');
         }, 1500);
 
-        // Show upgrade modal after first plan
+        // Show upgrade modal after 8s so user can read the plan first
         const modalShown = localStorage.getItem('mealzy_modal_shown');
         if (!modalShown && !data.premium) {
           localStorage.setItem('mealzy_modal_shown', '1');
@@ -381,7 +413,7 @@
               remaining === 1 ? '1 free plan' :
               `${remaining} free plans`;
             document.getElementById('upgrade-modal').classList.remove('hidden');
-          }, 800);
+          }, 8000);
         }
 
       } catch {
@@ -396,7 +428,134 @@
     }
 
     function formatMealPlan(text) {
-      // Convert markdown-style text to HTML
+      try {
+        let json = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+        const plan = JSON.parse(json);
+        return renderPlanCards(plan);
+      } catch {
+        return renderMarkdownFallback(text);
+      }
+    }
+
+    function renderPlanCards(plan) {
+      // Populate summary bar
+      if (plan.totals) {
+        const t = plan.totals;
+        const allPrep = (plan.days || []).flatMap(d => d.meals || []).reduce((s, m) => s + (m.prep || 0), 0);
+        const avgCookMin = Math.round(allPrep / Math.max((plan.days || []).length, 1));
+        document.getElementById('sum-cost').textContent = `€${(t.totalCost || 0).toFixed(2)}`;
+        document.getElementById('sum-calories').textContent = (t.dailyCalories || 0).toLocaleString();
+        document.getElementById('sum-protein').textContent = `${t.protein || 0}g`;
+        document.getElementById('sum-cooktime').textContent = `${avgCookMin} min`;
+      }
+
+      const typeColor = { Breakfast: 'bg-amber-100 text-amber-800', Lunch: 'bg-sky-100 text-sky-800', Dinner: 'bg-indigo-100 text-indigo-800', Snack: 'bg-green-100 text-green-800' };
+      let html = '<div>';
+      html += '<div id="days-container" class="space-y-3">';
+
+      for (const day of (plan.days || [])) {
+        html += `<div class="border border-gray-200 rounded-xl overflow-hidden">
+          <div class="bg-gray-50 px-4 py-2 font-semibold text-gray-700 text-sm border-b border-gray-200">${escHtml(day.label || 'Day ' + day.day)}</div>
+          <div class="divide-y divide-gray-100">`;
+        for (const meal of (day.meals || [])) {
+          const badge = typeColor[meal.type] || 'bg-gray-100 text-gray-700';
+          html += `<div class="px-4 py-3">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="text-xs font-semibold ${badge} px-2 py-0.5 rounded-full">${escHtml(meal.type)}</span>
+              <span class="font-medium text-gray-900 text-sm">${escHtml(meal.name)}</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">${meal.calories || 0} kcal</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">${meal.protein || 0}g protein</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">€${(meal.cost || 0).toFixed(2)}</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">${meal.prep || 0} min</span>
+            </div>
+            ${meal.ingredients ? `<p class="text-xs text-gray-400 mt-1.5 leading-relaxed">${escHtml(meal.ingredients)}</p>` : ''}
+          </div>`;
+        }
+        html += `</div></div>`;
+      }
+      html += '</div>'; // close #days-container
+
+      if (plan.grocery) {
+        html += `<div class="border border-gray-200 rounded-xl p-4"><h3 class="font-bold text-gray-900 mb-3 text-sm">Grocery List</h3><div class="grid sm:grid-cols-2 gap-4">`;
+        for (const [cat, items] of Object.entries(plan.grocery)) {
+          if (items?.length) {
+            html += `<div><p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">${escHtml(cat)}</p><ul class="space-y-0.5">`;
+            for (const item of items) html += `<li class="text-sm text-gray-700">• ${escHtml(item)}</li>`;
+            html += `</ul></div>`;
+          }
+        }
+        html += `</div></div>`;
+      }
+
+      if (plan.totals) {
+        const t = plan.totals;
+        currentPlanSummary = {
+          days: (plan.days || []).length,
+          diet: document.getElementById('diet')?.value || 'balanced',
+          goal: document.getElementById('goal')?.value || 'general health',
+          calories: document.getElementById('budget') ? Math.round((parseInt(document.getElementById('budget').value) || 50) / ((plan.days || []).length || 7) * 20) : 2000,
+          budget: document.getElementById('budget')?.value || 50,
+          dailyCalories: t.dailyCalories || 0,
+          totalCost: (t.totalCost || 0).toFixed(2)
+        };
+        html += `<div class="border border-green-100 bg-green-50 rounded-xl p-4">
+          <h3 class="font-bold text-gray-900 mb-3 text-sm">Weekly Summary</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div><div class="text-lg font-bold text-gray-900">${t.dailyCalories || 0}</div><div class="text-xs text-gray-500">kcal/day</div></div>
+            <div><div class="text-lg font-bold text-gray-900">${t.protein || 0}g</div><div class="text-xs text-gray-500">protein/day</div></div>
+            <div><div class="text-lg font-bold text-gray-900">${t.carbs || 0}g</div><div class="text-xs text-gray-500">carbs/day</div></div>
+            <div><div class="text-lg font-bold text-gray-900">€${(t.totalCost || 0).toFixed(2)}</div><div class="text-xs text-gray-500">total cost</div></div>
+          </div>
+        </div>`;
+      }
+
+      html += '</div>'; // close outer wrapper
+      return html;
+    }
+
+    let currentView = 'list';
+    function setView(mode) {
+      currentView = mode;
+      const container = document.getElementById('days-container');
+      const listBtn = document.getElementById('view-list-btn');
+      const gridBtn = document.getElementById('view-grid-btn');
+      if (!container) return;
+      const activeClass = 'text-xs px-3 py-1 rounded-md font-semibold bg-white shadow-sm text-gray-700 transition-all';
+      const inactiveClass = 'text-xs px-3 py-1 rounded-md font-semibold text-gray-400 transition-all';
+      if (mode === 'grid') {
+        container.style.cssText = 'display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;align-items:start;';
+        gridBtn.className = activeClass;
+        listBtn.className = inactiveClass;
+      } else {
+        container.style.cssText = '';
+        listBtn.className = activeClass;
+        gridBtn.className = inactiveClass;
+      }
+    }
+
+    function formatMiaReply(text) {
+      let s = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/Quick tip:/g, '<span style="color:#16a34a;font-weight:700;">Quick tip:</span>');
+      const lines = s.split('\n');
+      const out = []; let inList = false;
+      for (const line of lines) {
+        const t = line.trim();
+        if (t.startsWith('•') || t.startsWith('-')) {
+          if (!inList) { out.push('<ul style="margin:.35rem 0;padding-left:1.1rem;list-style:disc;">'); inList = true; }
+          out.push(`<li style="margin:.15rem 0;">${t.slice(1).trim()}</li>`);
+        } else {
+          if (inList) { out.push('</ul>'); inList = false; }
+          if (t) out.push(`<p style="margin:.2rem 0;">${t}</p>`);
+        }
+      }
+      if (inList) out.push('</ul>');
+      return out.join('');
+    }
+
+    function renderMarkdownFallback(text) {
       return text
         .replace(/^## (.+)$/gm, '<h2>$1</h2>')
         .replace(/^\*\*([^*]+)\*\*$/gm, '<h3>$1</h3>')
@@ -440,14 +599,14 @@
           alert(data.error || 'Could not start checkout. Please try again.');
           btns.forEach(id => {
             const el = document.getElementById(id);
-            if (el) { el.disabled = false; el.textContent = 'Upgrade to Pro — €9.99/month'; }
+            if (el) { el.disabled = false; el.textContent = 'Upgrade to Pro — $12/month'; }
           });
         }
       } catch {
         alert('Connection error. Please try again.');
         btns.forEach(id => {
           const el = document.getElementById(id);
-          if (el) { el.disabled = false; el.textContent = 'Upgrade to Pro — €9.99/month'; }
+          if (el) { el.disabled = false; el.textContent = 'Upgrade to Pro — $12/month'; }
         });
       }
     }
@@ -483,10 +642,10 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ message: msg })
+          body: JSON.stringify({ message: msg, planSummary: currentPlanSummary })
         });
         const data = await res.json();
-        messages.innerHTML += `<div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 max-w-xs text-gray-700 text-sm">${escHtml(data.reply || data.error || 'No response')}</div>`;
+        messages.innerHTML += `<div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 max-w-xs text-gray-700 text-sm leading-relaxed">${formatMiaReply(data.reply || data.error || 'No response')}</div>`;
       } catch {
         messages.innerHTML += `<div class="bg-gray-100 rounded-xl rounded-tl-none px-3 py-2 max-w-xs text-red-500 text-sm">Connection error. Please try again.</div>`;
       } finally {

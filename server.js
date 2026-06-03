@@ -39,50 +39,21 @@ async function logEmailLead({ email, name, source }) {
   );
 }
 
-function buildMealPrompt({ budget, days, diet, goal, cuisines }) {
+function buildMealPrompt({ budget, days, diet, goal, cuisines, calories }) {
   const dayCount = Math.min(parseInt(days) || 7, 14);
   const budgetAmount = parseFloat(budget) || 50;
   const perDay = (budgetAmount / dayCount).toFixed(2);
   const dietLabel = diet || "balanced";
   const goalLabel = goal || "general health";
-  const cuisineLabel =
-    Array.isArray(cuisines) && cuisines.length
-      ? cuisines.join(", ")
-      : "any cuisine";
+  const cuisineLabel = Array.isArray(cuisines) && cuisines.length ? cuisines.join(", ") : "any";
+  const calorieTarget = parseInt(calories) || 2000;
 
-  return `Create a ${dayCount}-day ${dietLabel} meal plan. Total budget: €${budgetAmount} (€${perDay}/day). Goal: ${goalLabel}. Cuisine: ${cuisineLabel}.
+  return `Create a ${dayCount}-day ${dietLabel} meal plan. Budget: €${budgetAmount} total (€${perDay}/day). Goal: ${goalLabel}. Cuisine: ${cuisineLabel}. Daily target: ~${calorieTarget} kcal.
 
-Format EXACTLY like this:
+Respond with ONLY valid JSON — no markdown, no code fences, no extra text. Use this exact structure:
+{"days":[{"day":1,"label":"Day 1","meals":[{"type":"Breakfast","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":0},{"type":"Lunch","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":0},{"type":"Dinner","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":0},{"type":"Snack","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":5}]}],"grocery":{"Produce":[],"Protein":[],"Dairy":[],"Pantry":[]},"totals":{"dailyCalories":0,"protein":0,"carbs":0,"fat":0,"totalCost":0.00}}
 
-## DAY-BY-DAY PLAN
-
-**Day 1**
-- Breakfast: [meal name] | Ingredients: [list with weights] | Cost: €X.XX | Prep: Xmin
-- Lunch: [meal name] | Ingredients: [list with weights] | Cost: €X.XX | Prep: Xmin
-- Dinner: [meal name] | Ingredients: [list with weights] | Cost: €X.XX | Prep: Xmin
-- Snack: [snack name] | Cost: €X.XX
-
-[repeat for all ${dayCount} days]
-
-## GROCERY LIST
-
-**Produce**
-- [item]: [total qty needed] | ~€X.XX
-
-**Protein**
-- [item]: [total qty needed] | ~€X.XX
-
-**Dairy**
-- [item]: [total qty needed] | ~€X.XX
-
-**Pantry**
-- [item]: [total qty needed] | ~€X.XX
-
-## NUTRITION SUMMARY
-- Daily average: ~XXXX kcal | Protein: XXg | Carbs: XXg | Fat: XXg
-- Total estimated cost: ~€${budgetAmount}
-
-Be specific with quantities (grams, ml, pieces). Keep total within the €${budgetAmount} budget. Use realistic European supermarket prices.`;
+Fill all ${dayCount} days. Use realistic European supermarket prices. Keep total within €${budgetAmount}. Be specific with ingredient quantities.`;
 }
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
@@ -311,8 +282,8 @@ app.post("/api/generate-meal", async (req, res) => {
       });
     }
 
-    const { budget, days, diet, goal, cuisines } = req.body;
-    const prompt = buildMealPrompt({ budget, days, diet, goal, cuisines });
+    const { budget, days, diet, goal, cuisines, calories } = req.body;
+    const prompt = buildMealPrompt({ budget, days, diet, goal, cuisines, calories });
 
     const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -323,7 +294,7 @@ app.post("/api/generate-meal", async (req, res) => {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
+        max_tokens: 4000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -357,14 +328,73 @@ app.post("/api/generate-meal", async (req, res) => {
   }
 });
 
+// ── Guest demo meal (no auth) ─────────────────────────────────────────────────
+const demoRateLimit = new Map(); // ip → { count, resetAt }
+
+app.post("/api/demo-meal", async (req, res) => {
+  const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const entry = demoRateLimit.get(ip);
+
+  if (entry && now < entry.resetAt && entry.count >= 3) {
+    return res.status(429).json({ error: "Demo limit reached. Sign up free for more plans." });
+  }
+  if (!entry || now >= entry.resetAt) {
+    demoRateLimit.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
+  } else {
+    entry.count++;
+  }
+
+  try {
+    const { budget, diet, calories } = req.body;
+    const budgetAmount = parseFloat(budget) || 50;
+    const calorieTarget = parseInt(calories) || 2000;
+    const dietLabel = diet || "balanced";
+    const perDay = (budgetAmount / 5).toFixed(2);
+
+    const prompt = `Create a 5-day ${dietLabel} meal plan. Budget: €${budgetAmount} total (€${perDay}/day). Daily calorie target: ~${calorieTarget} kcal. Each meal must contain 25–45g of protein.
+
+CRITICAL RULES: Every day MUST have EXACTLY 3 meals: Breakfast, Lunch, and Dinner. No snacks. No exceptions. Include protein-rich ingredients in every meal.
+
+Respond with ONLY valid JSON — no markdown, no code fences, no extra text:
+{"days":[{"day":1,"label":"Day 1","meals":[{"type":"Breakfast","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":0},{"type":"Lunch","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":0},{"type":"Dinner","name":"","ingredients":"","calories":0,"protein":0,"carbs":0,"fat":0,"cost":0.00,"prep":0}]}],"grocery":{"Produce":[],"Protein":[],"Dairy":[],"Pantry":[]},"totals":{"dailyCalories":0,"protein":0,"carbs":0,"fat":0,"totalCost":0.00}}
+
+Fill all 5 days. Every meal: 25–45g protein. Use realistic European supermarket prices. Keep total within €${budgetAmount}.`;
+
+    const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": process.env.API_KEY, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 3000, messages: [{ role: "user", content: prompt }] }),
+    });
+
+    const aiData = await aiRes.json();
+    if (!aiRes.ok) throw new Error(aiData.error?.message || "AI service error");
+    const text = aiData.content?.[0]?.text;
+    if (!text) throw new Error("Empty response from AI");
+
+    res.json({ result: text });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to generate demo plan. Please try again." });
+  }
+});
+
 // ── AI Coach ──────────────────────────────────────────────────────────────────
 app.post("/api/coach", async (req, res) => {
   if (!req.session.user)
     return res.status(401).json({ error: "Please log in first" });
 
-  const { message } = req.body;
+  const { message, planSummary } = req.body;
   if (!message?.trim())
     return res.status(400).json({ error: "Message required" });
+
+  let systemPrompt = `You are Mia, a knowledgeable AI nutrition coach for Mealzy. Format responses like a real nutritionist:
+- Use **bold** for key recommendations and important numbers
+- Use short bullet points (•) for action items — max 4 bullets
+- Start one-sentence tips with "Quick tip:"
+- Be specific, not generic. Under 160 words.`;
+  if (planSummary) {
+    systemPrompt += ` User's current plan: ${planSummary.days}-day ${planSummary.diet} diet, goal: ${planSummary.goal}, ~${planSummary.calories} kcal/day target, €${planSummary.budget} budget. Actual: ${planSummary.dailyCalories} kcal/day, cost: €${planSummary.totalCost}. Reference their specific plan in your answer.`;
+  }
 
   try {
     const aiRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -377,8 +407,7 @@ app.post("/api/coach", async (req, res) => {
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 400,
-        system:
-          "You are a helpful nutrition and meal planning coach. Give concise, practical advice. Keep answers under 120 words.",
+        system: systemPrompt,
         messages: [{ role: "user", content: message }],
       }),
     });
@@ -419,8 +448,9 @@ app.post("/api/reset-password-request", async (req, res) => {
     );
 
     const resetLink = `${BASE_URL}/reset-password?token=${token}`;
-    // In production: send resetLink by email. For now returned so user can test.
-    res.json({ ...generic, resetLink });
+    // TODO: send resetLink via email (e.g. SendGrid / Resend)
+    console.log(JSON.stringify({ type: "password_reset", email, resetLink, ts: new Date().toISOString() }));
+    res.json(generic);
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
@@ -475,12 +505,12 @@ app.post("/api/create-checkout-session", async (req, res) => {
       line_items: [
         {
           price_data: {
-            currency: "eur",
+            currency: "usd",
             product_data: {
               name: "Mealzy Pro",
               description: "Unlimited AI meal plans every month",
             },
-            unit_amount: 999,
+            unit_amount: 1200,
             recurring: { interval: "month" },
           },
           quantity: 1,
