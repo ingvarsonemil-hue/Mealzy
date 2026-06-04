@@ -1603,9 +1603,6 @@ app.post('/api/ai-coach', async (req, res) => {
     // Daily message limit for free users (persisted in SQLite — survives restarts)
     if (!isCoachPro && session) {
       const count = await db.getCoachUsage(session.userId);
-      const currentCount = count;
-      const isPro = isCoachPro;
-      console.log('[coach-debug] userId:', session.userId, 'count:', currentCount, 'isPro:', isPro, 'limit:', FREE_COACH_LIMIT);
       log.info(`[coach] userId=${session.userId} count=${count} limit=${FREE_COACH_LIMIT} isPro=${isCoachPro}`);
       if (count >= FREE_COACH_LIMIT) {
         return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: count, limit: FREE_COACH_LIMIT });
