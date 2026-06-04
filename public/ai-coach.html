@@ -25,8 +25,8 @@
   <style>
     body { overflow: hidden; }
     .app-layout { height: 100vh; overflow: hidden; }
-    .main-content { padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,40%,92%) 0%, transparent 70%); }
-    [data-theme="dark"] .main-content { background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,25%,15%) 0%, transparent 70%); }
+    .main-content { padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--clr-background); }
+    [data-theme="dark"] .main-content { background: var(--clr-background); }
     @media (max-width: 900px) {
       .main-content { height: calc(100vh - 4rem); margin-top: 4rem; }
     }
@@ -58,14 +58,14 @@
     }
     .mia-avatar-ring {
       width: 46px; height: 46px; border-radius: 50%;
-      background: var(--gradient-primary);
+      background: var(--clr-sidebar);
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 0 0 3px var(--clr-primary-light);
       flex-shrink: 0;
     }
     .mia-avatar-ring span {
       font-family: var(--font-display);
-      font-weight: 700; font-size: 1.1rem; color: white; font-style: italic;
+      font-weight: 700; font-size: 1.1rem; color: var(--clr-sidebar-logo); font-style: italic;
     }
     .chat-header-name { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; }
     .chat-header-role { font-size: 0.8rem; color: var(--clr-muted-fg); }

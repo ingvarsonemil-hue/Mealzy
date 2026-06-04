@@ -97,14 +97,13 @@
     .mcv2-btns { display: flex; gap: 0.4rem; }
     .mcv2-expand { margin-top: 0.75rem; border-top: 1px solid var(--clr-border); padding-top: 0.6rem; }
 
-    /* ── Totals bar — polished glass panel ──────────────── */
+    /* ── Totals bar — dark forest green, matches homepage energy */
     .totals-bar {
       position: sticky; bottom: 0; z-index: 10;
-      background: var(--clr-card);
-      border-top: 1px solid var(--clr-border);
-      box-shadow: 0 -8px 32px rgba(60,80,40,0.10);
-      backdrop-filter: blur(12px);
-      padding: 0.85rem 1.5rem;
+      background: var(--clr-sidebar);
+      border-top: none;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+      padding: 0.9rem 1.5rem;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 0;
@@ -113,24 +112,26 @@
       text-align: center;
       padding: 0.1rem 0.5rem;
     }
-    .total-item + .total-item { border-left: 1px solid var(--clr-border); }
+    .total-item + .total-item { border-left: 1px solid var(--clr-sidebar-border); }
     .total-val {
       font-family: var(--font-display);
       font-weight: 900;
       font-size: 1.2rem;
       letter-spacing: -0.02em;
-      color: var(--clr-foreground);
+      color: white;
       line-height: 1.1;
     }
     .total-lbl {
       font-size: 0.7rem;
-      font-weight: 700;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--clr-muted-fg);
+      color: var(--clr-sidebar-muted);
       margin-top: 0.2rem;
     }
-    .total-item:first-child .total-val { color: var(--clr-primary); }
+    .total-item:first-child .total-val { color: var(--clr-sidebar-logo); }
+
+    [data-theme="dark"] .totals-bar { background: hsl(152,55%,8%); }
 
     @media (max-width: 600px) {
       .totals-bar { grid-template-columns: repeat(2, 1fr); gap: 0.5rem 0; }
