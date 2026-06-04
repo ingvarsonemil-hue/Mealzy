@@ -274,12 +274,22 @@
       quickPrompts.style.display = 'none';
     }
 
-    container.innerHTML = conversation.map(msg => `
-      <div class="chat-msg ${msg.role}">
+    container.innerHTML = conversation.map(msg => {
+      if (msg.content === '__LIMIT_REACHED__') {
+        return `<div class="chat-msg assistant">
+          ${ICO.miaAvatar}
+          <div class="chat-bubble" style="background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,25%);">
+            <p style="margin:0 0 0.75rem;font-weight:600;">You've used your 10 free messages today.</p>
+            <p style="margin:0 0 0.85rem;font-size:0.88rem;">Upgrade to Pro for unlimited coaching with Mia — ask anything, any time.</p>
+            <a href="upgrade.html" style="display:inline-block;background:#2e7d4f;color:white;padding:0.5rem 1.1rem;border-radius:0.5rem;font-weight:700;font-size:0.88rem;text-decoration:none;">Upgrade to Pro →</a>
+          </div>
+        </div>`;
+      }
+      return `<div class="chat-msg ${msg.role}">
         ${msg.role === 'assistant' ? ICO.miaAvatar : ''}
         <div class="chat-bubble">${formatMessage(msg.content)}</div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   function formatMessage(text) {
@@ -345,23 +355,25 @@
         body: JSON.stringify({ messages: apiMessages, profile, is_pro: localStorage.getItem('mealzy_pro') === 'true' })
       });
 
-      const data = await response.json();
-
-      if (data.success && data.message) {
-        conversation.push(data.message);
+      if (response.status === 402) {
+        conversation.push({
+          role: 'assistant',
+          content: '__LIMIT_REACHED__',
+          timestamp: new Date().toISOString()
+        });
       } else {
-        throw new Error('Invalid response');
+        const data = await response.json();
+        if (data.success && data.message) {
+          conversation.push(data.message);
+        } else {
+          throw new Error('Invalid response');
+        }
       }
     } catch (err) {
       console.error(err);
-      const fallbackResponses = [
-        "I'd love to help! Unfortunately I'm having trouble connecting right now. Please make sure the server is running and your API key is configured in the .env file. In the meantime, try to focus on whole foods, lean proteins, and plenty of vegetables!",
-        "It looks like I'm offline at the moment. Once the server is connected, I can give you personalized advice based on your profile. For now, remember: hydration is key — aim for 8 glasses of water daily!",
-        "Connection issue detected! Once we're back online I can answer all your nutrition questions. Quick tip while you wait: aim to fill half your plate with vegetables at every meal!"
-      ];
       conversation.push({
         role: 'assistant',
-        content: fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)],
+        content: "I'm having trouble connecting right now. Please check your internet connection and try again.",
         timestamp: new Date().toISOString()
       });
     }

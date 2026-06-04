@@ -639,6 +639,14 @@ app.get('/api/profile', async (req, res) => {
   res.json({ success: true, profile });
 });
 
+// DELETE /api/profile — permanently delete the authenticated user's profile data
+app.delete('/api/profile', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  await db.run('DELETE FROM profiles WHERE user_id = ?', [session.userId]);
+  res.json({ success: true });
+});
+
 // ════════════════════════════════════════════════════════════════════════════
 // FAMILY PROFILES (multi-profile for Family plan)
 // ════════════════════════════════════════════════════════════════════════════
@@ -1578,6 +1586,23 @@ app.post('/api/generate-grocery-list', async (req, res) => {
 // AI COACH
 // ════════════════════════════════════════════════════════════════════════════
 
+// In-memory daily coach message counter: { userId -> { date: 'YYYY-MM-DD', count: N } }
+const coachDailyUsage = new Map();
+const FREE_COACH_LIMIT = 10;
+
+function getCoachUsage(userId) {
+  const today = new Date().toISOString().split('T')[0];
+  const rec = coachDailyUsage.get(userId);
+  if (!rec || rec.date !== today) return { date: today, count: 0 };
+  return rec;
+}
+function incrementCoachUsage(userId) {
+  const rec = getCoachUsage(userId);
+  rec.count += 1;
+  coachDailyUsage.set(userId, rec);
+  return rec.count;
+}
+
 app.post('/api/ai-coach', async (req, res) => {
   try {
     const { messages, profile, is_pro } = req.body;
@@ -1589,6 +1614,15 @@ app.post('/api/ai-coach', async (req, res) => {
     }
 
     if (!messages || messages.length === 0) return res.status(400).json({ error: 'Messages array is required' });
+
+    // Daily message limit for free users
+    if (!isCoachPro && session) {
+      const usage = getCoachUsage(session.userId);
+      if (usage.count >= FREE_COACH_LIMIT) {
+        return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: usage.count, limit: FREE_COACH_LIMIT });
+      }
+      incrementCoachUsage(session.userId);
+    }
 
     const { name = 'User', goal = 'eat healthier', dailyCalories = 2000, macros = { protein: 150, carbs: 200, fat: 67 }, dietaryPrefs = [], allergies = [], weight = 70, height = 170, age = 30, currency = 'USD', preferred_cuisine = '', language: coachLang = 'en' } = profile || {};
     const langNames   = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };

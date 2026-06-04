@@ -223,21 +223,21 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Your Name</label>
-          <input type="text" class="form-input" id="settingName" placeholder="Your name" />
+          <input type="text" class="form-input" id="settingName" placeholder="Your name" oninput="markDirty()" />
         </div>
         <div class="form-group">
           <label class="form-label">Age</label>
-          <input type="number" class="form-input" id="settingAge" placeholder="25" min="14" max="100" />
+          <input type="number" class="form-input" id="settingAge" placeholder="25" min="14" max="100" oninput="markDirty();updateMacroPreview()" />
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weight (kg)</label>
-          <input type="number" class="form-input" id="settingWeight" placeholder="70" />
+          <input type="number" class="form-input" id="settingWeight" placeholder="70" oninput="markDirty();updateMacroPreview()" />
         </div>
         <div class="form-group">
           <label class="form-label">Height (cm)</label>
-          <input type="number" class="form-input" id="settingHeight" placeholder="175" />
+          <input type="number" class="form-input" id="settingHeight" placeholder="175" oninput="markDirty();updateMacroPreview()" />
         </div>
       </div>
       <div class="form-group">
@@ -248,7 +248,7 @@
           <button class="chip" data-gender="other" onclick="selectSettingGender(this)">Other</button>
         </div>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="saveBodyStats()">Save Body Stats</button>
+      <div id="macroPreview" style="display:none;margin-top:0.85rem;padding:0.75rem 1rem;background:hsl(152,40%,94%);border-radius:0.5rem;font-size:0.85rem;color:hsl(152,40%,25%);"></div>
     </div>
 
     <!-- SECTION 2: Fitness Goals -->
@@ -279,9 +279,6 @@
           <div class="goal-emoji">⚡</div>
           <div class="goal-label">Improve Energy</div>
         </div>
-      </div>
-      <div style="margin-top:1rem;">
-        <button class="btn btn-primary btn-sm" onclick="saveGoal()">Save Goal</button>
       </div>
     </div>
 
@@ -325,9 +322,6 @@
           </div>
         </div>
       </div>
-      <div style="margin-top:1rem;">
-        <button class="btn btn-primary btn-sm" onclick="saveActivity()">Save Activity Level</button>
-      </div>
     </div>
 
     <!-- SECTION 4: Dietary Preferences -->
@@ -336,31 +330,30 @@
       <div class="form-group">
         <label class="form-label">Diet Style</label>
         <div class="chips-group" id="settingDietChips">
-          <button class="chip" data-pref="vegetarian" onclick="this.classList.toggle('active')">🌿 Vegetarian</button>
-          <button class="chip" data-pref="vegan" onclick="this.classList.toggle('active')">🌱 Vegan</button>
-          <button class="chip" data-pref="keto" onclick="this.classList.toggle('active')">🥑 Keto</button>
-          <button class="chip" data-pref="paleo" onclick="this.classList.toggle('active')">🦴 Paleo</button>
-          <button class="chip" data-pref="mediterranean" onclick="this.classList.toggle('active')">🫒 Mediterranean</button>
-          <button class="chip" data-pref="halal" onclick="this.classList.toggle('active')">☪️ Halal</button>
-          <button class="chip" data-pref="kosher" onclick="this.classList.toggle('active')">✡️ Kosher</button>
-          <button class="chip" data-pref="low_carb" onclick="this.classList.toggle('active')">📉 Low Carb</button>
-          <button class="chip" data-pref="high_protein" onclick="this.classList.toggle('active')">💪 High Protein</button>
+          <button class="chip" data-pref="vegetarian" onclick="this.classList.toggle('active');markDirty()">🌿 Vegetarian</button>
+          <button class="chip" data-pref="vegan" onclick="this.classList.toggle('active');markDirty()">🌱 Vegan</button>
+          <button class="chip" data-pref="keto" onclick="this.classList.toggle('active');markDirty()">🥑 Keto</button>
+          <button class="chip" data-pref="paleo" onclick="this.classList.toggle('active');markDirty()">🦴 Paleo</button>
+          <button class="chip" data-pref="mediterranean" onclick="this.classList.toggle('active');markDirty()">🫒 Mediterranean</button>
+          <button class="chip" data-pref="halal" onclick="this.classList.toggle('active');markDirty()">☪️ Halal</button>
+          <button class="chip" data-pref="kosher" onclick="this.classList.toggle('active');markDirty()">✡️ Kosher</button>
+          <button class="chip" data-pref="low_carb" onclick="this.classList.toggle('active');markDirty()">📉 Low Carb</button>
+          <button class="chip" data-pref="high_protein" onclick="this.classList.toggle('active');markDirty()">💪 High Protein</button>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Allergies & Restrictions</label>
         <div class="chips-group" id="settingAllergyChips">
-          <button class="chip" data-allergy="gluten" onclick="this.classList.toggle('active')">🌾 Gluten-Free</button>
-          <button class="chip" data-allergy="dairy" onclick="this.classList.toggle('active')">🥛 Dairy-Free</button>
-          <button class="chip" data-allergy="nuts" onclick="this.classList.toggle('active')">🥜 Nut-Free</button>
-          <button class="chip" data-allergy="eggs" onclick="this.classList.toggle('active')">🥚 Egg-Free</button>
-          <button class="chip" data-allergy="shellfish" onclick="this.classList.toggle('active')">🦐 Shellfish-Free</button>
-          <button class="chip" data-allergy="soy" onclick="this.classList.toggle('active')">🫘 Soy-Free</button>
-          <button class="chip" data-allergy="fish" onclick="this.classList.toggle('active')">🐟 Fish-Free</button>
-          <button class="chip" data-allergy="pork" onclick="this.classList.toggle('active')">🐷 No Pork</button>
+          <button class="chip" data-allergy="gluten" onclick="this.classList.toggle('active');markDirty()">🌾 Gluten-Free</button>
+          <button class="chip" data-allergy="dairy" onclick="this.classList.toggle('active');markDirty()">🥛 Dairy-Free</button>
+          <button class="chip" data-allergy="nuts" onclick="this.classList.toggle('active');markDirty()">🥜 Nut-Free</button>
+          <button class="chip" data-allergy="eggs" onclick="this.classList.toggle('active');markDirty()">🥚 Egg-Free</button>
+          <button class="chip" data-allergy="shellfish" onclick="this.classList.toggle('active');markDirty()">🦐 Shellfish-Free</button>
+          <button class="chip" data-allergy="soy" onclick="this.classList.toggle('active');markDirty()">🫘 Soy-Free</button>
+          <button class="chip" data-allergy="fish" onclick="this.classList.toggle('active');markDirty()">🐟 Fish-Free</button>
+          <button class="chip" data-allergy="pork" onclick="this.classList.toggle('active');markDirty()">🐷 No Pork</button>
         </div>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="saveDiet()">Save Preferences</button>
     </div>
 
     <!-- SECTION 5: Cooking & Budget -->
@@ -390,13 +383,13 @@
         <label class="form-label">Max cooking time per meal</label>
         <div class="range-wrap">
           <input type="range" id="settingCookTime" min="5" max="90" step="5" value="30"
-            oninput="document.getElementById('settingCookTimeVal').textContent = this.value + ' min'" />
+            oninput="document.getElementById('settingCookTimeVal').textContent = this.value + ' min';markDirty()" />
           <span class="range-val" id="settingCookTimeVal">30 min</span>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">App Language</label>
-        <select class="form-select" id="settingLanguage">
+        <select class="form-select" id="settingLanguage" onchange="markDirty()">
           <option value="en">🇬🇧 English</option>
           <option value="sv">🇸🇪 Svenska</option>
           <option value="no">🇳🇴 Norsk</option>
@@ -412,7 +405,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Preferred Cuisine</label>
-        <select class="form-select" id="settingCuisine">
+        <select class="form-select" id="settingCuisine" onchange="markDirty()">
           <option value="">🌍 Surprise me (random each day)</option>
           <option value="mediterranean">🫒 Mediterranean</option>
           <option value="asian">🍜 Asian</option>
@@ -429,7 +422,7 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weekly Food Budget</label>
-          <input type="number" class="form-input" id="settingBudget" placeholder="100" min="20" />
+          <input type="number" class="form-input" id="settingBudget" placeholder="100" min="20" oninput="markDirty()" />
         </div>
         <div class="form-group">
           <label class="form-label">Currency</label>
@@ -467,7 +460,6 @@
           </select>
         </div>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="saveCooking()">Save Cooking Preferences</button>
     </div>
 
     <!-- SECTION 6: Family Profiles (Pro users only) -->
@@ -536,6 +528,12 @@
       <button class="btn btn-outline btn-sm" onclick="openCancelModal()" style="color:var(--clr-destructive);border-color:var(--clr-destructive);">
         Cancel subscription
       </button>
+    </div>
+
+    <!-- SAVE ALL CHANGES -->
+    <div class="anim-section" style="margin-bottom:1.5rem;">
+      <button id="saveAllBtn" class="btn btn-primary" onclick="saveAllChanges()" style="width:100%;padding:0.85rem;font-size:1rem;">Save all changes</button>
+      <div id="saveAllStatus" style="display:none;text-align:center;font-size:0.85rem;margin-top:0.6rem;"></div>
     </div>
 
     <!-- SECTION 8: Danger Zone -->
@@ -751,18 +749,21 @@
     document.getElementById('settingCurrency').value = currency;
     document.getElementById('settingCuisine').value = profile.preferred_cuisine || '';
     document.getElementById('settingLanguage').value = profile.language || 'en';
+    updateMacroPreview();
   }
 
   function selectSettingGender(el) {
     document.querySelectorAll('#settingGenderChips .chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     selectedGender = el.dataset.gender;
+    markDirty(); updateMacroPreview();
   }
 
   function selectSettingGoal(el) {
     document.querySelectorAll('#settingGoalGrid .goal-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedGoal = el.dataset.goal;
+    markDirty(); updateMacroPreview();
   }
 
   function selectSettingActivity(el) {
@@ -770,12 +771,14 @@
     el.classList.add('selected');
     selectedActivity = el.dataset.activity;
     selectedActivityMultiplier = parseFloat(el.dataset.multiplier);
+    markDirty(); updateMacroPreview();
   }
 
   function selectSettingSkill(el) {
     document.querySelectorAll('#settingSkillGrid .skill-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedSkill = el.dataset.skill;
+    markDirty();
   }
 
   function recalcMacros() {
@@ -881,9 +884,17 @@
     document.getElementById('resetModal').classList.remove('open');
   }
 
-  function confirmReset() {
+  async function confirmReset() {
+    const btn = document.querySelector('#resetModal .btn-danger');
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
+    try {
+      await fetch('/api/profile', { method: 'DELETE' });
+    } catch(e) { /* non-fatal — proceed with signout regardless */ }
+    try {
+      await fetch('/api/auth/signout', { method: 'POST' });
+    } catch(e) {}
     localStorage.clear();
-    window.location.href = 'onboarding.html';
+    window.location.href = 'index.html';
   }
 
   function showToast(msg, type = '') {
@@ -982,6 +993,99 @@
       renderFamilyProfiles();
       showToast('Profile deleted', 'success');
     } catch(e) { showToast('Error deleting profile', 'error'); }
+  }
+
+  // ── Dirty state ────────────────────────────────────────────────────────────
+  let _isDirty = false;
+
+  function markDirty() {
+    _isDirty = true;
+    const btn = document.getElementById('saveAllBtn');
+    if (btn) btn.textContent = 'Save all changes *';
+  }
+
+  window.addEventListener('beforeunload', (e) => {
+    if (_isDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  // ── Live macro preview ──────────────────────────────────────────────────────
+  function updateMacroPreview() {
+    const w = parseFloat(document.getElementById('settingWeight').value);
+    const h = parseFloat(document.getElementById('settingHeight').value);
+    const a = parseInt(document.getElementById('settingAge').value);
+    const g = selectedGender;
+    const mult = selectedActivityMultiplier || 1.55;
+    const goal = selectedGoal || profile?.goal || '';
+    const preview = document.getElementById('macroPreview');
+    if (!preview) return;
+    if (!w || !h || !a) { preview.style.display = 'none'; return; }
+    let bmr = g === 'male' ? (10*w)+(6.25*h)-(5*a)+5 : (10*w)+(6.25*h)-(5*a)-161;
+    let cals = Math.round(bmr * mult);
+    if (goal === 'lose_weight') cals -= 500;
+    else if (goal === 'gain_weight' || goal === 'build_muscle') cals += 300;
+    cals = Math.max(cals, 1200);
+    preview.textContent = `Based on your stats, your daily target is approximately ${cals} kcal.`;
+    preview.style.display = 'block';
+  }
+
+  // ── Consolidated save ───────────────────────────────────────────────────────
+  async function saveAllChanges() {
+    const btn = document.getElementById('saveAllBtn');
+    const status = document.getElementById('saveAllStatus');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    // Run all five save operations; collect errors
+    const errors = [];
+
+    // Body stats
+    const name   = document.getElementById('settingName').value.trim();
+    const age    = parseInt(document.getElementById('settingAge').value);
+    const weight = parseFloat(document.getElementById('settingWeight').value);
+    const height = parseFloat(document.getElementById('settingHeight').value);
+    if (!name) errors.push('Name is required.');
+    else if (!age || age < 14 || age > 100) errors.push('Enter a valid age (14–100).');
+    else if (!weight || weight < 30) errors.push('Enter a valid weight.');
+    else if (!height || height < 100) errors.push('Enter a valid height.');
+    else {
+      profile.name = name; profile.age = age;
+      profile.weight = weight; profile.height = height;
+      profile.gender = selectedGender;
+    }
+
+    if (!selectedGoal && !profile.goal) errors.push('Please select a fitness goal.');
+    else if (selectedGoal) profile.goal = selectedGoal;
+
+    profile.activityLevel = selectedActivity;
+    profile.activityMultiplier = selectedActivityMultiplier;
+    profile.dietaryPrefs = Array.from(document.querySelectorAll('#settingDietChips .chip.active')).map(c => c.dataset.pref);
+    profile.allergies = Array.from(document.querySelectorAll('#settingAllergyChips .chip.active')).map(c => c.dataset.allergy);
+
+    const budget = parseFloat(document.getElementById('settingBudget').value);
+    if (!budget || budget < 0) errors.push('Enter a valid budget.');
+    else {
+      profile.cookingSkill = selectedSkill;
+      profile.cookingTimeMinutes = parseInt(document.getElementById('settingCookTime').value);
+      profile.budget = budget;
+      profile.currency = document.getElementById('settingCurrency').value;
+      profile.preferred_cuisine = document.getElementById('settingCuisine').value;
+      profile.language = document.getElementById('settingLanguage').value;
+    }
+
+    if (errors.length) {
+      if (status) { status.textContent = errors[0]; status.style.color = 'var(--clr-destructive)'; status.style.display = 'block'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Save all changes *'; }
+      return;
+    }
+
+    recalcMacros();
+    saveProfile();
+    _isDirty = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Save all changes'; }
+    if (status) { status.textContent = 'All changes saved.'; status.style.color = 'var(--clr-primary)'; status.style.display = 'block'; setTimeout(() => { status.style.display = 'none'; }, 3000); }
+    showToast('Settings saved!', 'success');
   }
 
   // Close modal on overlay click

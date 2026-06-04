@@ -81,6 +81,31 @@
       </div>
     </div>
 
+      <!-- Optional body stats -->
+      <div style="margin-top:1.25rem;">
+        <button type="button" id="bodyStatsToggle" onclick="toggleBodyStats()" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.85rem;color:var(--clr-primary);font-family:inherit;display:flex;align-items:center;gap:0.4rem;">
+          <span id="bodyStatsArrow">▸</span> Help us be more accurate <span style="color:var(--clr-muted-fg);font-weight:400;">(optional)</span>
+        </button>
+        <div id="bodyStatsPanel" style="display:none;margin-top:0.85rem;padding:1rem;background:var(--clr-muted-bg);border-radius:0.75rem;">
+          <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0 0 0.85rem;">We use these to calculate your calorie target. Defaults are used if skipped.</p>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Age</label>
+              <input type="number" class="form-input" id="inputAge" placeholder="28" min="14" max="100" value="28" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Weight (kg)</label>
+              <input type="number" class="form-input" id="inputWeight" placeholder="70" min="30" max="300" value="70" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" class="form-input" id="inputHeight" placeholder="170" min="100" max="250" value="170" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- STEP 2: Budget + Dietary -->
     <div class="step-content hidden" id="step2">
       <div class="onboarding-top">
@@ -282,6 +307,14 @@
     return true;
   }
 
+  function toggleBodyStats() {
+    const panel = document.getElementById('bodyStatsPanel');
+    const arrow = document.getElementById('bodyStatsArrow');
+    const open = panel.style.display !== 'none';
+    panel.style.display = open ? 'none' : 'block';
+    arrow.textContent = open ? '▸' : '▾';
+  }
+
   function selectGoal(el) {
     document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
@@ -339,6 +372,14 @@
     const btn = document.getElementById('btnNext');
     btn.disabled = true;
     btn.textContent = 'Setting up...';
+
+    // Read optional body stats if user expanded the panel
+    const ageVal    = parseInt(document.getElementById('inputAge')?.value)    || 28;
+    const weightVal = parseFloat(document.getElementById('inputWeight')?.value) || 70;
+    const heightVal = parseFloat(document.getElementById('inputHeight')?.value) || 170;
+    userData.age    = ageVal;
+    userData.weight = weightVal;
+    userData.height = heightVal;
 
     calcNutrition();
     updateChipsData();

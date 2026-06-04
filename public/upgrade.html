@@ -255,13 +255,23 @@
 </div>
 
 <script>
-  let billingMode = 'yearly';
-  // Stripe links loaded from /stripe-config.js — update in .env + Render dashboard, no code change needed
   const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
-  const STRIPE_YEARLY  = window.STRIPE_ANNUAL  || STRIPE_MONTHLY;
-  document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
+  const STRIPE_YEARLY  = window.STRIPE_ANNUAL || null;
+
+  // If no annual Stripe link is configured, hide the annual option entirely
+  let billingMode = STRIPE_YEARLY ? 'yearly' : 'monthly';
+  if (!STRIPE_YEARLY) {
+    document.querySelector('.toggle-wrap').style.display = 'none';
+    document.getElementById('upgrPrice').textContent = '$8';
+    document.getElementById('upgrBilled').textContent = '';
+    document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
+    document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
+  } else {
+    document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
+  }
 
   function setMode(mode) {
+    if (mode === 'yearly' && !STRIPE_YEARLY) return; // guard — should not be reachable
     billingMode = mode;
     const dot = document.getElementById('toggleDot');
     document.getElementById('lblMonthly').classList.toggle('active', mode === 'monthly');
