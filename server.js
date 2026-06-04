@@ -1656,10 +1656,14 @@ User profile:
 Length: ${isCoachPro ? 'thorough: up to 3 focused paragraphs' : 'concise: 1-2 short paragraphs, max 120 words'}.
 Respond in ${coachLangName}.`;
 
-    // Cache conversation history: mark all turns except the final user message
+    // Cache the 3 most recent non-final conversation turns.
+    // Anthropic allows max 4 cache_control blocks per request; the system prompt
+    // uses 1, leaving exactly 3 for conversation history.
     const _convo = messages.slice(-10);
     const _cachedConvo = _convo.map((msg, i) => {
-      if (i < _convo.length - 1 && typeof msg.content === 'string') {
+      const isLast = i === _convo.length - 1;
+      const isAmongLast3NonFinal = !isLast && i >= _convo.length - 4;
+      if (isAmongLast3NonFinal && typeof msg.content === 'string') {
         return { role: msg.role, content: [{ type: 'text', text: msg.content, cache_control: { type: 'ephemeral' } }] };
       }
       return msg;
