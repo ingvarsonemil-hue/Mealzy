@@ -467,8 +467,7 @@
     const totalCarbs = meals.reduce((s, m) => s + (m.carbs || 0), 0);
     const totalCost = meals.reduce((s, m) => s + (m.estimatedCost || 0), 0);
     const currency = profile?.currency || 'USD';
-    const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: 'CA$', AUD: 'A$', JPY: '¥', INR: '₹', BRL: 'R$' };
-    const sym = symbols[currency] || '$';
+    const sym = getCurrencySymbol(currency);
 
     document.getElementById('totalCals').textContent = totalCals;
     document.getElementById('totalProtein').textContent = totalProtein + 'g';
@@ -676,11 +675,22 @@
     if (view === 'week') renderWeekView();
   }
 
+  function getCurrencySymbol(currency) {
+    const symbols = { USD:'$', EUR:'€', GBP:'£', SEK:'kr', NOK:'kr', DKK:'kr',
+      CAD:'CA$', AUD:'A$', NZD:'NZ$', CHF:'Fr', JPY:'¥', CNY:'¥', KRW:'₩',
+      INR:'₹', BRL:'R$', MXN:'$', ARS:'$', ZAR:'R', AED:'د.إ', SAR:'﷼',
+      SGD:'S$', HKD:'HK$', PLN:'zł', CZK:'Kč', HUF:'Ft', TRY:'₺', THB:'฿',
+      MYR:'RM', IDR:'Rp', PHP:'₱' };
+    return symbols[currency] || '$';
+  }
+
   // Storage for week meal data so popup can reference by index without JSON-in-HTML
   let _weekMeals = {};
 
   function renderWeekView() {
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    const totalDaysWithMeals = Object.values(plans).filter(p => p && p.meals && p.meals.length > 0).length;
+    console.log('[renderWeekView] plans keys:', Object.keys(plans).length, 'days with meals:', totalDaysWithMeals);
     const container = document.getElementById('weekViewContainer');
     const todayStr = new Date().toISOString().split('T')[0];
     const goalCals = profile?.dailyCalories || 2000;
