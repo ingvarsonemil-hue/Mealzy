@@ -1618,10 +1618,13 @@ app.post('/api/ai-coach', async (req, res) => {
     // Daily message limit for free users
     if (!isCoachPro && session) {
       const usage = getCoachUsage(session.userId);
+      log.info(`[coach] userId=${session.userId} count=${usage.count} limit=${FREE_COACH_LIMIT} isPro=${isCoachPro}`);
       if (usage.count >= FREE_COACH_LIMIT) {
         return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: usage.count, limit: FREE_COACH_LIMIT });
       }
       incrementCoachUsage(session.userId);
+    } else {
+      log.info(`[coach] userId=${session?.userId ?? 'anon'} count=- limit=- isPro=${isCoachPro}`);
     }
 
     const { name = 'User', goal = 'eat healthier', dailyCalories = 2000, macros = { protein: 150, carbs: 200, fat: 67 }, dietaryPrefs = [], allergies = [], weight = 70, height = 170, age = 30, currency = 'USD', preferred_cuisine = '', language: coachLang = 'en' } = profile || {};

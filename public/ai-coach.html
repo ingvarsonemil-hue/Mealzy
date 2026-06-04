@@ -256,6 +256,9 @@
     const saved = localStorage.getItem('mealzy_coach_conversation');
     if (saved) {
       conversation = JSON.parse(saved);
+      // Strip any stale limit sentinel that may have been saved by an older version of the app.
+      // The sentinel is session-only; the server decides the limit on each request.
+      conversation = conversation.filter(m => m.content !== '__LIMIT_REACHED__');
     } else {
       conversation = [WELCOME_MESSAGE];
     }
@@ -410,7 +413,10 @@
     }
 
     hideTyping();
-    localStorage.setItem('mealzy_coach_conversation', JSON.stringify(conversation));
+    // Never persist the limit sentinel — it's session-only; server decides on each request
+    localStorage.setItem('mealzy_coach_conversation', JSON.stringify(
+      conversation.filter(m => m.content !== '__LIMIT_REACHED__')
+    ));
     cloudSave();
     renderMessages();
     scrollToBottom();
