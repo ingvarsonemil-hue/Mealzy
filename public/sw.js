@@ -1,4 +1,4 @@
-const CACHE = 'mealzy-v3';
+const CACHE = 'mealzy-v4';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -54,7 +54,23 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for static assets (CSS, JS, fonts, images)
+  // Network-first for CSS — design changes take effect immediately
+  if (e.request.url.match(/\.css(\?|$)/)) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (JS, fonts, images)
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;

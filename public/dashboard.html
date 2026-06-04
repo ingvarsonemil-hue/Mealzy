@@ -663,7 +663,7 @@
     waterCount = water[today] || 0;
 
     if (plans[today] && plans[today].meals && plans[today].meals.length > 0) {
-      todayMeals = plans[today].meals;
+      todayMeals = plans[today].meals.map(m => ({ ...m, completed: false }));
     } else {
       todayMeals = [];
     }
