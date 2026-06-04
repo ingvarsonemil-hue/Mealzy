@@ -24,14 +24,14 @@
   --shadow-md: 0 8px 28px rgba(60,80,40,0.13);
   --shadow-lg: 0 16px 48px rgba(60,80,40,0.18);
   --shadow-button: 0 4px 14px hsl(152,52%,36%,0.35);
-  /* Dark forest green sidebar — matches homepage */
-  --clr-sidebar: hsl(152,55%,11%);
-  --clr-sidebar-hover: hsl(152,52%,18%);
-  --clr-sidebar-active: hsl(152,52%,22%);
-  --clr-sidebar-text: hsl(150,30%,85%);
-  --clr-sidebar-muted: hsl(150,18%,52%);
-  --clr-sidebar-border: hsl(152,40%,16%);
-  --clr-sidebar-logo: hsl(150,50%,78%);
+  /* Dark forest green sidebar — matches homepage (#1a3d2b) */
+  --clr-sidebar: hsl(152,42%,17%);
+  --clr-sidebar-hover: hsl(152,42%,23%);
+  --clr-sidebar-active: hsl(152,42%,28%);
+  --clr-sidebar-text: hsl(150,30%,88%);
+  --clr-sidebar-muted: hsl(150,18%,56%);
+  --clr-sidebar-border: hsl(152,36%,22%);
+  --clr-sidebar-logo: hsl(150,55%,80%);
 }
 html { font-size: 15px; scroll-behavior: smooth; }
 body { font-family: var(--font-body); background: var(--clr-background); color: var(--clr-foreground); line-height: 1.65; }
@@ -442,10 +442,10 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   --clr-input-bg: hsl(150, 12%, 14%);
   --clr-muted-bg: hsl(150, 12%, 10%);
   --clr-muted-fg: hsl(150, 10%, 60%);
-  /* Sidebar stays dark green — slightly brighter in dark mode */
-  --clr-sidebar: hsl(152, 50%, 9%);
-  --clr-sidebar-hover: hsl(152, 48%, 15%);
-  --clr-sidebar-active: hsl(152, 48%, 20%);
+  /* Sidebar slightly darker in dark mode */
+  --clr-sidebar: hsl(152, 42%, 12%);
+  --clr-sidebar-hover: hsl(152, 42%, 18%);
+  --clr-sidebar-active: hsl(152, 42%, 23%);
 }
 [data-theme="dark"] .btn-outline { background: hsl(150,12%,14%); border-color: hsl(150,10%,22%); }
 [data-theme="dark"] .chip { background: hsl(150,12%,14%); }
