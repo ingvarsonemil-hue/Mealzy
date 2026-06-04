@@ -1681,7 +1681,7 @@ Respond in ${coachLangName}.`;
     res.json({ success: true, message: { role: 'assistant', content: completion.content[0].text, timestamp: new Date().toISOString() } });
 
   } catch(error) {
-    console.error('AI coach error:', error);
+    log.error('[coach] Anthropic error:', { message: error.message, status: error.status });
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
