@@ -152,12 +152,10 @@
     <!-- Stepper -->
     <div class="ob-top">
       <a href="/" class="ob-logo">Mealzy</a>
-      <div class="ob-stepper" role="progressbar" aria-label="Onboarding progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="3" id="obStepper">
+      <div class="ob-stepper" role="progressbar" aria-label="Onboarding progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="obStepper">
         <div class="ob-step active" id="obStep1" aria-label="Step 1">1</div>
         <div class="ob-step-line" id="obLine1"></div>
         <div class="ob-step" id="obStep2" aria-label="Step 2">2</div>
-        <div class="ob-step-line" id="obLine2"></div>
-        <div class="ob-step" id="obStep3" aria-label="Step 3">3</div>
       </div>
     </div>
 
@@ -264,16 +262,6 @@
       </div>
     </div>
 
-    <!-- STEP 3: Ready! -->
-    <div class="step-content hidden" id="step3">
-      <div class="ob-step-title">You're all set!</div>
-      <div class="ob-step-sub">Your personalised meal plan is ready to generate. We'll auto-start it when you land on your dashboard.</div>
-      <div class="ob-summary" id="summaryBox">
-        <div class="ob-summary-title">Your plan summary</div>
-        <div id="summaryContent" style="font-size:0.88rem;color:var(--clr-muted-fg);line-height:1.9;"></div>
-      </div>
-    </div>
-
     <!-- Step error message -->
     <div id="stepError" style="display:none;background:hsl(0,72%,97%);border:1px solid hsl(0,72%,85%);color:var(--clr-destructive);border-radius:0.6rem;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;" role="alert"></div>
 
@@ -333,7 +321,7 @@
   }
 
   let currentStep = 1;
-  const totalSteps = 3;
+  const totalSteps = 2;
 
   const userData = {
     name: '',
@@ -379,7 +367,6 @@
       const line = document.getElementById('obLine' + l);
       if (line) line.classList.toggle('done', l < step);
     }
-    if (step === totalSteps) buildSummary();
   }
 
   function nextStep() {
