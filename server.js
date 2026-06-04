@@ -1586,22 +1586,7 @@ app.post('/api/generate-grocery-list', async (req, res) => {
 // AI COACH
 // ════════════════════════════════════════════════════════════════════════════
 
-// In-memory daily coach message counter: { userId -> { date: 'YYYY-MM-DD', count: N } }
-const coachDailyUsage = new Map();
 const FREE_COACH_LIMIT = 10;
-
-function getCoachUsage(userId) {
-  const today = new Date().toISOString().split('T')[0];
-  const rec = coachDailyUsage.get(userId);
-  if (!rec || rec.date !== today) return { date: today, count: 0 };
-  return rec;
-}
-function incrementCoachUsage(userId) {
-  const rec = getCoachUsage(userId);
-  rec.count += 1;
-  coachDailyUsage.set(userId, rec);
-  return rec.count;
-}
 
 app.post('/api/ai-coach', async (req, res) => {
   try {
@@ -1615,14 +1600,14 @@ app.post('/api/ai-coach', async (req, res) => {
 
     if (!messages || messages.length === 0) return res.status(400).json({ error: 'Messages array is required' });
 
-    // Daily message limit for free users
+    // Daily message limit for free users (persisted in SQLite — survives restarts)
     if (!isCoachPro && session) {
-      const usage = getCoachUsage(session.userId);
-      log.info(`[coach] userId=${session.userId} count=${usage.count} limit=${FREE_COACH_LIMIT} isPro=${isCoachPro}`);
-      if (usage.count >= FREE_COACH_LIMIT) {
-        return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: usage.count, limit: FREE_COACH_LIMIT });
+      const count = await db.getCoachUsage(session.userId);
+      log.info(`[coach] userId=${session.userId} count=${count} limit=${FREE_COACH_LIMIT} isPro=${isCoachPro}`);
+      if (count >= FREE_COACH_LIMIT) {
+        return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: count, limit: FREE_COACH_LIMIT });
       }
-      incrementCoachUsage(session.userId);
+      await db.incrementCoachUsage(session.userId);
     } else {
       log.info(`[coach] userId=${session?.userId ?? 'anon'} count=- limit=- isPro=${isCoachPro}`);
     }

@@ -95,6 +95,12 @@ async function _applySchema() {
       data       TEXT NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS coach_usage (
+      user_id  TEXT NOT NULL,
+      date     TEXT NOT NULL,
+      count    INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (user_id, date)
+    )`,
   ];
 
   for (const sql of tables) {
@@ -489,6 +495,23 @@ async function getFunnelStats() {
   };
 }
 
+// ── Coach usage ───────────────────────────────────────────────────────────────
+
+async function getCoachUsage(userId) {
+  const today = new Date().toISOString().split('T')[0];
+  const row = await get('SELECT count FROM coach_usage WHERE user_id = ? AND date = ?', [userId, today]);
+  return row ? Number(row.count) : 0;
+}
+
+async function incrementCoachUsage(userId) {
+  const today = new Date().toISOString().split('T')[0];
+  await run(
+    `INSERT INTO coach_usage (user_id, date, count) VALUES (?, ?, 1)
+     ON CONFLICT(user_id, date) DO UPDATE SET count = count + 1`,
+    [userId, today]
+  );
+}
+
 // ── Health ────────────────────────────────────────────────────────────────────
 
 async function ping() {
@@ -527,6 +550,8 @@ module.exports = {
   saveReferral, markReferralConverted, getReferralCount, addBonusPlan, getUserBonusPlans,
   // recipes
   saveRecipe, getRecipes,
+  // coach usage
+  getCoachUsage, incrementCoachUsage,
   // health
   ping,
 };
