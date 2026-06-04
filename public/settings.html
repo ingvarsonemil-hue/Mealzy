@@ -28,10 +28,78 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .main-content {
-      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,40%,92%) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,40%,92%) 0%, transparent 70%) var(--clr-background);
     }
     [data-theme="dark"] .main-content {
-      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,30%,11%) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,30%,11%) 0%, transparent 70%) var(--clr-background);
+    }
+
+    /* ── Section card visual hierarchy ──────────────────── */
+    .settings-card {
+      background: var(--clr-card);
+      border: 1px solid var(--clr-border);
+      border-radius: 0.85rem;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-card-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--clr-muted-fg);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--clr-border);
+    }
+    .settings-card-title svg { color: var(--clr-primary); }
+
+    /* ── Goal & activity cards — SVG icon style ─────────── */
+    .goal-card {
+      border: 1.5px solid var(--clr-border); border-radius: 0.75rem;
+      padding: 0.85rem 1rem; cursor: pointer;
+      display: flex; align-items: center; gap: 0.7rem;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--clr-card); font-size: 0.9rem; font-weight: 600;
+    }
+    .goal-card:hover { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+    .goal-card.selected { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+    .goal-card-icon { color: var(--clr-primary); flex-shrink: 0; }
+    .goal-emoji { display: none; } /* hide old emoji divs */
+
+    .activity-card {
+      border: 1.5px solid var(--clr-border); border-radius: 0.75rem;
+      padding: 0.85rem 1rem; cursor: pointer;
+      display: flex; align-items: center; gap: 0.85rem;
+      margin-bottom: 0.5rem;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--clr-card);
+    }
+    .activity-card:hover { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+    .activity-card.selected { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+    .activity-icon { color: var(--clr-primary); flex-shrink: 0; }
+    .activity-emoji { display: none; } /* hide old emoji */
+
+    .skill-card {
+      border: 1.5px solid var(--clr-border); border-radius: 0.75rem;
+      padding: 1rem 0.75rem; cursor: pointer; text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+      background: var(--clr-card);
+    }
+    .skill-card:hover { border-color: var(--clr-primary); }
+    .skill-card.selected { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+
+    /* ── Diet/allergy chips — no emoji ──────────────────── */
+    .chip { font-size: 0.82rem; }
+
+    /* ── Settings page heading ──────────────────────────── */
+    .settings-page-title {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
     }
     .cancel-reason-option {
       display: flex;
@@ -192,12 +260,15 @@
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
-    <div class="page-header anim-section">
-      <h1 style="font-family:'Fraunces',serif;display:flex;align-items:center;gap:0.5rem;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
-      </h1>
-      <p class="text-muted" style="margin-top:0.25rem;">Manage your profile, preferences, and account</p>
+    <div class="page-header anim-section" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:0.75rem;margin-bottom:2rem;">
+      <div>
+        <h1 class="settings-page-title">Settings</h1>
+        <p class="text-muted" style="margin-top:0.2rem;font-size:0.9rem;">Manage your profile, preferences, and account</p>
+      </div>
+      <button class="btn btn-primary" onclick="saveAllSettings()" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;" id="saveAllBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save All Settings
+      </button>
     </div>
 
     <!-- DARK MODE TOGGLE -->
@@ -223,21 +294,21 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Your Name</label>
-          <input type="text" class="form-input" id="settingName" placeholder="Your name" oninput="markDirty()" />
+          <input type="text" class="form-input" id="settingName" placeholder="Your name" />
         </div>
         <div class="form-group">
           <label class="form-label">Age</label>
-          <input type="number" class="form-input" id="settingAge" placeholder="25" min="14" max="100" oninput="markDirty();updateMacroPreview()" />
+          <input type="number" class="form-input" id="settingAge" placeholder="25" min="14" max="100" />
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weight (kg)</label>
-          <input type="number" class="form-input" id="settingWeight" placeholder="70" oninput="markDirty();updateMacroPreview()" />
+          <input type="number" class="form-input" id="settingWeight" placeholder="70" />
         </div>
         <div class="form-group">
           <label class="form-label">Height (cm)</label>
-          <input type="number" class="form-input" id="settingHeight" placeholder="175" oninput="markDirty();updateMacroPreview()" />
+          <input type="number" class="form-input" id="settingHeight" placeholder="175" />
         </div>
       </div>
       <div class="form-group">
@@ -248,7 +319,7 @@
           <button class="chip" data-gender="other" onclick="selectSettingGender(this)">Other</button>
         </div>
       </div>
-      <div id="macroPreview" style="display:none;margin-top:0.85rem;padding:0.75rem 1rem;background:hsl(152,40%,94%);border-radius:0.5rem;font-size:0.85rem;color:hsl(152,40%,25%);"></div>
+      <button class="btn btn-primary btn-sm" onclick="saveBodyStats()">Save Body Stats</button>
     </div>
 
     <!-- SECTION 2: Fitness Goals -->
@@ -256,29 +327,32 @@
       <div class="settings-section-title">Fitness Goal</div>
       <div class="goal-grid" id="settingGoalGrid">
         <div class="goal-card" data-goal="build_muscle" onclick="selectSettingGoal(this)">
-          <div class="goal-emoji">💪</div>
+          <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5a4 4 0 1 0 5.66 5.66"/><path d="M2 2l20 20"/><path d="M4 12C2.5 9.5 2 7 2 7s3-2 6-1"/><path d="M20 12c1.5 2.5 2 5 2 5s-3 2-6 1"/></svg>
           <div class="goal-label">Build Muscle</div>
         </div>
         <div class="goal-card" data-goal="lose_weight" onclick="selectSettingGoal(this)">
-          <div class="goal-emoji">⬇️</div>
+          <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
           <div class="goal-label">Lose Weight</div>
         </div>
         <div class="goal-card" data-goal="maintain_weight" onclick="selectSettingGoal(this)">
-          <div class="goal-emoji">⚖️</div>
+          <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <div class="goal-label">Maintain Weight</div>
         </div>
         <div class="goal-card" data-goal="eat_healthier" onclick="selectSettingGoal(this)">
-          <div class="goal-emoji">🥗</div>
+          <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
           <div class="goal-label">Eat Healthier</div>
         </div>
         <div class="goal-card" data-goal="gain_weight" onclick="selectSettingGoal(this)">
-          <div class="goal-emoji">⬆️</div>
+          <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           <div class="goal-label">Gain Weight</div>
         </div>
         <div class="goal-card" data-goal="improve_energy" onclick="selectSettingGoal(this)">
-          <div class="goal-emoji">⚡</div>
+          <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           <div class="goal-label">Improve Energy</div>
         </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn btn-primary btn-sm" onclick="saveGoal()">Save Goal</button>
       </div>
     </div>
 
@@ -287,40 +361,43 @@
       <div class="settings-section-title">Activity Level</div>
       <div id="settingActivityCards">
         <div class="activity-card" data-activity="sedentary" data-multiplier="1.2" onclick="selectSettingActivity(this)">
-          <div class="activity-emoji">🛋️</div>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
           <div class="activity-info">
             <div class="activity-title">Sedentary</div>
             <div class="activity-desc">Little or no exercise, desk job</div>
           </div>
         </div>
         <div class="activity-card" data-activity="lightly_active" data-multiplier="1.375" onclick="selectSettingActivity(this)">
-          <div class="activity-emoji">🚶</div>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="5" r="1"/><path d="m9 20 3-6 3 6"/><path d="m6 8 6 2 6-2"/><path d="m12 10-2 5"/><path d="m12 10 2 5"/></svg>
           <div class="activity-info">
             <div class="activity-title">Lightly Active</div>
-            <div class="activity-desc">Light exercise 1-3 days/week</div>
+            <div class="activity-desc">Light exercise 1–3 days/week</div>
           </div>
         </div>
         <div class="activity-card" data-activity="moderately_active" data-multiplier="1.55" onclick="selectSettingActivity(this)">
-          <div class="activity-emoji">🏊</div>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
           <div class="activity-info">
             <div class="activity-title">Moderately Active</div>
-            <div class="activity-desc">Moderate exercise 3-5 days/week</div>
+            <div class="activity-desc">Moderate exercise 3–5 days/week</div>
           </div>
         </div>
         <div class="activity-card" data-activity="very_active" data-multiplier="1.725" onclick="selectSettingActivity(this)">
-          <div class="activity-emoji">🏋️</div>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
           <div class="activity-info">
             <div class="activity-title">Very Active</div>
-            <div class="activity-desc">Hard exercise 6-7 days/week</div>
+            <div class="activity-desc">Hard exercise 6–7 days/week</div>
           </div>
         </div>
         <div class="activity-card" data-activity="extra_active" data-multiplier="1.9" onclick="selectSettingActivity(this)">
-          <div class="activity-emoji">🔥</div>
+          <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
           <div class="activity-info">
             <div class="activity-title">Extra Active</div>
             <div class="activity-desc">Very hard exercise or physical job</div>
           </div>
         </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn btn-primary btn-sm" onclick="saveActivity()">Save Activity Level</button>
       </div>
     </div>
 
@@ -330,30 +407,31 @@
       <div class="form-group">
         <label class="form-label">Diet Style</label>
         <div class="chips-group" id="settingDietChips">
-          <button class="chip" data-pref="vegetarian" onclick="this.classList.toggle('active');markDirty()">🌿 Vegetarian</button>
-          <button class="chip" data-pref="vegan" onclick="this.classList.toggle('active');markDirty()">🌱 Vegan</button>
-          <button class="chip" data-pref="keto" onclick="this.classList.toggle('active');markDirty()">🥑 Keto</button>
-          <button class="chip" data-pref="paleo" onclick="this.classList.toggle('active');markDirty()">🦴 Paleo</button>
-          <button class="chip" data-pref="mediterranean" onclick="this.classList.toggle('active');markDirty()">🫒 Mediterranean</button>
-          <button class="chip" data-pref="halal" onclick="this.classList.toggle('active');markDirty()">☪️ Halal</button>
-          <button class="chip" data-pref="kosher" onclick="this.classList.toggle('active');markDirty()">✡️ Kosher</button>
-          <button class="chip" data-pref="low_carb" onclick="this.classList.toggle('active');markDirty()">📉 Low Carb</button>
-          <button class="chip" data-pref="high_protein" onclick="this.classList.toggle('active');markDirty()">💪 High Protein</button>
+          <button class="chip" data-pref="vegetarian" onclick="this.classList.toggle('active')">Vegetarian</button>
+          <button class="chip" data-pref="vegan" onclick="this.classList.toggle('active')">Vegan</button>
+          <button class="chip" data-pref="keto" onclick="this.classList.toggle('active')">Keto</button>
+          <button class="chip" data-pref="paleo" onclick="this.classList.toggle('active')">Paleo</button>
+          <button class="chip" data-pref="mediterranean" onclick="this.classList.toggle('active')">Mediterranean</button>
+          <button class="chip" data-pref="halal" onclick="this.classList.toggle('active')">Halal</button>
+          <button class="chip" data-pref="kosher" onclick="this.classList.toggle('active')">Kosher</button>
+          <button class="chip" data-pref="low_carb" onclick="this.classList.toggle('active')">Low Carb</button>
+          <button class="chip" data-pref="high_protein" onclick="this.classList.toggle('active')">High Protein</button>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Allergies & Restrictions</label>
         <div class="chips-group" id="settingAllergyChips">
-          <button class="chip" data-allergy="gluten" onclick="this.classList.toggle('active');markDirty()">🌾 Gluten-Free</button>
-          <button class="chip" data-allergy="dairy" onclick="this.classList.toggle('active');markDirty()">🥛 Dairy-Free</button>
-          <button class="chip" data-allergy="nuts" onclick="this.classList.toggle('active');markDirty()">🥜 Nut-Free</button>
-          <button class="chip" data-allergy="eggs" onclick="this.classList.toggle('active');markDirty()">🥚 Egg-Free</button>
-          <button class="chip" data-allergy="shellfish" onclick="this.classList.toggle('active');markDirty()">🦐 Shellfish-Free</button>
-          <button class="chip" data-allergy="soy" onclick="this.classList.toggle('active');markDirty()">🫘 Soy-Free</button>
-          <button class="chip" data-allergy="fish" onclick="this.classList.toggle('active');markDirty()">🐟 Fish-Free</button>
-          <button class="chip" data-allergy="pork" onclick="this.classList.toggle('active');markDirty()">🐷 No Pork</button>
+          <button class="chip" data-allergy="gluten" onclick="this.classList.toggle('active')">Gluten-Free</button>
+          <button class="chip" data-allergy="dairy" onclick="this.classList.toggle('active')">Dairy-Free</button>
+          <button class="chip" data-allergy="nuts" onclick="this.classList.toggle('active')">Nut-Free</button>
+          <button class="chip" data-allergy="eggs" onclick="this.classList.toggle('active')">Egg-Free</button>
+          <button class="chip" data-allergy="shellfish" onclick="this.classList.toggle('active')">Shellfish-Free</button>
+          <button class="chip" data-allergy="soy" onclick="this.classList.toggle('active')">Soy-Free</button>
+          <button class="chip" data-allergy="fish" onclick="this.classList.toggle('active')">Fish-Free</button>
+          <button class="chip" data-allergy="pork" onclick="this.classList.toggle('active')">No Pork</button>
         </div>
       </div>
+      <button class="btn btn-primary btn-sm" onclick="saveDiet()">Save Preferences</button>
     </div>
 
     <!-- SECTION 5: Cooking & Budget -->
@@ -363,19 +441,19 @@
         <label class="form-label">Cooking Skill Level</label>
         <div class="skill-grid" id="settingSkillGrid">
           <div class="skill-card" data-skill="beginner" onclick="selectSettingSkill(this)">
-            <div style="font-size:1.5rem;margin-bottom:0.4rem;">🥚</div>
-            <div style="font-weight:600;font-size:0.88rem;">Beginner</div>
-            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">Simple recipes only</div>
+            <svg style="color:var(--clr-primary);margin:0 auto 0.5rem;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div style="font-weight:700;font-size:0.88rem;">Beginner</div>
+            <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.2rem;">Simple recipes</div>
           </div>
           <div class="skill-card" data-skill="intermediate" onclick="selectSettingSkill(this)">
-            <div style="font-size:1.5rem;margin-bottom:0.4rem;">🍳</div>
-            <div style="font-weight:600;font-size:0.88rem;">Intermediate</div>
-            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">Comfortable cooking</div>
+            <svg style="color:var(--clr-primary);margin:0 auto 0.5rem;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            <div style="font-weight:700;font-size:0.88rem;">Intermediate</div>
+            <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.2rem;">Comfortable cooking</div>
           </div>
           <div class="skill-card" data-skill="advanced" onclick="selectSettingSkill(this)">
-            <div style="font-size:1.5rem;margin-bottom:0.4rem;">👨‍🍳</div>
-            <div style="font-weight:600;font-size:0.88rem;">Advanced</div>
-            <div style="font-size:0.78rem;color:var(--clr-muted-fg);">Complex techniques</div>
+            <svg style="color:var(--clr-primary);margin:0 auto 0.5rem;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div style="font-weight:700;font-size:0.88rem;">Advanced</div>
+            <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.2rem;">Complex techniques</div>
           </div>
         </div>
       </div>
@@ -383,13 +461,13 @@
         <label class="form-label">Max cooking time per meal</label>
         <div class="range-wrap">
           <input type="range" id="settingCookTime" min="5" max="90" step="5" value="30"
-            oninput="document.getElementById('settingCookTimeVal').textContent = this.value + ' min';markDirty()" />
+            oninput="document.getElementById('settingCookTimeVal').textContent = this.value + ' min'" />
           <span class="range-val" id="settingCookTimeVal">30 min</span>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">App Language</label>
-        <select class="form-select" id="settingLanguage" onchange="markDirty()">
+        <select class="form-select" id="settingLanguage">
           <option value="en">🇬🇧 English</option>
           <option value="sv">🇸🇪 Svenska</option>
           <option value="no">🇳🇴 Norsk</option>
@@ -405,7 +483,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Preferred Cuisine</label>
-        <select class="form-select" id="settingCuisine" onchange="markDirty()">
+        <select class="form-select" id="settingCuisine">
           <option value="">🌍 Surprise me (random each day)</option>
           <option value="mediterranean">🫒 Mediterranean</option>
           <option value="asian">🍜 Asian</option>
@@ -422,7 +500,7 @@
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weekly Food Budget</label>
-          <input type="number" class="form-input" id="settingBudget" placeholder="100" min="20" oninput="markDirty()" />
+          <input type="number" class="form-input" id="settingBudget" placeholder="100" min="20" />
         </div>
         <div class="form-group">
           <label class="form-label">Currency</label>
@@ -460,6 +538,7 @@
           </select>
         </div>
       </div>
+      <button class="btn btn-primary btn-sm" onclick="saveCooking()">Save Cooking Preferences</button>
     </div>
 
     <!-- SECTION 6: Family Profiles (Pro users only) -->
@@ -528,12 +607,6 @@
       <button class="btn btn-outline btn-sm" onclick="openCancelModal()" style="color:var(--clr-destructive);border-color:var(--clr-destructive);">
         Cancel subscription
       </button>
-    </div>
-
-    <!-- SAVE ALL CHANGES -->
-    <div class="anim-section" style="margin-bottom:1.5rem;">
-      <button id="saveAllBtn" class="btn btn-primary" onclick="saveAllChanges()" style="width:100%;padding:0.85rem;font-size:1rem;">Save all changes</button>
-      <div id="saveAllStatus" style="display:none;text-align:center;font-size:0.85rem;margin-top:0.6rem;"></div>
     </div>
 
     <!-- SECTION 8: Danger Zone -->
@@ -749,21 +822,18 @@
     document.getElementById('settingCurrency').value = currency;
     document.getElementById('settingCuisine').value = profile.preferred_cuisine || '';
     document.getElementById('settingLanguage').value = profile.language || 'en';
-    updateMacroPreview();
   }
 
   function selectSettingGender(el) {
     document.querySelectorAll('#settingGenderChips .chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     selectedGender = el.dataset.gender;
-    markDirty(); updateMacroPreview();
   }
 
   function selectSettingGoal(el) {
     document.querySelectorAll('#settingGoalGrid .goal-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedGoal = el.dataset.goal;
-    markDirty(); updateMacroPreview();
   }
 
   function selectSettingActivity(el) {
@@ -771,14 +841,12 @@
     el.classList.add('selected');
     selectedActivity = el.dataset.activity;
     selectedActivityMultiplier = parseFloat(el.dataset.multiplier);
-    markDirty(); updateMacroPreview();
   }
 
   function selectSettingSkill(el) {
     document.querySelectorAll('#settingSkillGrid .skill-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedSkill = el.dataset.skill;
-    markDirty();
   }
 
   function recalcMacros() {
@@ -817,6 +885,22 @@
     document.getElementById('mobileUserAvatar').textContent = (profile.name || 'U')[0].toUpperCase();
     document.getElementById('userName').textContent = profile.name || 'User';
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
+  }
+
+  function saveAllSettings() {
+    saveBodyStats();
+    saveGoal();
+    saveActivity();
+    saveDiet();
+    saveCooking();
+    const btn = document.getElementById('saveAllBtn');
+    if (btn) {
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Saved!`;
+      btn.style.background = 'var(--gradient-primary)';
+      setTimeout(() => {
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All Settings`;
+      }, 2000);
+    }
   }
 
   function saveBodyStats() {
@@ -884,17 +968,9 @@
     document.getElementById('resetModal').classList.remove('open');
   }
 
-  async function confirmReset() {
-    const btn = document.querySelector('#resetModal .btn-danger');
-    if (btn) { btn.disabled = true; btn.textContent = 'Deleting…'; }
-    try {
-      await fetch('/api/profile', { method: 'DELETE' });
-    } catch(e) { /* non-fatal — proceed with signout regardless */ }
-    try {
-      await fetch('/api/auth/signout', { method: 'POST' });
-    } catch(e) {}
+  function confirmReset() {
     localStorage.clear();
-    window.location.href = 'index.html';
+    window.location.href = 'onboarding.html';
   }
 
   function showToast(msg, type = '') {
@@ -993,100 +1069,6 @@
       renderFamilyProfiles();
       showToast('Profile deleted', 'success');
     } catch(e) { showToast('Error deleting profile', 'error'); }
-  }
-
-  // ── Dirty state ────────────────────────────────────────────────────────────
-  let _isDirty = false;
-
-  function markDirty() {
-    _isDirty = true;
-    const btn = document.getElementById('saveAllBtn');
-    if (btn) btn.textContent = 'Save all changes *';
-  }
-
-  window.addEventListener('beforeunload', (e) => {
-    if (_isDirty) {
-      e.preventDefault();
-      e.returnValue = '';
-    }
-  });
-
-  // ── Live macro preview ──────────────────────────────────────────────────────
-  function updateMacroPreview() {
-    const w = parseFloat(document.getElementById('settingWeight').value);
-    const h = parseFloat(document.getElementById('settingHeight').value);
-    const a = parseInt(document.getElementById('settingAge').value);
-    const g = selectedGender;
-    const mult = selectedActivityMultiplier || 1.55;
-    const goal = selectedGoal || profile?.goal || '';
-    const preview = document.getElementById('macroPreview');
-    if (!preview) return;
-    if (!w || !h || !a) { preview.style.display = 'none'; return; }
-    let bmr = g === 'male' ? (10*w)+(6.25*h)-(5*a)+5 : (10*w)+(6.25*h)-(5*a)-161;
-    let cals = Math.round(bmr * mult);
-    if (goal === 'lose_weight') cals -= 500;
-    else if (goal === 'gain_weight' || goal === 'build_muscle') cals += 300;
-    cals = Math.max(cals, 1200);
-    const protein = Math.round(2 * w); // ~2g per kg bodyweight
-    preview.textContent = `Based on your stats, your daily target is approximately ${cals} kcal and ${protein}g protein.`;
-    preview.style.display = 'block';
-  }
-
-  // ── Consolidated save ───────────────────────────────────────────────────────
-  async function saveAllChanges() {
-    const btn = document.getElementById('saveAllBtn');
-    const status = document.getElementById('saveAllStatus');
-    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-
-    // Run all five save operations; collect errors
-    const errors = [];
-
-    // Body stats
-    const name   = document.getElementById('settingName').value.trim();
-    const age    = parseInt(document.getElementById('settingAge').value);
-    const weight = parseFloat(document.getElementById('settingWeight').value);
-    const height = parseFloat(document.getElementById('settingHeight').value);
-    if (!name) errors.push('Name is required.');
-    else if (!age || age < 14 || age > 100) errors.push('Enter a valid age (14–100).');
-    else if (!weight || weight < 30) errors.push('Enter a valid weight.');
-    else if (!height || height < 100) errors.push('Enter a valid height.');
-    else {
-      profile.name = name; profile.age = age;
-      profile.weight = weight; profile.height = height;
-      profile.gender = selectedGender;
-    }
-
-    if (!selectedGoal && !profile.goal) errors.push('Please select a fitness goal.');
-    else if (selectedGoal) profile.goal = selectedGoal;
-
-    profile.activityLevel = selectedActivity;
-    profile.activityMultiplier = selectedActivityMultiplier;
-    profile.dietaryPrefs = Array.from(document.querySelectorAll('#settingDietChips .chip.active')).map(c => c.dataset.pref);
-    profile.allergies = Array.from(document.querySelectorAll('#settingAllergyChips .chip.active')).map(c => c.dataset.allergy);
-
-    const budget = parseFloat(document.getElementById('settingBudget').value);
-    if (!budget || budget < 0) errors.push('Enter a valid budget.');
-    else {
-      profile.cookingSkill = selectedSkill;
-      profile.cookingTimeMinutes = parseInt(document.getElementById('settingCookTime').value);
-      profile.budget = budget;
-      profile.currency = document.getElementById('settingCurrency').value;
-      profile.preferred_cuisine = document.getElementById('settingCuisine').value;
-      profile.language = document.getElementById('settingLanguage').value;
-    }
-
-    if (errors.length) {
-      if (status) { status.textContent = errors[0]; status.style.color = 'var(--clr-destructive)'; status.style.display = 'block'; }
-      if (btn) { btn.disabled = false; btn.textContent = 'Save all changes *'; }
-      return;
-    }
-
-    recalcMacros();
-    saveProfile();
-    _isDirty = false;
-    if (btn) { btn.disabled = false; btn.textContent = 'Save all changes'; }
-    if (status) { status.textContent = 'All changes saved.'; status.style.color = 'var(--clr-primary)'; status.style.display = 'block'; setTimeout(() => { status.style.display = 'none'; }, 3000); }
-    showToast('Settings saved!', 'success');
   }
 
   // Close modal on overlay click

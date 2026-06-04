@@ -27,78 +27,174 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     @media (prefers-reduced-motion: no-preference) {
-      .onboarding-card { animation: fadeInUp 0.38s ease both; }
+      .onboarding-card { animation: fadeInUp 0.42s cubic-bezier(0.16,1,0.3,1) both; }
     }
+
+    /* ── Background — matches homepage hero ─────────────── */
+    .onboarding-wrap {
+      min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem 1.25rem;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 100%, hsl(152,52%,88%) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 0%, hsl(46,60%,92%) 0%, transparent 50%),
+        var(--clr-background);
+    }
+    [data-theme="dark"] .onboarding-wrap {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 100%, hsl(152,52%,10%) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 0%, hsl(46,30%,10%) 0%, transparent 50%),
+        var(--clr-background);
+    }
+
+    /* ── Card ───────────────────────────────────────────── */
+    .onboarding-card {
+      background: var(--clr-card);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      width: 100%; max-width: 580px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--clr-border);
+    }
+    @media (max-width: 480px) { .onboarding-card { padding: 1.75rem 1.25rem; } }
+
+    /* ── Step stepper ───────────────────────────────────── */
+    .ob-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .ob-logo {
+      font-family: var(--font-display); font-weight: 700; font-size: 1.35rem;
+      color: var(--clr-primary); text-decoration: none; font-style: italic;
+      letter-spacing: -0.02em;
+    }
+    .ob-stepper { display: flex; align-items: center; gap: 0; }
+    .ob-step {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      font-size: 0.78rem; font-weight: 700;
+      background: var(--clr-muted-bg);
+      color: var(--clr-muted-fg);
+      border: 1.5px solid var(--clr-border);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .ob-step.active {
+      background: var(--clr-primary); color: white; border-color: var(--clr-primary);
+    }
+    .ob-step.done {
+      background: hsl(152,52%,90%); color: var(--clr-primary); border-color: hsl(152,52%,70%);
+    }
+    .ob-step-line {
+      width: 24px; height: 2px; background: var(--clr-border);
+      transition: background 0.2s;
+    }
+    .ob-step-line.done { background: var(--clr-primary); }
+
+    /* ── Step titles ────────────────────────────────────── */
+    .ob-step-title {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em;
+      line-height: 1.2; margin-bottom: 0.4rem; color: var(--clr-foreground);
+    }
+    .ob-step-sub {
+      color: var(--clr-muted-fg); font-size: 0.92rem; line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Goal cards with SVG icons ──────────────────────── */
+    .goal-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
+    }
+    .goal-card {
+      border: 1.5px solid var(--clr-border); border-radius: 0.85rem;
+      padding: 1rem 1.1rem; cursor: pointer;
+      display: flex; align-items: center; gap: 0.75rem;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+      background: var(--clr-card);
+      min-height: 56px;
+    }
+    .goal-card:hover { border-color: var(--clr-primary); background: var(--clr-primary-light); }
+    .goal-card.selected { border-color: var(--clr-primary); background: var(--clr-primary-light); box-shadow: 0 0 0 3px hsl(152,52%,94%); }
+    [data-theme="dark"] .goal-card.selected { box-shadow: 0 0 0 3px hsl(152,25%,15%); }
+    .goal-card-icon { color: var(--clr-primary); flex-shrink: 0; }
+    .goal-label { font-weight: 600; font-size: 0.9rem; }
+
+    /* ── Dietary chips ───────────────────────────────────── */
+    .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .chip {
+      display: inline-flex; align-items: center;
+      padding: 0.4rem 0.9rem;
+      border: 1.5px solid var(--clr-border); border-radius: 999px;
+      font-size: 0.82rem; cursor: pointer;
+      background: var(--clr-card); color: var(--clr-foreground);
+      font-family: var(--font-body); font-weight: 500;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .chip:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+    .chip.active { background: var(--clr-primary); color: white; border-color: var(--clr-primary); }
+
+    /* ── Summary box ────────────────────────────────────── */
+    .ob-summary {
+      background: var(--clr-primary-light);
+      border: 1px solid hsl(152,52%,78%);
+      border-left: 4px solid var(--clr-primary);
+      border-radius: 0 0.85rem 0.85rem 0;
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    [data-theme="dark"] .ob-summary { background: hsl(152,25%,12%); border-color: hsl(152,25%,22%); }
+    .ob-summary-title { font-weight: 700; font-size: 0.88rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
   </style>
 </head>
 <body>
 
 <div class="onboarding-wrap">
   <div class="onboarding-card">
-    <!-- Progress Bar -->
-    <div style="margin-bottom:1.5rem;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-        <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
-        <span class="step-counter" id="stepCounter">Step 1 of 2</span>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="progressBar" style="width:50%;"></div>
+    <!-- Stepper -->
+    <div class="ob-top">
+      <a href="/" class="ob-logo">Mealzy</a>
+      <div class="ob-stepper" role="progressbar" aria-label="Onboarding progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="3" id="obStepper">
+        <div class="ob-step active" id="obStep1" aria-label="Step 1">1</div>
+        <div class="ob-step-line" id="obLine1"></div>
+        <div class="ob-step" id="obStep2" aria-label="Step 2">2</div>
+        <div class="ob-step-line" id="obLine2"></div>
+        <div class="ob-step" id="obStep3" aria-label="Step 3">3</div>
       </div>
     </div>
 
     <!-- STEP 1: Name + Goal -->
     <div class="step-content" id="step1">
-      <div class="onboarding-top">
-        <div class="step-title" style="font-family:'Fraunces',serif;">Let's personalise your plan</div>
-        <div class="step-sub">Two quick questions and we'll generate your first meal plan automatically.</div>
-      </div>
+      <div class="ob-step-title">Let's personalise your plan</div>
+      <div class="ob-step-sub">Two quick questions and we'll generate your first meal plan — automatically.</div>
       <div class="form-group">
-        <label class="form-label">Your Name</label>
-        <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name" />
+        <label class="form-label" for="inputName">Your first name</label>
+        <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name" style="font-size:1rem;" />
       </div>
-      <div class="form-group" style="margin-top:1rem;">
+      <div class="form-group" style="margin-top:1.25rem;">
         <label class="form-label">What's your main goal?</label>
         <div class="goal-grid">
           <div class="goal-card" data-goal="build_muscle" onclick="selectGoal(this)">
+            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5a4 4 0 1 0 5.66 5.66"/><path d="M2 2l20 20"/><path d="M4 12C2.5 9.5 2 7 2 7s3-2 6-1"/><path d="M20 12c1.5 2.5 2 5 2 5s-3 2-6 1"/></svg>
             <div class="goal-label">Build Muscle</div>
           </div>
           <div class="goal-card" data-goal="lose_weight" onclick="selectGoal(this)">
+            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
             <div class="goal-label">Lose Weight</div>
           </div>
           <div class="goal-card" data-goal="maintain_weight" onclick="selectGoal(this)">
+            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <div class="goal-label">Maintain Weight</div>
           </div>
           <div class="goal-card" data-goal="eat_healthier" onclick="selectGoal(this)">
+            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
             <div class="goal-label">Eat Healthier</div>
           </div>
           <div class="goal-card" data-goal="gain_weight" onclick="selectGoal(this)">
+            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
             <div class="goal-label">Gain Weight</div>
           </div>
           <div class="goal-card" data-goal="improve_energy" onclick="selectGoal(this)">
+            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             <div class="goal-label">Improve Energy</div>
-          </div>
-        </div>
-      </div>
-      <!-- Optional body stats -->
-      <div style="margin-top:1.25rem;">
-        <button type="button" id="bodyStatsToggle" onclick="toggleBodyStats()" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.85rem;color:var(--clr-primary);font-family:inherit;display:flex;align-items:center;gap:0.4rem;">
-          <span id="bodyStatsArrow">▸</span> Help us be more accurate <span style="color:var(--clr-muted-fg);font-weight:400;">(optional)</span>
-        </button>
-        <div id="bodyStatsPanel" style="display:none;margin-top:0.85rem;padding:1rem;background:var(--clr-muted-bg);border-radius:0.75rem;">
-          <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0 0 0.85rem;">We use these to calculate your calorie target. Defaults are used if skipped.</p>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Age</label>
-              <input type="number" class="form-input" id="inputAge" placeholder="28" min="14" max="100" value="28" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Weight (kg)</label>
-              <input type="number" class="form-input" id="inputWeight" placeholder="70" min="30" max="300" value="70" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Height (cm)</label>
-              <input type="number" class="form-input" id="inputHeight" placeholder="170" min="100" max="250" value="170" />
-            </div>
           </div>
         </div>
       </div>
@@ -106,10 +202,8 @@
 
     <!-- STEP 2: Budget + Dietary -->
     <div class="step-content hidden" id="step2">
-      <div class="onboarding-top">
-        <div class="step-title" style="font-family:'Fraunces',serif;">Budget & dietary needs</div>
-        <div class="step-sub">We'll keep your meals affordable and safe to eat.</div>
-      </div>
+      <div class="ob-step-title">Budget &amp; dietary needs</div>
+      <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weekly Food Budget</label>
@@ -170,15 +264,31 @@
       </div>
     </div>
 
+    <!-- STEP 3: Ready! -->
+    <div class="step-content hidden" id="step3">
+      <div class="ob-step-title">You're all set!</div>
+      <div class="ob-step-sub">Your personalised meal plan is ready to generate. We'll auto-start it when you land on your dashboard.</div>
+      <div class="ob-summary" id="summaryBox">
+        <div class="ob-summary-title">Your plan summary</div>
+        <div id="summaryContent" style="font-size:0.88rem;color:var(--clr-muted-fg);line-height:1.9;"></div>
+      </div>
+    </div>
+
     <!-- Step error message -->
-    <div id="stepError" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:8px;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;"></div>
+    <div id="stepError" style="display:none;background:hsl(0,72%,97%);border:1px solid hsl(0,72%,85%);color:var(--clr-destructive);border-radius:0.6rem;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;" role="alert"></div>
 
     <!-- Navigation Buttons -->
-    <div class="onboarding-nav" style="margin-top:1.25rem;">
-      <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;">← Back</button>
+    <div class="onboarding-nav" style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;">
+      <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;display:flex;align-items:center;gap:0.35rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <button id="btnSkip" onclick="skipStep()" style="background:none;border:none;color:var(--clr-muted-fg);font-size:0.85rem;cursor:pointer;text-decoration:underline;padding:0;">Skip</button>
-        <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Continue →</button>
+        <button id="btnSkip" onclick="skipStep()" style="background:none;border:none;color:var(--clr-muted-fg);font-size:0.85rem;cursor:pointer;text-decoration:underline;padding:0.25rem;">Skip</button>
+        <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()" style="display:inline-flex;align-items:center;gap:0.4rem;">
+          Continue
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -223,7 +333,7 @@
   }
 
   let currentStep = 1;
-  const totalSteps = 2;
+  const totalSteps = 3;
 
   const userData = {
     name: '',
@@ -250,11 +360,26 @@
   function showStep(step) {
     document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
     document.getElementById('step' + step).classList.remove('hidden');
-    document.getElementById('stepCounter').textContent = `Step ${step} of ${totalSteps}`;
-    document.getElementById('progressBar').style.width = `${(step / totalSteps) * 100}%`;
     document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
     document.getElementById('btnSkip').style.display = step < totalSteps ? 'inline-block' : 'none';
-    document.getElementById('btnNext').textContent = step === totalSteps ? 'Create My Plan' : 'Continue →';
+    const nextBtn = document.getElementById('btnNext');
+    nextBtn.innerHTML = step === totalSteps
+      ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Create My Plan`
+      : `Continue <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
+    // Update stepper visuals
+    for (let s = 1; s <= totalSteps; s++) {
+      const el = document.getElementById('obStep' + s);
+      if (!el) continue;
+      el.classList.remove('active', 'done');
+      if (s < step) { el.classList.add('done'); el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`; }
+      else if (s === step) { el.classList.add('active'); el.textContent = s; }
+      else { el.textContent = s; }
+    }
+    for (let l = 1; l < totalSteps; l++) {
+      const line = document.getElementById('obLine' + l);
+      if (line) line.classList.toggle('done', l < step);
+    }
+    if (step === totalSteps) buildSummary();
   }
 
   function nextStep() {
@@ -290,14 +415,6 @@
       updateChipsData();
     }
     return true;
-  }
-
-  function toggleBodyStats() {
-    const panel = document.getElementById('bodyStatsPanel');
-    const arrow = document.getElementById('bodyStatsArrow');
-    const open = panel.style.display !== 'none';
-    panel.style.display = open ? 'none' : 'block';
-    arrow.textContent = open ? '▸' : '▾';
   }
 
   function selectGoal(el) {
@@ -341,18 +458,22 @@
     return { calories, protein, carbs, fat };
   }
 
+  function buildSummary() {
+    const { calories, protein, carbs, fat } = calcNutrition();
+    const goalLabels = { build_muscle:'Build Muscle', lose_weight:'Lose Weight', maintain_weight:'Maintain Weight', eat_healthier:'Eat Healthier', gain_weight:'Gain Weight', improve_energy:'Improve Energy' };
+    const restrictions = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.textContent.trim()).join(', ') || 'None';
+    document.getElementById('summaryContent').innerHTML = `
+      <div>Goal: <strong>${goalLabels[userData.goal] || userData.goal}</strong></div>
+      <div>Daily calories: <strong>${calories} kcal</strong> (P:${protein}g / C:${carbs}g / F:${fat}g)</div>
+      <div>Weekly budget: <strong>${userData.currency} ${userData.budget}</strong></div>
+      <div>Restrictions: <strong>${restrictions}</strong></div>
+    `;
+  }
+
   async function finishOnboarding() {
     const btn = document.getElementById('btnNext');
     btn.disabled = true;
     btn.textContent = 'Setting up...';
-
-    // Read optional body stats if user expanded the panel
-    const ageVal    = parseInt(document.getElementById('inputAge')?.value)    || 28;
-    const weightVal = parseFloat(document.getElementById('inputWeight')?.value) || 70;
-    const heightVal = parseFloat(document.getElementById('inputHeight')?.value) || 170;
-    userData.age    = ageVal;
-    userData.weight = weightVal;
-    userData.height = heightVal;
 
     calcNutrition();
     updateChipsData();

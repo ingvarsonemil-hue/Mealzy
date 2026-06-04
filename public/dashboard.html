@@ -24,6 +24,83 @@
   <script src="/stripe-config.js"></script>
   <script src="/translations.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <style>
+    /* ── Dashboard redesign ─────────────────────────────── */
+    .main-content {
+      background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,97%) 0%, transparent 55%) var(--clr-background);
+    }
+    [data-theme="dark"] .main-content {
+      background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,8%) 0%, transparent 55%) var(--clr-background);
+    }
+
+    /* Meal cards v2 — editorial left-border design */
+    .meal-card-v2 {
+      background: var(--clr-card);
+      border: 1px solid var(--clr-border);
+      border-left: 4px solid var(--clr-primary);
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 1.1rem 1.25rem;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+    }
+    .meal-card-v2:hover { box-shadow: var(--shadow-md); }
+    .meal-card-v2.mcv2-breakfast { border-left-color: var(--clr-accent); }
+    .meal-card-v2.mcv2-lunch { border-left-color: hsl(200,90%,45%); }
+    .meal-card-v2.mcv2-dinner { border-left-color: hsl(260,55%,52%); }
+    .meal-card-v2.mcv2-snack { border-left-color: hsl(340,75%,52%); }
+    .meal-card-v2.completed { opacity: 0.55; }
+    .meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
+
+    .mcv2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem; }
+    .mcv2-name {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 0.3rem;
+      color: var(--clr-foreground);
+    }
+    .mcv2-desc { font-size: 0.85rem; color: var(--clr-muted-fg); line-height: 1.5; margin-bottom: 0.75rem; }
+    .mcv2-stats {
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.8rem; font-weight: 600; color: var(--clr-muted-fg);
+      margin-bottom: 0.75rem;
+    }
+    .mcv2-stat { display: flex; align-items: center; gap: 0.25rem; }
+    .mcv2-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+    .mcv2-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--clr-muted-fg); }
+    .mcv2-check input { accent-color: var(--clr-primary); width: 16px; height: 16px; cursor: pointer; }
+    .mcv2-btns { display: flex; gap: 0.4rem; }
+    .mcv2-rate { display: flex; align-items: center; gap: 0.5rem; padding-top: 0.6rem; margin-top: 0.6rem; border-top: 1px solid var(--clr-border); }
+    .mcv2-rate-lbl { font-size: 0.78rem; color: var(--clr-muted-fg); }
+
+    /* Page greeting */
+    .dash-greeting { font-family: var(--font-display); font-style: italic; font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; }
+    .dash-greeting-sub { color: var(--clr-muted-fg); font-size: 0.9rem; margin-top: 0.25rem; }
+
+    /* Macro rings — larger, cleaner */
+    .rings-grid-v2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+    .ring-card-v2 { text-align: center; padding: 1.25rem 0.75rem; }
+    .ring-card-v2 + .ring-card-v2 { border-left: 1px solid var(--clr-border); }
+    .ring-label-v2 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--clr-muted-fg); margin-bottom: 0.6rem; }
+    .ring-target-v2 { font-size: 0.78rem; color: var(--clr-muted-fg); margin-top: 0.4rem; }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .dash-anim { animation: dashSlide 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+      .dash-anim:nth-child(1) { animation-delay: 0.0s; }
+      .dash-anim:nth-child(2) { animation-delay: 0.06s; }
+      .dash-anim:nth-child(3) { animation-delay: 0.12s; }
+      .dash-anim:nth-child(4) { animation-delay: 0.18s; }
+      .dash-anim:nth-child(5) { animation-delay: 0.24s; }
+      @keyframes dashSlide { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    }
+    @media (max-width: 600px) {
+      .rings-grid-v2 { grid-template-columns: repeat(3, 1fr); }
+      .ring-card-v2 svg { width: 80px !important; height: 80px !important; }
+    }
+  </style>
 </head>
 <body>
 
@@ -98,24 +175,90 @@
   <main class="main-content">
   <div id="dashboardContent">
     <!-- Page Header -->
-    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;">
+    <div class="page-header dash-anim" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
       <div>
-        <div class="greeting" id="greeting">Good morning!</div>
-        <div class="greeting-sub" id="greetingSub">Loading your plan...</div>
+        <div class="dash-greeting" id="greeting">Good morning!</div>
+        <div class="dash-greeting-sub" id="greetingSub">Loading your plan...</div>
       </div>
       <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-        <span class="badge badge-accent" id="streakBadge">1 day streak</span>
+        <span class="badge badge-accent" id="streakBadge" style="font-size:0.78rem;">1 day streak</span>
         <span id="proBadge" style="display:none;background:var(--clr-primary);color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Download meal plan as PDF" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> <span data-i18n="btn_download_pdf">Download PDF</span></button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> <span data-i18n="btn_share_card">Share Card</span></button>
-        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;border-radius:6px;">
+        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
           <span id="generateBtnLabel">Generate Today's Plan</span>
         </button>
       </div>
     </div>
 
+    <!-- TODAY'S MEALS — FIRST VISIBLE SECTION -->
+    <div class="card dash-anim" style="margin-bottom:1.5rem;">
+      <div class="card-header">
+        <div>
+          <div class="card-title" data-i18n="todays_meals" style="font-family:var(--font-display);font-style:italic;font-size:1.1rem;">Today's Meals</div>
+          <div class="card-subtitle" id="mealDateSub"></div>
+        </div>
+        <a href="meal-planner.html" class="btn btn-ghost btn-sm" data-i18n="view_planner">View Planner →</a>
+      </div>
+      <div id="mealsContainer">
+        <div class="empty-state">
+          <div class="empty-state-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
+          <h3>No meals planned yet</h3>
+          <p>Generate your personalized AI meal plan to get started.</p>
+          <button class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.4rem;" onclick="generateMealPlan()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Generate Meal Plan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MACRO RINGS -->
+    <div class="card dash-anim" style="margin-bottom:1.5rem;">
+      <div class="card-header">
+        <div class="card-title" data-i18n="macro_overview" style="font-family:var(--font-display);font-style:italic;">Macro Overview</div>
+        <span class="text-muted text-sm" id="macroDate">Today</span>
+      </div>
+      <div class="rings-grid-v2">
+        <div class="ring-card-v2">
+          <div class="ring-label-v2" data-i18n="stat_protein">Protein</div>
+          <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(32,88%,54%)" stroke-width="10"
+              stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
+              transform="rotate(-90 50 50)" id="ringProtein"/>
+            <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringProteinVal">0g</text>
+            <text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--clr-muted-fg)" id="ringProteinPct">0%</text>
+          </svg>
+          <div class="ring-target-v2" id="ringProteinTarget">Goal: 0g</div>
+        </div>
+        <div class="ring-card-v2">
+          <div class="ring-label-v2" data-i18n="macro_carbs">Carbs</div>
+          <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(200,100%,50%)" stroke-width="10"
+              stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
+              transform="rotate(-90 50 50)" id="ringCarbs"/>
+            <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringCarbsVal">0g</text>
+            <text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--clr-muted-fg)" id="ringCarbsPct">0%</text>
+          </svg>
+          <div class="ring-target-v2" id="ringCarbsTarget">Goal: 0g</div>
+        </div>
+        <div class="ring-card-v2">
+          <div class="ring-label-v2" data-i18n="macro_fat">Fat</div>
+          <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(260,60%,55%)" stroke-width="10"
+              stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
+              transform="rotate(-90 50 50)" id="ringFat"/>
+            <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringFatVal">0g</text>
+            <text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--clr-muted-fg)" id="ringFatPct">0%</text>
+          </svg>
+          <div class="ring-target-v2" id="ringFatTarget">Goal: 0g</div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── GAMIFICATION STRIP ── -->
-    <div id="xpStrip" style="display:flex;align-items:center;gap:1rem;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:0.85rem 1.25rem;margin-bottom:1.25rem;flex-wrap:wrap;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.07s both;">
+    <div id="xpStrip" style="display:flex;align-items:center;gap:1rem;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:0.85rem 1.25rem;margin-bottom:1.25rem;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;">
         <div id="xpLevelBadge" style="width:38px;height:38px;background:var(--clr-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;color:#fff;">1</div>
         <div>
@@ -173,73 +316,6 @@
       </div>
     </div>
 
-    <!-- MACRO RINGS -->
-    <div class="card" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.21s both;">
-      <div class="card-header">
-        <div class="card-title" data-i18n="macro_overview">Macro Overview</div>
-        <span class="text-muted text-sm" id="macroDate">Today</span>
-      </div>
-      <div class="rings-grid">
-        <div class="ring-card">
-          <div class="ring-label" data-i18n="stat_protein">Protein</div>
-          <div class="ring-wrap">
-            <svg width="100" height="100" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(32,88%,54%)" stroke-width="10"
-                stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
-                transform="rotate(-90 50 50)" id="ringProtein"/>
-              <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringProteinVal">0g</text>
-              <text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--clr-muted-fg)" id="ringProteinPct">0%</text>
-            </svg>
-          </div>
-          <div class="ring-target" id="ringProteinTarget">Goal: 0g</div>
-        </div>
-        <div class="ring-card">
-          <div class="ring-label" data-i18n="macro_carbs">Carbs</div>
-          <div class="ring-wrap">
-            <svg width="100" height="100" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(200,100%,50%)" stroke-width="10"
-                stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
-                transform="rotate(-90 50 50)" id="ringCarbs"/>
-              <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringCarbsVal">0g</text>
-              <text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--clr-muted-fg)" id="ringCarbsPct">0%</text>
-            </svg>
-          </div>
-          <div class="ring-target" id="ringCarbsTarget">Goal: 0g</div>
-        </div>
-        <div class="ring-card">
-          <div class="ring-label" data-i18n="macro_fat">Fat</div>
-          <div class="ring-wrap">
-            <svg width="100" height="100" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(260,60%,55%)" stroke-width="10"
-                stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
-                transform="rotate(-90 50 50)" id="ringFat"/>
-              <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringFatVal">0g</text>
-              <text x="50" y="60" text-anchor="middle" font-size="9" fill="var(--clr-muted-fg)" id="ringFatPct">0%</text>
-            </svg>
-          </div>
-          <div class="ring-target" id="ringFatTarget">Goal: 0g</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TODAY'S MEALS -->
-    <div class="card" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.28s both;">
-      <div class="card-header">
-        <div class="card-title" data-i18n="todays_meals">Today's Meals</div>
-        <a href="meal-planner.html" class="btn btn-ghost btn-sm" data-i18n="view_planner">View Planner →</a>
-      </div>
-      <div id="mealsContainer">
-        <div class="empty-state">
-          <div class="empty-state-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
-          <h3>No meals planned yet</h3>
-          <p>Generate your personalized AI meal plan to get started.</p>
-          <button class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.4rem;" onclick="generateMealPlan()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> Generate Meal Plan</button>
-        </div>
-      </div>
-    </div>
 
     <!-- G KEY TOOLTIP -->
     <div id="gKeyTooltip" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(0,0,0,0.75);color:white;font-size:0.8rem;padding:0.5rem 0.9rem;border-radius:0.5rem;z-index:100;pointer-events:none;">Press <kbd style="background:rgba(255,255,255,0.2);border-radius:3px;padding:0.1rem 0.3rem;">G</kbd> to generate</div>
@@ -543,6 +619,8 @@
     const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     document.getElementById('greetingSub').textContent = dateStr;
     document.getElementById('macroDate').textContent = dateStr;
+    const mealDateSub = document.getElementById('mealDateSub');
+    if (mealDateSub) mealDateSub.textContent = dateStr;
   }
 
   function updateStreak() {
@@ -744,36 +822,39 @@
     const ratings = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
 
     container.innerHTML = `<div class="grid-2">${todayMeals.map((meal, i) => {
-      const r = ratings[meal.name] || 0; // 1=thumbsUp, -1=thumbsDown, 0=unrated
+      const r = ratings[meal.name] || 0;
+      const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
       return `
-      <div class="meal-card ${meal.completed ? 'completed' : ''}" id="mealCard${i}">
-        <img src="${meal.image_url || mealFallbacks[meal.type] || mealFallbacks.lunch}" alt="${meal.name}" class="meal-img" loading="lazy" />
-        <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
-        <div class="meal-name">${meal.name}</div>
-        <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
-        <div class="meal-macros">
-          <span class="macro-pill">${ICO.flame} ${meal.calories} kcal</span>
-          <span class="macro-pill">${ICO.zap} ${meal.protein}g protein</span>
-          <span class="macro-pill">${ICO.grain} ${meal.carbs}g carbs</span>
-          <span class="macro-pill">${ICO.drop} ${meal.fat}g fat</span>
-          ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${meal.cookTime} min</span>` : ''}
-        </div>
-        <div class="meal-actions">
-          <label class="meal-checkbox">
-            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" />
-            Mark as done
-          </label>
-          <div style="display:flex;gap:0.5rem;">
-            <button class="btn btn-outline btn-sm" onclick="openRecipeModal(${i})">View Recipe</button>
-            <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i})">↺ Swap</button>
+      <div class="meal-card-v2 mcv2-${meal.type} ${meal.completed ? 'completed' : ''}" id="mealCard${i}">
+        <div class="mcv2-header">
+          <span class="meal-type-badge ${meal.type}">${typeLabel}</span>
+          <div class="mcv2-stats">
+            <span class="mcv2-stat">${ICO.flame} ${meal.calories} kcal</span>
+            <span class="mcv2-stat">${ICO.zap} ${meal.protein}g protein</span>
+            ${meal.cookTime ? `<span class="mcv2-stat">${ICO.clock} ${meal.cookTime} min</span>` : ''}
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--clr-border);">
-          <span style="font-size:0.8rem;color:var(--clr-muted);">Rate:</span>
-          <button onclick="rateMeal(${i}, 1)" style="background:${r===1?'#dcfce7':'var(--clr-muted-bg)'};border:1px solid ${r===1?'#86efac':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===1?'#16a34a':'var(--clr-muted-fg)'};" title="Thumbs up — include more like this" aria-label="Like this meal">${ICO.thumbUp}</button>
-          <button onclick="rateMeal(${i}, -1)" style="background:${r===-1?'#fee2e2':'var(--clr-muted-bg)'};border:1px solid ${r===-1?'#fca5a5':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.6rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===-1?'#dc2626':'var(--clr-muted-fg)'};" title="Thumbs down — avoid next time" aria-label="Dislike this meal">${ICO.thumbDn}</button>
-          ${r===1?'<span style="font-size:0.78rem;color:#16a34a;">Noted — more like this next time</span>':''}
-          ${r===-1?'<span style="font-size:0.78rem;color:#dc2626;">Noted — will be avoided</span>':''}
+        <div class="mcv2-name">${meal.name}</div>
+        <p class="mcv2-desc">${meal.description || ''}</p>
+        <div class="mcv2-actions">
+          <label class="mcv2-check">
+            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${meal.name} as done" />
+            Mark as done
+          </label>
+          <div class="mcv2-btns">
+            <button class="btn btn-outline btn-sm" onclick="openRecipeModal(${i})">Recipe</button>
+            <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i})" aria-label="Swap meal">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              Swap
+            </button>
+          </div>
+        </div>
+        <div class="mcv2-rate">
+          <span class="mcv2-rate-lbl">Rate:</span>
+          <button onclick="rateMeal(${i}, 1)" style="background:${r===1?'hsl(152,52%,92%)':'var(--clr-muted-bg)'};border:1px solid ${r===1?'hsl(152,52%,70%)':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.55rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===1?'var(--clr-primary)':'var(--clr-muted-fg)'};" title="Like — more like this" aria-label="Like this meal">${ICO.thumbUp}</button>
+          <button onclick="rateMeal(${i}, -1)" style="background:${r===-1?'hsl(0,72%,95%)':'var(--clr-muted-bg)'};border:1px solid ${r===-1?'hsl(0,72%,80%)':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.55rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===-1?'var(--clr-destructive)':'var(--clr-muted-fg)'};" title="Dislike — avoid next time" aria-label="Dislike this meal">${ICO.thumbDn}</button>
+          ${r===1?'<span style="font-size:0.78rem;color:var(--clr-primary);">More like this</span>':''}
+          ${r===-1?'<span style="font-size:0.78rem;color:var(--clr-destructive);">Will be avoided</span>':''}
         </div>
       </div>`;
     }).join('')}</div>`;
@@ -781,7 +862,7 @@
 
   function updateStats() {
     const noPlan = !todayMeals || todayMeals.length === 0;
-    const ringsGrid = document.querySelector('.rings-grid');
+    const ringsGrid = document.querySelector('.rings-grid-v2');
     let macroEmpty = document.getElementById('macroEmptyState');
     if (noPlan) {
       if (ringsGrid) ringsGrid.style.display = 'none';
@@ -857,7 +938,7 @@
     const waterGoal = Math.round((profile?.weight || 70) * 0.033 * 1000 / 240) || 8;
     const container = document.getElementById('waterGlasses');
     container.innerHTML = Array.from({ length: waterGoal }, (_, i) =>
-      `<span class="water-glass ${i < waterCount ? 'filled' : ''}" onclick="toggleWater(${i})">💧</span>`
+      `<button class="water-glass ${i < waterCount ? 'filled' : ''}" onclick="toggleWater(${i})" aria-label="Glass ${i+1}" style="background:none;border:none;cursor:pointer;padding:0.15rem;border-radius:4px;color:${i < waterCount ? 'var(--clr-primary)' : 'var(--clr-border)'};transition:color 0.15s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="${i < waterCount ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></button>`
     ).join('');
   }
 

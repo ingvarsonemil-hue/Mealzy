@@ -28,15 +28,114 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     @media (prefers-reduced-motion: no-preference) {
-      .meal-card-animated {
-        animation: fadeInUp 0.38s ease both;
-      }
+      .meal-card-animated { animation: fadeInUp 0.38s ease both; }
       .meal-card-animated:nth-child(1) { animation-delay: 0.00s; }
       .meal-card-animated:nth-child(2) { animation-delay: 0.07s; }
       .meal-card-animated:nth-child(3) { animation-delay: 0.14s; }
       .meal-card-animated:nth-child(4) { animation-delay: 0.21s; }
       .meal-card-animated:nth-child(5) { animation-delay: 0.28s; }
       .meal-card-animated:nth-child(6) { animation-delay: 0.35s; }
+    }
+
+    /* ── Planner page layout ─────────────────────────────── */
+    .main-content {
+      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,40%,92%) 0%, transparent 70%) var(--clr-background);
+    }
+    [data-theme="dark"] .main-content {
+      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,25%,12%) 0%, transparent 70%) var(--clr-background);
+    }
+
+    /* ── Date navigator ─────────────────────────────────── */
+    .date-navigator {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .date-display {
+      flex: 1; min-width: 180px;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      text-align: center;
+      color: var(--clr-foreground);
+    }
+
+    /* ── Meal cards v2 — matches dashboard ─────────────── */
+    .meal-card-v2 {
+      background: var(--clr-card);
+      border: 1px solid var(--clr-border);
+      border-left: 4px solid var(--clr-primary);
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 1.1rem 1.25rem;
+      transition: box-shadow 0.2s;
+    }
+    .meal-card-v2:hover { box-shadow: var(--shadow-md); }
+    .meal-card-v2.mcv2-breakfast { border-left-color: var(--clr-accent); }
+    .meal-card-v2.mcv2-lunch     { border-left-color: hsl(200,90%,45%); }
+    .meal-card-v2.mcv2-dinner    { border-left-color: hsl(260,55%,52%); }
+    .meal-card-v2.mcv2-snack     { border-left-color: hsl(340,75%,52%); }
+    .meal-card-v2.completed      { opacity: 0.55; }
+    .meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
+
+    .mcv2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem; }
+    .mcv2-name {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 1.1rem; font-weight: 700; letter-spacing: -0.025em;
+      line-height: 1.2; margin-bottom: 0.3rem;
+    }
+    .mcv2-desc { font-size: 0.85rem; color: var(--clr-muted-fg); line-height: 1.5; margin-bottom: 0.75rem; }
+    .mcv2-stats {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      font-size: 0.8rem; font-weight: 600; color: var(--clr-muted-fg);
+      margin-bottom: 0.75rem;
+    }
+    .mcv2-stat { display: flex; align-items: center; gap: 0.25rem; }
+    .mcv2-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+    .mcv2-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--clr-muted-fg); }
+    .mcv2-check input { accent-color: var(--clr-primary); width: 16px; height: 16px; cursor: pointer; }
+    .mcv2-btns { display: flex; gap: 0.4rem; }
+    .mcv2-expand { margin-top: 0.75rem; border-top: 1px solid var(--clr-border); padding-top: 0.6rem; }
+
+    /* ── Totals bar — polished glass panel ──────────────── */
+    .totals-bar {
+      position: sticky; bottom: 0; z-index: 10;
+      background: var(--clr-card);
+      border-top: 1px solid var(--clr-border);
+      box-shadow: 0 -8px 32px rgba(60,80,40,0.10);
+      backdrop-filter: blur(12px);
+      padding: 0.85rem 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .total-item {
+      text-align: center;
+      padding: 0.1rem 0.5rem;
+    }
+    .total-item + .total-item { border-left: 1px solid var(--clr-border); }
+    .total-val {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      color: var(--clr-foreground);
+      line-height: 1.1;
+    }
+    .total-lbl {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--clr-muted-fg);
+      margin-top: 0.2rem;
+    }
+    .total-item:first-child .total-val { color: var(--clr-primary); }
+
+    @media (max-width: 600px) {
+      .totals-bar { grid-template-columns: repeat(2, 1fr); gap: 0.5rem 0; }
+      .total-item:nth-child(odd) { border-left: none; }
+      .total-item { padding: 0.35rem 0.5rem; }
     }
   </style>
 </head>
@@ -143,9 +242,11 @@
 
   <!-- MAIN CONTENT -->
   <main class="main-content" style="padding-bottom:120px;background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
-    <div class="page-header">
-      <h1 style="font-family:'Fraunces',serif;font-weight:700;">Meal Planner</h1>
-      <p class="text-muted" style="margin-top:0.25rem;">Plan and manage your meals day by day</p>
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:0.75rem;">
+      <div>
+        <h1 style="font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.8rem;letter-spacing:-0.03em;">Meal Planner</h1>
+        <p class="text-muted" style="margin-top:0.2rem;font-size:0.9rem;">Plan and manage your meals day by day</p>
+      </div>
     </div>
 
     <!-- VIEW TOGGLE -->
@@ -392,28 +493,33 @@
       return;
     }
 
-    container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => `
-      <div class="meal-card meal-card-animated ${meal.completed ? 'completed' : ''}">
-        <img src="${getMealImage(meal)}" alt="${meal.name}" class="meal-img" loading="lazy" />
-        <div class="meal-type-badge ${meal.type}">${meal.type.charAt(0).toUpperCase() + meal.type.slice(1)}</div>
-        <div class="meal-name">${meal.name}</div>
-        <p class="text-muted text-sm" style="margin-bottom:0.75rem;">${meal.description || ''}</p>
-        <div class="meal-macros">
-          <span class="macro-pill">${ICO.flame} ${meal.calories} kcal</span>
-          <span class="macro-pill">${ICO.zap} ${meal.protein}g protein</span>
-          <span class="macro-pill">${ICO.grain} ${meal.carbs}g carbs</span>
-          <span class="macro-pill">${ICO.drop} ${meal.fat}g fat</span>
-          ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${meal.cookTime} min</span>` : ''}
+    container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => {
+      const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
+      return `
+      <div class="meal-card-v2 mcv2-${meal.type} meal-card-animated ${meal.completed ? 'completed' : ''}">
+        <div class="mcv2-header">
+          <span class="meal-type-badge ${meal.type}">${typeLabel}</span>
+          <div class="mcv2-stats">
+            <span class="mcv2-stat">${ICO.flame} ${meal.calories} kcal</span>
+            <span class="mcv2-stat">${ICO.zap} ${meal.protein}g protein</span>
+            ${meal.cookTime ? `<span class="mcv2-stat">${ICO.clock} ${meal.cookTime} min</span>` : ''}
+          </div>
         </div>
-        <div class="meal-actions" style="margin-bottom:0.75rem;">
-          <label class="meal-checkbox">
-            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" />
+        <div class="mcv2-name">${meal.name}</div>
+        <p class="mcv2-desc">${meal.description || ''}</p>
+        <div class="mcv2-actions">
+          <label class="mcv2-check">
+            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${meal.name} as done" />
             Mark done
           </label>
+          <div class="mcv2-btns">
+            <span class="mcv2-stat text-muted">${ICO.grain} ${meal.carbs}g &nbsp;${ICO.drop} ${meal.fat}g</span>
+          </div>
         </div>
-        <div>
+        <div class="mcv2-expand">
           <button class="expand-btn" onclick="toggleSection('ingredients${i}', this)">
-            &#9654; Ingredients (${(meal.ingredients || []).length})
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            Ingredients (${(meal.ingredients || []).length})
           </button>
           <div class="expandable" id="ingredients${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ul class="ingredients-list">
@@ -422,10 +528,9 @@
               ).join('')}
             </ul>
           </div>
-        </div>
-        <div style="margin-top:0.75rem;">
-          <button class="expand-btn" onclick="toggleSection('instructions${i}', this)">
-            &#9654; Instructions (${(meal.instructions || []).length} steps)
+          <button class="expand-btn" style="margin-top:0.35rem;" onclick="toggleSection('instructions${i}', this)">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            Instructions (${(meal.instructions || []).length} steps)
           </button>
           <div class="expandable" id="instructions${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ol class="instructions-list">
@@ -433,7 +538,8 @@
             </ol>
           </div>
         </div>
-      </div>`).join('')}</div>`;
+      </div>`;
+    }).join('')}</div>`;
   }
 
   function toggleSection(id, btn) {
