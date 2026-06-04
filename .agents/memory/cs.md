@@ -13,3 +13,10 @@
 - Quinn flagged for a pre-launch UX audit of the profile/onboarding step, specifically around whether completion is required or optional before first plan generation.
 - When new signups arrive, first metric to watch is D1 retention, second is funnel drop-off at profile completion stage.
 - Projected top support ticket theme once volume arrives: free tier plan limit ("I used my 3 plans") — worth preparing a templated response and a clear in-app message before traffic scales.
+
+## 2026-06-04
+- Thursday 2026-06-04 dashboard produced for second consecutive week; all retention and email metrics remain N/M — no new signups since last session, single-user base unchanged.
+- Biggest unresolved structural risk: profile completion flow has not been audited by Quinn; this remains the highest-priority pre-launch UX task, as a skippable or overlong profile step will directly damage D1 retention once traffic arrives.
+- Jordan has not yet confirmed email platform or begun the 3-email onboarding sequence; this is now the second consecutive week it has been flagged — if no confirmation arrives before next Thursday, escalate to Emil directly.
+- Projected top support ticket once volume arrives remains free tier plan limit ("I've used my 3 plans"); templated response and in-app warning message should both be prepared before any public launch or marketing push.
+- When first real cohort arrives (5+ users in a single week), first metrics to report will be D1 retention and funnel drop-off at profile completion — these two numbers will tell the most about product-market fit at this stage.
