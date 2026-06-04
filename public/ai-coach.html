@@ -226,11 +226,37 @@
   let profile = null;
   let conversation = [];
 
-  const WELCOME_MESSAGE = {
-    role: 'assistant',
-    content: "Hi! I'm Mia, your personal AI nutritionist 🌿 I'm here to help you with meal ideas, nutrition advice, and anything related to your health goals. What can I help you with today?",
-    timestamp: new Date().toISOString()
-  };
+  function buildWelcomeMessage(p) {
+    const name = p?.name || 'there';
+    const goalLabels = {
+      lose_weight: 'losing weight', build_muscle: 'building muscle',
+      gain_weight: 'gaining weight', maintain_weight: 'maintaining your weight',
+      eat_healthier: 'eating healthier', improve_energy: 'improving your energy'
+    };
+    const goalText = goalLabels[p?.goal] || 'reaching your health goals';
+    const cals    = p?.dailyCalories || 2000;
+    const protein = p?.macros?.protein || Math.round(cals * 0.30 / 4);
+
+    const prefLabels = {
+      vegetarian:'vegetarian', vegan:'vegan', keto:'keto', paleo:'paleo',
+      mediterranean:'Mediterranean', halal:'halal', kosher:'kosher',
+      gluten_free:'gluten-free', dairy_free:'dairy-free', nut_free:'nut-free',
+      fish_free:'fish-free', no_pork:'pork-free',
+      gluten:'gluten-free', dairy:'dairy-free', nuts:'nut-free',
+      eggs:'egg-free', shellfish:'shellfish-free', soy:'soy-free',
+      fish:'fish-free', pork:'no pork'
+    };
+    const allPrefs = [...(p?.dietaryPrefs || []), ...(p?.allergies || [])];
+    const prefText = allPrefs.length > 0
+      ? ` — and keeping it ${allPrefs.slice(0, 2).map(x => prefLabels[x] || x).join(' and ')}`
+      : '';
+
+    return {
+      role: 'assistant',
+      content: `Hi ${name}! I'm Mia, your AI nutritionist. I see you're working on ${goalText}${prefText}. I'm here to help you hit your ${cals} kcal target and ${protein}g protein goal. What can I help you with today?`,
+      timestamp: new Date().toISOString()
+    };
+  }
 
   async function init() {
     try {
@@ -260,7 +286,7 @@
       // The sentinel is session-only; the server decides the limit on each request.
       conversation = conversation.filter(m => m.content !== '__LIMIT_REACHED__');
     } else {
-      conversation = [WELCOME_MESSAGE];
+      conversation = [buildWelcomeMessage(profile)];
     }
 
     renderMessages();
@@ -430,7 +456,7 @@
 
   function clearConversation() {
     if (!confirm('Clear conversation history?')) return;
-    conversation = [WELCOME_MESSAGE];
+    conversation = [buildWelcomeMessage(profile)];
     localStorage.removeItem('mealzy_coach_conversation');
     renderMessages();
   }

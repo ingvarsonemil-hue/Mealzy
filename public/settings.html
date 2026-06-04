@@ -1027,7 +1027,8 @@
     if (goal === 'lose_weight') cals -= 500;
     else if (goal === 'gain_weight' || goal === 'build_muscle') cals += 300;
     cals = Math.max(cals, 1200);
-    preview.textContent = `Based on your stats, your daily target is approximately ${cals} kcal.`;
+    const protein = Math.round(2 * w); // ~2g per kg bodyweight
+    preview.textContent = `Based on your stats, your daily target is approximately ${cals} kcal and ${protein}g protein.`;
     preview.style.display = 'block';
   }
 

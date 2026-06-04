@@ -271,6 +271,14 @@
   </div>
 </div>
 
+<!-- WEEK MEAL POPUP -->
+<div id="weekMealPopup" style="display:none;position:fixed;z-index:200;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:0.9rem 1.1rem;box-shadow:0 8px 24px rgba(0,0,0,0.14);min-width:180px;max-width:240px;pointer-events:auto;">
+  <div id="weekPopupType" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--clr-muted-fg);margin-bottom:0.3rem;"></div>
+  <div id="weekPopupName" style="font-weight:700;font-size:0.92rem;margin-bottom:0.5rem;line-height:1.3;"></div>
+  <div id="weekPopupMeta" style="font-size:0.82rem;color:var(--clr-muted-fg);display:flex;flex-direction:column;gap:0.2rem;"></div>
+  <button onclick="closeWeekMealPopup()" style="position:absolute;top:0.5rem;right:0.6rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:1rem;line-height:1;padding:0;">×</button>
+</div>
+
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -668,16 +676,21 @@
     if (view === 'week') renderWeekView();
   }
 
+  // Storage for week meal data so popup can reference by index without JSON-in-HTML
+  let _weekMeals = {};
+
   function renderWeekView() {
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const container = document.getElementById('weekViewContainer');
     const todayStr = new Date().toISOString().split('T')[0];
+    const goalCals = profile?.dailyCalories || 2000;
     const days = [];
     const ref = new Date(currentDate);
     const dow = ref.getDay();
     const monday = new Date(ref);
     monday.setDate(ref.getDate() - ((dow + 6) % 7));
 
+    _weekMeals = {};
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
@@ -685,31 +698,82 @@
     }
 
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const sym = getCurrencySymbol(profile?.currency || 'USD');
 
     const cols = days.map((d, idx) => {
       const dateStr = d.toISOString().split('T')[0];
       const plan = plans[dateStr];
       const meals = plan && plan.meals ? plan.meals : [];
       const isToday = dateStr === todayStr;
+      _weekMeals[dateStr] = meals;
 
-      const mealChips = meals.map(m =>
-        `<span class="week-meal-chip ${m.type}" title="${m.name}">${m.name}</span>`
+      const totalCals = meals.reduce((s, m) => s + (m.calories || 0), 0);
+      const calPct = goalCals > 0 ? Math.min(100, Math.round((totalCals / goalCals) * 100)) : 0;
+      const withinRange = calPct >= 90 && calPct <= 110;
+      const barColor = meals.length === 0 ? 'var(--clr-border)' : withinRange ? '#22c55e' : '#f59e0b';
+      const calBar = meals.length > 0 ? `
+        <div style="margin-top:auto;padding-top:0.5rem;">
+          <div style="font-size:0.68rem;color:var(--clr-muted-fg);text-align:center;margin-bottom:0.2rem;">${totalCals} kcal</div>
+          <div style="height:4px;background:var(--clr-border);border-radius:2px;overflow:hidden;">
+            <div style="height:100%;width:${calPct}%;background:${barColor};border-radius:2px;transition:width 0.3s;"></div>
+          </div>
+        </div>` : '';
+
+      const mealChips = meals.map((m, mi) =>
+        `<span class="week-meal-chip ${m.type}" title="${m.name}"
+          onclick="event.stopPropagation();showWeekMealPopup(event,'${dateStr}',${mi})"
+          style="cursor:pointer;">${m.name}</span>`
       ).join('');
 
       const generateBtn = meals.length === 0
-        ? `<button class="week-generate-btn" onclick="switchToDayAndGenerate('${dateStr}')">+ Generate</button>`
+        ? `<button class="week-generate-btn" onclick="event.stopPropagation();switchToDayAndGenerate('${dateStr}')">+ Generate</button>`
         : '';
 
       return `
-        <div class="week-day-col${isToday ? ' today' : ''}" onclick="switchToDay('${dateStr}')">
+        <div class="week-day-col${isToday ? ' today' : ''}" onclick="switchToDay('${dateStr}')"
+          style="display:flex;flex-direction:column;min-height:120px;">
           <div class="week-day-label">${dayNames[idx]}</div>
           <div class="week-day-date">${d.getDate()}</div>
           ${mealChips}
           ${generateBtn}
+          ${calBar}
         </div>`;
     });
 
     container.innerHTML = `<div class="week-grid">${cols.join('')}</div>`;
+  }
+
+  function showWeekMealPopup(event, dateStr, idx) {
+    const meal = (_weekMeals[dateStr] || [])[idx];
+    if (!meal) return;
+    const popup = document.getElementById('weekMealPopup');
+    const sym = getCurrencySymbol(profile?.currency || 'USD');
+    document.getElementById('weekPopupType').textContent = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
+    document.getElementById('weekPopupName').textContent = meal.name;
+    document.getElementById('weekPopupMeta').innerHTML = [
+      meal.calories ? `${meal.calories} kcal` : null,
+      meal.protein  ? `${meal.protein}g protein` : null,
+      meal.estimatedCost ? `~${sym}${meal.estimatedCost.toFixed(2)}` : null,
+      meal.cookTime ? `${meal.cookTime} min` : null,
+    ].filter(Boolean).map(s => `<span>${s}</span>`).join('');
+
+    popup.style.display = 'block';
+    // Position near the click, keeping inside viewport
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let x = event.clientX + 8, y = event.clientY + 8;
+    popup.style.left = x + 'px';
+    popup.style.top  = y + 'px';
+    popup.style.right = 'auto';
+    // Clamp after render
+    requestAnimationFrame(() => {
+      const r = popup.getBoundingClientRect();
+      if (r.right > vw - 8)  popup.style.left = Math.max(8, vw - r.width - 8) + 'px';
+      if (r.bottom > vh - 8) popup.style.top  = Math.max(8, event.clientY - r.height - 8) + 'px';
+    });
+  }
+
+  function closeWeekMealPopup() {
+    document.getElementById('weekMealPopup').style.display = 'none';
   }
 
   function switchToDay(dateStr) {
@@ -738,6 +802,14 @@
     const el = document.getElementById('healthDisclaimer');
     if (el) el.style.display = 'none';
   }
+
+  // Close week meal popup on outside click
+  document.addEventListener('click', (e) => {
+    const popup = document.getElementById('weekMealPopup');
+    if (popup && popup.style.display !== 'none' && !popup.contains(e.target)) {
+      popup.style.display = 'none';
+    }
+  });
 
   // Mobile menu
   document.getElementById('mobileMenuBtn').addEventListener('click', () => {

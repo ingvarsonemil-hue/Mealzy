@@ -39,10 +39,10 @@
     <div style="margin-bottom:1.5rem;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
         <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
-        <span class="step-counter" id="stepCounter">Step 1 of 3</span>
+        <span class="step-counter" id="stepCounter">Step 1 of 2</span>
       </div>
       <div class="progress-bar-wrap">
-        <div class="progress-bar-fill" id="progressBar" style="width:33%;"></div>
+        <div class="progress-bar-fill" id="progressBar" style="width:50%;"></div>
       </div>
     </div>
 
@@ -79,8 +79,6 @@
           </div>
         </div>
       </div>
-    </div>
-
       <!-- Optional body stats -->
       <div style="margin-top:1.25rem;">
         <button type="button" id="bodyStatsToggle" onclick="toggleBodyStats()" style="background:none;border:none;padding:0;cursor:pointer;font-size:0.85rem;color:var(--clr-primary);font-family:inherit;display:flex;align-items:center;gap:0.4rem;">
@@ -172,18 +170,6 @@
       </div>
     </div>
 
-    <!-- STEP 3: Ready! -->
-    <div class="step-content hidden" id="step3">
-      <div class="onboarding-top">
-        <div class="step-title" style="font-family:'Fraunces',serif;">You're all set!</div>
-        <div class="step-sub">Your personalised meal plan is ready to generate. We'll auto-start it when you land on your dashboard.</div>
-      </div>
-      <div id="summaryBox" style="background:var(--clr-muted-bg);border-radius:1rem;padding:1.25rem;margin-bottom:1rem;">
-        <div style="font-weight:700;margin-bottom:0.75rem;font-size:0.9rem;">Your plan summary</div>
-        <div id="summaryContent" style="font-size:0.85rem;color:var(--clr-muted-fg);line-height:1.8;"></div>
-      </div>
-    </div>
-
     <!-- Step error message -->
     <div id="stepError" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:8px;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;"></div>
 
@@ -237,7 +223,7 @@
   }
 
   let currentStep = 1;
-  const totalSteps = 3;
+  const totalSteps = 2;
 
   const userData = {
     name: '',
@@ -269,7 +255,6 @@
     document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
     document.getElementById('btnSkip').style.display = step < totalSteps ? 'inline-block' : 'none';
     document.getElementById('btnNext').textContent = step === totalSteps ? 'Create My Plan' : 'Continue →';
-    if (step === totalSteps) buildSummary();
   }
 
   function nextStep() {
@@ -354,18 +339,6 @@
     userData.dailyCalories = calories;
     userData.macros = { protein, carbs, fat };
     return { calories, protein, carbs, fat };
-  }
-
-  function buildSummary() {
-    const { calories, protein, carbs, fat } = calcNutrition();
-    const goalLabels = { build_muscle:'Build Muscle', lose_weight:'Lose Weight', maintain_weight:'Maintain Weight', eat_healthier:'Eat Healthier', gain_weight:'Gain Weight', improve_energy:'Improve Energy' };
-    const restrictions = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.textContent.trim()).join(', ') || 'None';
-    document.getElementById('summaryContent').innerHTML = `
-      <div>Goal: <strong>${goalLabels[userData.goal] || userData.goal}</strong></div>
-      <div>Daily calories: <strong>${calories} kcal</strong> (P:${protein}g / C:${carbs}g / F:${fat}g)</div>
-      <div>Weekly budget: <strong>${userData.currency} ${userData.budget}</strong></div>
-      <div>Restrictions: <strong>${restrictions}</strong></div>
-    `;
   }
 
   async function finishOnboarding() {
