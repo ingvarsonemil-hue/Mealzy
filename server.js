@@ -21,6 +21,7 @@ const path         = require('path');
 const fs           = require('fs');
 const { randomUUID } = require('crypto');
 const jwt          = require('jsonwebtoken');
+const bcrypt       = require('bcryptjs');
 const rateLimit    = require('express-rate-limit');
 const Anthropic    = require('@anthropic-ai/sdk');
 const winston      = require('winston');
@@ -57,7 +58,7 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1);
 
 const JWT_SECRET    = process.env.JWT_SECRET;
-const JWT_EXPIRES   = '30d';
+const JWT_EXPIRES   = '24h';
 // Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
 // ── Security headers on every response ────────────────────────────────────
@@ -72,11 +73,30 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src https://fonts.gstatic.com; " +
     "img-src 'self' data: https:; " +
-    "connect-src 'self' https://api.stripe.com https://accounts.google.com https://www.google-analytics.com https://region1.google-analytics.com; " +
+    "connect-src 'self' https://api.stripe.com https://accounts.google.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://fonts.googleapis.com; " +
     "frame-src https://js.stripe.com;"
   );
   next();
 });
+
+// ── Admin middleware ────────────────────────────────────────────────────────
+function requireAdmin(req, res, next) {
+  const token = req.headers['x-admin-token'] || req.query.admin_token;
+  if (!token || token !== process.env.ADMIN_TOKEN) {
+    logger.warn('[admin] Unauthorized attempt', { ip: req.ip, path: req.path });
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+}
+
+// ── CORS policy — restrict /api to the production origin ───────────────────
+const cors = require('cors');
+app.use('/api', cors({
+  origin: process.env.NODE_ENV === 'production' ? 'https://mealzy.org' : 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'x-admin-token', 'x-cron-secret'],
+}));
 
 // ── Stripe webhook needs raw body — must be BEFORE express.json() ─────────
 app.post(
@@ -143,7 +163,7 @@ function parseCookies(req) {
 
 function setJwtCookie(res, payload) {
   const token  = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES });
-  const maxAge = 30 * 24 * 60 * 60; // 30 days in seconds
+  const maxAge = 24 * 60 * 60; // 24 hours in seconds
   const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
   res.setHeader(
     'Set-Cookie',
@@ -282,7 +302,7 @@ function emailBase(content) {
 function emailPasswordReset(name, resetUrl) {
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Reset your password</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${name || 'there'}, here's your password reset link. It expires in 1 hour.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${name || 'there'}, here's your password reset link. It expires in 15 minutes.</p>
     <a href="${resetUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
     <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${resetUrl}</span></p>
     <p style="color:#aaa;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email. Your password won't change.</p>
@@ -380,15 +400,18 @@ app.get('/stripe-config.js', async (req, res) => {
 // POST /api/auth/signup
 app.post('/api/auth/signup', authLimiter, async (req, res) => {
   try {
-    const name           = sanitise(req.body.name,           100);
-    const email          = sanitise(req.body.email,          254).toLowerCase();
-    const hashedPassword = sanitise(req.body.hashedPassword,  64);
+    const name     = sanitise(req.body.name,  100);
+    const email    = sanitise(req.body.email, 254).toLowerCase();
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
 
-    if (!name || !email || !hashedPassword) {
-      return res.status(400).json({ error: 'missing_fields', message: 'name, email, and hashedPassword are required.' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'missing_fields', message: 'name, email, and password are required.' });
     }
     if (!email.includes('@')) {
       return res.status(400).json({ error: 'invalid_email', message: 'Please enter a valid email address.' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'password_too_short', message: 'Password must be at least 8 characters.' });
     }
 
     const existing = await db.getUserByEmail(email);
@@ -396,6 +419,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
       return res.status(409).json({ error: 'account_exists', message: 'An account with this email already exists.' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 12);
     const userId = randomUUID();
     await db.createUser({ id: userId, name, email, hashedPassword });
 
@@ -418,19 +442,35 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 // POST /api/auth/signin
 app.post('/api/auth/signin', authLimiter, async (req, res) => {
   try {
-    const email          = sanitise(req.body.email,          254).toLowerCase();
-    const hashedPassword = sanitise(req.body.hashedPassword,  64);
+    const email    = sanitise(req.body.email, 254).toLowerCase();
+    const password = typeof req.body.password === 'string' ? req.body.password : '';
 
-    if (!email || !hashedPassword) {
-      return res.status(400).json({ error: 'missing_fields', message: 'email and hashedPassword are required.' });
+    if (!email || !password) {
+      return res.status(400).json({ error: 'missing_fields', message: 'email and password are required.' });
     }
 
     const user = await db.getUserByEmail(email);
     if (!user) {
-      return res.status(401).json({ error: 'not_found', message: 'No account found with that email. Please sign up first.' });
+      return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
-    if (user.hashed_password !== hashedPassword) {
-      return res.status(401).json({ error: 'wrong_password', message: 'Incorrect password. Try again.' });
+
+    let valid = false;
+    const storedHash = user.hashed_password || '';
+
+    if (storedHash.startsWith('$2')) {
+      // bcrypt hash — normal path
+      valid = await bcrypt.compare(password, storedHash);
+    } else {
+      // Legacy: client sent SHA-256 hex; compare directly then rehash with bcrypt
+      valid = storedHash === password;
+      if (valid) {
+        const newHash = await bcrypt.hash(password, 12);
+        await db.updatePassword(user.id, newHash);
+      }
+    }
+
+    if (!valid) {
+      return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
     const jwtPayload = { userId: user.id, email: user.email, pro: user.pro === 1 };
@@ -453,11 +493,9 @@ app.get('/api/auth/me', async (req, res) => {
     return res.status(401).json({ error: 'user_not_found' });
   }
 
-  // If pro was granted server-side after token was issued, refresh the cookie
+  // Always refresh the cookie to extend the session while the user is active
   const serverPro = user.pro === 1;
-  if (serverPro && !session.pro) {
-    setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
-  }
+  setJwtCookie(res, { userId: user.id, email: user.email, pro: serverPro });
 
   const profile = await db.getProfile(user.id);
   res.json({ id: user.id, name: user.name, email: user.email, pro: serverPro, ref_code: user.ref_code || null, profile });
@@ -479,22 +517,22 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
 
     const user = await db.getUserByEmail(email);
     if (!user) {
-      // Don't reveal whether account exists — return generic success
-      return res.json({ success: true, found: false });
+      return res.json({ success: true });
     }
 
-    const token     = randomUUID();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
-    await db.createResetToken(token, user.id, expiresAt);
+    const rawToken  = randomUUID();
+    const tokenHash = require('crypto').createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
+    await db.createResetToken(tokenHash, user.id, expiresAt);
 
     const host     = process.env.APP_URL || 'https://mealzy.org';
-    const resetUrl = `${host}/reset-password.html?token=${token}`;
+    const resetUrl = `${host}/reset-password.html?token=${rawToken}`;
 
     // Send reset email via Resend (logs to console if API key not set)
     sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl))
       .catch(e => console.error('[reset-email] send error:', e));
 
-    res.json({ success: true, found: true });
+    res.json({ success: true });
   } catch(err) {
     console.error('Reset request error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -511,17 +549,18 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'token and newHashedPassword required' });
     }
 
-    const record = await db.getResetToken(token);
+    const incomingHash = require('crypto').createHash('sha256').update(sanitise(req.body.token, 36)).digest('hex');
+    const record = await db.getResetToken(incomingHash);
     if (!record) {
       return res.status(400).json({ error: 'invalid_token', message: 'Invalid or already-used reset link. Request a new one.' });
     }
     if (new Date(record.expires_at) < new Date()) {
-      await db.markResetTokenUsed(token);
+      await db.markResetTokenUsed(incomingHash);
       return res.status(400).json({ error: 'expired_token', message: 'This reset link has expired. Request a new one.' });
     }
 
     await db.updatePassword(record.user_id, newHashedPassword);
-    await db.markResetTokenUsed(token);
+    await db.markResetTokenUsed(incomingHash);
     res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
   } catch(err) {
     console.error('Reset confirm error:', err);
@@ -1007,11 +1046,7 @@ async function handleStripeWebhook(req, res) {
 // ADMIN — GRANT PRO
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/admin/grant-pro', async (req, res) => {
-  const token = req.headers['x-pro-token'] || req.query.token;
-  if (!token || token !== process.env.PRO_TOKEN) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+app.post('/api/admin/grant-pro', requireAdmin, async (req, res) => {
   const { email } = req.body;
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: 'email required' });
@@ -1033,11 +1068,7 @@ app.post('/api/admin/grant-pro', async (req, res) => {
 // ADMIN EXPORT
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/admin/export', async (req, res) => {
-  const token = req.headers['x-pro-token'] || req.query.token;
-  if (!token || token !== process.env.PRO_TOKEN) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+app.get('/api/admin/export', requireAdmin, async (req, res) => {
   try {
     const users    = await db.getAllUsers();
     const leads    = await db.countLeads();
@@ -1066,9 +1097,7 @@ app.post('/api/track', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/analytics', async (req, res) => {
-  const token = req.headers['x-pro-token'] || req.query.token;
-  if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
+app.get('/api/analytics', requireAdmin, async (req, res) => {
 
   const events = await db.getAnalytics();
   const now    = new Date();
@@ -1192,16 +1221,13 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
 
     // ── Freemium gate: server-side pro check is authoritative ─────────────
     const session = getSessionFromReq(req);
-    let isPro = plan_token === process.env.PRO_TOKEN; // admin bypass
+    let isPro = plan_token === process.env.PLAN_BYPASS_TOKEN; // plan bypass
 
     if (!isPro && session) {
       // Re-query DB — the JWT payload may be stale if Pro was just activated
       const dbUser = await db.getUserById(session.userId);
       isPro = dbUser?.pro === 1;
     }
-    // Backward compat: accept client-sent is_pro for pre-auth users (no new signups should hit this)
-    if (!isPro && req.body.is_pro === true) isPro = true;
-
     if (!swap_meal_type && !isPro) {
       const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
       const effectiveLimit = await getEffectiveLimit(session?.email || user_email || '');
@@ -1590,9 +1616,9 @@ const FREE_COACH_LIMIT = 10;
 
 app.post('/api/ai-coach', async (req, res) => {
   try {
-    const { messages, profile, is_pro } = req.body;
+    const { messages, profile } = req.body;
     const session   = getSessionFromReq(req);
-    let isCoachPro  = is_pro === true;
+    let isCoachPro  = false;
     if (session) {
       const dbUser = await db.getUserById(session.userId);
       if (dbUser?.pro === 1) isCoachPro = true;
@@ -1802,9 +1828,7 @@ app.get('/api/ref-lookup', async (req, res) => {
 // ANALYTICS FUNNEL — admin endpoint
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/analytics/funnel', async (req, res) => {
-  const token = req.headers['x-pro-token'] || req.query.token;
-  if (token !== process.env.PRO_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
+app.get('/api/analytics/funnel', requireAdmin, async (req, res) => {
   try {
     const stats = await db.getFunnelStats();
     res.json(stats);
@@ -1820,10 +1844,14 @@ app.get('/api/analytics/funnel', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 function cronAuth(req, res) {
-  const secret = req.headers['x-cron-secret'];
+  const secret    = req.headers['x-cron-secret'];
+  const timestamp = parseInt(req.headers['x-cron-timestamp'] || '0', 10);
+  const age       = Date.now() - timestamp;
   if (!secret || secret !== process.env.CRON_SECRET) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return false;
+    res.status(401).json({ error: 'Unauthorized' }); return false;
+  }
+  if (isNaN(timestamp) || age > 5 * 60 * 1000 || age < 0) {
+    res.status(401).json({ error: 'Request expired or missing timestamp' }); return false;
   }
   return true;
 }
@@ -1919,6 +1947,8 @@ db.initDb().then(async () => {
       { name: 'GOOGLE_CLIENT_ID',        ok: !!process.env.GOOGLE_CLIENT_ID },
       { name: 'GOOGLE_CLIENT_SECRET',    ok: !!process.env.GOOGLE_CLIENT_SECRET },
       { name: 'RESEND_API_KEY',          ok: !!process.env.RESEND_API_KEY },
+      { name: 'ADMIN_TOKEN',             ok: !!process.env.ADMIN_TOKEN },
+      { name: 'PLAN_BYPASS_TOKEN',       ok: !!process.env.PLAN_BYPASS_TOKEN },
       { name: 'DATABASE',                ok: await db.ping() },
     ];
 
