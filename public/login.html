@@ -119,7 +119,7 @@
       </div>
       <button class="btn btn-primary" id="btnGetReset" style="width:100%;justify-content:center;margin-bottom:0.75rem;min-height:44px;" onclick="requestReset()">Send Reset Link</button>
       <div id="resetStep2" style="display:none;">
-        <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.6;">Check your inbox — we've sent a reset link to your email address. It expires in 1 hour.</p>
+        <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.6;">Check your inbox — we've sent a reset link to your email address. It expires in 15 minutes.</p>
       </div>
       <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:var(--text-sm);min-height:44px;" onclick="switchTab('signin')">← Back to Sign In</button>
     </div>
@@ -228,12 +228,6 @@
     btn.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
   }
 
-  async function hashPassword(password) {
-    const msgBuffer = new TextEncoder().encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
   async function handleSignUp(e) {
     e.preventDefault(); hideError(); setLoading('btnSignUp', true);
     const name     = document.getElementById('suName').value.trim();
@@ -241,8 +235,7 @@
     const password = document.getElementById('suPassword').value;
     if (!name || !email || !password) { showError('Please fill in all fields.'); setLoading('btnSignUp', false); return; }
     try {
-      const hashed = await hashPassword(password);
-      const res = await fetch('/api/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name, email, hashedPassword:hashed }) });
+      const res = await fetch('/api/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ name, email, password }) });
       const data = await res.json();
       if (!res.ok) { showError(data.error === 'account_exists' ? 'An account with this email already exists. Sign in instead.' : (data.message || 'Sign up failed. Please try again.')); setLoading('btnSignUp', false); return; }
       localStorage.setItem('mealzy_user', JSON.stringify({ name:data.user.name, email:data.user.email }));
@@ -263,8 +256,7 @@
     const email    = document.getElementById('siEmail').value.trim().toLowerCase();
     const password = document.getElementById('siPassword').value;
     try {
-      const hashed = await hashPassword(password);
-      const res = await fetch('/api/auth/signin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, hashedPassword:hashed }) });
+      const res = await fetch('/api/auth/signin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, password }) });
       const data = await res.json();
       if (!res.ok) { showError(data.message || 'Sign in failed. Please try again.'); setLoading('btnSignIn', false); return; }
       localStorage.setItem('mealzy_user', JSON.stringify({ name:data.user.name, email:data.user.email }));

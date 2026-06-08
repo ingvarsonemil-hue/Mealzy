@@ -233,8 +233,8 @@ async function getEffectiveLimit(email) {
 const _anthropicKey = (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.trim())
   || (() => { try { return require('fs').readFileSync('.env','utf8').split('\n').find(l=>l.startsWith('ANTHROPIC_API_KEY='))?.split('=').slice(1).join('=').trim(); } catch(e){} })()
   || '';
-if (!_anthropicKey) console.warn('[WARN] ANTHROPIC_API_KEY is not set — AI features will fail');
-else console.log('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + ')');
+if (!_anthropicKey) logger.warn('[WARN] ANTHROPIC_API_KEY is not set — AI features will fail');
+else logger.info('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + ')');
 const anthropic = new Anthropic({ apiKey: _anthropicKey });
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -244,7 +244,7 @@ const anthropic = new Anthropic({ apiKey: _anthropicKey });
 async function sendEmail(to, subject, html) {
   if (!process.env.RESEND_API_KEY) {
     // Graceful fallback — log so Emil can copy-paste the link during dev
-    console.log(`[email] RESEND_API_KEY not set — would send to ${to}:\n  Subject: ${subject}\n  (set RESEND_API_KEY in Render to enable real email sending)`);
+    logger.debug(`[email] RESEND_API_KEY not set — would send subject: ${subject}`);
     return { ok: false, reason: 'no_api_key' };
   }
   try {
@@ -266,7 +266,7 @@ async function sendEmail(to, subject, html) {
       console.error('[email] Resend error:', data);
       return { ok: false, error: data };
     }
-    console.log(`[email] Sent to ${to} — id: ${data.id}`);
+    logger.info(`[email] Sent — id: ${data.id}`);
     return { ok: true, id: data.id };
   } catch(err) {
     console.error('[email] sendEmail error:', err.message);
@@ -984,7 +984,7 @@ async function handleStripeWebhook(req, res) {
         await db.setUserPro(user.id);
         if (customerId) try { await db.setStripeCustomerId(user.id, customerId); } catch(e) {}
         await db.logEvent('pro_activated', { email, source: 'stripe_webhook' }, '');
-        console.log(`[stripe] Pro activated for ${email}`);
+        logger.info(`[stripe] Pro activated — userId: ${user ? user.id : 'unknown'}`);
 
         // Check if this user was referred — if so, credit the referrer
         try {
@@ -1005,7 +1005,7 @@ async function handleStripeWebhook(req, res) {
                 '🎉 You earned a free month of Pro!',
                 emailReferralReward(referrer.name, user.name)
               ).catch(() => {});
-              console.log(`[referral] Credited ${referral.referrer_email} with 30d Pro`);
+              logger.info('[referral] Credited referrer with 30d Pro');
             }
           }
         } catch(e) { console.error('[referral-reward] error:', e.message); }
@@ -1030,7 +1030,7 @@ async function handleStripeWebhook(req, res) {
           if (!proUntil || proUntil < new Date()) {
             await db.removeUserPro(user.id);
             await db.logEvent('pro_removed', { email: user.email, reason: event.type }, '');
-            console.log(`[stripe] Pro removed for ${user.email} — ${event.type}`);
+            logger.info(`[stripe] Pro removed — userId: ${user.id}, event: ${event.type}`);
           }
         } else {
           console.warn(`[stripe] ${event.type} — no user found for customer ${customerId}`);
@@ -1500,7 +1500,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     }
 
     const rawText = completion.content[0].text;
-    console.log('[meal] AI response chars:', rawText.length, '| tail:', rawText.slice(-80));
+    logger.debug('[meal] AI response chars: ' + rawText.length);
 
     let mealPlan;
     try {
@@ -1949,6 +1949,10 @@ db.initDb().then(async () => {
       { name: 'RESEND_API_KEY',          ok: !!process.env.RESEND_API_KEY },
       { name: 'ADMIN_TOKEN',             ok: !!process.env.ADMIN_TOKEN },
       { name: 'PLAN_BYPASS_TOKEN',       ok: !!process.env.PLAN_BYPASS_TOKEN },
+      { name: 'CRON_SECRET',             ok: !!process.env.CRON_SECRET },
+      { name: 'TURSO_DATABASE_URL',      ok: !!process.env.TURSO_DATABASE_URL },
+      { name: 'TURSO_AUTH_TOKEN',        ok: !!process.env.TURSO_AUTH_TOKEN },
+      { name: 'APP_URL',                 ok: !!process.env.APP_URL },
       { name: 'DATABASE',                ok: await db.ping() },
     ];
 

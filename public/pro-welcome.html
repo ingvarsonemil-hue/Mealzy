@@ -47,7 +47,8 @@
   <a href="dashboard.html" class="btn btn-primary" style="width:100%;display:block;font-size:1rem;padding:0.9rem;">
     Go to My Dashboard →
   </a>
-  <p style="margin-top:1rem;font-size:0.78rem;color:var(--clr-muted);">
+  <div id="activationStatus" style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted);min-height:1.2em;text-align:center;"></div>
+  <p style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted);">
     Questions? Email <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a>
   </p>
 </div>
@@ -61,11 +62,19 @@
   localStorage.setItem('mealzy_pro', 'true');
 
   // Persist Pro flag server-side so it survives browser clears / new devices
-  (async () => {
+  async function activatePro() {
+    const status = document.getElementById('activationStatus');
     try {
-      await fetch('/api/pro/activate', { method: 'POST' });
-    } catch(e) {}
-  })();
+      const res = await fetch('/api/pro/activate', { method: 'POST' });
+      if (!res.ok) throw new Error('non-ok');
+      if (status) status.textContent = '';
+    } catch(e) {
+      if (status) {
+        status.innerHTML = 'Pro activation pending. <button onclick="activatePro()" style="background:none;border:none;color:var(--clr-primary);cursor:pointer;font-size:inherit;text-decoration:underline;padding:0;">Retry</button>';
+      }
+    }
+  }
+  activatePro();
 
   // If user came from Stripe (?session_id= or just landing on this page after payment)
   // Track the upgrade event
