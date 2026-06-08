@@ -27,3 +27,10 @@
 - Riley tasked with drafting two versions of free limit hit A/B copy (under 40 words each, brand voice) by 2026-06-11; test cannot launch until 20+ free-tier users are active.
 - Taylor tasked with drafting the Reddit post for Emil and identifying two additional low-cost channels; Product Hunt prep timeline remains blocked pending Emil's target month decision.
 - Product Hunt relaunch remains undated for the third consecutive week; Emil needs to assign a target month (July or August recommended) to unblock Taylor's planning — flagged as critical.
+
+## 2026-06-08
+- Monday 2026-06-08: Weekly priorities delivered. Single focus remains getting first 10 real signups — no acquisition has occurred in three weeks since first dashboard.
+- Reddit post still unconfirmed as sent; flagged for the fourth consecutive week. Emil must post this week (today or Tuesday) for there to be any data to report on Friday.
+- Emil's baseline question (are 17 plans real users or founder testing?) remains unanswered after three asks; answer is needed to validate all north star metrics.
+- Riley tasked with finalizing two A/B copy drafts for free limit hit message by Wednesday 2026-06-11; Taylor tasked with delivering Reddit post draft to Emil today and confirming two additional channel recommendations.
+- Product Hunt target month decision flagged as final notice — after this week, the item will be marked blocked in the launch calendar until Emil confirms July or August.
