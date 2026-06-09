@@ -1,6 +1,12 @@
 # .github/workflows/wednesday-agents.yml
-# casey, jordan, logan, maya, morgan, nova, quinn, taylor
-# budget-guard, macro-specialist, culinary-critic, grocery-optimizer
+# PAUSED — taylor: re-enable when Twitter/Reddit account has posting history and 100+ followers
+# PAUSED — logan: re-enable when Mealzy has 200+ active users
+# PAUSED — maya: re-enable when running paid ads
+# MANUAL — casey: run with node .github/scripts/run-agent.js casey
+# MANUAL — morgan: run with node .github/scripts/run-agent.js morgan
+# MANUAL — quinn: run with node .github/scripts/run-agent.js quinn
+# PAUSED — nova: re-enable when there is meaningful site traffic and design improvements are needed for conversion
+# PAUSED — grocery-optimizer: re-enable when Pro subscribers are actively using the grocery list feature
 
 name: Wednesday Agents
 
@@ -14,7 +20,9 @@ permissions:
 
 jobs:
 
+  # MANUAL — run with: node .github/scripts/run-agent.js casey
   casey:
+    if: false
     name: Casey — Churn Analysis
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +36,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: casey-wed, path: .agents/outputs/*casey* }
+
   jordan:
     name: Jordan — Email Sequence
     runs-on: ubuntu-latest
@@ -42,7 +51,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: jordan-wed, path: .agents/outputs/*jordan* }
+
+  # PAUSED — re-enable when Mealzy has 200+ active users
   logan:
+    if: false
     name: Logan — Pipeline Update
     runs-on: ubuntu-latest
     steps:
@@ -56,7 +68,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: logan-wed, path: .agents/outputs/*logan* }
+
+  # PAUSED — re-enable when running paid ads
   maya:
+    if: false
     name: Maya — CRO + Headline Rewrites
     runs-on: ubuntu-latest
     steps:
@@ -70,7 +85,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: maya-wed, path: .agents/outputs/*maya* }
+
+  # MANUAL — run with: node .github/scripts/run-agent.js morgan
   morgan:
+    if: false
     name: Morgan — Bug Fix
     runs-on: ubuntu-latest
     steps:
@@ -84,7 +102,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: morgan-wed, path: .agents/outputs/*morgan* }
+
+  # PAUSED — re-enable when there is meaningful site traffic and design improvements are needed for conversion
   nova:
+    if: false
     name: Nova — Design Audit
     runs-on: ubuntu-latest
     steps:
@@ -98,7 +119,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: nova-wed, path: .agents/outputs/*nova* }
+
+  # MANUAL — run with: node .github/scripts/run-agent.js quinn
   quinn:
+    if: false
     name: Quinn — Prompt Fix
     runs-on: ubuntu-latest
     steps:
@@ -112,7 +136,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: quinn-wed, path: .agents/outputs/*quinn* }
+
+  # PAUSED — re-enable when Twitter/Reddit account has posting history and 100+ followers
   taylor:
+    if: false
     name: Taylor — Competitor Check
     runs-on: ubuntu-latest
     steps:
@@ -130,10 +157,10 @@ jobs:
           TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
       - uses: actions/upload-artifact@v4
         with: { name: taylor-wed, path: .agents/outputs/*taylor* }
+
   budget-guard:
     name: Budget Guard — Prompt Fix
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -145,10 +172,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: budget-guard-wed, path: .agents/outputs/*budget-guard* }
+
   macro-specialist:
     name: Macro Specialist — Prompt Fix
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -160,10 +187,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: macro-specialist-wed, path: .agents/outputs/*macro-specialist* }
+
   culinary-critic:
     name: Culinary Critic — Prompt Fix
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -175,10 +202,12 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: culinary-critic-wed, path: .agents/outputs/*culinary-critic* }
+
+  # PAUSED — re-enable when Pro subscribers are actively using the grocery list feature
   grocery-optimizer:
+    if: false
     name: Grocery Optimizer — Prompt Fix
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }

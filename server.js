@@ -1373,7 +1373,7 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
     const mealSchema = `{
   "type": "breakfast|lunch|dinner|snack",
   "name": "string",
-  "description": "string (under ${isPro ? '15' : '10'} words)",
+  "description": "string — MUST start with a cooking method word (e.g. Grilled, Pan-seared, Slow-cooked, Roasted, Baked, Crispy, Sautéed). Format: [Method] [ingredient] with [accompaniment]. Under ${isPro ? '15' : '10'} words.",
   "calories": number,
   "protein": number,
   "carbs": number,
@@ -1459,6 +1459,8 @@ User profile:
 - Cooking skill: ${cookingSkill}
 - Max time per meal: ${cookingTimeMinutes} min
 - STRICT DAILY BUDGET: ${currency} ${dailyBudget} total. Each meal max ${currency} ${perMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
+- BUDGET MATH: The totalCost field MUST equal the exact arithmetic sum of all 4 estimatedCost values (breakfast + lunch + dinner + snack). Never echo the budget ceiling as totalCost — report only the actual calculated cost.
+- MACRO CALCULATION: Derive each meal's protein, carbs, and fat from its actual ingredients and realistic portion sizes — do not reverse-engineer numbers to hit the daily targets. Each meal must satisfy: (protein×4 + carbs×4 + fat×9) within ±50 kcal of its stated calories field.
 
 ${avoidBlock}
 
@@ -1519,6 +1521,20 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         ]
       });
       mealPlan = parseJsonResponse(retryCompletion.content[0].text);
+    }
+
+    // ── Macro sanity check — log discrepancies for agent review ─────────────
+    if (mealPlan.meals) {
+      for (const meal of mealPlan.meals) {
+        const p = Number(meal.protein) || 0;
+        const c = Number(meal.carbs)   || 0;
+        const f = Number(meal.fat)     || 0;
+        const stated     = Number(meal.calories) || 0;
+        const calculated = p * 4 + c * 4 + f * 9;
+        if (Math.abs(stated - calculated) > 100) {
+          log.warn(`[macro-check] meal "${meal.name}" calories stated ${stated} calculated ${calculated}`);
+        }
+      }
     }
 
     // ── Allergy enforcement — server-side scan after AI generation ───────────
@@ -1742,17 +1758,44 @@ app.post('/api/xp/award', async (req, res) => {
   if (!xpEarned) return res.status(400).json({ error: 'unknown action' });
 
   try {
-    const profile = await db.getProfile(session.userId) || {};
+    const profile  = await db.getProfile(session.userId) || {};
     const newXP    = (profile.xp || 0) + xpEarned;
     const newLevel = calcLevel(newXP);
     const oldLevel = calcLevel(profile.xp || 0);
 
     profile.xp    = newXP;
     profile.level = newLevel;
+
+    // Streak logic — only runs on generate_plan (the daily engagement action)
+    let streakIncremented = false;
+    if (action === 'generate_plan') {
+      const today     = new Date().toISOString().split('T')[0];
+      const lastActive = profile.lastActiveDate || null;
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+      if (lastActive === today) {
+        // already active today — no change
+      } else if (lastActive === yesterday) {
+        profile.streak = (profile.streak || 1) + 1;
+        streakIncremented = true;
+      } else {
+        profile.streak = 1;
+      }
+      profile.lastActiveDate = today;
+    }
+
     await db.saveProfile(session.userId, profile);
     await db.logEvent('xp_award', { action, xp: xpEarned, total: newXP, level: newLevel }, '');
 
-    res.json({ success: true, xp: newXP, level: newLevel, levelUp: newLevel > oldLevel, xpEarned });
+    res.json({
+      success: true,
+      xp: newXP,
+      level: newLevel,
+      levelUp: newLevel > oldLevel,
+      xpEarned,
+      streak: profile.streak,
+      streakIncremented,
+    });
   } catch(err) {
     console.error('XP award error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -1766,6 +1809,26 @@ function calcLevel(xp) {
   if (xp >= 100)  return 2;
   return 1;
 }
+
+// GET /api/share-card/:userId — public, no auth required
+app.get('/api/share-card/:userId', async (req, res) => {
+  const { userId } = req.params;
+  if (!userId || userId.length > 40) return res.status(404).json({ error: 'Not found' });
+  try {
+    const profile = await db.getProfile(userId);
+    const user    = await db.getUserById(userId);
+    if (!profile || !user) return res.status(404).json({ error: 'Not found' });
+    res.json({
+      name:       user.name?.split(' ')[0] || 'Meal Planner',
+      level:      profile.level      || 1,
+      xp:         profile.xp         || 0,
+      weekStreak: profile.weekStreak || 0,
+      badgeCount: (profile.badges    || []).length,
+    });
+  } catch(err) {
+    res.status(500).json({ error: 'Something went wrong.' });
+  }
+});
 
 // ════════════════════════════════════════════════════════════════════════════
 // SHAREABLE MEAL PLANS — public, no login

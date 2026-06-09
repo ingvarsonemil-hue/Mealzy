@@ -1,3 +1,7 @@
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js morgan
+> When to run: run manually when there is a specific build task
+
 ---
 name: morgan
 role: Full-Stack Engineer

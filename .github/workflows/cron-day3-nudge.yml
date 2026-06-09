@@ -1,7 +1,7 @@
 name: Cron — Day-3 Nudge Emails
 on:
   schedule:
-    - cron: '0 8 * * *'  # Daily 8:00 UTC = 9am CET
+    - cron: '0 9 * * *'  # Daily 9:00 UTC
   workflow_dispatch:
 
 jobs:

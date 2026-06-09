@@ -1,4 +1,21 @@
 # .github/workflows/monday-agents.yml
+# PAUSED — alex: re-enable when Instagram or TikTok account reaches 500 followers
+# PAUSED — taylor: re-enable when Twitter/Reddit account has posting history and 100+ followers
+# PAUSED — maya: re-enable when running paid ads
+# PAUSED — logan: re-enable when Mealzy has 200+ active users
+# PAUSED — matteo: re-enable when English product has 100+ users and non-English signups appear in analytics
+# PAUSED — robin: re-enable when there is a specific research question tied to a product decision
+# PAUSED — harper: re-enable when preparing for fundraising or a new jurisdiction
+# PAUSED — finlay: run manually on the first Monday of each month instead
+# MANUAL — quinn: run with node .github/scripts/run-agent.js quinn
+# MANUAL — morgan: run with node .github/scripts/run-agent.js morgan
+# MANUAL — drew: run with node .github/scripts/run-agent.js drew
+# MANUAL — charlie: run with node .github/scripts/run-agent.js charlie
+# MANUAL — casey: run with node .github/scripts/run-agent.js casey
+# PAUSED — growth: re-enable when there are 50+ weekly active users and weekly trends are meaningful
+# PAUSED — contentops: re-enable when Alex or Taylor is re-enabled and posting to active accounts
+# PAUSED — grocery-optimizer: re-enable when Pro subscribers are actively using the grocery list feature
+
 name: Monday Agents
 
 on:
@@ -11,7 +28,9 @@ permissions:
 
 jobs:
 
+  # PAUSED — re-enable when Instagram or TikTok account reaches 500 followers
   alex:
+    if: false
     name: Alex — Scripts + Carousel
     runs-on: ubuntu-latest
     steps:
@@ -75,7 +94,9 @@ jobs:
           commit_message: "agents: avery monday [skip ci]"
           file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
 
+  # MANUAL — run with: node .github/scripts/run-agent.js morgan
   morgan:
+    if: false
     name: Morgan — Code Health
     runs-on: ubuntu-latest
     steps:
@@ -115,7 +136,9 @@ jobs:
           commit_message: "agents: riley monday [skip ci]"
           file_pattern: ".agents/outputs/*riley* .agents/memory/riley.md"
 
+  # MANUAL — run with: node .github/scripts/run-agent.js casey
   casey:
+    if: false
     name: Casey — MRR Report
     runs-on: ubuntu-latest
     steps:
@@ -135,7 +158,9 @@ jobs:
           commit_message: "agents: casey monday [skip ci]"
           file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
 
+  # MANUAL — run with: node .github/scripts/run-agent.js charlie
   charlie:
+    if: false
     name: Charlie — Support Digest
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +180,9 @@ jobs:
           commit_message: "agents: charlie monday [skip ci]"
           file_pattern: ".agents/outputs/*charlie* .agents/memory/charlie.md"
 
+  # PAUSED — re-enable when preparing for fundraising or a new jurisdiction
   harper:
+    if: false
     name: Harper — Legal/Safety
     runs-on: ubuntu-latest
     steps:
@@ -175,7 +202,9 @@ jobs:
           commit_message: "agents: harper monday [skip ci]"
           file_pattern: ".agents/outputs/*harper* .agents/memory/harper.md"
 
+  # PAUSED — re-enable when Mealzy has 200+ active users
   logan:
+    if: false
     name: Logan — Affiliate Research
     runs-on: ubuntu-latest
     steps:
@@ -195,7 +224,9 @@ jobs:
           commit_message: "agents: logan monday [skip ci]"
           file_pattern: ".agents/outputs/*logan* .agents/memory/logan.md"
 
+  # PAUSED — re-enable when running paid ads
   maya:
+    if: false
     name: Maya — CRO Audit
     runs-on: ubuntu-latest
     steps:
@@ -215,7 +246,9 @@ jobs:
           commit_message: "agents: maya monday [skip ci]"
           file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
 
+  # MANUAL — run with: node .github/scripts/run-agent.js quinn
   quinn:
+    if: false
     name: Quinn — AI Quality
     runs-on: ubuntu-latest
     steps:
@@ -235,10 +268,11 @@ jobs:
           commit_message: "agents: quinn monday [skip ci]"
           file_pattern: ".agents/outputs/*quinn* .agents/memory/quinn.md"
 
+  # PAUSED — re-enable when there is a specific research question tied to a product decision
   robin:
+    if: false
     name: Robin — NPS + Research
     runs-on: ubuntu-latest
-    needs: [charlie]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -256,7 +290,9 @@ jobs:
           commit_message: "agents: robin monday [skip ci]"
           file_pattern: ".agents/outputs/*robin* .agents/memory/robin.md"
 
+  # PAUSED — re-enable when Twitter/Reddit account has posting history and 100+ followers
   taylor:
+    if: false
     name: Taylor — Brand Mentions
     runs-on: ubuntu-latest
     steps:
@@ -280,7 +316,9 @@ jobs:
           commit_message: "agents: taylor monday [skip ci]"
           file_pattern: ".agents/outputs/*taylor* .agents/memory/taylor.md"
 
+  # PAUSED — re-enable when there are 50+ weekly active users and weekly trends are meaningful
   growth:
+    if: false
     name: Growth — Dashboard
     runs-on: ubuntu-latest
     steps:
@@ -300,7 +338,9 @@ jobs:
           commit_message: "agents: growth monday [skip ci]"
           file_pattern: ".agents/outputs/*growth* .agents/memory/growth.md"
 
+  # PAUSED — re-enable when Alex or Taylor is re-enabled and posting to active accounts
   contentops:
+    if: false
     name: Content Ops — Calendar
     runs-on: ubuntu-latest
     steps:
@@ -320,7 +360,9 @@ jobs:
           commit_message: "agents: contentops monday [skip ci]"
           file_pattern: ".agents/outputs/*contentops* .agents/memory/contentops.md"
 
+  # PAUSED — run manually on the first Monday of each month instead
   finlay:
+    if: false
     name: Finlay — Unit Economics
     runs-on: ubuntu-latest
     needs: [casey, avery]
@@ -341,7 +383,9 @@ jobs:
           commit_message: "agents: finlay monday [skip ci]"
           file_pattern: ".agents/outputs/*finlay* .agents/memory/finlay.md"
 
+  # PAUSED — re-enable when English product has 100+ users and non-English signups appear in analytics
   matteo:
+    if: false
     name: Matteo — i18n Signals
     runs-on: ubuntu-latest
     needs: [riley]
@@ -365,7 +409,6 @@ jobs:
   budget-guard:
     name: Budget Guard — Cost Tests
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -386,7 +429,6 @@ jobs:
   macro-specialist:
     name: Macro Specialist — Nutrition Tests
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -407,7 +449,6 @@ jobs:
   culinary-critic:
     name: Culinary Critic — Flavour Review
     runs-on: ubuntu-latest
-    needs: [quinn]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -425,10 +466,12 @@ jobs:
           commit_message: "agents: culinary-critic monday [skip ci]"
           file_pattern: ".agents/outputs/*culinary-critic* .agents/memory/culinary-critic.md"
 
+  # PAUSED — re-enable when Pro subscribers are actively using the grocery list feature
   grocery-optimizer:
+    if: false
     name: Grocery Optimizer — List Efficiency
     runs-on: ubuntu-latest
-    needs: [quinn, budget-guard]
+    needs: [budget-guard]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
@@ -446,7 +489,9 @@ jobs:
           commit_message: "agents: grocery-optimizer monday [skip ci]"
           file_pattern: ".agents/outputs/*grocery-optimizer* .agents/memory/grocery-optimizer.md"
 
+  # MANUAL — run with: node .github/scripts/run-agent.js drew
   drew:
+    if: false
     name: Drew — PM Priorities
     runs-on: ubuntu-latest
     needs: [riley, casey, morgan, avery, charlie, robin, growth, contentops]

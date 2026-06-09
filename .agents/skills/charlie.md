@@ -1,3 +1,7 @@
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js charlie
+> When to run: run manually when support volume needs a response audit
+
 ---
 name: charlie
 role: Customer Support & Onboarding

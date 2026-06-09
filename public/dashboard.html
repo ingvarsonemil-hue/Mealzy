@@ -495,7 +495,10 @@
     <h2 style="font-size:1.4rem;font-weight:900;margin-bottom:0.35rem;" id="levelUpTitle">Level 2 Unlocked!</h2>
     <p style="color:var(--clr-muted-fg);font-size:0.9rem;margin-bottom:1.25rem;" id="levelUpSub">You're on your way to becoming a nutrition pro.</p>
     <div id="levelUpBadge" style="display:inline-block;background:var(--clr-primary);color:#fff;font-weight:800;font-size:0.9rem;padding:0.4rem 1.2rem;border-radius:2rem;margin-bottom:1.25rem;"></div>
-    <button class="btn btn-primary" style="width:100%;" onclick="closeLevelUp()">Let's go!</button>
+    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+      <button class="btn btn-outline" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;" onclick="closeLevelUp();generateShareCard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share achievement</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="closeLevelUp()">Let's go!</button>
+    </div>
   </div>
 </div>
 
@@ -552,9 +555,9 @@
         if (serverUser.pro) localStorage.setItem('mealzy_pro', 'true');
         else localStorage.removeItem('mealzy_pro');
         if (serverUser.profile) {
-          // Merge server profile with any local-only fields (streak, water, etc.)
+          // Server profile wins for synced fields (xp, level, streak); local-only fields (water, etc.) fill in gaps
           const localProfile = JSON.parse(localStorage.getItem('mealzy_profile') || '{}');
-          const merged = { ...serverUser.profile, ...localProfile, name: serverUser.name };
+          const merged = { ...localProfile, ...serverUser.profile, name: serverUser.name };
           localStorage.setItem('mealzy_profile', JSON.stringify(merged));
         }
       } else {
@@ -591,7 +594,6 @@
     renderRecentPlans();
     checkRetentionBanners();
     renderWaterGlasses();
-    updateStreak();
     buildCalorieHistoryChart();
     renderLocalStores();
     initPwaBanner();
@@ -635,6 +637,9 @@
     if (mealDateSub) mealDateSub.textContent = dateStr;
   }
 
+  // DEPRECATED — streak now tracked server-side in /api/xp/award
+  // Kept here temporarily. Remove after 2 weeks of stable server-side streak data.
+  // Do not call this function. Server value loaded via init() merge instead.
   function updateStreak() {
     const todayStr = new Date().toISOString().split('T')[0];
     const last = profile.lastActiveDate;
@@ -833,6 +838,7 @@
 
     const ratings = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
 
+    const dayCompleteKey = 'mealzy_day_complete_' + today;
     container.innerHTML = `<div class="grid-2">${todayMeals.map((meal, i) => {
       const r = ratings[meal.name] || 0;
       const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
@@ -870,6 +876,23 @@
         </div>
       </div>`;
     }).join('')}</div>`;
+
+    if (!localStorage.getItem(dayCompleteKey)) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'margin-top:1rem;text-align:center;';
+      wrap.innerHTML = '<button id="markDayCompleteBtn" class="btn btn-outline" style="display:inline-flex;align-items:center;gap:0.4rem;" onclick="markDayComplete(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Mark day complete</button>';
+      container.appendChild(wrap);
+    }
+  }
+
+  function markDayComplete(btn) {
+    const dayKey = 'mealzy_day_complete_' + today;
+    if (localStorage.getItem(dayKey)) return;
+    localStorage.setItem(dayKey, '1');
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Day complete!';
+    awardXP('complete_day');
+    showToast('Day complete! +25 XP', 'success');
   }
 
   function updateStats() {
@@ -1567,12 +1590,16 @@
         const oldLevel = profile.level || 1;
         profile.xp    = data.xp;
         profile.level = data.level;
+        if (data.streak !== undefined) {
+          profile.streak = data.streak;
+          const el = document.getElementById('streakBadge');
+          if (el) el.textContent = `${data.streak} day${data.streak !== 1 ? 's' : ''} streak`;
+        }
         localStorage.setItem('mealzy_profile', JSON.stringify(profile));
         renderXpStrip();
         if (data.levelUp && data.level > oldLevel) {
           setTimeout(() => showLevelUp(data.level), 600);
         }
-        // Award new badges
         checkAndAwardNewBadges();
       }
     } catch(e) {
@@ -1617,6 +1644,177 @@
 
   function closeLevelUp() {
     document.getElementById('levelUpModal').classList.remove('open');
+  }
+
+  function generateShareCard() {
+    if (!profile) return;
+    const { xp, levelObj, nextObj, pct } = getXpStats();
+    const weekStreak = profile.weekStreak || 0;
+    const earnedBadges = getEarnedBadges();
+    const name = serverUser?.name || profile.name || 'Mealzy User';
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+
+    // Background
+    const bg = ctx.createLinearGradient(0, 0, 0, 800);
+    bg.addColorStop(0, '#162b1f');
+    bg.addColorStop(1, '#0c1a12');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, 800, 800);
+
+    // Radial glow from centre
+    const glow = ctx.createRadialGradient(400, 300, 0, 400, 300, 420);
+    glow.addColorStop(0, 'rgba(61,139,94,0.22)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, 800, 800);
+
+    // Top + bottom accent bars
+    ctx.fillStyle = '#3d8b5e';
+    ctx.fillRect(0, 0, 800, 5);
+    ctx.fillRect(0, 795, 800, 5);
+
+    // Wordmark
+    ctx.font = '700 26px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#3d8b5e';
+    ctx.fillText('Mealzy', 400, 68);
+
+    // Thin separator
+    ctx.strokeStyle = 'rgba(61,139,94,0.28)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(120, 88); ctx.lineTo(680, 88); ctx.stroke();
+
+    // Level emoji
+    ctx.font = '96px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(levelObj.emoji, 400, 218);
+
+    // Level label
+    ctx.font = '700 15px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillStyle = '#3d8b5e';
+    ctx.letterSpacing = '0.08em';
+    ctx.fillText('LEVEL ' + levelObj.level, 400, 260);
+
+    // Level title
+    ctx.font = '900 52px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(levelObj.title, 400, 325);
+
+    // User name
+    ctx.font = '400 22px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillText(name, 400, 363);
+
+    // Divider
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(160, 395); ctx.lineTo(640, 395); ctx.stroke();
+
+    // Stats: XP | Streak | Badges
+    [
+      { v: xp.toLocaleString(), l: 'XP' },
+      { v: weekStreak + 'w',    l: 'STREAK' },
+      { v: String(earnedBadges.length), l: 'BADGES' },
+    ].forEach(function(s, i) {
+      const x = 200 + i * 200;
+      ctx.font = '800 38px -apple-system,BlinkMacSystemFont,sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.fillText(s.v, x, 462);
+      ctx.font = '600 12px -apple-system,BlinkMacSystemFont,sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.38)';
+      ctx.fillText(s.l, x, 484);
+    });
+
+    // XP progress bar
+    if (nextObj) {
+      const bx = 150, by = 520, bw = 500, bh = 10, br = 5;
+      _rr(ctx, bx, by, bw, bh, br); ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fill();
+      _rr(ctx, bx, by, Math.max(bh, bw * pct / 100), bh, br); ctx.fillStyle = '#3d8b5e'; ctx.fill();
+      ctx.font = '400 13px -apple-system,BlinkMacSystemFont,sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.textAlign = 'center';
+      ctx.fillText(xp + ' / ' + nextObj.xpNeeded + ' XP  ·  Level ' + nextObj.level + ' next', 400, 553);
+    }
+
+    // Badge emojis row (up to 7)
+    if (earnedBadges.length > 0) {
+      const row = earnedBadges.slice(0, 7);
+      const gap = 48;
+      const startX = 400 - (row.length - 1) * gap / 2;
+      ctx.font = '28px serif';
+      ctx.textAlign = 'center';
+      row.forEach(function(b, i) { ctx.fillText(b.emoji, startX + i * gap, 615); });
+    }
+
+    // Tagline
+    ctx.font = '400 15px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.32)';
+    ctx.textAlign = 'center';
+    ctx.fillText('AI-powered meal planning that fits your life and budget', 400, 672);
+
+    // URL pill
+    _rr(ctx, 287, 697, 226, 38, 19); ctx.fillStyle = 'rgba(61,139,94,0.2)'; ctx.fill();
+    ctx.font = '700 16px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillStyle = '#3d8b5e';
+    ctx.textAlign = 'center';
+    ctx.fillText('mealzy.org', 400, 722);
+
+    _showShareModal(canvas.toDataURL('image/png'), levelObj, xp, weekStreak);
+  }
+
+  function _rr(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function _showShareModal(dataUrl, levelObj, xp, weekStreak) {
+    let modal = document.getElementById('shareCardModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'shareCardModal';
+      modal.className = 'modal-overlay';
+      modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('open'); });
+      document.body.appendChild(modal);
+    }
+    const tweet = encodeURIComponent(
+      'I just reached ' + levelObj.title + ' on Mealzy ' + levelObj.emoji +
+      '\n\n' + xp + ' XP · ' + weekStreak + '-week streak' +
+      '\n\nAI meal planning that fits your budget → mealzy.org'
+    );
+    modal.innerHTML =
+      '<div class="modal" style="max-width:480px;text-align:center;padding:1.75rem;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.1rem;">' +
+          '<h2 style="font-size:1.05rem;font-weight:800;margin:0;">Your Achievement Card</h2>' +
+          '<button onclick="document.getElementById(\'shareCardModal\').classList.remove(\'open\')" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--clr-muted-fg);line-height:1;">✕</button>' +
+        '</div>' +
+        '<img src="' + dataUrl + '" alt="Mealzy achievement card" style="width:100%;border-radius:0.75rem;margin-bottom:1.1rem;box-shadow:0 4px 20px rgba(0,0,0,0.18);" />' +
+        '<div style="display:flex;gap:0.65rem;justify-content:center;flex-wrap:wrap;">' +
+          '<a href="' + dataUrl + '" download="mealzy-achievement.png" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.4rem;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+            'Download' +
+          '</a>' +
+          '<a href="https://x.com/intent/tweet?text=' + tweet + '" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-flex;align-items:center;gap:0.4rem;">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.26 5.633 5.904-5.633Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/></svg>' +
+            'Share on X' +
+          '</a>' +
+        '</div>' +
+        '<p style="font-size:0.72rem;color:var(--clr-muted-fg);margin-top:0.75rem;line-height:1.5;">Download the card first, then attach it to your post on X or Instagram.</p>' +
+      '</div>';
+    modal.classList.add('open');
   }
 
   function updateWeeklyStreak() {

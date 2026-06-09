@@ -1,4 +1,9 @@
 # .github/workflows/thursday-agents.yml
+# PAUSED — maya: re-enable when running paid ads
+# PAUSED — harper: re-enable when preparing for fundraising or a new jurisdiction
+# MANUAL — casey: run with node .github/scripts/run-agent.js casey
+# MANUAL — charlie: run with node .github/scripts/run-agent.js charlie
+
 name: Thursday Agents
 
 on:
@@ -11,7 +16,9 @@ permissions:
 
 jobs:
 
+  # MANUAL — run with: node .github/scripts/run-agent.js casey
   casey:
+    if: false
     name: Casey — MRR Report
     runs-on: ubuntu-latest
     steps:
@@ -31,7 +38,9 @@ jobs:
           commit_message: "agents: casey thursday [skip ci]"
           file_pattern: ".agents/outputs/*casey* .agents/memory/casey.md"
 
+  # MANUAL — run with: node .github/scripts/run-agent.js charlie
   charlie:
+    if: false
     name: Charlie — Support Digest
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +60,9 @@ jobs:
           commit_message: "agents: charlie thursday [skip ci]"
           file_pattern: ".agents/outputs/*charlie* .agents/memory/charlie.md"
 
+  # PAUSED — re-enable when preparing for fundraising or a new jurisdiction
   harper:
+    if: false
     name: Harper — Legal/Safety
     runs-on: ubuntu-latest
     steps:
@@ -91,7 +102,9 @@ jobs:
           commit_message: "agents: jordan thursday [skip ci]"
           file_pattern: ".agents/outputs/*jordan* .agents/memory/jordan.md"
 
+  # PAUSED — re-enable when running paid ads
   maya:
+    if: false
     name: Maya — CRO Audit
     runs-on: ubuntu-latest
     steps:
@@ -134,7 +147,7 @@ jobs:
   cs:
     name: CS — Retention Report
     runs-on: ubuntu-latest
-    needs: [charlie, riley]
+    needs: [riley]
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }

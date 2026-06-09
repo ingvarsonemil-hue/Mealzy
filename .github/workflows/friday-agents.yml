@@ -1,4 +1,8 @@
 # .github/workflows/friday-agents.yml
+# PAUSED — alex: re-enable when Instagram or TikTok account reaches 500 followers
+# PAUSED — growth: re-enable when there are 50+ weekly active users and weekly trends are meaningful
+# PAUSED — contentops: re-enable when Alex or Taylor is re-enabled and posting to active accounts
+
 name: Friday Agents
 
 on:
@@ -11,7 +15,9 @@ permissions:
 
 jobs:
 
+  # PAUSED — re-enable when Instagram or TikTok account reaches 500 followers
   alex:
+    if: false
     name: Alex — Hook A/B Test
     runs-on: ubuntu-latest
     steps:
@@ -55,7 +61,9 @@ jobs:
           commit_message: "agents: avery friday [skip ci]"
           file_pattern: ".agents/outputs/*avery* .agents/memory/avery.md"
 
+  # PAUSED — re-enable when there are 50+ weekly active users and weekly trends are meaningful
   growth:
+    if: false
     name: Growth — Weekly Dashboard
     runs-on: ubuntu-latest
     steps:
@@ -75,7 +83,9 @@ jobs:
           commit_message: "agents: growth friday [skip ci]"
           file_pattern: ".agents/outputs/*growth* .agents/memory/growth.md"
 
+  # PAUSED — re-enable when Alex or Taylor is re-enabled and posting to active accounts
   contentops:
+    if: false
     name: Content Ops — Performance Report
     runs-on: ubuntu-latest
     steps:

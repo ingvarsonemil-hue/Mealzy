@@ -1,3 +1,7 @@
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js casey
+> When to run: run manually when testing a pricing change
+
 ---
 name: casey
 role: Pricing & Monetization Strategist

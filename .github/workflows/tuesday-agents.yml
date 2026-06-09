@@ -1,5 +1,10 @@
 # .github/workflows/tuesday-agents.yml
-# alex, avery, casey, drew, logan, sam, taylor, culinary-critic
+# PAUSED — alex: re-enable when Instagram or TikTok account reaches 500 followers
+# PAUSED — taylor: re-enable when Twitter/Reddit account has posting history and 100+ followers
+# PAUSED — sam: re-enable when the site has 50+ real users and at least 5 backlinks
+# PAUSED — logan: re-enable when Mealzy has 200+ active users
+# MANUAL — drew: run with node .github/scripts/run-agent.js drew
+# MANUAL — casey: run with node .github/scripts/run-agent.js casey
 
 name: Tuesday Agents
 
@@ -13,7 +18,9 @@ permissions:
 
 jobs:
 
+  # PAUSED — re-enable when Instagram or TikTok account reaches 500 followers
   alex:
+    if: false
     name: Alex — Video Script
     runs-on: ubuntu-latest
     steps:
@@ -31,6 +38,7 @@ jobs:
           HCTI_API_KEY:      ${{ secrets.HCTI_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: alex-tue, path: .agents/outputs/*alex* }
+
   avery:
     name: Avery — PageSpeed
     runs-on: ubuntu-latest
@@ -45,7 +53,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: avery-tue, path: .agents/outputs/*avery* }
+
+  # MANUAL — run with: node .github/scripts/run-agent.js casey
   casey:
+    if: false
     name: Casey — Upgrade Flow Audit
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +70,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: casey-tue, path: .agents/outputs/*casey* }
+
+  # MANUAL — run with: node .github/scripts/run-agent.js drew
   drew:
+    if: false
     name: Drew — Specs + ICE Scores
     runs-on: ubuntu-latest
     steps:
@@ -73,7 +87,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: drew-tue, path: .agents/outputs/*drew* }
+
+  # PAUSED — re-enable when Mealzy has 200+ active users
   logan:
+    if: false
     name: Logan — Outreach Drafts
     runs-on: ubuntu-latest
     steps:
@@ -87,7 +104,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: logan-tue, path: .agents/outputs/*logan* }
+
+  # PAUSED — re-enable when the site has 50+ real users and at least 5 backlinks
   sam:
+    if: false
     name: Sam — Publish SEO Page
     runs-on: ubuntu-latest
     steps:
@@ -101,7 +121,10 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - uses: actions/upload-artifact@v4
         with: { name: sam-tue, path: .agents/outputs/*sam* }
+
+  # PAUSED — re-enable when Twitter/Reddit account has posting history and 100+ followers
   taylor:
+    if: false
     name: Taylor — Community Post + Outreach
     runs-on: ubuntu-latest
     steps:
@@ -119,6 +142,7 @@ jobs:
           TWITTER_ACCESS_TOKEN_SECRET:   ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
       - uses: actions/upload-artifact@v4
         with: { name: taylor-tue, path: .agents/outputs/*taylor* }
+
   culinary-critic:
     name: Culinary Critic — Description Audit
     runs-on: ubuntu-latest

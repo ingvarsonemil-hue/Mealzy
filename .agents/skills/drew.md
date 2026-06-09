@@ -1,3 +1,7 @@
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js drew
+> When to run: run manually when planning a feature sprint
+
 ---
 name: drew
 role: Product Manager
