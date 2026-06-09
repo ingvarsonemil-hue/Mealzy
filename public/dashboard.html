@@ -197,9 +197,7 @@
         <span id="proBadge" style="display:none;background:var(--clr-primary);color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Download meal plan as PDF" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> <span data-i18n="btn_download_pdf">Download PDF</span></button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16,6 12,2 8,6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> <span data-i18n="btn_share_card">Share Card</span></button>
-        <!-- TEMP TEST — remove after achievement card is verified -->
-        <button class="btn btn-outline btn-sm" onclick="generateAchievementCard()" title="Preview achievement card" style="display:inline-flex;align-items:center;gap:0.35rem;">🏅 Achievement</button>
-        <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;">
+<button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
           <span id="generateBtnLabel">Generate Today's Plan</span>
         </button>
@@ -292,6 +290,7 @@
       <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
         <span id="xpStreakBadge" style="background:hsl(32,88%,95%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">0 week streak</span>
         <span id="xpBadgeCount" style="background:var(--clr-muted-bg);border:1px solid var(--clr-border);color:var(--clr-text);font-size:0.82rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:2rem;">0 badges</span>
+        <button onclick="generateAchievementCard()" style="background:none;border:none;cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--clr-muted-fg);padding:0.2rem 0.4rem;border-radius:0.4rem;white-space:nowrap;" title="Share your achievement">Share →</button>
       </div>
     </div>
 
@@ -1653,7 +1652,7 @@
     const { xp, levelObj, nextObj, pct } = getXpStats();
     const weekStreak = profile.weekStreak || 0;
     const earnedBadges = getEarnedBadges();
-    const name = serverUser?.name || profile.name || 'Mealzy User';
+    const firstName = (serverUser?.name || profile.name || 'Meal Planner').split(' ')[0];
 
     const canvas = document.createElement('canvas');
     canvas.width = 800;
@@ -1691,9 +1690,9 @@
     ctx.beginPath(); ctx.moveTo(120, 88); ctx.lineTo(680, 88); ctx.stroke();
 
     // Level emoji
-    ctx.font = '96px serif';
+    ctx.font = '120px serif';
     ctx.textAlign = 'center';
-    ctx.fillText(levelObj.emoji, 400, 218);
+    ctx.fillText(levelObj.emoji, 400, 220);
 
     // Level label
     ctx.font = '700 15px -apple-system,BlinkMacSystemFont,sans-serif';
@@ -1709,7 +1708,7 @@
     // User name
     ctx.font = '400 22px -apple-system,BlinkMacSystemFont,sans-serif';
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.fillText(name, 400, 363);
+    ctx.fillText(firstName, 400, 363);
 
     // Divider
     ctx.strokeStyle = 'rgba(255,255,255,0.08)';
