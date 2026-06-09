@@ -1753,14 +1753,26 @@
       ctx.fillText(xp + ' / ' + nextObj.xpNeeded + ' XP  ·  Level ' + nextObj.level + ' next', 400, 553);
     }
 
-    // Badge emojis row (up to 7)
+    // Badge circles row
     if (earnedBadges.length > 0) {
-      const row = earnedBadges.slice(0, 7);
-      const gap = 48;
-      const startX = 400 - (row.length - 1) * gap / 2;
-      ctx.font = '28px serif';
-      ctx.textAlign = 'center';
-      row.forEach(function(b, i) { ctx.fillText(b.emoji, startX + i * gap, 615); });
+      const badgeColors = ['#4ade80', '#facc15', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c', '#34d399'];
+      const badgeSize = 24;
+      const totalBadges = earnedBadges.length;
+      const startX = 400 - (totalBadges * (badgeSize * 2 + 8)) / 2 + badgeSize;
+      earnedBadges.forEach(function(badge, i) {
+        const bx = startX + i * (badgeSize * 2 + 8);
+        const by = 620;
+        ctx.beginPath();
+        ctx.arc(bx, by, badgeSize, 0, Math.PI * 2);
+        ctx.fillStyle = badgeColors[i % badgeColors.length];
+        ctx.fill();
+        ctx.fillStyle = '#1a3d2b';
+        ctx.font = 'bold 16px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText((i + 1).toString(), bx, by);
+      });
+      ctx.textBaseline = 'alphabetic';
     }
 
     // Tagline
