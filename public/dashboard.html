@@ -1689,16 +1689,27 @@
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(120, 88); ctx.lineTo(680, 88); ctx.stroke();
 
-    // Level emoji
-    ctx.font = '120px serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(levelObj.emoji, 400, 220);
-
-    // Level label
-    ctx.font = '700 15px -apple-system,BlinkMacSystemFont,sans-serif';
+    // Level circle
+    ctx.beginPath();
+    ctx.arc(400, 200, 60, 0, Math.PI * 2);
     ctx.fillStyle = '#3d8b5e';
-    ctx.letterSpacing = '0.08em';
-    ctx.fillText('LEVEL ' + levelObj.level, 400, 260);
+    ctx.fill();
+    ctx.strokeStyle = '#4ade80';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Level number inside circle
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 52px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(levelObj.level.toString(), 400, 200);
+
+    // "LEVEL" label below circle
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#4ade80';
+    ctx.font = '600 14px Inter, sans-serif';
+    ctx.fillText('LEVEL', 400, 282);
 
     // Level title
     ctx.font = '900 52px -apple-system,BlinkMacSystemFont,sans-serif';
