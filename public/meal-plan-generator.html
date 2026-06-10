@@ -226,6 +226,16 @@
 </footer>
 
 <script>
+  function escHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
 async function runDemo() {
   const btn    = document.getElementById('demoBtn');
   const errEl  = document.getElementById('dError');
@@ -282,10 +292,10 @@ function renderMeals(meals, cals, budget) {
           <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--clr-primary);margin-bottom:0.5rem;">${day}</div>
           ${ms.map(m => `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;">
             <div>
-              <span style="font-size:0.85rem;font-weight:600;">${m.name}</span>
-              <span style="font-size:0.72rem;color:var(--clr-muted-fg);margin-left:0.4rem;">${m.type}</span>
+              <span style="font-size:0.85rem;font-weight:600;">${escHtml(m.name)}</span>
+              <span style="font-size:0.72rem;color:var(--clr-muted-fg);margin-left:0.4rem;">${escHtml(m.type)}</span>
             </div>
-            <span style="font-size:0.78rem;color:var(--clr-muted-fg);">${m.calories} kcal · $${(m.estimatedCost||0).toFixed(2)}</span>
+            <span style="font-size:0.78rem;color:var(--clr-muted-fg);">${escHtml(m.calories)} kcal · $${(m.estimatedCost||0).toFixed(2)}</span>
           </div>`).join('')}
         </div>
       `).join('')}

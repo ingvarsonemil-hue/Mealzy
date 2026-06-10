@@ -355,6 +355,16 @@
 </div>
 
 <script>
+  function escHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // Dark mode
   if (localStorage.getItem('mealzy_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -467,7 +477,7 @@
       }
       return `<div class="chat-msg ${msg.role}">
         ${msg.role === 'assistant' ? ICO.miaAvatar : ''}
-        <div class="chat-bubble">${formatMessage(msg.content)}</div>
+        <div class="chat-bubble">${formatMessage(escHtml(msg.content))}</div>
       </div>`;
     }).join('');
   }

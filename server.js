@@ -528,11 +528,12 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
     const host     = process.env.APP_URL || 'https://mealzy.org';
     const resetUrl = `${host}/reset-password.html?token=${rawToken}`;
 
-    // Send reset email via Resend (logs to console if API key not set)
-    sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl))
-      .catch(e => console.error('[reset-email] send error:', e));
-
-    res.json({ success: true });
+    const emailSent = await sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl));
+    if (emailSent.ok) {
+      res.json({ success: true, found: true });
+    } else {
+      res.json({ success: true, found: true, resetUrl, note: 'Email delivery failed — use this link directly' });
+    }
   } catch(err) {
     console.error('Reset request error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -855,10 +856,26 @@ app.post('/api/pro/activate', async (req, res) => {
   const user = await db.getUserById(session.userId);
   if (!user) return res.status(404).json({ error: 'user_not_found' });
 
-  await db.setUserPro(session.userId);
-  await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome' }, '');
+  // If already Pro (webhook already ran), just refresh the JWT cookie and return
+  if (user.pro === 1) {
+    setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
+    return res.json({ success: true, pro: true });
+  }
 
-  // Refresh the JWT so the pro flag is up-to-date without requiring sign-in
+  // Not yet Pro: only allow activation if Stripe has already set a customer ID
+  // (meaning the Stripe webhook ran and verified payment)
+  if (!user.stripe_customer_id) {
+    logger.warn(`[pro/activate] rejected — no stripe_customer_id for userId: ${user.id}`);
+    return res.status(403).json({
+      error: 'payment_not_verified',
+      message: 'Payment could not be verified. Please contact support@mealzy.org if you were charged.'
+    });
+  }
+
+  // Stripe customer ID exists but pro flag not yet set — webhook may have been delayed
+  // Safe to activate: payment is evidenced by stripe_customer_id being set
+  await db.setUserPro(session.userId);
+  await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome_verified' }, '');
   setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
   res.json({ success: true, pro: true });
 });
@@ -1133,24 +1150,44 @@ app.get('/api/analytics', requireAdmin, async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/referral — credit a referral (called at signup when a pending ref exists)
-app.post('/api/referral', async (req, res) => {
+app.post('/api/referral', authLimiter, async (req, res) => {
+  // Require authentication — only a real signed-in new user can trigger referral credit
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
   const { referrer_email, new_user_email } = req.body;
   if (!referrer_email) return res.status(400).json({ error: 'referrer_email required' });
 
-  // Persist to SQLite referrals table
+  // The authenticated user must be the one being referred
+  if (session.email !== (new_user_email || '').toLowerCase()) {
+    return res.status(403).json({ error: 'can_only_credit_own_signup' });
+  }
+
+  // Referrer must exist in DB
+  const referrer = await db.getUserByEmail(referrer_email.toLowerCase());
+  if (!referrer) return res.status(404).json({ error: 'referrer_not_found' });
+
+  // Idempotency: one referral credit per referred user, ever
+  try {
+    const alreadyCredited = await db.get(
+      'SELECT id FROM referrals WHERE referred_email = ? AND converted = 1 LIMIT 1',
+      [session.email]
+    );
+    if (alreadyCredited) return res.status(409).json({ error: 'already_credited' });
+  } catch(e) { /* non-fatal — proceed */ }
+
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   try {
     const { randomUUID } = require('crypto');
-    await db.saveReferral(randomUUID(), referrer_email, ip, new_user_email || '');
-    await db.addBonusPlan(referrer_email); // increment bonus_plans on the referrer's account
-    await db.markReferralConverted(referrer_email, new_user_email || '');
+    await db.saveReferral(randomUUID(), referrer_email, ip, session.email);
+    await db.addBonusPlan(referrer_email);
+    await db.markReferralConverted(referrer_email, session.email);
   } catch(e) { console.error('[referral] DB error:', e); }
 
-  // Also update in-memory Map for immediate effect in current server session
   const current = referralBonus.get(referrer_email) || 0;
   referralBonus.set(referrer_email, current + 1);
 
-  await db.logEvent('referral_signup', { referrer: referrer_email, new_user: new_user_email }, '');
+  await db.logEvent('referral_signup', { referrer: referrer_email, new_user: session.email }, '');
   res.json({ ok: true, bonus_plans: current + 1 });
 });
 
@@ -1842,7 +1879,7 @@ app.post('/api/plans/share', async (req, res) => {
   const { plan, date, title } = req.body;
   if (!plan) return res.status(400).json({ error: 'plan required' });
 
-  const shareId = Math.random().toString(36).slice(2, 10); // 8 chars, e.g. "a1b2c3d4"
+  const shareId = require('crypto').randomBytes(5).toString('hex'); // 8 chars, e.g. "a1b2c3d4"
   const planId  = randomUUID();
 
   try {

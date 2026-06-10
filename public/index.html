@@ -545,6 +545,16 @@ body{font-size:1.0625rem;line-height:1.7;}
 
 <script src="motion.js" defer></script>
 <script>
+  function escHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
 // === EMAIL POPUP ===
 function openEmailPopup(){const o=document.getElementById('emailPopupOverlay');o.classList.add('open');o.removeAttribute('aria-hidden');}
 function closeEmailPopup(){const o=document.getElementById('emailPopupOverlay');o.classList.remove('open');o.setAttribute('aria-hidden','true');}
@@ -671,7 +681,7 @@ function renderDemoPlan(plan,cals,budget){
   document.getElementById('demoPlanBody').innerHTML=dayOrder.map(day=>{
     const meals=byDay[day]||[];
     if(!meals.length)return'';
-    return`<div class="demo-day-group"><div class="demo-day-label">${day}</div>${meals.map(m=>`<div class="demo-meal-row"><div><div class="demo-meal-name">${m.name}</div><div class="demo-meal-type">${m.type}</div></div><div class="demo-meal-meta">${m.calories} kcal &middot; ${m.protein}g protein<br><span style="color:hsl(152,52%,62%);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span></div></div>`).join('')}</div>`;
+    return`<div class="demo-day-group"><div class="demo-day-label">${day}</div>${meals.map(m=>`<div class="demo-meal-row"><div><div class="demo-meal-name">${escHtml(m.name)}</div><div class="demo-meal-type">${escHtml(m.type)}</div></div><div class="demo-meal-meta">${escHtml(m.calories)} kcal &middot; ${escHtml(m.protein)}g protein<br><span style="color:hsl(152,52%,62%);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span></div></div>`).join('')}</div>`;
   }).join('');
 }
 

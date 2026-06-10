@@ -113,6 +113,16 @@
 </div>
 
 <script>
+  function escHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
 (async function() {
   const params  = new URLSearchParams(window.location.search);
   const shareId = params.get('id');
@@ -188,14 +198,14 @@ function renderPlan(plan, shareId) {
       </div>
       ${dayMeals.map(m => `
         <div class="meal-row">
-          <span class="meal-type-badge">${m.type}</span>
+          <span class="meal-type-badge">${escHtml(m.type)}</span>
           <div class="meal-info">
-            <div class="meal-name">${m.name}</div>
-            ${m.description ? `<div class="meal-desc">${m.description}</div>` : ''}
+            <div class="meal-name">${escHtml(m.name)}</div>
+            ${m.description ? `<div class="meal-desc">${escHtml(m.description)}</div>` : ''}
             <div class="meal-macros">
-              <span class="macro">${m.calories || 0} kcal</span>
-              ${m.protein ? `<span class="macro">${m.protein}g protein</span>` : ''}
-              ${m.cookTime ? `<span class="macro">${m.cookTime} min</span>` : ''}
+              <span class="macro">${escHtml(m.calories || 0)} kcal</span>
+              ${m.protein ? `<span class="macro">${escHtml(m.protein)}g protein</span>` : ''}
+              ${m.cookTime ? `<span class="macro">${escHtml(m.cookTime)} min</span>` : ''}
             </div>
           </div>
           ${m.estimatedCost ? `<span class="meal-cost">$${m.estimatedCost.toFixed(2)}</span>` : ''}
