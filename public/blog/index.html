@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mealzy Blog — Meal Planning Tips, Guides & AI Tools</title>
+<meta name="description" content="Free guides on AI meal planning, hitting your macros, meal planning on a budget, and more. From the team at Mealzy.">
+<link rel="canonical" href="https://mealzy.org/blog/">
+<meta property="og:title" content="Mealzy Blog">
+<meta property="og:description" content="Free guides on AI meal planning, hitting your macros, meal planning on a budget, and more. From the team at Mealzy.">
+<meta property="og:url" content="https://mealzy.org/blog/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+:root {
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+  --clr-primary: #3d8b5e;
+  --clr-foreground: #1a3d2b;
+  --clr-muted-fg: #7a8a81;
+  --clr-muted-bg: #f5f7f6;
+  --clr-card: #ffffff;
+  --clr-border: #e0e8e4;
+  --shadow-sm: 0 2px 8px rgba(26, 61, 43, 0.08);
+}
+[data-theme="dark"] {
+  --clr-primary: #5db876;
+  --clr-foreground: #f5f7f6;
+  --clr-muted-fg: #a8b8af;
+  --clr-muted-bg: #0d1a15;
+  --clr-card: #1a2620;
+  --clr-border: #2a3a2f;
+}
+html { font-size: 16px; }
+body { font-family: var(--font-body); font-size: 1rem; line-height: 1.7; color: var(--clr-foreground); background: white; }
+[data-theme="dark"] body { background: #0a0f0d; }
+a { color: var(--clr-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.blog-nav {
+  background: var(--clr-foreground);
+  color: white;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.blog-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.blog-nav-logo {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: white;
+  text-decoration: none;
+}
+.blog-nav-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.btn-primary {
+  background: var(--clr-primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #2d6a48;
+  text-decoration: none;
+}
+.blog-header {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 1.25rem 2rem;
+  text-align: center;
+}
+.blog-header h1 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--clr-foreground);
+}
+.blog-header p {
+  font-size: 1.1rem;
+  color: var(--clr-muted-fg);
+  margin: 0;
+}
+.blog-list {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+.article-card {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 0.75rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  transition: box-shadow 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+.article-card:hover {
+  box-shadow: 0 8px 20px rgba(26, 61, 43, 0.12);
+}
+[data-theme="dark"] .article-card {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+}
+.article-card-date {
+  font-size: 0.85rem;
+  color: var(--clr-muted-fg);
+  margin-bottom: 0.5rem;
+}
+.article-card-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--clr-foreground);
+}
+.article-card-title a {
+  color: var(--clr-foreground);
+  text-decoration: none;
+}
+.article-card-title a:hover {
+  color: var(--clr-primary);
+}
+.article-card-desc {
+  color: var(--clr-muted-fg);
+  margin: 0 0 1.25rem;
+  line-height: 1.7;
+}
+.article-card-link {
+  display: inline-block;
+  color: var(--clr-primary);
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+.article-card-link:hover {
+  text-decoration: underline;
+}
+.blog-footer {
+  background: var(--clr-muted-bg);
+  border-top: 1px solid var(--clr-border);
+  padding: 3rem 0 2rem;
+  text-align: center;
+}
+.blog-footer-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+.blog-footer a {
+  display: inline-block;
+  margin: 0 1rem;
+  color: var(--clr-muted-fg);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.blog-footer a:hover {
+  color: var(--clr-primary);
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="blog-nav">
+  <div class="blog-nav-inner">
+    <a href="https://mealzy.org" class="blog-nav-logo">Mealzy</a>
+    <div class="blog-nav-actions">
+      <a href="https://mealzy.org" style="color: rgba(255,255,255,.65); text-decoration: none;">← Back to Mealzy</a>
+      <a href="https://mealzy.org/login.html?signup=1" class="btn-primary">Try Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="blog-header">
+  <h1>Mealzy Blog</h1>
+  <p>Meal planning tips, guides, and AI insights — free and useful.</p>
+</div>
+
+<!-- ARTICLES -->
+<section class="blog-list">
+  <article class="article-card">
+    <div class="article-card-date">June 16, 2026</div>
+    <h2 class="article-card-title">
+      <a href="/blog/free-ai-meal-planner-grocery-list.html">Free AI Meal Planner With Grocery List: The Complete Guide (2026)</a>
+    </h2>
+    <p class="article-card-desc">How AI meal planners work, why the grocery list feature matters, how Mealzy compares to paid alternatives like Eat This Much and PlateJoy, and honest tips for getting the most out of your plan.</p>
+    <a href="/blog/free-ai-meal-planner-grocery-list.html" class="article-card-link">Read article →</a>
+  </article>
+</section>
+
+<!-- FOOTER -->
+<div class="blog-footer">
+  <div class="blog-footer-inner">
+    <a href="https://mealzy.org">← Back to Mealzy</a>
+    <a href="https://mealzy.org/pricing.html">Pricing</a>
+    <a href="https://mealzy.org/#faq">FAQ</a>
+    <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--clr-muted-fg);">© 2026 Mealzy — Built by Emil, 16, Sweden.</p>
+  </div>
+</div>
+
+<script>
+if(localStorage.getItem('mealzy_theme')==='dark') {
+  document.documentElement.setAttribute('data-theme','dark');
+}
+</script>
+
+</body>
+</html>

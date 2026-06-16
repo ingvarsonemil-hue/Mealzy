@@ -2008,6 +2008,12 @@ app.post('/api/cron/weekly-digest', async (req, res) => {
 // ── Recipe routes (photo import, save, list) ──────────────────────────────
 require('./routes/recipes')(app, { anthropic, getSessionFromReq, generateLimiter, db });
 
+// ── Blog routes ────────────────────────────────────────────────────────────
+app.get('/blog', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'blog', 'index.html'));
+});
+app.use('/blog', express.static(path.join(__dirname, 'public', 'blog')));
+
 // ── Catch-all: serve index.html ────────────────────────────────────────────
 app.get('*', async (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

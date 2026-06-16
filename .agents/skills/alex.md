@@ -306,6 +306,11 @@ Slide 10: [CTA — 1–2 lines]
 
 Always deliver 2 carousel variants per request — one per topic pillar.
 
+### Design Rules (non-negotiable)
+- **No slide numbers** — never show "1 / 10", "2 / 10" etc. on any slide
+- **No swipe prompt** — never show "SWIPE →" text on any slide
+- **No variant labels** — never show "A" or "B" in the top right corner
+
 ### HTML Carousel Output
 
 After writing the carousel script, output a `## HTML CAROUSEL` section containing a complete self-contained HTML file. This renders each slide at 1080×1080px for screenshotting and Instagram posting.
@@ -331,12 +336,6 @@ Use this exact structure — fill in slide content from the carousel script abov
     .logo { position:absolute; top:56px; left:72px; font-family:'Fraunces',serif; font-weight:900; font-size:30px; }
     .dark .logo, .green .logo { color:#fff; }
     .white .logo, .cream .logo { color:#1a4731; }
-    .num { position:absolute; bottom:56px; right:72px; font-size:18px; opacity:.35; font-family:'Inter',sans-serif; }
-    .dark .num, .green .num { color:#fff; }
-    .white .num, .cream .num { color:#1a4731; }
-    .swipe { position:absolute; bottom:56px; left:72px; font-size:18px; opacity:.35; font-family:'Inter',sans-serif; letter-spacing:.05em; }
-    .dark .swipe, .green .swipe { color:#fff; }
-    .white .swipe, .cream .swipe { color:#1a4731; }
     h1 { font-family:'Fraunces',serif; font-weight:900; font-size:86px; text-align:center; line-height:1.05; }
     .dark h1, .green h1 { color:#fff; }
     .white h1, .cream h1 { color:#1a4731; }
@@ -358,16 +357,12 @@ Use this exact structure — fill in slide content from the carousel script abov
   <div class="slide dark">
     <div class="logo">🥗 Mealzy</div>
     <h1>[HOOK — 5–8 words]</h1>
-    <div class="num">1 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 2 — Rehook -->
   <div class="slide green">
     <h2>[REHOOK headline]</h2>
     <p>[1–2 lines — build curiosity gap]</p>
-    <div class="num">2 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 3 — Relatable Pain -->
@@ -375,24 +370,18 @@ Use this exact structure — fill in slide content from the carousel script abov
     <div class="logo">🥗 Mealzy</div>
     <h2>[Pain headline]</h2>
     <p>[1–2 lines — inside the experience]</p>
-    <div class="num">3 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 4 — Insight 1 -->
   <div class="slide cream">
     <h2>[Insight 1 headline]</h2>
     <p>[1–2 lines]</p>
-    <div class="num">4 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 5 — Insight 2 -->
   <div class="slide dark">
     <h2>[Insight 2 headline]</h2>
     <p>[1–2 lines]</p>
-    <div class="num">5 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 6 — Insight 3 -->
@@ -400,23 +389,17 @@ Use this exact structure — fill in slide content from the carousel script abov
     <div class="logo">🥗 Mealzy</div>
     <h2>[Insight 3 headline]</h2>
     <p>[1–2 lines]</p>
-    <div class="num">6 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 7 — Insight 4 -->
   <div class="slide green">
     <h2>[Insight 4 headline]</h2>
     <p>[1–2 lines]</p>
-    <div class="num">7 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 8 — Aha Moment -->
   <div class="slide dark">
     <h1>[KEY INSIGHT — save-worthy moment]</h1>
-    <div class="num">8 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 9 — Takeaway -->
@@ -424,8 +407,6 @@ Use this exact structure — fill in slide content from the carousel script abov
     <div class="logo">🥗 Mealzy</div>
     <h2>[Takeaway headline]</h2>
     <p>[Clear practical action]</p>
-    <div class="num">9 / 10</div>
-    <div class="swipe">SWIPE →</div>
   </div>
 
   <!-- Slide 10 — CTA -->
@@ -433,7 +414,6 @@ Use this exact structure — fill in slide content from the carousel script abov
     <div class="logo">🥗 Mealzy</div>
     <div class="cta-box">[CTA — save / comment / follow]</div>
     <div class="url">Free at mealzy.org</div>
-    <div class="num">10 / 10</div>
   </div>
 
 </body>
