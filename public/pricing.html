@@ -137,6 +137,14 @@
       border-color: var(--clr-border);
       color: var(--clr-foreground);
     }
+    /* Nav logo */
+    .nav-logo-text {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
     /* Pricing testimonials */
     .pricing-testimonials {
       display: grid;
@@ -225,7 +233,7 @@
 <section style="padding:clamp(6rem,12vw,9rem) 0 clamp(3rem,6vw,5rem);border-bottom:1px solid var(--clr-border);">
   <div class="container" style="text-align:center;">
     <span class="section-label" style="animation:slideUp 0.45s var(--ease-edit) 0.05s both;opacity:0;">Simple Pricing</span>
-    <h1 class="pricing-hero-headline" style="animation:slideUp 0.45s var(--ease-edit) 0.15s both;opacity:0;">
+    <h1 class="pricing-hero-headline" style="animation:slideUp 0.45s var(--ease-edit) 0.15s both;opacity:0;font-family:var(--font-display);font-style:italic;font-weight:700;">
       Mealzy pricing — free plan included, no credit card needed
     </h1>
     <p class="pricing-hero-sub" style="font-size:var(--text-lg);color:var(--clr-muted-fg);max-width:480px;margin:0.75rem auto 2.5rem;animation:slideUp 0.45s var(--ease-edit) 0.23s both;opacity:0;">
@@ -407,7 +415,6 @@
       <p class="cta-lede">Mealzy builds the full week in 30 seconds. Free to start — no credit card.</p>
       <a href="login.html?signup=1" class="btn btn-primary btn-lg">
         Start Free — Takes 2 Minutes
-        <svg class="fork-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><line x1="7" y1="11" x2="7" y2="22"/><line x1="21" y1="15" x2="21" y2="22"/><path d="M21 2c0 3.5-3 6-3 9s3 5.5 3 9"/></svg>
       </a>
     </div>
   </div>
