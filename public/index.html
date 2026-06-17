@@ -205,15 +205,18 @@ body{font-size:1.0625rem;line-height:1.7;}
 .pullquote-mark{display:block;font-family:var(--font-display);font-size:4.5rem;color:var(--clr-primary);line-height:.4;margin-bottom:1.75rem;user-select:none;}
 .pullquote-text{font-family:var(--font-display);font-style:italic;font-size:clamp(1.25rem,2.5vw,1.6rem);color:rgba(255,255,255,.88);line-height:1.4;margin-bottom:1.25rem;}
 .pullquote-attr{font-size:.78rem;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;}
-/* FAQ */
+/* FAQ accordion */
 .faq-section{padding:5rem 0;}
-.faq-item{border-bottom:1px solid var(--clr-border);}
-.faq-item:first-child{border-top:1px solid var(--clr-border);}
-.faq-btn{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:none;text-align:left;cursor:pointer;padding:1.25rem 0;font-family:var(--font-body);font-size:1rem;font-weight:600;color:var(--clr-foreground);gap:1rem;min-height:44px;touch-action:manipulation;}
-.faq-chevron{flex-shrink:0;transition:transform .3s;color:var(--clr-muted-fg);}
+.faq-list{max-width:680px;margin:0 auto;}
+.faq-item{border-bottom:1px solid var(--clr-hairline,var(--clr-border));}
+.faq-item:first-child{border-top:1px solid var(--clr-hairline,var(--clr-border));}
+.faq-btn{display:flex;align-items:center;justify-content:space-between;padding:20px 0;cursor:pointer;font-family:var(--font-body);font-weight:600;font-size:16px;color:var(--clr-foreground);list-style:none;user-select:none;gap:16px;width:100%;background:none;border:none;text-align:left;}
+.faq-btn::-webkit-details-marker{display:none;}
+.faq-chevron{font-size:20px;font-weight:400;color:var(--clr-primary,var(--color-green));flex-shrink:0;transition:transform 0.2s ease;line-height:1;}
 .faq-item.open .faq-chevron{transform:rotate(180deg);}
 .faq-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
 .faq-item.open .faq-body{max-height:400px;}
+.faq-answer{padding:0 0 20px 0;font-family:var(--font-body);font-size:15px;color:var(--clr-muted-fg);line-height:1.7;}
 .faq-body-inner{font-size:1rem;color:var(--clr-muted-fg);line-height:1.7;max-width:65ch;padding-bottom:1.25rem;}
 /* CTA section */
 .cta-section{padding:5rem 0;background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);}
@@ -250,6 +253,27 @@ body{font-size:1.0625rem;line-height:1.7;}
 .section-title{font-family:var(--font-display);font-style:italic;font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.75rem;}
 .section-sub{font-size:1rem;color:var(--clr-muted-fg);max-width:52ch;margin:0 auto;}
 .section-header{text-align:center;margin-bottom:3rem;}
+/* Trust strip */
+.trust-strip{background:var(--clr-muted-bg);border-top:1px solid var(--clr-hairline);border-bottom:1px solid var(--clr-hairline);padding:14px var(--container-pad,20px);}
+.trust-strip-inner{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;max-width:900px;margin:0 auto;}
+.trust-item{display:flex;align-items:center;gap:6px;font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--clr-muted-fg);white-space:nowrap;}
+.trust-stars{color:#f59e0b;font-size:13px;letter-spacing:1px;}
+.trust-divider{width:1px;height:16px;background:var(--clr-hairline);flex-shrink:0;}
+@media(max-width:640px){.trust-divider{display:none;}.trust-strip-inner{gap:8px 16px;}}
+[data-theme="dark"] .trust-strip{background:var(--clr-muted-bg);border-color:var(--clr-border);}
+/* Founder section */
+.founder-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;padding:0 var(--container-pad,20px);}
+@media(min-width:768px){.founder-inner{grid-template-columns:2fr 1fr;align-items:center;}}
+.founder-quote-mark{display:block;margin-bottom:8px;}
+.founder-inner blockquote{font-family:var(--font-display);font-size:clamp(20px,2.5vw,26px);font-style:italic;font-weight:400;color:rgba(255,255,255,0.92);line-height:1.5;margin:0 0 24px 0;max-width:100%;}
+.founder-attribution{display:flex;align-items:center;gap:12px;}
+.founder-avatar{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:18px;font-weight:700;color:white;flex-shrink:0;}
+.founder-name{font-family:var(--font-body);font-size:14px;font-weight:700;color:white;}
+.founder-title{font-family:var(--font-body);font-size:13px;color:rgba(255,255,255,0.55);margin-top:2px;}
+.founder-stats{display:flex;flex-direction:row;gap:24px;justify-content:flex-start;}
+@media(min-width:768px){.founder-stats{flex-direction:column;gap:20px;justify-content:center;}}
+.founder-stat-number{font-family:var(--font-display);font-size:36px;font-weight:900;font-style:italic;color:var(--color-green-light,#4ade80);line-height:1;}
+.founder-stat-label{font-family:var(--font-body);font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px;}
 </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -347,24 +371,32 @@ body{font-size:1.0625rem;line-height:1.7;}
   </div>
 </section>
 
-<!-- HONEST STRIP -->
-<div class="honest-strip" role="complementary" aria-label="Key facts">
-  <div class="honest-inner">
-    <div class="honest-item">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-      Full week of meals in 30 seconds
+<!-- Social proof strip -->
+<div class="trust-strip">
+  <div class="trust-strip-inner">
+    <div class="trust-item">
+      <div class="trust-stars">★★★★★</div>
+      <span>Loved by users</span>
     </div>
-    <div class="honest-item">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-      Hits your exact calorie and macro targets
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>3 free plans/month</span>
     </div>
-    <div class="honest-item">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-      Grocery list written automatically
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>No credit card</span>
     </div>
-    <div class="honest-item">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-      Free — no credit card needed
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>Takes 30 seconds</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Used in 20+ countries</span>
     </div>
   </div>
 </div>
@@ -531,10 +563,37 @@ body{font-size:1.0625rem;line-height:1.7;}
 <section class="pullquote-section" id="testimonials" aria-labelledby="founder-heading">
   <div class="pullquote-inner">
     <div class="reveal">
-      <span class="pullquote-mark" aria-hidden="true">&ldquo;</span>
-      <p id="founder-heading" class="pullquote-text">I built Mealzy because meal planning was eating my Sundays. Mealzy is new — you'd be one of the first users. No fake reviews, no inflated numbers. Just a tool I built to solve a real problem, now free for anyone who needs it.</p>
-      <p class="pullquote-attr">— Emil, founder &middot; 16 years old &middot; Built Mealzy solo</p>
-      <p style="margin-top:1.5rem;font-size:.85rem;color:rgba(255,255,255,.4);">Questions? <a href="mailto:support@mealzy.org" style="color:rgba(255,255,255,.65);font-weight:600;text-decoration:none;">support@mealzy.org</a> — usually replied to within 24 hours.</p>
+      <div class="founder-inner">
+        <div class="founder-quote">
+          <svg class="founder-quote-mark" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <text x="0" y="36" font-size="48" fill="rgba(255,255,255,0.15)" font-family="Georgia, serif">"</text>
+          </svg>
+          <blockquote>
+            I built Mealzy because meal planning was eating my Sundays. Tell it your goals and budget — it builds the week, hits your macros, and writes the grocery list. No spreadsheet. No guessing. Just a plan that works.
+          </blockquote>
+          <div class="founder-attribution">
+            <div class="founder-avatar">E</div>
+            <div>
+              <div class="founder-name">Emil Ingvarson</div>
+              <div class="founder-title">Founder · 16 years old · Uppsala, Sweden</div>
+            </div>
+          </div>
+        </div>
+        <div class="founder-stats">
+          <div class="founder-stat">
+            <div class="founder-stat-number">20+</div>
+            <div class="founder-stat-label">Countries</div>
+          </div>
+          <div class="founder-stat">
+            <div class="founder-stat-number">30s</div>
+            <div class="founder-stat-label">To plan a week</div>
+          </div>
+          <div class="founder-stat">
+            <div class="founder-stat-number">Free</div>
+            <div class="founder-stat-label">Always</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
