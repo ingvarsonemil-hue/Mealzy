@@ -10,15 +10,15 @@
 
 /* ---------- Design Tokens ---------- */
 :root {
-  --parchment:      #FDF6EC;
-  --parchment-deep: #F4EAD5;
-  --espresso:       #1A1208;
+  --parchment:      var(--clr-background);
+  --parchment-deep: var(--clr-muted-bg);
+  --espresso:       var(--clr-foreground);
   --espresso-soft:  #3D2E1F;
-  --brick:          #C84B31;
+  --brick:          var(--clr-accent);
   --brick-deep:     #A23A24;
-  --sage:           #4A7C59;
-  --ink-muted:      #6B5D4F;
-  --hairline:       #D9CDB8;
+  --sage:           var(--clr-primary);
+  --ink-muted:      var(--clr-muted-fg);
+  --hairline:       var(--clr-border);
 
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
@@ -71,8 +71,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; font-size: 15px; }
 body {
-  background: var(--parchment);
-  color: var(--espresso);
+  background: var(--clr-background);
+  color: var(--clr-foreground);
   font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: 1.65;
@@ -491,12 +491,13 @@ h3 { font-size: clamp(1.1rem, 2vw, var(--text-xl)); }
    ================================================================ */
 .cta-band {
   padding-block: var(--pad-section);
-  background: var(--parchment-deep);
-  border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+  background: #1a3d2b;
+  color: white;
+  border-top: none; border-bottom: none;
 }
-.cta-band h2 { margin-bottom: 1rem; }
-.cta-band .cta-lede { font-size: var(--text-lg); color: var(--ink-muted); margin-bottom: 2rem; }
-.cta-band .fine { font-size: var(--text-xs); color: var(--ink-muted); margin-top: 0.75rem; }
+.cta-band h2 { margin-bottom: 1rem; color: white; }
+.cta-band .cta-lede { font-size: var(--text-lg); color: rgba(255,255,255,0.8); margin-bottom: 2rem; }
+.cta-band .fine { font-size: var(--text-xs); color: rgba(255,255,255,0.6); margin-top: 0.75rem; }
 /* Legacy cta-banner class */
 .cta-banner {
   background: var(--espresso); color: var(--parchment);
@@ -556,7 +557,7 @@ footer {
 }
 .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; align-items: start; }
 .pricing-card {
-  background: var(--parchment); border: 1px solid var(--hairline);
+  background: var(--clr-card); border: 1px solid var(--clr-border);
   border-radius: var(--radius-lg); padding: 2rem;
 }
 .pricing-card.popular { border-color: var(--espresso); box-shadow: var(--shadow-card); }
