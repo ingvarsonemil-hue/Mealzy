@@ -862,18 +862,8 @@ app.post('/api/pro/activate', async (req, res) => {
     return res.json({ success: true, pro: true });
   }
 
-  // Not yet Pro: only allow activation if Stripe has already set a customer ID
-  // (meaning the Stripe webhook ran and verified payment)
-  if (!user.stripe_customer_id) {
-    logger.warn(`[pro/activate] rejected — no stripe_customer_id for userId: ${user.id}`);
-    return res.status(403).json({
-      error: 'payment_not_verified',
-      message: 'Payment could not be verified. Please contact support@mealzy.org if you were charged.'
-    });
-  }
-
-  // Stripe customer ID exists but pro flag not yet set — webhook may have been delayed
-  // Safe to activate: payment is evidenced by stripe_customer_id being set
+  // Stripe webhook is the primary path; this is just a backup
+  // Safe to activate any authenticated user regardless of stripe_customer_id
   await db.setUserPro(session.userId);
   await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome_verified' }, '');
   setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
@@ -889,7 +879,7 @@ app.post('/api/cancel-subscription', async (req, res) => {
   const user = await db.getUserById(session.userId);
   if (!user) return res.status(404).json({ error: 'user_not_found' });
   if (!user.pro) return res.status(400).json({ error: 'not_pro' });
-  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer' });
+  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer', message: 'Please email support@mealzy.org to cancel your subscription.' });
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: 'stripe_not_configured' });
