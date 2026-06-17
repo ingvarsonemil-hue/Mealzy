@@ -139,11 +139,14 @@
     }
     /* Nav logo */
     .nav-logo-text {
-      font-family: var(--font-display);
-      font-style: italic;
+      font-family: var(--font-display) !important;
+      font-style: italic !important;
+      font-variant: normal !important;
       font-weight: 700;
       font-size: 1.3rem;
       letter-spacing: -0.02em;
+      text-decoration: none;
+      color: var(--clr-foreground);
     }
     /* Pricing testimonials */
     .pricing-testimonials {
@@ -427,7 +430,7 @@
   <div class="container">
     <div class="footer__inner">
       <div class="footer__brand">
-        <a href="index.html" class="footer__logo">Mealzy</a>
+        <a href="index.html" class="footer__logo" style="font-variant:normal;font-style:italic;">Mealzy</a>
         <p>AI meal planning that fits your budget, your diet, and your week.</p>
       </div>
       <div class="footer__col">
