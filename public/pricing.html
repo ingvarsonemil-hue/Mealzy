@@ -44,6 +44,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#1a3d2b">
@@ -62,8 +63,8 @@
     }
     #decidingPopup {
       display:none; position:fixed; bottom:1.5rem; right:1.5rem;
-      background:var(--parchment); border:1px solid var(--hairline);
-      border-radius:var(--radius-lg); box-shadow:0 8px 40px rgba(26,18,8,0.18);
+      background:var(--clr-background); border:1px solid var(--clr-border);
+      border-radius:1rem; box-shadow:0 8px 40px rgba(26,18,8,0.18);
       padding:1.25rem 1.5rem; max-width:320px; z-index:9999;
       animation:cardRise 0.35s ease;
     }
@@ -71,13 +72,13 @@
     #decidingPopup .popup-close {
       position:absolute; top:0.7rem; right:0.9rem;
       background:none; border:none; cursor:pointer;
-      font-size:1.1rem; color:var(--ink-muted); line-height:1;
+      font-size:1.1rem; color:var(--clr-muted-fg); line-height:1;
     }
     /* Pricing cards — Week 2 polish */
     .pricing-cards {
       display: grid;
       grid-template-columns: 1fr;
-      gap: var(--space-6);
+      gap: 1.5rem;
       max-width: 1000px;
       margin: 0 auto;
     }
@@ -89,7 +90,7 @@
       .pricing-card {
         opacity: 0;
         transform: translateY(20px);
-        animation: cardEntrance 0.5s var(--ease-out) forwards;
+        animation: cardEntrance 0.5s ease forwards;
       }
       .pricing-card:nth-child(1) { animation-delay: 0ms; }
       .pricing-card:nth-child(2) { animation-delay: 120ms; }
@@ -108,14 +109,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-4);
-      margin-bottom: var(--space-10);
+      gap: 1rem;
+      margin-bottom: 2.5rem;
     }
     /* Dark mode toggle */
     .theme-toggle {
       background: none;
       border: 1px solid var(--clr-border);
-      border-radius: var(--radius-full);
+      border-radius: 999px;
       width: 36px;
       height: 36px;
       display: flex;
@@ -123,7 +124,7 @@
       justify-content: center;
       cursor: pointer;
       color: var(--clr-muted-fg);
-      transition: all var(--duration-fast) var(--ease-out);
+      transition: all 0.15s ease;
       flex-shrink: 0;
     }
     .theme-toggle:hover {
@@ -152,7 +153,7 @@
       background: var(--clr-muted-bg);
       border: 1px solid var(--clr-border);
       border-left: 3px solid var(--clr-primary);
-      border-radius: var(--radius-md);
+      border-radius: 0.75rem;
       padding: 20px;
     }
     .pricing-testimonial-quote {
@@ -188,7 +189,7 @@
     <ul class="nav-links">
       <li><a href="index.html#how-it-works">How it works</a></li>
       <li><a href="index.html#testimonials">Our story</a></li>
-      <li><a href="pricing.html" style="color:var(--brick);font-weight:700;">Pricing</a></li>
+      <li><a href="pricing.html" style="color:var(--clr-primary);font-weight:700;">Pricing</a></li>
     </ul>
     <div class="nav-actions">
       <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
@@ -213,7 +214,7 @@
       <li><a href="index.html#testimonials">Reviews</a></li>
       <li><a href="pricing.html">Pricing</a></li>
       <li><a href="dashboard.html">Sign In</a></li>
-      <li><a href="onboarding.html" style="color:var(--brick);font-weight:700;">Get Started Free →</a></li>
+      <li><a href="onboarding.html" style="color:var(--clr-primary);font-weight:700;">Get Started Free →</a></li>
     </ul>
   </div>
 </div>
@@ -221,13 +222,13 @@
 <main id="main">
 
 <!-- HERO -->
-<section style="padding:clamp(6rem,12vw,9rem) 0 clamp(3rem,6vw,5rem);border-bottom:1px solid var(--hairline);">
+<section style="padding:clamp(6rem,12vw,9rem) 0 clamp(3rem,6vw,5rem);border-bottom:1px solid var(--clr-border);">
   <div class="container" style="text-align:center;">
     <span class="section-label" style="animation:slideUp 0.45s var(--ease-edit) 0.05s both;opacity:0;">Simple Pricing</span>
     <h1 class="pricing-hero-headline" style="animation:slideUp 0.45s var(--ease-edit) 0.15s both;opacity:0;">
       Mealzy pricing — free plan included, no credit card needed
     </h1>
-    <p class="pricing-hero-sub" style="font-size:var(--text-lg);color:var(--ink-muted);max-width:480px;margin:0.75rem auto 2.5rem;animation:slideUp 0.45s var(--ease-edit) 0.23s both;opacity:0;">
+    <p class="pricing-hero-sub" style="font-size:var(--text-lg);color:var(--clr-muted-fg);max-width:480px;margin:0.75rem auto 2.5rem;animation:slideUp 0.45s var(--ease-edit) 0.23s both;opacity:0;">
       Start free — 3 meal plans per month, no credit card required.
     </p>
 
@@ -248,12 +249,12 @@
       <div class="pricing-card" id="cardFree">
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Free</div>
-          <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">Try it. No credit card, no expiry.</p>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">Try it. No credit card, no expiry.</p>
           <div class="pricing-price">
             <span class="amount" id="priceFreeMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$0</span>
-            <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
+            <span class="period" style="font-size:var(--text-sm);color:var(--clr-muted-fg);">/month</span>
           </div>
-          <div class="pricing-billed" id="billedFree" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
+          <div class="pricing-billed" id="billedFree" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
         <a href="login.html?signup=1" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:1.5rem;">Start Free</a>
         <ul class="pricing-features">
@@ -263,10 +264,10 @@
           <li><span class="check">✓</span> Calorie and macro targets</li>
           <li><span class="check">✓</span> AI Coach — 10 messages/day</li>
           <li><span class="check">✓</span> 11 languages</li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">Unlimited plan generation</span></li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">Unlimited AI coach</span></li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">Priority generation speed</span></li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--ink-muted);opacity:0.55;">PDF export</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Unlimited plan generation</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Unlimited AI coach</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Priority generation speed</span></li>
+          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">PDF export</span></li>
         </ul>
       </div>
 
@@ -274,20 +275,20 @@
       <div class="pricing-card popular" id="cardPremium" style="position:relative;">
         <span class="badge badge-green">Most popular</span>
         <div style="margin-bottom:0.75rem;">
-          <p style="font-size:var(--text-xs);color:var(--brick);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Introductory pricing</p>
-          <p style="font-size:var(--text-xs);color:var(--ink-muted);margin-top:0.2rem;">We started at $5/mo and the price has already increased once.</p>
+          <p style="font-size:var(--text-xs);color:var(--clr-primary);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Introductory pricing</p>
+          <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);margin-top:0.2rem;">We started at $5/mo and the price has already increased once.</p>
         </div>
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Pro</div>
-          <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">For people who plan every week.</p>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For people who plan every week.</p>
           <div class="pricing-price">
             <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$12</span>
-            <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
+            <span class="period" style="font-size:var(--text-sm);color:var(--clr-muted-fg);">/month</span>
           </div>
-          <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
+          <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
-        <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $12/mo — cancel any time.</p>
+        <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $12/mo — cancel any time.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
           <li><span class="check">✓</span> Automatic grocery list</li>
@@ -306,15 +307,15 @@
       <div class="pricing-card" id="cardFamily">
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Family</div>
-          <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-top:0.25rem;">For households that eat together.</p>
+          <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For households that eat together.</p>
           <div class="pricing-price">
             <span class="amount" id="priceFamilyMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$16</span>
-            <span class="period" style="font-size:var(--text-sm);color:var(--ink-muted);">/month</span>
+            <span class="period" style="font-size:var(--text-sm);color:var(--clr-muted-fg);">/month</span>
           </div>
-          <div class="pricing-billed" id="billedFamily" style="font-size:var(--text-xs);color:var(--ink-muted);height:1.2rem;">&nbsp;</div>
+          <div class="pricing-billed" id="billedFamily" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
-        <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-bottom:1.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
+        <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Everything</strong> in Pro</li>
           <li><span class="check">✓</span> Up to <strong>4 individual profiles</strong></li>
@@ -330,9 +331,9 @@
     </div>
 
     <!-- Guarantee note -->
-    <div class="reveal" style="text-align:center;margin-top:3rem;padding:2rem;background:var(--parchment-deep);border-radius:var(--radius-lg);border:1px solid var(--hairline);max-width:580px;margin-inline:auto;">
+    <div class="reveal" style="text-align:center;margin-top:3rem;padding:2rem;background:var(--parchment-deep);border-radius:1rem;border:1px solid var(--clr-border);max-width:580px;margin-inline:auto;">
       <h3 style="font-family:var(--font-display);font-weight:500;margin-bottom:0.5rem;">7-day free trial on Pro. No credit card to start.</h3>
-      <p style="color:var(--ink-muted);font-size:var(--text-sm);max-width:none;">Try Pro free for 7 days. If you don't love it, you won't be charged. Cancel any time — no questions, one click.</p>
+      <p style="color:var(--clr-muted-fg);font-size:var(--text-sm);max-width:none;">Try Pro free for 7 days. If you don't love it, you won't be charged. Cancel any time — no questions, one click.</p>
     </div>
   </div>
 </section>
@@ -350,7 +351,7 @@
 </div>
 
 <!-- COMPARISON TABLE -->
-<section style="padding-block:var(--pad-section);background:var(--parchment-deep);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);">
+<section style="padding-block:var(--pad-section);background:var(--parchment-deep);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);">
   <div class="container">
     <div class="section-header reveal" style="text-align:center;">
       <h2 class="section-title">Compare plans</h2>
@@ -361,7 +362,7 @@
           <tr>
             <th scope="col">Feature</th>
             <th scope="col" style="text-align:center;">Free</th>
-            <th scope="col" style="text-align:center;color:var(--brick);">Pro</th>
+            <th scope="col" style="text-align:center;color:var(--clr-primary);">Pro</th>
             <th scope="col" style="text-align:center;">Family</th>
           </tr>
         </thead>
@@ -371,7 +372,7 @@
           <tr><td>Auto Grocery Lists</td><td style="text-align:center;">✓</td><td class="pro-val" style="text-align:center;">✓</td><td style="text-align:center;font-weight:600;">✓</td></tr>
           <tr><td>Analytics Dashboard</td><td style="text-align:center;">Basic</td><td class="pro-val" style="text-align:center;">Advanced</td><td style="text-align:center;font-weight:600;">Advanced</td></tr>
           <tr><td>Profiles</td><td style="text-align:center;">1</td><td class="pro-val" style="text-align:center;">1</td><td style="text-align:center;font-weight:600;">Up to 4</td></tr>
-          <tr><td>Priority Support</td><td style="text-align:center;color:var(--hairline);">✗</td><td style="text-align:center;">Email</td><td class="pro-val" style="text-align:center;">Priority</td></tr>
+          <tr><td>Priority Support</td><td style="text-align:center;color:var(--clr-border);">✗</td><td style="text-align:center;">Email</td><td class="pro-val" style="text-align:center;">Priority</td></tr>
         </tbody>
       </table>
     </div>
@@ -390,9 +391,9 @@
       <div class="faq-item"><button class="faq-btn" aria-expanded="false" aria-controls="faq-3">Is my data safe?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-body" id="faq-3" role="region"><p class="faq-body__inner">Yes. Passwords are hashed with bcrypt and never stored in plain text. All traffic is served over HTTPS. We do not sell your data to third parties. Payments are handled entirely by Stripe — we never see your card number.</p></div></div>
       <div class="faq-item"><button class="faq-btn" aria-expanded="false" aria-controls="faq-4">Do you store my meal plans?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-body" id="faq-4" role="region"><p class="faq-body__inner">Your meal plans and profile preferences are stored securely on our servers, tied to your account. You can access them from any device as long as you're signed in. We do not sell your data.</p></div></div>
     </div>
-    <p class="reveal" style="text-align:center;margin-top:2rem;font-size:var(--text-sm);color:var(--ink-muted);">
-      Still not sure? <a href="upgrade.html" style="color:var(--brick);font-weight:600;text-decoration:none;">See a full breakdown of what Pro unlocks →</a><br>
-      <span style="font-size:var(--text-xs);">Questions? <a href="mailto:support@mealzy.org" style="color:var(--brick);">support@mealzy.org</a> — usually replied to within 24 hours.</span>
+    <p class="reveal" style="text-align:center;margin-top:2rem;font-size:var(--text-sm);color:var(--clr-muted-fg);">
+      Still not sure? <a href="upgrade.html" style="color:var(--clr-primary);font-weight:600;text-decoration:none;">See a full breakdown of what Pro unlocks →</a><br>
+      <span style="font-size:var(--text-xs);">Questions? <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a> — usually replied to within 24 hours.</span>
     </p>
   </div>
 </section>
@@ -415,7 +416,7 @@
 </main>
 
 <!-- FOOTER -->
-<footer>
+<footer style="background:#1a3d2b;color:white;">
   <div class="container">
     <div class="footer__inner">
       <div class="footer__brand">
@@ -443,9 +444,9 @@
 <div id="decidingPopup" role="dialog" aria-label="Special offer">
   <button class="popup-close" onclick="closeDecidingPopup()" aria-label="Close">&times;</button>
   <div style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:500;margin-bottom:0.35rem;">Still deciding?</div>
-  <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.5;margin-bottom:1rem;">Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.</p>
+  <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);line-height:1.5;margin-bottom:1rem;">Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.</p>
   <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="popupCta" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;font-size:var(--text-sm);" onclick="trackUpgradeClick();closeDecidingPopup();">Start 7-Day Free Trial →</a>
-  <p style="font-size:var(--text-xs);color:var(--ink-muted);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
+  <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
 </div>
 
 <script src="motion.js" defer></script>
