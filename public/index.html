@@ -151,7 +151,7 @@ body{font-size:1.0625rem;line-height:1.7;}
 .honest-inner{max-width:1200px;margin:0 auto;padding:0 1.25rem;display:flex;align-items:center;justify-content:center;gap:2.5rem;flex-wrap:wrap;}
 .honest-item{display:flex;align-items:center;gap:.45rem;color:rgba(255,255,255,.88);font-size:.82rem;font-weight:500;}
 /* Demo */
-.demo-section{background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);padding:5rem 0;}
+.demo-section{background:var(--clr-background);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);padding:5rem 0;}
 .demo-form-wrap{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end;margin:0 auto 2rem;}
 @media(max-width:700px){.demo-form-wrap{grid-template-columns:1fr;}}
 .demo-field label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--clr-muted-fg);margin-bottom:.3rem;}
@@ -195,16 +195,16 @@ body{font-size:1.0625rem;line-height:1.7;}
 .grocery-list li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--clr-primary);flex-shrink:0;margin-top:.42rem;}
 .showcase-caption{font-family:var(--font-display);font-style:italic;color:var(--clr-muted-fg);font-size:.88rem;text-align:center;margin-top:2rem;}
 /* How it works */
-.how{padding:5rem 0;}
+.how{padding:5rem 0;background:var(--clr-muted-bg);}
 .how-step{display:grid;grid-template-columns:5.5rem 1fr;gap:2rem;padding:2.5rem 0;border-top:1px solid var(--clr-border);}
 .how-step:last-child{border-bottom:1px solid var(--clr-border);}
-.how-numeral{font-family:var(--font-display);font-style:italic;font-size:clamp(2.4rem,5vw,3.4rem);color:var(--clr-border);line-height:1;font-weight:700;letter-spacing:-.02em;}
+.how-numeral{font-family:var(--font-display);font-style:italic;font-size:clamp(2.4rem,5vw,3.4rem);color:var(--clr-primary);opacity:0.25;line-height:1;font-weight:700;letter-spacing:-.02em;}
 .how-title{font-size:1.05rem;font-weight:700;margin-bottom:.5rem;}
 .how-body{color:var(--clr-muted-fg);max-width:52ch;}
 @media(max-width:600px){.how-step{grid-template-columns:3rem 1fr;gap:1rem;}}
 /* Features */
-.features-section{padding:5rem 0;background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);}
-.feature-icon-wrap{width:48px;height:48px;border-radius:.75rem;background:var(--clr-primary-light);display:flex;align-items:center;justify-content:center;color:var(--clr-primary);margin-bottom:1rem;}
+.features-section{padding:5rem 0;background:var(--clr-background);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);}
+.feature-icon-wrap{width:48px;height:48px;border-radius:.75rem;background:hsl(152,52%,92%);display:flex;align-items:center;justify-content:center;color:var(--clr-primary);margin-bottom:1rem;}
 /* Founder */
 .pullquote-section{background:#1a3d2b;padding:5rem 0;}
 .pullquote-inner{max-width:680px;margin:0 auto;padding:0 1.25rem;text-align:center;}
@@ -225,7 +225,7 @@ body{font-size:1.0625rem;line-height:1.7;}
 .faq-answer{padding:0 0 20px 0;font-family:var(--font-body);font-size:15px;color:var(--clr-muted-fg);line-height:1.7;}
 .faq-body-inner{font-size:1rem;color:var(--clr-muted-fg);line-height:1.7;max-width:65ch;padding-bottom:1.25rem;}
 /* CTA section */
-.cta-section{padding:5rem 0;background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);}
+.cta-section{padding:5rem 0;background:#1a3d2b;border-top:none;}
 .cta-lede{font-size:1.05rem;color:var(--clr-muted-fg);margin:1rem 0 2rem;max-width:52ch;}
 /* Footer */
 .site-footer{background:#1a3d2b;color:white;padding:3.5rem 0 2rem;}
@@ -640,11 +640,11 @@ body{font-size:1.0625rem;line-height:1.7;}
   <div class="container">
     <div class="reveal">
       <span class="section-label">Get started</span>
-      <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;">Stop planning meals by hand.</h2>
-      <p class="cta-lede">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
+      <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;color:white;">Stop planning meals by hand.</h2>
+      <p class="cta-lede" style="color:rgba(255,255,255,0.75);">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">
         <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
-        <a href="pricing.html" class="btn btn-outline btn-lg">See pricing</a>
+        <a href="pricing.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.4);color:white;">See pricing</a>
       </div>
     </div>
   </div>
@@ -780,13 +780,14 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>{
 });
 
 // === FAQ ACCORDION ===
-document.querySelectorAll('.faq-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const item=btn.closest('.faq-item');
-    const isOpen=item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
-    if(!isOpen)item.classList.add('open');
-    btn.setAttribute('aria-expanded',String(!isOpen));
+document.querySelectorAll('.faq-item').forEach(item => {
+  const btn = item.querySelector('button, summary, .faq-btn, [role="button"]');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+    btn.setAttribute('aria-expanded', String(!isOpen));
   });
 });
 
