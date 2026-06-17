@@ -100,7 +100,7 @@
     }
     /* Pro card highlight */
     .pricing-card.popular {
-      border: 2px solid var(--color-green);
+      border: 2px solid var(--clr-primary);
       position: relative;
     }
     /* Billing toggle polish */
@@ -114,7 +114,7 @@
     /* Dark mode toggle */
     .theme-toggle {
       background: none;
-      border: 1px solid var(--color-border);
+      border: 1px solid var(--clr-border);
       border-radius: var(--radius-full);
       width: 36px;
       height: 36px;
@@ -122,19 +122,19 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      color: var(--color-muted-fg);
+      color: var(--clr-muted-fg);
       transition: all var(--duration-fast) var(--ease-out);
       flex-shrink: 0;
     }
     .theme-toggle:hover {
-      border-color: var(--color-green);
-      color: var(--color-green);
+      border-color: var(--clr-primary);
+      color: var(--clr-primary);
     }
     [data-theme="light"] .icon-moon { display: none; }
     [data-theme="dark"] .icon-sun { display: none; }
     [data-theme="dark"] .theme-toggle {
-      border-color: var(--color-border);
-      color: var(--color-foreground);
+      border-color: var(--clr-border);
+      color: var(--clr-foreground);
     }
     /* Pricing testimonials */
     .pricing-testimonials {
@@ -149,9 +149,9 @@
       .pricing-testimonials { grid-template-columns: 1fr 1fr; }
     }
     .pricing-testimonial {
-      background: var(--color-cream);
-      border: 1px solid var(--color-border);
-      border-left: 3px solid var(--color-green);
+      background: var(--clr-muted-bg);
+      border: 1px solid var(--clr-border);
+      border-left: 3px solid var(--clr-primary);
       border-radius: var(--radius-md);
       padding: 20px;
     }
@@ -159,7 +159,7 @@
       font-family: var(--font-body);
       font-size: 14px;
       font-style: italic;
-      color: var(--color-foreground);
+      color: var(--clr-foreground);
       line-height: 1.65;
       margin-bottom: 12px;
     }
@@ -167,13 +167,13 @@
       font-family: var(--font-body);
       font-size: 12px;
       font-weight: 700;
-      color: var(--color-muted-fg);
+      color: var(--clr-muted-fg);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
     [data-theme="dark"] .pricing-testimonial {
-      background: var(--color-cream);
-      border-color: var(--color-border);
+      background: var(--clr-muted-bg);
+      border-color: var(--clr-border);
     }
   </style>
 <script src="/js/theme-init.js"></script>
