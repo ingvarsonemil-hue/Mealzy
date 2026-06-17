@@ -24,7 +24,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
-  <meta name="theme-color" content="#1a3d2b">>
+  <meta name="theme-color" content="#1a3d2b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -46,6 +46,102 @@
       .category-group-animated:nth-child(7) { animation-delay: 0.36s; }
       .category-group-animated:nth-child(8) { animation-delay: 0.42s; }
     }
+    /* Instacart affiliate banner */
+    .instacart-banner {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-lg, 20px);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .instacart-banner-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .instacart-banner-text {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .instacart-banner-logo {
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #16a34a;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .instacart-banner-heading {
+      font-family: var(--font-body, Inter, sans-serif);
+      font-size: 14px;
+      font-weight: 700;
+      color: #15803d;
+      margin-bottom: 2px;
+    }
+
+    .instacart-banner-sub {
+      font-family: var(--font-body, Inter, sans-serif);
+      font-size: 13px;
+      color: #16a34a;
+      opacity: 0.8;
+    }
+
+    .instacart-banner-btn {
+      display: inline-flex;
+      align-items: center;
+      background: #16a34a;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: var(--font-body, Inter, sans-serif);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 0.15s ease;
+      min-height: 44px;
+      flex-shrink: 0;
+    }
+
+    .instacart-banner-btn:hover {
+      background: #15803d;
+      color: white;
+      opacity: 1;
+    }
+
+    .instacart-banner-disclaimer {
+      font-size: 11px;
+      color: #86efac;
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    /* Dark mode */
+    [data-theme="dark"] .instacart-banner {
+      background: linear-gradient(135deg, #052e16 0%, #14532d 100%);
+      border-color: #166534;
+    }
+    [data-theme="dark"] .instacart-banner-heading { color: #86efac; }
+    [data-theme="dark"] .instacart-banner-sub { color: #4ade80; }
+    [data-theme="dark"] .instacart-banner-logo {
+      background: #14532d;
+      color: #4ade80;
+    }
+    [data-theme="dark"] .instacart-banner-disclaimer { color: #166534; }
+
+    /* Hide banner if user is not in US/CA (set by JS) */
+    .instacart-banner.hidden { display: none; }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -227,6 +323,33 @@
     <div style="display:flex;gap:0.6rem;margin-bottom:1rem;">
       <input type="text" class="form-input" id="manualItemInput" placeholder="Add item manually…" style="flex:1;" onkeydown="if(event.key==='Enter')addManualItem()" />
       <button class="btn btn-outline" onclick="addManualItem()">+ Add</button>
+    </div>
+
+    <!-- Instacart Affiliate Banner -->
+    <div class="instacart-banner" id="instacartBanner">
+      <div class="instacart-banner-inner">
+        <div class="instacart-banner-text">
+          <div class="instacart-banner-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          </div>
+          <div>
+            <div class="instacart-banner-heading">Order your groceries on Instacart</div>
+            <div class="instacart-banner-sub">Same-day delivery from local stores</div>
+          </div>
+        </div>
+        <a
+          href="https://www.instacart.com/?affiliate_id=MEALZY_PLACEHOLDER"
+          id="instacartLink"
+          class="instacart-banner-btn"
+          target="_blank"
+          rel="noopener sponsored"
+          onclick="trackInstacart()"
+          aria-label="Order groceries on Instacart (affiliate link)"
+        >
+          Order now →
+        </a>
+      </div>
+      <div class="instacart-banner-disclaimer">Affiliate link — Mealzy earns a small commission at no cost to you</div>
     </div>
 
     <!-- GROCERY LIST -->
@@ -636,6 +759,30 @@
     fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'pdf_export', data: { source: 'grocery_list' } }) }).catch(() => {});
     window.print();
   }
+
+  // Instacart affiliate tracking
+  function trackInstacart() {
+    try {
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'instacart_click', {
+          event_category: 'affiliate',
+          event_label: 'grocery_list'
+        });
+      }
+    } catch(e) {}
+  }
+
+  // Hide banner for non US/CA users (Instacart only operates there)
+  (function() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      const isUSCA = tz.startsWith('America/') || tz.startsWith('US/') || tz.startsWith('Canada/');
+      if (!isUSCA) {
+        const banner = document.getElementById('instacartBanner');
+        if (banner) banner.classList.add('hidden');
+      }
+    } catch(e) {}
+  })();
 
   init();
 </script>
