@@ -11,16 +11,13 @@
 </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mealzy — Grocery List</title>
+  <title>Mealzy ï¿½ Grocery List</title>
   <!-- Mealzy Design System -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
@@ -269,7 +266,7 @@
     <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(148,40%,96%);border:1px solid hsl(148,40%,78%);color:hsl(148,40%,22%);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
       <span style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> — share your list or print it in one tap.
+        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> ï¿½ share your list or print it in one tap.
       </span>
       <a href="upgrade.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
     </div>
@@ -321,7 +318,7 @@
 
     <!-- MANUAL ADD -->
     <div style="display:flex;gap:0.6rem;margin-bottom:1rem;">
-      <input type="text" class="form-input" id="manualItemInput" placeholder="Add item manually…" style="flex:1;" onkeydown="if(event.key==='Enter')addManualItem()" />
+      <input type="text" class="form-input" id="manualItemInput" placeholder="Add item manuallyï¿½" style="flex:1;" onkeydown="if(event.key==='Enter')addManualItem()" />
       <button class="btn btn-outline" onclick="addManualItem()">+ Add</button>
     </div>
 
@@ -349,7 +346,7 @@
           Order now ?
         </a>
       </div>
-      <div class="instacart-banner-disclaimer">Affiliate link — Mealzy earns a small commission at no cost to you</div>
+      <div class="instacart-banner-disclaimer">Affiliate link ï¿½ Mealzy earns a small commission at no cost to you</div>
     </div>
 
     <!-- GROCERY LIST -->
@@ -387,7 +384,7 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
-  // SVG icons for grocery categories — no emoji in rendered HTML
+  // SVG icons for grocery categories ï¿½ no emoji in rendered HTML
   const categoryConfig = {
     produce: {
       icon: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>`,
@@ -423,9 +420,9 @@
     }
   };
 
-  // -- Auth helpers (JWT cookie — server is source of truth) --
+  // -- Auth helpers (JWT cookie ï¿½ server is source of truth) --
   async function cloudLoad(uid) { /* no-op */ }
-  async function cloudSave() { /* no-op — data saved server-side */ }
+  async function cloudSave() { /* no-op ï¿½ data saved server-side */ }
   async function signOut() {
     try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
     localStorage.clear(); window.location.href = 'login.html';
@@ -436,7 +433,7 @@
   let groceryList = null;
 
   function getCurrencySymbol(c) {
-    const s = { USD:'$',EUR:'€',GBP:'£',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'¥',CNY:'¥',KRW:'?',INR:'?',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'?.?',SAR:'?',SGD:'$',HKD:'$',PLN:'zl',CZK:'Kc',HUF:'Ft',TRY:'?',THB:'?',MYR:'RM',IDR:'Rp',PHP:'?' };
+    const s = { USD:'$',EUR:'ï¿½',GBP:'ï¿½',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'ï¿½',CNY:'ï¿½',KRW:'?',INR:'?',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'?.?',SAR:'?',SGD:'$',HKD:'$',PLN:'zl',CZK:'Kc',HUF:'Ft',TRY:'?',THB:'?',MYR:'RM',IDR:'Rp',PHP:'?' };
     return s[c] || c || '$';
   }
   let weekStart = '';
@@ -478,7 +475,7 @@
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
     const fmt = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    document.getElementById('weekLabel').textContent = `Week of ${fmt(weekStart)} – ${fmt(weekEnd.toISOString().split('T')[0])}`;
+    document.getElementById('weekLabel').textContent = `Week of ${fmt(weekStart)} ï¿½ ${fmt(weekEnd.toISOString().split('T')[0])}`;
 
     loadGroceryList();
   }
@@ -664,7 +661,7 @@
       saveLists();
       renderGroceryList();
       updateProgress();
-      showToast('Using sample list — check server connection', 'error');
+      showToast('Using sample list ï¿½ check server connection', 'error');
     } finally {
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;
@@ -748,7 +745,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           </div>
           <h3 style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
-          <p style="color:var(--clr-muted-fg,#555);font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature — upgrade to unlock.</p>
+          <p style="color:var(--clr-muted-fg,#555);font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature ï¿½ upgrade to unlock.</p>
           <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.85rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro &#8594;</a>
           <a href="upgrade.html" style="font-size:0.82rem;color:var(--clr-muted-fg,#888);text-decoration:underline;">See all plans</a>
         </div>`;
