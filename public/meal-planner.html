@@ -144,6 +144,126 @@
       .total-item:nth-child(odd) { border-left: none; }
       .total-item { padding: 0.35rem 0.5rem; }
     }
+
+    /* ── Skeleton loading state ─────────────────────────────── */
+    @keyframes skeleton-shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg,
+        var(--clr-border) 25%,
+        var(--clr-muted-bg) 50%,
+        var(--clr-border) 75%
+      );
+      background-size: 800px 100%;
+      animation: skeleton-shimmer 1.4s ease infinite;
+      border-radius: 0.4rem;
+    }
+    .skeleton-card {
+      background: var(--clr-card);
+      border: 1px solid var(--clr-border);
+      border-left: 4px solid var(--clr-border);
+      border-radius: 0 0.75rem 0.75rem 0;
+      padding: 1.1rem 1.25rem;
+    }
+    .sk-badge  { width: 72px; height: 20px; margin-bottom: 0.75rem; }
+    .sk-title  { width: 65%; height: 22px; margin-bottom: 0.5rem; }
+    .sk-desc   { width: 90%; height: 14px; margin-bottom: 0.25rem; }
+    .sk-desc2  { width: 70%; height: 14px; margin-bottom: 0.75rem; }
+    .sk-stats  { display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+    .sk-stat   { width: 80px; height: 14px; }
+
+    /* ── Error state ────────────────────────────────────────── */
+    .error-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      border: 1px solid hsl(0,60%,88%);
+      background: hsl(0,60%,98%);
+      border-radius: 1rem;
+    }
+    [data-theme="dark"] .error-state {
+      background: hsl(0,30%,10%);
+      border-color: hsl(0,40%,25%);
+    }
+    .error-state-icon {
+      width: 48px; height: 48px;
+      background: hsl(0,60%,92%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+      color: hsl(0,65%,45%);
+    }
+    [data-theme="dark"] .error-state-icon { background: hsl(0,30%,18%); }
+    .error-state h3 { font-family: var(--font-display); font-style: italic; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--clr-foreground); }
+    .error-state p { font-size: 0.88rem; color: var(--clr-muted-fg); margin-bottom: 1.25rem; }
+
+    /* ── Free limit modal ───────────────────────────────────── */
+    #limitModal {
+      display: none;
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #limitModal.open { display: flex; }
+    .limit-modal-inner {
+      background: var(--clr-card);
+      border-radius: 1.25rem;
+      padding: 2.25rem 2rem;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.22);
+      animation: fadeInUp 0.28s ease both;
+    }
+    .limit-modal-icon {
+      width: 56px; height: 56px;
+      background: hsl(32,88%,92%);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      color: hsl(25,85%,40%);
+      font-size: 1.5rem;
+    }
+    [data-theme="dark"] .limit-modal-icon { background: hsl(32,50%,16%); }
+    .limit-modal-inner h2 {
+      font-family: var(--font-display); font-style: italic;
+      font-weight: 900; font-size: 1.45rem; letter-spacing: -0.03em;
+      margin-bottom: 0.6rem; color: var(--clr-foreground);
+    }
+    .limit-modal-inner p {
+      font-size: 0.9rem; color: var(--clr-muted-fg);
+      line-height: 1.65; margin-bottom: 1.5rem;
+    }
+    .limit-features {
+      list-style: none; padding: 0; margin: 0 0 1.5rem;
+      text-align: left;
+    }
+    .limit-features li {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.88rem; color: var(--clr-foreground);
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--clr-border);
+    }
+    .limit-features li:last-child { border-bottom: none; }
+    .limit-features li::before {
+      content: '';
+      width: 18px; height: 18px; flex-shrink: 0;
+      background: var(--clr-primary);
+      border-radius: 50%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .limit-modal-dismiss {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.82rem; color: var(--clr-muted-fg);
+      margin-top: 0.75rem; font-family: inherit;
+      text-decoration: underline; text-underline-offset: 2px;
+    }
+    .limit-modal-dismiss:hover { color: var(--clr-foreground); }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -372,12 +492,25 @@
   </div>
 </div>
 
-<!-- LOADING OVERLAY -->
-<div class="modal-overlay" id="loadingOverlay">
-  <div class="modal" style="max-width:300px;text-align:center;padding:2.5rem;">
-    <div class="spinner" style="margin-bottom:1rem;"></div>
-    <h3>Generating meal plan...</h3>
-    <p class="text-muted text-sm" style="margin-top:0.5rem;">Our AI is crafting your meals</p>
+<!-- FREE LIMIT MODAL -->
+<div id="limitModal" role="dialog" aria-modal="true" aria-labelledby="limitModalTitle">
+  <div class="limit-modal-inner">
+    <div class="limit-modal-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <h2 id="limitModalTitle">You've used your free plans</h2>
+    <p>You've hit the 3 plan limit for this month. Upgrade to Pro for unlimited plans and everything below — or wait until next month.</p>
+    <ul class="limit-features">
+      <li>Unlimited AI meal plans, every week</li>
+      <li>Full grocery list with one click</li>
+      <li>PDF export — print and take it shopping</li>
+      <li>Unlimited AI coaching with Mia</li>
+      <li>Advanced macros broken down per meal</li>
+    </ul>
+    <a href="upgrade.html" class="btn btn-primary" style="display:block;width:100%;text-align:center;font-size:1rem;padding:0.85rem;" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','limit_modal')">
+      Start Pro — 7 Days Free
+    </a>
+    <button class="limit-modal-dismiss" onclick="closeLimitModal()">Maybe next month</button>
   </div>
 </div>
 
@@ -600,55 +733,130 @@
     document.getElementById('totalCost').textContent = sym + totalCost.toFixed(2);
   }
 
-  function regenerateMealPlan() {
-    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-    delete plans[currentDateStr];
-    localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
-    generateMealPlan();
-  }
+  async function generateMealPlan(isRegenerate) {
+    if (!profile) return;
 
-  async function generateMealPlan() {
-    if (!profile) { window.location.href = 'onboarding.html'; return; }
-    document.getElementById('loadingOverlay').classList.add('open');
-    document.getElementById('generateBtn').disabled = true;
+    // Show skeleton cards while generating
+    const container = document.getElementById('mealsContainer');
+    const skeletonCard = `
+    <div class="skeleton-card">
+      <div class="skeleton sk-badge"></div>
+      <div class="skeleton sk-title"></div>
+      <div class="skeleton sk-desc"></div>
+      <div class="skeleton sk-desc2"></div>
+      <div class="sk-stats">
+        <div class="skeleton sk-stat"></div>
+        <div class="skeleton sk-stat"></div>
+        <div class="skeleton sk-stat"></div>
+      </div>
+    </div>`;
+    container.innerHTML = `<div class="grid-2">${skeletonCard.repeat(4)}</div>`;
+
+    const btn = document.getElementById('generateBtn');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+
+    const avoidMeals = isRegenerate
+      ? (currentMeals || []).map(m => m.name).filter(Boolean)
+      : [];
+
     try {
-      const response = await fetch('/api/generate-meal', {
+      const res = await fetch('/api/generate-meal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, date: currentDateStr })
+        body: JSON.stringify({
+          profile,
+          date: currentDateStr,
+          avoid_meals: avoidMeals
+        })
       });
 
-      // Freemium limit reached
-      if (response.status === 402) {
-        const data = await response.json();
-        showUpgradePrompt(data.message || 'You have used all 3 free plans this month.');
+      const data = await res.json();
+
+      if (res.status === 402 && data.error === 'free_limit_reached') {
+        renderMeals(); // restore previous meals or empty state
+        showLimitModal();
         return;
       }
 
-      const data = await response.json();
-      let meals = [];
-      if (data.success && data.mealPlan) {
-        meals = data.mealPlan.meals.map(m => ({ ...m, completed: false }));
-      } else if (data.fallback) {
-        meals = data.fallback.meals.map(m => ({ ...m, completed: false }));
-        showToast('Using offline meal suggestions', 'success');
+      if (!res.ok || !data.success) {
+        showErrorState(data.error || 'Generation failed. Please try again.');
+        return;
       }
+
+      const meals = data.mealPlan?.meals || [];
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
       plans[currentDateStr] = { meals, generatedAt: new Date().toISOString() };
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
       currentMeals = meals;
       renderMeals();
       updateTotals();
-      cloudSave();
-      showToast('Meal plan generated!', 'success');
       checkPlanLimitBanner();
-      showSharePanel(meals);
-    } catch (err) {
-      console.error(err);
-      showToast('Could not connect to server. Is the server running?', 'error');
+      document.getElementById('sharePlanPanel').style.display = 'block';
+      generateShareLink(meals);
+
+      try {
+        await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
+      } catch(e) {}
+
+    } catch(err) {
+      showErrorState('Connection lost. Check your internet and try again.');
     } finally {
-      document.getElementById('loadingOverlay').classList.remove('open');
-      document.getElementById('generateBtn').disabled = false;
+      if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+    }
+  }
+
+  function regenerateMealPlan() {
+    generateMealPlan(true);
+  }
+
+  function showErrorState(message) {
+    const container = document.getElementById('mealsContainer');
+    container.innerHTML = `
+    <div class="error-state">
+      <div class="error-state-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <h3>Something went wrong</h3>
+      <p>${message}</p>
+      <button class="btn btn-primary" onclick="generateMealPlan()">Try again</button>
+    </div>`;
+  }
+
+  function showLimitModal() {
+    document.getElementById('limitModal').classList.add('open');
+  }
+
+  function closeLimitModal() {
+    document.getElementById('limitModal').classList.remove('open');
+  }
+
+  async function generateShareLink(meals) {
+    const panel = document.getElementById('sharePlanPanel');
+    const input = document.getElementById('sharePlanInput');
+    if (!panel || !input || !meals || meals.length === 0) return;
+    panel.style.display = '';
+    input.value = 'Generating link…';
+    try {
+      const res = await fetch('/api/plans/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: { meals, date: currentDateStr } })
+      });
+      if (!res.ok) throw new Error('share failed');
+      const data = await res.json();
+      if (data.url) {
+        input.value = data.url;
+        const encoded = encodeURIComponent(data.url);
+        const text = encodeURIComponent('Check out my AI meal plan — built with Mealzy, free: ');
+        const tw = document.getElementById('shareTwitterBtn');
+        const wa = document.getElementById('shareWhatsAppBtn');
+        if (tw) tw.href = `https://twitter.com/intent/tweet?text=${text}&url=${encoded}`;
+        if (wa) wa.href = `https://wa.me/?text=${text}${encoded}`;
+      } else {
+        input.value = window.location.origin + '/plan.html?id=' + (data.shareId || '');
+      }
+    } catch(e) {
+      panel.style.display = 'none';
     }
   }
 
@@ -711,35 +919,6 @@
     if (banner && count >= 2) banner.style.display = 'flex';
   }
 
-  async function showSharePanel(meals) {
-    const panel = document.getElementById('sharePlanPanel');
-    const input = document.getElementById('sharePlanInput');
-    if (!panel || !input || !meals || meals.length === 0) return;
-    panel.style.display = '';
-    input.value = 'Generating link…';
-    try {
-      const res = await fetch('/api/plans/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: { meals, date: currentDateStr } })
-      });
-      if (!res.ok) throw new Error('share failed');
-      const data = await res.json();
-      if (data.url) {
-        input.value = data.url;
-        const encoded = encodeURIComponent(data.url);
-        const text = encodeURIComponent('Check out my AI meal plan — built with Mealzy, free: ');
-        const tw = document.getElementById('shareTwitterBtn');
-        const wa = document.getElementById('shareWhatsAppBtn');
-        if (tw) tw.href = `https://twitter.com/intent/tweet?text=${text}&url=${encoded}`;
-        if (wa) wa.href = `https://wa.me/?text=${text}${encoded}`;
-      } else {
-        input.value = window.location.origin + '/plan.html?id=' + (data.shareId || '');
-      }
-    } catch(e) {
-      panel.style.display = 'none';
-    }
-  }
 
   function copySharePlanLink() {
     const input = document.getElementById('sharePlanInput');
@@ -753,31 +932,6 @@
     });
   }
 
-  function showUpgradePrompt(message) {
-    const existing = document.getElementById('upgradePrompt');
-    if (existing) existing.remove();
-
-    const prompt = document.createElement('div');
-    prompt.id = 'upgradePrompt';
-    prompt.style.cssText = `
-      position:fixed;top:0;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,0.5);
-      display:flex;align-items:center;justify-content:center;
-      z-index:9999;padding:1.5rem;
-    `;
-    prompt.innerHTML = `
-      <div style="background:var(--clr-card,#fff);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-        <div style="width:48px;height:48px;background:hsl(152,40%,92%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-        </div>
-        <h2 style="font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;margin-bottom:0.5rem;">Free plan limit reached</h2>
-        <p style="color:var(--clr-muted-fg,#666);font-size:0.9rem;margin-bottom:1.5rem;line-height:1.5;">${escHtml(message)}<br><br>Upgrade to Pro for unlimited meal plans.</p>
-        <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.75rem;">See Pro Plans &#8594;</a>
-        <button onclick="document.getElementById('upgradePrompt').remove()" style="background:none;border:none;color:var(--clr-muted-fg,#888);font-size:0.85rem;cursor:pointer;">Maybe later</button>
-      </div>
-    `;
-    document.body.appendChild(prompt);
-  }
 
   function showToast(msg, type = '') {
     const container = document.getElementById('toastContainer');
@@ -957,6 +1111,11 @@
   });
 
   init();
+
+  // Close limit modal on backdrop click
+  document.getElementById('limitModal').addEventListener('click', function(e) {
+    if (e.target === this) closeLimitModal();
+  });
 </script>
 <div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,#3d8b5e);">Privacy Policy</a></div>
 </body>
