@@ -117,8 +117,9 @@ h3 { font-size: 1rem; font-weight: 700; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
 /* === CARDS === */
-.card { background: var(--clr-card); border: 1px solid rgba(0,0,0,0.06); border-radius: 0.85rem; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: all 0.2s; }
-.card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.10); border-color: hsl(152,52%,75%); }
+.card { background: var(--clr-card); border: 1px solid var(--clr-border); border-left: 3px solid var(--clr-primary); border-radius: 0.75rem; padding: 1.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: box-shadow 0.2s, transform 0.2s; }
+.card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.card h3 { font-family: var(--font-display); font-style: italic; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; color: var(--clr-foreground); }
 .card-sm { padding: 1rem; }
 .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
 .card-title { font-size: 1rem; font-weight: 700; }
