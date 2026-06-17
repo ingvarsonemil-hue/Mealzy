@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google Analytics -->
@@ -15,15 +15,90 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
     @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
     body { display:block; min-height:100vh; min-height:100dvh; background:var(--parchment); }
+    /* Login brand panel */
+    .login-brand {
+      display: none;
+      background: var(--color-forest);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-brand::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(61,139,94,0.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(74,222,128,0.10) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .login-brand-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+      padding: 48px 40px;
+    }
+    .login-brand-logo {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 900;
+      font-style: italic;
+      color: white;
+      margin-bottom: 32px;
+      letter-spacing: -0.02em;
+    }
+    .login-brand-tagline {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 700;
+      font-style: italic;
+      color: white;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 40px;
+      max-width: 340px;
+    }
+    .login-brand-features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 48px;
+    }
+    .login-brand-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255,255,255,0.85);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .login-brand-feature svg {
+      color: var(--color-green-light);
+      flex-shrink: 0;
+    }
+    .login-brand-footer {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      margin-top: auto;
+    }
+    @media (min-width: 768px) {
+      .login-brand { display: flex; }
+      .login-wrap {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100vh;
+      }
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -36,16 +111,33 @@
 -->
 <div id="main" class="login-wrap">
 
-  <!-- LEFT: food photograph (hidden on mobile) -->
-  <div class="login-photo" aria-hidden="true">
-    <picture>
-      <source type="image/webp"
-        srcset="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80&fm=webp&fit=crop 900w,
-                https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80&fm=webp&fit=crop 1200w"
-        sizes="50vw">
-      <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80&auto=format&fit=crop"
-           alt="" loading="lazy" decoding="async" width="900" height="1200">
-    </picture>
+  <!-- LEFT: brand panel (hidden on mobile) -->
+  <div class="login-brand" aria-hidden="true">
+    <div class="login-brand-inner">
+      <div class="login-brand-logo">🥗 Mealzy</div>
+      <p class="login-brand-tagline">A full week of meals<br>in 30 seconds.</p>
+      <div class="login-brand-features">
+        <div class="login-brand-feature">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Hits your exact calorie targets
+        </div>
+        <div class="login-brand-feature">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Stays within your grocery budget
+        </div>
+        <div class="login-brand-feature">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Grocery list written automatically
+        </div>
+        <div class="login-brand-feature">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Free — no credit card needed
+        </div>
+      </div>
+      <div class="login-brand-footer">
+        Built by Emil, 16, Sweden
+      </div>
+    </div>
   </div>
 
   <!-- RIGHT: form -->
@@ -129,7 +221,7 @@
       <div id="resetStep2" style="display:none;">
         <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.6;">Check your inbox — we've sent a reset link to your email address. It expires in 1 hour.</p>
       </div>
-      <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:var(--text-sm);min-height:44px;" onclick="switchTab('signin')">← Back to Sign In</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:var(--text-sm);min-height:44px;" onclick="switchTab('signin')">← Back to Sign In</button>
     </div>
 
     <p class="auth-note" id="authNote" style="margin-top:1.25rem;">
@@ -301,3 +393,4 @@
 </script>
 </body>
 </html>
+

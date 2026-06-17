@@ -136,3 +136,29 @@
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+
+/* Dark mode nav fix */
+[data-theme="dark"] .nav {
+  background: rgba(15, 20, 25, 0.95);
+  border-bottom-color: var(--color-border);
+}
+[data-theme="dark"] .nav-logo { color: white; }
+[data-theme="dark"] .nav-link { color: var(--color-foreground); }
+
+/* Dark mode card fix */
+[data-theme="dark"] .card {
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+[data-theme="dark"] .card:hover {
+  box-shadow: none;
+  border-color: var(--color-green-muted);
+  transform: translateY(-2px);
+}
+
+/* Dark mode form inputs */
+[data-theme="dark"] .form-input {
+  background: var(--color-cream);
+  color: var(--color-foreground);
+  border-color: var(--color-border);
+}

@@ -43,9 +43,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -76,6 +73,69 @@
       background:none; border:none; cursor:pointer;
       font-size:1.1rem; color:var(--ink-muted); line-height:1;
     }
+    /* Pricing cards — Week 2 polish */
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) {
+      .pricing-cards { grid-template-columns: repeat(3, 1fr); }
+    }
+    /* Staggered entrance animation */
+    @media (prefers-reduced-motion: no-preference) {
+      .pricing-card {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: cardEntrance 0.5s var(--ease-out) forwards;
+      }
+      .pricing-card:nth-child(1) { animation-delay: 0ms; }
+      .pricing-card:nth-child(2) { animation-delay: 120ms; }
+      .pricing-card:nth-child(3) { animation-delay: 240ms; }
+      @keyframes cardEntrance {
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+    /* Pro card highlight */
+    .pricing-card.popular {
+      border: 2px solid var(--color-green);
+      position: relative;
+    }
+    /* Billing toggle polish */
+    .billing-toggle-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-10);
+    }
+    /* Dark mode toggle */
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--color-muted-fg);
+      transition: all var(--duration-fast) var(--ease-out);
+      flex-shrink: 0;
+    }
+    .theme-toggle:hover {
+      border-color: var(--color-green);
+      color: var(--color-green);
+    }
+    [data-theme="light"] .icon-moon { display: none; }
+    [data-theme="dark"] .icon-sun { display: none; }
+    [data-theme="dark"] .theme-toggle {
+      border-color: var(--color-border);
+      color: var(--color-foreground);
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -92,6 +152,10 @@
       <li><a href="pricing.html" style="color:var(--brick);font-weight:700;">Pricing</a></li>
     </ul>
     <div class="nav-actions">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <a href="dashboard.html" class="btn btn-ghost btn-sm">Sign In</a>
       <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started Free</a>
       <button class="hamburger" id="hamburger" aria-label="Open menu">
@@ -335,6 +399,13 @@
 
 <script src="motion.js" defer></script>
 <script>
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('mealzy_theme', next); } catch(e) {}
+  }
+
   function trackUpgradeClick(plan) {
     fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'pricing_page',plan:plan||'pro'}})}).catch(()=>{});
   }

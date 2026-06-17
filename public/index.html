@@ -17,6 +17,7 @@
 <meta name="twitter:title" content="Mealzy — Free AI Meal Planner">
 <meta name="twitter:description" content="Full week of meals in 30 seconds. Free.">
 <link rel="canonical" href="https://mealzy.org/">
+<meta name="impact-site-verification" value="92c85a78-79c2-40ba-99ee-d6e874b9f25a">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -230,12 +231,20 @@ body{font-size:1.0625rem;line-height:1.7;}
 @media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:600px){.footer-grid{grid-template-columns:1fr;}}
 /* Reveal */
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease;}
-.reveal.in-view{opacity:1;transform:none;}
+@media (prefers-reduced-motion: no-preference) {
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s var(--ease-out,ease),transform .55s var(--ease-out,ease);}
+  .reveal.in-view{opacity:1;transform:none;}
+}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none!important;}}
 [data-delay="80"]{transition-delay:.08s;}[data-delay="100"]{transition-delay:.1s;}
 [data-delay="120"]{transition-delay:.12s;}[data-delay="160"]{transition-delay:.16s;}
 [data-delay="200"]{transition-delay:.2s;}
+/* Dark mode toggle */
+.theme-toggle{background:none;border:1px solid var(--clr-border);border-radius:999px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--clr-muted-fg);transition:all .15s;flex-shrink:0;}
+.theme-toggle:hover{border-color:var(--clr-primary);color:var(--clr-primary);}
+[data-theme="light"] .icon-moon{display:none;}
+[data-theme="dark"] .icon-sun{display:none;}
+[data-theme="dark"] .theme-toggle{border-color:var(--clr-border);color:var(--clr-foreground);}
 /* Section layout */
 .section-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--clr-primary);margin-bottom:.5rem;}
 .section-title{font-family:var(--font-display);font-style:italic;font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.75rem;}
@@ -258,6 +267,10 @@ body{font-size:1.0625rem;line-height:1.7;}
       <li><a href="#faq">FAQ</a></li>
     </ul>
     <div class="nav-actions">
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
       <a href="login.html" class="btn btn-ghost btn-sm">Sign in</a>
       <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start free</a>
       <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
@@ -639,6 +652,13 @@ body{font-size:1.0625rem;line-height:1.7;}
 
 <script src="motion.js" defer></script>
 <script>
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('mealzy_theme', next); } catch(e) {}
+  }
+
   function escHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -782,6 +802,18 @@ function renderDemoPlan(plan,cals,budget){
 function trackDemoToSignup(){
   fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_to_signup_click',data:{}})}).catch(()=>{});
 }
+
+// === SCROLL REVEAL ===
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(el => {
+    if (el.isIntersecting) {
+      el.target.classList.add('in-view');
+      revealObserver.unobserve(el.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 </script>
 </body>
 </html>
