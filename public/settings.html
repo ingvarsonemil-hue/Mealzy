@@ -1143,9 +1143,7 @@
       const data = await res.json();
 
       if (!res.ok) {
-        showToast(data.message || (data.error === 'no_active_subscription'
-          ? 'No active subscription found. Please email support@mealzy.org.'
-          : 'Something went wrong. Please email support@mealzy.org.'), 'error');
+        showToast(data.message || 'Failed to cancel subscription. Please try again.', 'error');
         return;
       }
 

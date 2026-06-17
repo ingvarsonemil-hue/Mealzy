@@ -874,12 +874,12 @@ app.post('/api/pro/activate', async (req, res) => {
 // Cancels the user's Stripe subscription at period end and logs survey reason.
 app.post('/api/cancel-subscription', async (req, res) => {
   const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  if (!session) return res.status(401).json({ error: 'not_authenticated', message: 'Please log in to cancel your subscription.' });
 
   const user = await db.getUserById(session.userId);
-  if (!user) return res.status(404).json({ error: 'user_not_found' });
-  if (!user.pro) return res.status(400).json({ error: 'not_pro' });
-  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer', message: 'Please email support@mealzy.org to cancel your subscription.' });
+  if (!user) return res.status(404).json({ error: 'user_not_found', message: 'User not found. Please log in again.' });
+  if (!user.pro) return res.status(400).json({ error: 'not_pro', message: 'You don\'t have an active Pro subscription to cancel.' });
+  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer', message: 'No active subscription found — email support@mealzy.org and we\'ll sort it out immediately.' });
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: 'stripe_not_configured' });
@@ -898,7 +898,7 @@ app.post('/api/cancel-subscription', async (req, res) => {
     });
 
     if (subscriptions.data.length === 0) {
-      return res.status(404).json({ error: 'no_active_subscription' });
+      return res.status(404).json({ error: 'no_active_subscription', message: 'No active subscription found — email support@mealzy.org and we\'ll sort it out immediately.' });
     }
 
     const sub = subscriptions.data[0];
@@ -911,7 +911,7 @@ app.post('/api/cancel-subscription', async (req, res) => {
     res.json({ success: true, cancel_at: cancelAt });
   } catch (e) {
     logger.error('[cancel-subscription] error:', e.message);
-    res.status(500).json({ error: 'cancel_failed' });
+    res.status(500).json({ error: 'cancel_failed', message: 'Failed to cancel subscription. Please try again or email support@mealzy.org.' });
   }
 });
 

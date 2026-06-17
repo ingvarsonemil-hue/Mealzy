@@ -110,7 +110,7 @@ h3 { font-size: 1rem; font-weight: 700; }
 .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
 .form-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--clr-muted-fg); display: block; }
 .form-input, .form-select, .form-textarea { width: 100%; padding: 0.6rem 0.85rem; border: 1.5px solid var(--clr-border); border-radius: 0.6rem; background: var(--clr-input-bg); color: var(--clr-foreground); font-size: 0.9rem; font-family: var(--font-body); transition: border-color 0.15s, box-shadow 0.15s; }
-.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--clr-primary); box-shadow: 0 0 0 3px hsl(152,52%,94%); }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--clr-primary); box-shadow: 0 0 0 3px hsl(152,52%,36%,0.15); }
 .form-textarea { resize: vertical; min-height: 100px; }
 .form-error { font-size: 0.8rem; color: var(--clr-destructive); }
 .form-hint { font-size: 0.8rem; color: var(--clr-muted-fg); }
