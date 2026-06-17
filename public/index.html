@@ -100,6 +100,11 @@
   ]
 }
 </script>
+<!-- Mealzy Design System -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tokens.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400;1,9..144,700&family=Inter:wght@400;500;600;700&display=swap">
@@ -107,7 +112,7 @@
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#1a3d2b">
+<meta name="theme-color" content="#1a3d2b">>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -237,8 +242,10 @@ body{font-size:1.0625rem;line-height:1.7;}
 .section-sub{font-size:1rem;color:var(--clr-muted-fg);max-width:52ch;margin:0 auto;}
 .section-header{text-align:center;margin-bottom:3rem;}
 </style>
+<script src="/js/theme-init.js"></script>
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- NAV -->
 <nav class="nav-fixed" id="navbar" aria-label="Main navigation">
@@ -274,7 +281,7 @@ body{font-size:1.0625rem;line-height:1.7;}
   </div>
 </div>
 
-<main>
+<main id="main">
 
 <!-- HERO -->
 <section class="hero-mktg" id="hero" aria-labelledby="hero-heading">

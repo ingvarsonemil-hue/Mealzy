@@ -12,13 +12,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mealzy — Get Started</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Mealzy Design System -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#4a8a6f">
+  <meta name="theme-color" content="#1a3d2b">>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -145,13 +150,15 @@
     [data-theme="dark"] .ob-summary { background: hsl(152,25%,12%); border-color: hsl(152,25%,22%); }
     .ob-summary-title { font-weight: 700; font-size: 0.88rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
   </style>
+<script src="/js/theme-init.js"></script>
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to main content</a>
 
 <div class="onboarding-wrap">
   <div class="onboarding-card">
     <!-- Stepper -->
-    <div class="ob-top">
+    <div id="main" class="ob-top">
       <a href="/" class="ob-logo">Mealzy</a>
       <div class="ob-stepper" role="progressbar" aria-label="Onboarding progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="obStepper">
         <div class="ob-step active" id="obStep1" aria-label="Step 1">1</div>

@@ -12,14 +12,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mealzy — Grocery List</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Mealzy Design System -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
-  <meta name="theme-color" content="#4a8a6f">
+  <meta name="theme-color" content="#1a3d2b">>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -42,8 +47,10 @@
       .category-group-animated:nth-child(8) { animation-delay: 0.42s; }
     }
   </style>
+<script src="/js/theme-init.js"></script>
 </head>
 <body>
+<a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
@@ -160,7 +167,7 @@
   </div>
 
   <!-- MAIN CONTENT -->
-  <main class="main-content" style="background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
+  <main id="main" class="main-content" style="background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
 
     <!-- PRO NUDGE: PDF EXPORT + UNLIMITED LISTS -->
     <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(148,40%,96%);border:1px solid hsl(148,40%,78%);color:hsl(148,40%,22%);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">

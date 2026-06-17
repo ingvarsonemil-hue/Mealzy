@@ -13,12 +13,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
   <meta name="description" content="Upgrade to Mealzy Pro for unlimited AI meal plans, PDF export, unlimited AI coaching, and priority generation. $12/month. Cancel any time." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Mealzy Design System -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#1a3d2b">
+  <meta name="theme-color" content="#1a3d2b">>
   <script src="/stripe-config.js"></script>
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
@@ -64,14 +69,15 @@
     .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; }
     .objection-icon { flex-shrink: 0; font-size: 1rem; }
   </style>
+<script src="/js/theme-init.js"></script>
 </head>
 <body>
-<div class="upgrade-wrap">
-
-  <!-- Back link -->
-  <div style="margin-bottom:2rem;">
-    <a href="dashboard.html" style="font-size:0.85rem;color:var(--clr-muted-fg);text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;">← Back to dashboard</a>
-  </div>
+<a href="#main" class="skip-link">Skip to main content</a>
+<nav class="nav" style="position:relative;border-bottom:1px solid var(--color-border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;">
+  <a href="/" style="font-family:var(--font-display);font-size:20px;font-weight:900;font-style:italic;color:var(--color-forest);text-decoration:none;">Mealzy</a>
+  <a href="/dashboard.html" style="font-size:14px;color:var(--color-muted-fg);">← Back to dashboard</a>
+</nav>
+<div id="main" class="upgrade-wrap">
 
   <!-- Hero -->
   <div class="upgrade-hero">
@@ -243,7 +249,7 @@
     <div style="font-size:0.72rem;font-weight:800;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;">Limited Offer</div>
     <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;">Get your first month for $4</div>
     <p style="font-size:0.84rem;color:#555;margin-bottom:0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
-    <a id="discountOfferBtn" href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" onclick="trackUpgrade('abandon_offer')" style="display:inline-block;background:#dc2626;color:white;padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;">
+    <a id="discountOfferBtn" href="#" onclick="window.location.href=window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY;trackUpgrade('abandon_offer');return false;" style="display:inline-block;background:#dc2626;color:white;padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;">
       Get first month for $4 →
     </a>
   </div>
