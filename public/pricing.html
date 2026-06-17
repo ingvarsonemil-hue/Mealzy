@@ -533,6 +533,14 @@
   // Nav scroll
   const nav = document.getElementById('navbar');
   if (nav) { const t = () => nav.classList.toggle('scrolled', window.scrollY > 24); window.addEventListener('scroll', t, {passive:true}); t(); }
+
+  // === DARK MODE TOGGLE ===
+  function toggleTheme() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('mealzy_theme', next);
+  }
 </script>
 </body>
 </html>
