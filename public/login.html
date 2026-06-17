@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google Analytics -->
@@ -18,29 +18,38 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
-    @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-    body { display:block; min-height:100vh; min-height:100dvh; background:var(--parchment); }
-    /* Login brand panel — deep forest green */
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body { background: var(--clr-background); font-family: var(--font-body); }
+
+    /* ── Two-panel layout ─────────────────────── */
+    .login-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+    @media (min-width: 768px) {
+      .login-wrap { grid-template-columns: 45% 55%; }
+    }
+
+    /* ── Left brand panel ─────────────────────── */
     .login-brand {
       display: none;
-      background: hsl(152,42%,17%);
+      background: #1a3d2b;
       position: relative;
       overflow: hidden;
+    }
+    @media (min-width: 768px) {
+      .login-brand { display: flex; flex-direction: column; }
     }
     .login-brand::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.04) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.02) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    .login-brand::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(255,255,255,0.01) 1px, rgba(255,255,255,0.01) 2px);
+        radial-gradient(ellipse 80% 60% at 20% 80%, rgba(61,139,94,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 10%, rgba(255,255,255,0.04) 0%, transparent 50%);
       pointer-events: none;
     }
     .login-brand-inner {
@@ -48,198 +57,378 @@
       z-index: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       height: 100%;
-      padding: 60px 48px;
+      padding: 3rem 3rem;
     }
     .login-brand-logo {
       font-family: var(--font-display);
-      font-size: 32px;
+      font-size: 1.75rem;
       font-weight: 900;
       font-style: italic;
       color: white;
-      margin-bottom: 48px;
       letter-spacing: -0.03em;
+      margin-bottom: auto;
+      text-decoration: none;
     }
     .login-brand-tagline {
       font-family: var(--font-display);
-      font-size: 28px;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
       font-weight: 700;
       font-style: italic;
       color: white;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-bottom: 48px;
-      max-width: 320px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 2.5rem;
+      max-width: 12ch;
     }
     .login-brand-features {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      margin-bottom: 60px;
+      gap: 1rem;
+      margin-bottom: 3rem;
     }
     .login-brand-feature {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
+      align-items: center;
+      gap: 0.75rem;
       color: rgba(255,255,255,0.75);
-      font-family: var(--font-body);
-      font-size: 14px;
+      font-size: 0.9rem;
       font-weight: 500;
-      line-height: 1.5;
+      line-height: 1.4;
     }
     .login-brand-feature svg {
-      color: rgba(255,255,255,0.6);
+      color: hsl(152,60%,65%);
       flex-shrink: 0;
-      margin-top: 2px;
-      width: 18px;
-      height: 18px;
     }
     .login-brand-footer {
-      font-family: var(--font-body);
-      font-size: 12px;
-      color: rgba(255,255,255,0.40);
-      margin-top: auto;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Mobile top bar (replaces left panel on mobile) ── */
+    .login-mobile-bar {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      background: #1a3d2b;
+    }
+    .login-mobile-bar a {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 900;
+      font-style: italic;
+      color: white;
+      text-decoration: none;
+      letter-spacing: -0.02em;
     }
     @media (min-width: 768px) {
-      .login-brand { display: flex; }
-      .login-wrap {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        min-height: 100vh;
-      }
+      .login-mobile-bar { display: none; }
     }
+
+    /* ── Right form panel ─────────────────────── */
+    .login-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2.5rem 1.5rem;
+      background: var(--clr-background);
+    }
+    @media (min-width: 768px) {
+      .login-col { padding: 3rem 3.5rem; max-width: 480px; }
+    }
+    .login-col-inner { width: 100%; max-width: 400px; margin: 0 auto; }
+
+    .login-heading {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.75rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: var(--clr-foreground);
+      margin-bottom: 0.25rem;
+    }
+    .login-subheading {
+      font-size: 0.9rem;
+      color: var(--clr-muted-fg);
+      margin-bottom: 2rem;
+    }
+
+    /* ── Tabs ─────────────────────────────────── */
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      background: var(--clr-muted-bg);
+      border-radius: 0.6rem;
+      padding: 0.2rem;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 0.55rem 1rem;
+      border: none;
+      background: none;
+      border-radius: 0.45rem;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--clr-muted-fg);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .auth-tab.active {
+      background: var(--clr-card);
+      color: var(--clr-foreground);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ── Google button ────────────────────────── */
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid var(--clr-border);
+      border-radius: 0.6rem;
+      background: var(--clr-card);
+      color: var(--clr-foreground);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      margin-bottom: 1rem;
+      min-height: 44px;
+    }
+    .btn-google:hover {
+      border-color: var(--clr-primary);
+      box-shadow: 0 0 0 3px hsl(152,52%,36%,0.1);
+    }
+
+    /* ── Divider ──────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--clr-muted-fg);
+      margin-bottom: 1rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--clr-border);
+    }
+
+    /* ── Form fields ──────────────────────────── */
+    .form-group { margin-bottom: 1rem; }
+    .form-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--clr-foreground);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .form-input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--clr-border);
+      border-radius: 0.6rem;
+      background: var(--clr-card);
+      color: var(--clr-foreground);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      min-height: 44px;
+    }
+    .form-input:focus {
+      border-color: var(--clr-primary);
+      box-shadow: 0 0 0 3px hsl(152,52%,36%,0.15);
+    }
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--clr-muted-fg);
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    .reset-link {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--clr-primary);
+      cursor: pointer;
+      margin-top: 0.4rem;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ── Error banner ─────────────────────────── */
+    .auth-error {
+      display: none;
+      padding: 0.75rem 1rem;
+      border-left: 3px solid var(--clr-primary);
+      border-radius: 0 0.5rem 0.5rem 0;
+      background: var(--clr-muted-bg);
+      font-size: 0.88rem;
+      color: var(--clr-foreground);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    .auth-error.show { display: block; }
+
+    /* ── Footer note ──────────────────────────── */
+    .auth-note {
+      font-size: 0.75rem;
+      color: var(--clr-muted-fg);
+      text-align: center;
+      line-height: 1.6;
+    }
+    .auth-note a { color: var(--clr-primary); text-decoration: none; }
+
+    /* ── Dark mode ────────────────────────────── */
+    [data-theme="dark"] .login-col { background: var(--clr-background); }
+    [data-theme="dark"] .form-input { background: var(--clr-muted-bg); }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
 
-<!-- Split-screen: photo left, form right
-     Photo: Jay Wennington / Unsplash (photo-1414235077428-338989a2e8c0)
-     Dramatically lit plated dish — warm, intimate, editorial
--->
+<!-- Mobile top bar -->
+<div class="login-mobile-bar">
+  <a href="/">Mealzy</a>
+</div>
+
 <div id="main" class="login-wrap">
 
-  <!-- LEFT: brand panel (hidden on mobile) -->
+  <!-- LEFT: brand panel (desktop only) -->
   <div class="login-brand" aria-hidden="true">
     <div class="login-brand-inner">
-      <div class="login-brand-logo">Mealzy</div>
+      <a href="/" class="login-brand-logo">Mealzy</a>
       <p class="login-brand-tagline">A full week of meals in 30 seconds.</p>
       <div class="login-brand-features">
         <div class="login-brand-feature">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           Hits your exact calorie and macro targets
         </div>
         <div class="login-brand-feature">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           Stays within your grocery budget
         </div>
         <div class="login-brand-feature">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           Generates the shopping list automatically
         </div>
+        <div class="login-brand-feature">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Free — no credit card needed
+        </div>
       </div>
-      <div class="login-brand-footer">
-        Built by Emil, 16, Sweden
-      </div>
+      <div class="login-brand-footer">Built by Emil, 16, Sweden</div>
     </div>
   </div>
 
   <!-- RIGHT: form -->
-  <div class="login-col" style="animation:fadeInUp 0.32s ease both;">
-    <!-- Logo -->
-    <a href="/" style="font-family:var(--font-display);font-weight:500;font-size:var(--text-xl);font-variant:small-caps;letter-spacing:0.06em;color:var(--espresso);text-decoration:none;display:block;margin-bottom:0.25rem;">Mealzy</a>
-    <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-bottom:2.5rem;">AI meal plans in 30 seconds</p>
+  <div class="login-col">
+    <div class="login-col-inner">
 
-    <!-- Error / success banner -->
-    <div class="auth-error" id="authError" role="alert"></div>
+      <h1 class="login-heading">Welcome back</h1>
+      <p class="login-subheading">Sign in to your Mealzy account</p>
 
-    <!-- Tab bar (Sign In / Create Account) -->
-    <div class="auth-tabs" id="authTabs" role="tablist">
-      <button class="auth-tab active" id="tabSignIn" role="tab" aria-selected="true" aria-controls="formSignIn" onclick="switchTab('signin')">Sign In</button>
-      <button class="auth-tab" id="tabSignUp" role="tab" aria-selected="false" aria-controls="formSignUp" onclick="switchTab('signup')">Create Account</button>
-    </div>
+      <!-- Error / success banner -->
+      <div class="auth-error" id="authError" role="alert"></div>
 
-    <!-- Google OAuth -->
-    <a href="/auth/google" class="btn-google" id="btnGoogle">
-      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-        <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-        <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
-        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-      </svg>
-      Continue with Google
-    </a>
-
-    <div class="divider">or</div>
-
-    <!-- SIGN IN FORM -->
-    <form id="formSignIn" role="tabpanel" aria-labelledby="tabSignIn" onsubmit="handleSignIn(event)">
-      <div class="form-group">
-        <label class="form-label" for="siEmail">Email</label>
-        <input type="email" class="form-input" id="siEmail" style="font-size:16px;" placeholder="you@example.com" required autocomplete="email" />
+      <!-- Tab bar -->
+      <div class="auth-tabs" id="authTabs" role="tablist">
+        <button class="auth-tab active" id="tabSignIn" role="tab" aria-selected="true" aria-controls="formSignIn" onclick="switchTab('signin')">Sign In</button>
+        <button class="auth-tab" id="tabSignUp" role="tab" aria-selected="false" aria-controls="formSignUp" onclick="switchTab('signup')">Create Account</button>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="siPassword">Password</label>
-        <div class="pw-wrap">
-          <input type="password" class="form-input" id="siPassword" style="font-size:16px;" placeholder="••••••••" required autocomplete="current-password" />
-          <button type="button" class="pw-toggle" onclick="togglePw('siPassword',this)" aria-label="Show password">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
+
+      <!-- Google OAuth -->
+      <a href="/auth/google" class="btn-google" id="btnGoogle">
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </a>
+
+      <div class="divider">or</div>
+
+      <!-- SIGN IN FORM -->
+      <form id="formSignIn" role="tabpanel" aria-labelledby="tabSignIn" onsubmit="handleSignIn(event)">
+        <div class="form-group">
+          <label class="form-label" for="siEmail">Email</label>
+          <input type="email" class="form-input" id="siEmail" placeholder="you@example.com" required autocomplete="email" />
         </div>
-        <span class="reset-link" onclick="handleReset()" tabindex="0" role="button" onkeypress="if(event.key==='Enter')handleReset()">Forgot password?</span>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;min-height:44px;" id="btnSignIn">Sign In</button>
-    </form>
-
-    <!-- SIGN UP FORM -->
-    <form id="formSignUp" role="tabpanel" aria-labelledby="tabSignUp" onsubmit="handleSignUp(event)" style="display:none;">
-      <div class="form-group">
-        <label class="form-label" for="suName">Full Name</label>
-        <input type="text" class="form-input" id="suName" style="font-size:16px;" placeholder="Your name" required />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="suEmail">Email</label>
-        <input type="email" class="form-input" id="suEmail" style="font-size:16px;" placeholder="you@example.com" required autocomplete="email" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="suPassword">Password</label>
-        <div class="pw-wrap">
-          <input type="password" class="form-input" id="suPassword" style="font-size:16px;" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" />
-          <button type="button" class="pw-toggle" onclick="togglePw('suPassword',this)" aria-label="Show password">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
+        <div class="form-group">
+          <label class="form-label" for="siPassword">Password</label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="siPassword" placeholder="••••••••" required autocomplete="current-password" />
+            <button type="button" class="pw-toggle" onclick="togglePw('siPassword',this)" aria-label="Show password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="reset-link" onclick="handleReset()" tabindex="0" role="button" onkeypress="if(event.key==='Enter')handleReset()">Forgot password?</span>
         </div>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;min-height:44px;" id="btnSignUp">Create Account</button>
-    </form>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;min-height:44px;" id="btnSignIn">Sign In</button>
+      </form>
 
-    <!-- RESET PASSWORD -->
-    <div id="formReset" style="display:none;">
-      <h3 style="font-family:var(--font-display);font-size:var(--text-xl);font-weight:500;margin-bottom:0.5rem;">Reset Password</h3>
-      <p style="font-size:var(--text-sm);color:var(--ink-muted);margin-bottom:1.5rem;">Enter your email and we'll generate a secure reset link for you.</p>
-      <div class="form-group">
-        <label class="form-label" for="resetEmail">Email</label>
-        <input type="email" class="form-input" id="resetEmail" style="font-size:16px;" placeholder="you@example.com" autocomplete="email" />
+      <!-- SIGN UP FORM -->
+      <form id="formSignUp" role="tabpanel" aria-labelledby="tabSignUp" onsubmit="handleSignUp(event)" style="display:none;">
+        <div class="form-group">
+          <label class="form-label" for="suName">Full Name</label>
+          <input type="text" class="form-input" id="suName" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="suEmail">Email</label>
+          <input type="email" class="form-input" id="suEmail" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="suPassword">Password</label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="suPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" onclick="togglePw('suPassword',this)" aria-label="Show password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;min-height:44px;" id="btnSignUp">Create Account</button>
+      </form>
+
+      <!-- RESET PASSWORD -->
+      <div id="formReset" style="display:none;">
+        <h2 style="font-family:var(--font-display);font-style:italic;font-size:1.3rem;font-weight:700;margin-bottom:0.4rem;color:var(--clr-foreground);">Reset Password</h2>
+        <p style="font-size:0.88rem;color:var(--clr-muted-fg);margin-bottom:1.25rem;line-height:1.6;">Enter your email and we'll send a reset link.</p>
+        <div class="form-group">
+          <label class="form-label" for="resetEmail">Email</label>
+          <input type="email" class="form-input" id="resetEmail" placeholder="you@example.com" autocomplete="email" />
+        </div>
+        <button class="btn btn-primary" id="btnGetReset" style="width:100%;justify-content:center;margin-bottom:0.75rem;min-height:44px;" onclick="requestReset()">Send Reset Link</button>
+        <div id="resetStep2" style="display:none;">
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);line-height:1.6;">Check your inbox — the link expires in 1 hour.</p>
+        </div>
+        <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:0.88rem;min-height:44px;" onclick="switchTab('signin')">← Back to Sign In</button>
       </div>
-      <button class="btn btn-primary" id="btnGetReset" style="width:100%;justify-content:center;margin-bottom:0.75rem;min-height:44px;" onclick="requestReset()">Send Reset Link</button>
-      <div id="resetStep2" style="display:none;">
-        <p style="font-size:var(--text-sm);color:var(--ink-muted);line-height:1.6;">Check your inbox — we've sent a reset link to your email address. It expires in 1 hour.</p>
-      </div>
-      <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:var(--text-sm);min-height:44px;" onclick="switchTab('signin')">← Back to Sign In</button>
+
+      <p class="auth-note" id="authNote" style="margin-top:1.5rem;">
+        By continuing you agree to Mealzy's <a href="terms.html">Terms</a> and <a href="privacy-policy.html">Privacy Policy</a>.
+      </p>
+
     </div>
+  </div>
 
-    <p class="auth-note" id="authNote" style="margin-top:1.25rem;">
-      By continuing you agree to Mealzy's <a href="terms.html">Terms</a> and <a href="privacy-policy.html">Privacy Policy</a>.
-    </p>
-
-    <div style="text-align:center;padding-top:1.5rem;font-size:var(--text-xs);color:var(--ink-muted);">
-      <a href="privacy-policy.html" style="color:var(--brick);">Privacy Policy</a> · <a href="terms.html" style="color:var(--brick);">Terms</a>
-    </div>
-  </div><!-- /login-col -->
-
-</div><!-- /login-wrap -->
+</div>
 
 <script>
   if (localStorage.getItem('mealzy_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -399,4 +588,3 @@
 </script>
 </body>
 </html>
-
