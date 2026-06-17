@@ -644,7 +644,7 @@ body{font-size:1.0625rem;line-height:1.7;}
       <p class="cta-lede" style="color:rgba(255,255,255,0.75);">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">
         <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
-        <a href="pricing.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.4);color:white;">See pricing</a>
+        <a href="pricing.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5);color:white;background:transparent;">See pricing</a>
       </div>
     </div>
   </div>
@@ -781,7 +781,7 @@ document.querySelectorAll('a[href^="#"]').forEach(link=>{
 
 // === FAQ ACCORDION ===
 document.querySelectorAll('.faq-item').forEach(item => {
-  const btn = item.querySelector('button, summary, .faq-btn, [role="button"]');
+  const btn = item.querySelector('button.faq-btn');
   if (!btn) return;
   btn.addEventListener('click', () => {
     const isOpen = item.classList.contains('open');
