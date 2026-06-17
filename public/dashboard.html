@@ -12,6 +12,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mealzy — Dashboard</title>
+  <meta name="description" content="Your Mealzy dashboard — track your meal plan, nutrition targets, and grocery budget for the week." />
   <!-- Mealzy Design System -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2344,7 +2345,7 @@
       }
       loadRecipes();
     } catch(err) {
-      alert(err.message);
+      showToast(err.message || 'Failed to delete recipe. Please try again.', 'error');
     }
   }
 
