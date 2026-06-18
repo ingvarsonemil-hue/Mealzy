@@ -43,10 +43,7 @@
 
     /* ── Planner page layout ─────────────────────────────── */
     .main-content {
-      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,40%,92%) 0%, transparent 70%) var(--clr-background);
-    }
-    [data-theme="dark"] .main-content {
-      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,25%,12%) 0%, transparent 70%) var(--clr-background);
+      background: var(--clr-background);
     }
 
     /* ── Date navigator ─────────────────────────────────── */
@@ -136,6 +133,25 @@
     .total-item:first-child .total-val { color: var(--clr-sidebar-logo); }
 
     [data-theme="dark"] .totals-bar { background: hsl(152,55%,8%); }
+
+    /* ── Stats card wrapper ─────────────────────────────── */
+    .stats-card {
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .stats-card .total-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border-left: none;
+      padding: 0;
+    }
+    .stats-card .total-item + .total-item { border-left: none; }
 
     @media (max-width: 600px) {
       .totals-bar { grid-template-columns: repeat(2, 1fr); gap: 0.5rem 0; }
@@ -368,7 +384,7 @@
   </div>
 
   <!-- MAIN CONTENT -->
-  <main id="main" class="main-content" style="padding-bottom:120px;background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
+  <main id="main" class="main-content" style="padding-bottom:120px;">
     <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:0.75rem;">
       <div>
         <h1 style="font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.8rem;letter-spacing:-0.03em;">Meal Planner</h1>
@@ -471,21 +487,23 @@
 
   <!-- STICKY TOTALS BAR -->
   <div class="totals-bar" id="totalsBar">
-    <div class="total-item">
-      <div class="total-val" id="totalCals">0</div>
-      <div class="total-lbl">Calories</div>
-    </div>
-    <div class="total-item">
-      <div class="total-val" id="totalProtein">0g</div>
-      <div class="total-lbl">Protein</div>
-    </div>
-    <div class="total-item">
-      <div class="total-val" id="totalCarbs">0g</div>
-      <div class="total-lbl">Carbs</div>
-    </div>
-    <div class="total-item">
-      <div class="total-val" id="totalCost">$0</div>
-      <div class="total-lbl">Est. Cost</div>
+    <div class="stats-card">
+      <div class="total-item">
+        <div class="total-lbl">Calories</div>
+        <div class="total-val" id="totalCals">0</div>
+      </div>
+      <div class="total-item">
+        <div class="total-lbl">Protein</div>
+        <div class="total-val" id="totalProtein">0g</div>
+      </div>
+      <div class="total-item">
+        <div class="total-lbl">Carbs</div>
+        <div class="total-val" id="totalCarbs">0g</div>
+      </div>
+      <div class="total-item">
+        <div class="total-lbl">Est. Cost</div>
+        <div class="total-val" id="totalCost">$0</div>
+      </div>
     </div>
   </div>
 </div>
