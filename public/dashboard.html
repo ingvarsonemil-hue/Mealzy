@@ -275,7 +275,7 @@
 
     <!-- STAT CARDS -->
     <div class="grid-4" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
-      <div class="stat-card">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
         <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
         <div class="stat-value" id="statCalories">0</div>
         <div class="stat-sub" id="statCaloriesSub">of 0 kcal goal</div>
@@ -283,7 +283,7 @@
           <div class="progress-bar-fill" id="caloriesProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
         <div class="stat-label" data-i18n="stat_protein">Protein</div>
         <div class="stat-value" id="statProtein">0g</div>
         <div class="stat-sub" id="statProteinSub">of 0g goal</div>
@@ -291,16 +291,16 @@
           <div class="progress-bar-fill accent" id="proteinProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
         <div class="stat-label" data-i18n="stat_meals_done">Meals Done</div>
         <div class="stat-value" id="statMealsDone">0/0</div>
         <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
         <div class="stat-label" data-i18n="stat_water">Water</div>
         <div class="stat-value" id="statWater">0 glasses</div>
         <div class="stat-sub" id="statWaterSub">of 8 goal</div>
-        <div class="water-glasses" id="waterGlasses" style="margin-top:0.75rem;"></div>
+        <div id="waterGlasses" style="margin-top:0.75rem;font-size:0.88rem;color:var(--clr-muted-fg);"></div>
       </div>
     </div>
 
@@ -340,7 +340,7 @@
     <!-- QUICK ACTIONS -->
     <div style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.35s both;">
       <h2 style="margin-bottom:1rem;font-size:1rem;font-weight:700;" data-i18n="quick_actions">Quick Actions</h2>
-      <div class="grid-3">
+      <div class="grid-3" style="grid-template-columns:repeat(4,1fr);">
         <a href="ai-coach.html" class="quick-action-card" style="padding:20px 24px;">
           <div class="quick-action-title" data-i18n="ask_coach">Ask AI Coach</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;" data-i18n="action_nutrition">Get nutrition advice</p>
@@ -367,6 +367,7 @@
         <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;"><span data-i18n="dietary_prefs">Dietary Preferences</span></div>
         <span class="text-muted text-sm" id="dietaryEditToggleLabel">Edit ▾</span>
       </div>
+      <p id="dietaryEmptyPlaceholder" style="font-size:14px;color:#9db8a8;margin:0.5rem 0 0;display:none;">No dietary restrictions set. Edit to add preferences.</p>
       <div id="dietaryEditPanel" style="display:none;padding-top:0.75rem;">
         <p style="font-size:0.82rem;color:var(--clr-muted);margin-bottom:0.75rem;">Changes apply to your next meal plan generation.</p>
         <div id="dietaryOptions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:0.2rem;"></div>
@@ -920,9 +921,7 @@
   function renderWaterGlasses() {
     const waterGoal = Math.round((profile?.weight || 70) * 0.033 * 1000 / 240) || 8;
     const container = document.getElementById('waterGlasses');
-    container.innerHTML = Array.from({ length: waterGoal }, (_, i) =>
-      `<button class="water-glass ${i < waterCount ? 'filled' : ''}" onclick="toggleWater(${i})" aria-label="Glass ${i+1}" style="background:none;border:1px solid ${i < waterCount ? 'var(--clr-primary)' : 'var(--clr-border)'};cursor:pointer;padding:0.15rem 0.35rem;border-radius:4px;font-size:0.7rem;font-weight:700;color:${i < waterCount ? 'var(--clr-primary)' : 'var(--clr-muted-fg)'};transition:color 0.15s,border-color 0.15s;">${i+1}</button>`
-    ).join('');
+    container.textContent = `${waterCount} / ${waterGoal} glasses`;
   }
 
   function toggleWater(index) {
@@ -1903,6 +1902,8 @@
     const container = document.getElementById('dietaryOptions');
     if (!container) return;
     const current = (profile && profile.dietaryRestrictions) ? profile.dietaryRestrictions : [];
+    const placeholder = document.getElementById('dietaryEmptyPlaceholder');
+    if (placeholder) placeholder.style.display = current.length === 0 ? '' : 'none';
     container.innerHTML = DIETARY_OPTIONS.map(opt => {
       const active = current.includes(opt.id);
       return `<button onclick="updateDietaryPref('${opt.id}')" style="padding:0.45rem 0.75rem;border-radius:0.5rem;border:1px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'};background:${active ? 'var(--clr-primary)' : 'var(--clr-muted-bg)'};color:${active ? '#fff' : 'var(--clr-text)'};font-size:0.82rem;cursor:pointer;font-family:inherit;">${opt.label}</button>`;
