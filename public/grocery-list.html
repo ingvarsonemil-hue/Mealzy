@@ -253,6 +253,10 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
+      <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;font-family:inherit;" aria-label="Toggle dark mode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        Dark mode
+      </button>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Sign Out
@@ -274,7 +278,7 @@
 
     <div class="grocery-header">
       <div>
-        <h1 style="font-size:1.6rem;font-weight:700;font-family:'Fraunces',serif;display:flex;align-items:center;gap:0.5rem;">
+        <h1 style="font-size:1.6rem;font-weight:700;font-family:var(--font-display);display:flex;align-items:center;gap:0.5rem;">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           This Week's Groceries
         </h1>
@@ -745,7 +749,7 @@
           <div style="width:48px;height:48px;background:hsl(152,40%,92%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           </div>
-          <h3 style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
+          <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
           <p style="color:var(--clr-muted-fg,#555);font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature � upgrade to unlock.</p>
           <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.85rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro &#8594;</a>
           <a href="upgrade.html" style="font-size:0.82rem;color:var(--clr-muted-fg,#888);text-decoration:underline;">See all plans</a>

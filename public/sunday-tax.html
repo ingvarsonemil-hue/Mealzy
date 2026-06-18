@@ -34,7 +34,7 @@
       --border: hsl(40,20%,88%);
     }
     html { font-size: 15px; scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--fg); line-height: 1.65; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--fg); line-height: 1.65; }
 
     /* NAV — minimal, no distractions */
     .nav {
@@ -66,7 +66,7 @@
       padding: 0.3rem 0.8rem; border-radius: 2rem; margin-bottom: 1.25rem;
     }
     .hero-headline {
-      font-family: 'Fraunces', serif;
+      font-family: var(--font-display);
       font-size: clamp(2rem, 4.5vw, 3rem);
       font-weight: 900; line-height: 1.1;
       letter-spacing: -0.03em;
@@ -143,7 +143,7 @@
       margin-bottom: 0.75rem;
     }
     .section-h2 {
-      font-family: 'Fraunces', serif; font-size: clamp(1.5rem, 3vw, 2rem);
+      font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2rem);
       font-weight: 900; letter-spacing: -0.025em; line-height: 1.15;
       margin-bottom: 0.75rem;
     }
@@ -197,7 +197,7 @@
       padding: 5rem 1.25rem; text-align: center;
     }
     .final-cta h2 {
-      font-family: 'Fraunces', serif; font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-family: var(--font-display); font-size: clamp(1.6rem, 3.5vw, 2.4rem);
       font-weight: 900; color: white; letter-spacing: -0.025em; margin-bottom: 1rem;
     }
     .final-cta p { color: rgba(255,255,255,0.8); font-size: 0.95rem; max-width: 420px; margin: 0 auto 2rem; line-height: 1.65; }
@@ -220,8 +220,11 @@
 
 <!-- NAV -->
 <nav class="nav">
-  <a href="/" style="font-family:'Fraunces',serif;font-weight:700;font-size:22px;color:#3d8b5e;text-decoration:none;">Mealzy</a>
-  <a href="login.html?signup=1" class="nav-cta">Start Free</a>
+  <a href="/" style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--color-green);text-decoration:none;">Mealzy</a>
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--fg);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    <a href="login.html?signup=1" class="nav-cta">Start Free</a>
+  </div>
 </nav>
 
 <!-- HERO -->
@@ -346,10 +349,10 @@
     <div class="before-after">
       <div class="ba-col ba-before">
         <h3>Before Mealzy</h3>
-        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>60–90 minutes every Sunday</strong> opening tabs, writing lists, checking what's in the fridge</p></div>
-        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>Buying too much</strong> at the supermarket — things that don't go together, half of it going bad</p></div>
-        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>7pm, fridge open, no idea</strong> what to make because there was never a real plan</p></div>
-        <div class="ba-item"><div class="ba-icon" style="color:hsl(0,60%,70%);">x</div><p><strong>Missing calorie and protein targets</strong> most days because tracking everything manually is exhausting</p></div>
+        <div class="ba-item"><div class="ba-icon"><span style="color: var(--clr-text-muted); font-size: 0.85rem;">✕</span></div><p><strong>60–90 minutes every Sunday</strong> opening tabs, writing lists, checking what's in the fridge</p></div>
+        <div class="ba-item"><div class="ba-icon"><span style="color: var(--clr-text-muted); font-size: 0.85rem;">✕</span></div><p><strong>Buying too much</strong> at the supermarket — things that don't go together, half of it going bad</p></div>
+        <div class="ba-item"><div class="ba-icon"><span style="color: var(--clr-text-muted); font-size: 0.85rem;">✕</span></div><p><strong>7pm, fridge open, no idea</strong> what to make because there was never a real plan</p></div>
+        <div class="ba-item"><div class="ba-icon"><span style="color: var(--clr-text-muted); font-size: 0.85rem;">✕</span></div><p><strong>Missing calorie and protein targets</strong> most days because tracking everything manually is exhausting</p></div>
       </div>
       <div class="ba-col ba-after">
         <h3>After Mealzy</h3>
@@ -357,49 +360,6 @@
         <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>One grocery run</strong> with a list that already has everything and nothing extra</p></div>
         <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>You know what's for dinner</strong> every night of the week. There's a plan. It's already in your fridge.</p></div>
         <div class="ba-item"><div class="ba-icon" style="color:hsl(152,52%,60%);">+</div><p><strong>Hitting your targets consistently</strong> because the plan exists before the week starts, not during it</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section class="section" style="background: var(--muted-bg);">
-  <div class="container">
-    <span class="section-tag">Early users</span>
-    <h2 class="section-h2">What people say after the first week.</h2>
-    <div class="testimonials">
-      <div class="tcard">
-        <div class="tcard-stars">★★★★★</div>
-        <p class="tcard-text">"I spent maybe 90 minutes on meal planning every Sunday. Now I do it in under a minute. The grocery list alone is worth it — I stopped buying things I didn't need."</p>
-        <div class="tcard-author">
-          <div class="tcard-initial">S</div>
-          <div>
-            <div class="tcard-name">S. M.</div>
-            <div class="tcard-meta">Using Mealzy for 6 weeks</div>
-          </div>
-        </div>
-      </div>
-      <div class="tcard">
-        <div class="tcard-stars">★★★★★</div>
-        <p class="tcard-text">"I was tracking macros in a spreadsheet before this. It was taking more time than my actual workouts. Mealzy handles it in 30 seconds. I hit my protein goal more consistently now."</p>
-        <div class="tcard-author">
-          <div class="tcard-initial">M</div>
-          <div>
-            <div class="tcard-name">M. T.</div>
-            <div class="tcard-meta">Using Mealzy for 3 weeks</div>
-          </div>
-        </div>
-      </div>
-      <div class="tcard">
-        <div class="tcard-stars">★★★★★</div>
-        <p class="tcard-text">"I set a $90 weekly budget and it actually stays under it. I'd been overspending at the supermarket for years — buying stuff that didn't go together and half of it going bad."</p>
-        <div class="tcard-author">
-          <div class="tcard-initial">E</div>
-          <div>
-            <div class="tcard-name">E. R.</div>
-            <div class="tcard-meta">Using Mealzy for 4 weeks</div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -413,7 +373,7 @@
   <p class="final-cta-trust">Free to start. No credit card. No catch.</p>
 </section>
 
-<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:#888;"><a href="privacy-policy.html" style="color:#3d8b5e;">Privacy Policy</a> · <a href="terms.html" style="color:#3d8b5e;">Terms</a></div>
+<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--muted-fg);"><a href="privacy-policy.html" style="color:var(--color-green);">Privacy Policy</a> · <a href="terms.html" style="color:var(--color-green);">Terms</a></div>
 </body>
 </html>
 
