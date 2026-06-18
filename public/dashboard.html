@@ -275,7 +275,7 @@
 
     <!-- STAT CARDS -->
     <div class="grid-4" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
         <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
         <div class="stat-value" id="statCalories">0</div>
         <div class="stat-sub" id="statCaloriesSub">of 0 kcal goal</div>
@@ -283,7 +283,7 @@
           <div class="progress-bar-fill" id="caloriesProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
         <div class="stat-label" data-i18n="stat_protein">Protein</div>
         <div class="stat-value" id="statProtein">0g</div>
         <div class="stat-sub" id="statProteinSub">of 0g goal</div>
@@ -291,16 +291,15 @@
           <div class="progress-bar-fill accent" id="proteinProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
         <div class="stat-label" data-i18n="stat_meals_done">Meals Done</div>
         <div class="stat-value" id="statMealsDone">0/0</div>
         <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
       </div>
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;">
+      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
         <div class="stat-label" data-i18n="stat_water">Water</div>
-        <div class="stat-value" id="statWater">0 glasses</div>
         <div class="stat-sub" id="statWaterSub">of 8 goal</div>
-        <div id="waterGlasses" style="margin-top:0.75rem;font-size:0.88rem;color:var(--clr-muted-fg);"></div>
+        <div id="waterGlasses" style="margin-top:0.5rem;font-size:0.88rem;color:var(--clr-muted-fg);"></div>
       </div>
     </div>
 
@@ -373,9 +372,6 @@
         <div id="dietaryOptions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:0.2rem;"></div>
       </div>
     </div>
-
-    <!-- LOCAL STORES -->
-    <div id="localStoresSection" style="margin-bottom:1.5rem;"></div>
 
     <!-- 7-DAY CALORIE HISTORY -->
     <div class="card" style="margin-bottom:1.5rem;">
@@ -549,7 +545,6 @@
     checkRetentionBanners();
     renderWaterGlasses();
     buildCalorieHistoryChart();
-    renderLocalStores();
     initPwaBanner();
     applyNavTranslations();
     checkProStatus();
@@ -885,7 +880,6 @@
     document.getElementById('statMealsDone').textContent = `${completedMeals.length}/${todayMeals.length}`;
 
     const waterGoal = Math.round((profile?.weight || 70) * 0.033 * 1000 / 240) || 8;
-    document.getElementById('statWater').textContent = `${waterCount} glasses`;
     document.getElementById('statWaterSub').textContent = `of ${waterGoal} goal`;
 
     // Update rings
