@@ -41,3 +41,10 @@
 - Jordan has not confirmed an email platform or begun the 3-email onboarding sequence for the fifth consecutive week; escalation to Emil is active; full email brief (platform recommendation, 3 emails with subject lines, copy direction, and trigger logic) is documented above and ready to execute.
 - Free tier plan limit response and in-app 2-of-3 warning message remain unconfirmed as built; these should be completed before any marketing activity that drives new signups.
 - When the first real cohort arrives (5+ users in a single week), the two immediate signals to report are D1 retention and drop-off at the profile-to-first-plan step; pre-launch structural fixes documented over five weeks will be evaluated against those two numbers.
+
+## 2026-06-18
+- Thursday 2026-06-25 dashboard will be the sixth produced; if Quinn and Jordan do not confirm progress by that date, the appropriate next action is Emil convening a direct working session with both to unblock pre-launch infrastructure — standing weekly flags have not produced movement.
+- All retention and email metrics remain N/M for the sixth consecutive week; user base is still a single account; no cohort analysis is possible until real signups arrive.
+- The three unresolved pre-launch blockers are: Quinn's profile completion flow audit (5 weeks overdue), Jordan's email platform selection and onboarding sequence (5 weeks overdue), and in-app free tier warning + templated support response (4 weeks without confirmation).
+- When the first real cohort arrives (5+ users in a single week), the two immediate signals to pull are D1 retention and drop-off at the profile-to-first-plan step — these two numbers will be the first honest read on whether pre-launch structural fixes had the intended effect.
+- Full onboarding email brief (platform recommendation, 3 emails with subject lines, word counts, CTA links, and suppression logic) is documented in this dashboard and prior sessions; it is ready to execute the moment Jordan engages.
