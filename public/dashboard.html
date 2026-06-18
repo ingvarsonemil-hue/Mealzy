@@ -298,6 +298,7 @@
       </div>
       <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
         <div class="stat-label" data-i18n="stat_water">Water</div>
+        <div class="stat-value" id="statWater" style="font-size:2rem;font-weight:700;color:white;">0</div>
         <div class="stat-sub" id="statWaterSub">of 8 goal</div>
         <div id="waterGlasses" style="margin-top:0.5rem;font-size:0.88rem;color:var(--clr-muted-fg);"></div>
       </div>
@@ -352,7 +353,7 @@
           <div class="quick-action-title" data-i18n="view_progress">View Progress</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;" data-i18n="action_analytics">Nutrition analytics</p>
         </a>
-        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:none;border:1px solid var(--clr-border);cursor:pointer;text-align:left;font-family:inherit;width:100%;padding:20px 24px;">
+        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:none;border:1px solid var(--clr-border);cursor:pointer;text-align:center;font-family:inherit;width:100%;padding:20px 24px;">
           <div class="quick-action-title" data-i18n="import_recipe">Import Recipe</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;" data-i18n="action_scan">Scan from photo</p>
         </button>
@@ -916,6 +917,8 @@
     const waterGoal = Math.round((profile?.weight || 70) * 0.033 * 1000 / 240) || 8;
     const container = document.getElementById('waterGlasses');
     container.textContent = `${waterCount} / ${waterGoal} glasses`;
+    const statWater = document.getElementById('statWater');
+    if (statWater) statWater.textContent = waterCount;
   }
 
   function toggleWater(index) {
