@@ -356,8 +356,8 @@
         onkeydown="handleKeydown(event)"
         oninput="autoResize(this)"
       ></textarea>
-      <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" style="flex-shrink:0;">
-        Send ↑
+      <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" style="flex-shrink:0;" aria-label="Send message">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
   </main>
@@ -477,10 +477,10 @@
       if (msg.content === '__LIMIT_REACHED__') {
         return `<div class="chat-msg assistant">
           ${ICO.miaAvatar}
-          <div class="chat-bubble" style="background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,25%);">
+          <div class="chat-bubble" style="background:var(--clr-accent-light);border:1px solid var(--clr-border);color:var(--clr-foreground);">
             <p style="margin:0 0 0.75rem;font-weight:600;">You've used your 10 free messages today.</p>
             <p style="margin:0 0 0.85rem;font-size:0.88rem;">Upgrade to Pro for unlimited coaching with Mia — ask anything, any time.</p>
-            <a href="upgrade.html" style="display:inline-block;background:#2e7d4f;color:white;padding:0.5rem 1.1rem;border-radius:0.5rem;font-weight:700;font-size:0.88rem;text-decoration:none;">Upgrade to Pro →</a>
+            <a href="upgrade.html" style="display:inline-block;background:var(--clr-primary);color:white;padding:0.5rem 1.1rem;border-radius:0.5rem;font-weight:700;font-size:0.88rem;text-decoration:none;">Upgrade to Pro →</a>
           </div>
         </div>`;
       }

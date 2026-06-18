@@ -28,7 +28,7 @@
     .pro-icon { font-size: 3.5rem; margin-bottom: 1rem; }
     .feature-list { text-align: left; list-style: none; padding: 0; margin: 1.5rem 0 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
     .feature-list li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; }
-    .feature-list .chk { color: var(--clr-primary); font-weight: 700; font-size: 1.1rem; }
+    .feature-list .chk { color: var(--clr-primary); font-weight: 700; display: flex; align-items: center; }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -37,24 +37,24 @@
 <div id="main" class="pro-card">
   <div class="pro-badge">PRO ACTIVATED</div>
   <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:900;margin-bottom:0.5rem;">You're on Pro!</h1>
-  <p style="color:var(--clr-muted);font-size:0.95rem;line-height:1.6;margin-bottom:0.5rem;">
+  <p style="color:var(--clr-muted-fg);font-size:0.95rem;line-height:1.6;margin-bottom:0.5rem;">
     Thanks for upgrading. Here's everything you've unlocked:
   </p>
 
   <ul class="feature-list">
-    <li><span class="chk">✓</span> <strong>Unlimited</strong> AI meal plan generation</li>
-    <li><span class="chk">✓</span> <strong>Unlimited</strong> AI Coach messages</li>
-    <li><span class="chk">✓</span> Priority generation — 2× faster</li>
-    <li><span class="chk">✓</span> PDF meal plan &amp; grocery list export</li>
-    <li><span class="chk">✓</span> Advanced macro splits per meal</li>
-    <li><span class="chk">✓</span> All future Pro features — included</li>
+    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> <strong>Unlimited</strong> AI meal plan generation</li>
+    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> <strong>Unlimited</strong> AI Coach messages</li>
+    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Priority generation — 2× faster</li>
+    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> PDF meal plan &amp; grocery list export</li>
+    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Advanced macro splits per meal</li>
+    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> All future Pro features — included</li>
   </ul>
 
   <a href="dashboard.html" class="btn btn-primary" style="width:100%;display:block;font-size:1rem;padding:0.9rem;">
     Go to My Dashboard →
   </a>
-  <div id="activationStatus" style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted);min-height:1.2em;text-align:center;"></div>
-  <p style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted);">
+  <div id="activationStatus" style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted-fg);min-height:1.2em;text-align:center;"></div>
+  <p style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);">
     Questions? Email <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a>
   </p>
 </div>

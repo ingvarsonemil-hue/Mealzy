@@ -22,13 +22,13 @@
 <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#1a3d2b">>
+  <meta name="theme-color" content="#1a3d2b">
   <style>
     .legal-wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
     .legal-wrap h1 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 0.25rem; }
-    .legal-wrap .updated { color: var(--clr-muted); font-size: 0.82rem; margin-bottom: 2.5rem; }
-    .legal-wrap h2 { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.5rem; color: var(--clr-text); }
-    .legal-wrap p, .legal-wrap li { font-size: 0.9rem; line-height: 1.75; color: var(--clr-muted); }
+    .legal-wrap .updated { color: var(--clr-muted-fg); font-size: 0.82rem; margin-bottom: 2.5rem; }
+    .legal-wrap h2 { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.5rem; color: var(--clr-foreground); }
+    .legal-wrap p, .legal-wrap li { font-size: 0.9rem; line-height: 1.75; color: var(--clr-muted-fg); }
     .legal-wrap ul { padding-left: 1.25rem; margin: 0.5rem 0; }
     .legal-wrap li { margin-bottom: 0.35rem; }
     .legal-wrap a { color: var(--clr-primary); text-decoration: none; }
@@ -45,7 +45,7 @@
     <div class="nav-links">
       <a href="pricing.html" class="nav-link">Pricing</a>
       <a href="login.html" class="btn btn-outline btn-sm">Log in</a>
-      <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-text);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
     </div>
   </div>
 </nav>
@@ -118,7 +118,6 @@
       <a href="/" style="font-family:var(--font-display);font-weight:700;font-size:22px;color:white;text-decoration:none;">Mealzy</a>
       <div class="footer-links">
         <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="privacy.html">Privacy</a>
         <a href="terms.html">Terms</a>
         <a href="mailto:support@mealzy.org">Contact</a>
         <a href="pricing.html">Pricing</a>

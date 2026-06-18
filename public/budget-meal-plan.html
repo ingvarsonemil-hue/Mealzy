@@ -58,20 +58,79 @@
     <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-bottom:1.5rem;">This is a real sample output from Mealzy. Your personalised plan will reflect your actual calorie goal, budget, and dietary preferences.</p>
 
     <div style="display:flex;flex-direction:column;gap:0.75rem;">
-      ${[
-        { day:'Monday', meals:[['Breakfast','Porridge with banana and honey','330 kcal','$0.65'],['Lunch','Lentil soup with crusty bread','480 kcal','$1.20'],['Dinner','Pasta with tomato, garlic, and spinach','620 kcal','$1.80'],['Snack','Apple and peanut butter','210 kcal','$0.55']] },
-        { day:'Tuesday', meals:[['Breakfast','Scrambled eggs on toast','360 kcal','$0.85'],['Lunch','Tuna pasta salad','450 kcal','$1.35'],['Dinner','Chicken thighs with roasted veg','580 kcal','$2.10'],['Snack','Greek yogurt with honey','180 kcal','$0.70']] },
-        { day:'Wednesday', meals:[['Breakfast','Banana smoothie with oats','310 kcal','$0.60'],['Lunch','Bean and rice bowl','490 kcal','$0.95'],['Dinner','Stir-fried tofu with noodles','550 kcal','$1.60'],['Snack','Carrot sticks and hummus','140 kcal','$0.45']] }
-      ].map(d => `<div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
+
+      <!-- Monday -->
+      <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
         <div style="background:var(--clr-primary);padding:0.6rem 1rem;color:white;font-weight:700;font-size:0.85rem;display:flex;justify-content:space-between;">
-          <span>${d.day}</span>
-          <span style="opacity:0.8;font-size:0.75rem;">~$${d.meals.reduce((s,m) => s + parseFloat(m[3].slice(1)),0).toFixed(2)}/day</span>
+          <span>Monday</span>
+          <span style="opacity:0.8;font-size:0.75rem;">~$3.20/day</span>
         </div>
-        ${d.meals.map(([type,name,cal,cost]) => `<div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
-          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">${type}</span> &nbsp;${name}</div>
-          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">${cal} · <strong style="color:var(--clr-primary);">${cost}</strong></span>
-        </div>`).join('')}
-      </div>`).join('')}
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Breakfast</span> &nbsp;Porridge with banana and honey</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">330 kcal · <strong style="color:var(--clr-primary);">$0.65</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Lunch</span> &nbsp;Lentil soup with crusty bread</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">480 kcal · <strong style="color:var(--clr-primary);">$1.20</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Dinner</span> &nbsp;Pasta with tomato, garlic, and spinach</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">620 kcal · <strong style="color:var(--clr-primary);">$1.80</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Snack</span> &nbsp;Apple and peanut butter</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">210 kcal · <strong style="color:var(--clr-primary);">$0.55</strong></span>
+        </div>
+      </div>
+
+      <!-- Tuesday -->
+      <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
+        <div style="background:var(--clr-primary);padding:0.6rem 1rem;color:white;font-weight:700;font-size:0.85rem;display:flex;justify-content:space-between;">
+          <span>Tuesday</span>
+          <span style="opacity:0.8;font-size:0.75rem;">~$5.00/day</span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Breakfast</span> &nbsp;Scrambled eggs on toast</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">360 kcal · <strong style="color:var(--clr-primary);">$0.85</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Lunch</span> &nbsp;Tuna pasta salad</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">450 kcal · <strong style="color:var(--clr-primary);">$1.35</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Dinner</span> &nbsp;Chicken thighs with roasted veg</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">580 kcal · <strong style="color:var(--clr-primary);">$2.10</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Snack</span> &nbsp;Greek yogurt with honey</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">180 kcal · <strong style="color:var(--clr-primary);">$0.70</strong></span>
+        </div>
+      </div>
+
+      <!-- Wednesday -->
+      <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
+        <div style="background:var(--clr-primary);padding:0.6rem 1rem;color:white;font-weight:700;font-size:0.85rem;display:flex;justify-content:space-between;">
+          <span>Wednesday</span>
+          <span style="opacity:0.8;font-size:0.75rem;">~$3.60/day</span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Breakfast</span> &nbsp;Banana smoothie with oats</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">310 kcal · <strong style="color:var(--clr-primary);">$0.60</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Lunch</span> &nbsp;Bean and rice bowl</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">490 kcal · <strong style="color:var(--clr-primary);">$0.95</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Dinner</span> &nbsp;Stir-fried tofu with noodles</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">550 kcal · <strong style="color:var(--clr-primary);">$1.60</strong></span>
+        </div>
+        <div style="padding:0.55rem 1rem;display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;">
+          <div><span style="font-size:0.7rem;color:var(--clr-muted-fg);text-transform:uppercase;font-weight:700;letter-spacing:0.04em;">Snack</span> &nbsp;Carrot sticks and hummus</div>
+          <span style="color:var(--clr-muted-fg);white-space:nowrap;margin-left:0.75rem;">140 kcal · <strong style="color:var(--clr-primary);">$0.45</strong></span>
+        </div>
+      </div>
+
       <div style="text-align:center;padding:0.5rem;color:var(--clr-muted-fg);font-size:0.82rem;font-style:italic;">+ Thu, Fri, Sat, Sun with grocery list · <a href="login.html?signup=1" style="color:var(--clr-primary);font-weight:700;">Generate your full 7-day plan free →</a></div>
     </div>
   </div>

@@ -46,8 +46,8 @@
     }
     /* Instacart affiliate banner */
     .instacart-banner {
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-      border: 1px solid #bbf7d0;
+      background: var(--clr-primary-light);
+      border: 1px solid var(--clr-border);
       border-radius: var(--radius-lg, 20px);
       padding: 16px 20px;
       margin-bottom: 24px;
@@ -70,12 +70,12 @@
     .instacart-banner-logo {
       width: 40px;
       height: 40px;
-      background: white;
+      background: var(--clr-card);
       border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #16a34a;
+      color: var(--clr-primary);
       flex-shrink: 0;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
@@ -84,21 +84,21 @@
       font-family: var(--font-body, Inter, sans-serif);
       font-size: 14px;
       font-weight: 700;
-      color: #15803d;
+      color: var(--clr-primary-dark);
       margin-bottom: 2px;
     }
 
     .instacart-banner-sub {
       font-family: var(--font-body, Inter, sans-serif);
       font-size: 13px;
-      color: #16a34a;
+      color: var(--clr-primary);
       opacity: 0.8;
     }
 
     .instacart-banner-btn {
       display: inline-flex;
       align-items: center;
-      background: #16a34a;
+      background: var(--clr-primary);
       color: white;
       padding: 10px 20px;
       border-radius: 10px;
@@ -113,30 +113,23 @@
     }
 
     .instacart-banner-btn:hover {
-      background: #15803d;
+      background: var(--clr-primary-dark);
       color: white;
       opacity: 1;
     }
 
     .instacart-banner-disclaimer {
       font-size: 11px;
-      color: #86efac;
+      color: var(--clr-muted-fg);
       margin-top: 10px;
       text-align: right;
     }
 
     /* Dark mode */
     [data-theme="dark"] .instacart-banner {
-      background: linear-gradient(135deg, #052e16 0%, #14532d 100%);
-      border-color: #166534;
+      background: var(--clr-muted-bg);
+      border-color: var(--clr-border);
     }
-    [data-theme="dark"] .instacart-banner-heading { color: #86efac; }
-    [data-theme="dark"] .instacart-banner-sub { color: #4ade80; }
-    [data-theme="dark"] .instacart-banner-logo {
-      background: #14532d;
-      color: #4ade80;
-    }
-    [data-theme="dark"] .instacart-banner-disclaimer { color: #166534; }
 
     /* Hide banner if user is not in US/CA (set by JS) */
     .instacart-banner.hidden { display: none; }
@@ -268,7 +261,7 @@
   <main id="main" class="main-content" style="background:radial-gradient(ellipse 80% 35% at 50% 0%,hsl(152,40%,92%)0%,transparent 70%);">
 
     <!-- PRO NUDGE: PDF EXPORT + UNLIMITED LISTS -->
-    <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:0.75rem;background:hsl(148,40%,96%);border:1px solid hsl(148,40%,78%);color:hsl(148,40%,22%);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+    <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:var(--radius-md);background:var(--clr-primary-light);border:1px solid var(--clr-border);color:var(--clr-primary-dark);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
       <span style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <strong>Pro unlocks PDF export + unlimited grocery lists</strong> � share your list or print it in one tap.
@@ -742,16 +735,16 @@
     if (!isPro) {
       fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'upgrade_click', data: { source: 'grocery_pdf_btn' } }) }).catch(() => {});
       const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
       overlay.innerHTML = `
         <div style="background:var(--clr-card,#fff);border-radius:1.25rem;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
           <button onclick="this.closest('[style]').remove()" style="float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--clr-muted-fg,#999);">&times;</button>
-          <div style="width:48px;height:48px;background:hsl(152,40%,92%);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
+          <div style="width:48px;height:48px;background:var(--clr-primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           </div>
           <h3 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">Download grocery list as PDF</h3>
           <p style="color:var(--clr-muted-fg,#555);font-size:0.85rem;margin-bottom:1.25rem;line-height:1.6;">Print your grocery list or save it to your phone. Pro feature � upgrade to unlock.</p>
-          <a href="upgrade.html" style="display:block;background:#2e7d4f;color:white;padding:0.85rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro &#8594;</a>
+          <a href="upgrade.html" style="display:block;background:var(--clr-primary);color:white;padding:0.85rem;border-radius:var(--radius-md);font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.92rem;">Upgrade to Pro &#8594;</a>
           <a href="upgrade.html" style="font-size:0.82rem;color:var(--clr-muted-fg,#888);text-decoration:underline;">See all plans</a>
         </div>`;
       document.body.appendChild(overlay);
