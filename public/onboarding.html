@@ -122,7 +122,7 @@
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
     }
     .goal-card {
-      border: 1px solid #e0e8e4;
+      border: 1px solid var(--clr-border);
       border-left: 3px solid transparent;
       border-radius: 0.85rem;
       height: 64px;
@@ -130,24 +130,24 @@
       display: flex; align-items: center;
       padding-left: 20px;
       transition: border-color 0.15s, background 0.15s;
-      background: white;
+      background: var(--clr-card);
       box-sizing: border-box;
       width: 100%;
     }
     .goal-card:hover {
-      border-left: 3px solid #3d8b5e;
-      background: #f8fbf9;
+      border-left: 3px solid var(--color-green);
+      background: var(--clr-muted-bg);
     }
     .goal-card.selected {
-      background: #3d8b5e;
-      border: 2px solid #4ade80;
+      background: var(--color-green);
+      border: 2px solid var(--color-green-light);
       color: white;
     }
     .goal-label {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-body);
       font-weight: 600;
       font-size: 1rem;
-      color: #1a3d2b;
+      color: var(--color-forest);
     }
     .goal-card.selected .goal-label { font-weight: 700; color: white; }
 
@@ -163,7 +163,7 @@
       transition: border-color 0.15s, background 0.15s, color 0.15s;
     }
     .chip:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
-    .chip.active { background: #3d8b5e; border: 2px solid #4ade80; color: white; }
+    .chip.active { background: var(--color-green); border: 2px solid var(--color-green-light); color: white; }
 
     /* ── Summary box ────────────────────────────────────── */
     .ob-summary {
@@ -209,12 +209,12 @@
     }
     [data-theme="dark"] .goal-card .goal-label { color: #f0f7f4; }
     [data-theme="dark"] .goal-card:hover {
-      border-left: 3px solid #3d8b5e;
+      border-left: 3px solid var(--color-green);
       background: #243d2e;
     }
     [data-theme="dark"] .goal-card.selected {
-      border-left: 3px solid #3d8b5e;
-      background: #1a3d2b;
+      border-left: 3px solid var(--color-green);
+      background: var(--color-forest);
       color: #f0f7f4;
     }
     [data-theme="dark"] .goal-card.selected .goal-label { color: #f0f7f4; }
@@ -224,8 +224,8 @@
       color: #f0f7f4;
     }
     [data-theme="dark"] .chip.active {
-      background: #3d8b5e;
-      border-color: #3d8b5e;
+      background: var(--color-green);
+      border-color: var(--color-green);
       color: white;
     }
     [data-theme="dark"] #btnBack {

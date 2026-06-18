@@ -27,7 +27,7 @@
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    body { background: #0f2419; }
+    body { background: var(--color-forest); }
     .upgrade-wrap { max-width: 560px; margin: 0 auto; padding: 0 1.5rem 2rem; }
     @media (prefers-reduced-motion: no-preference) {
       .upgrade-hero  { animation: fadeInUp 0.32s ease both; animation-delay: 0.05s; }
@@ -36,7 +36,7 @@
     }
     /* ── HERO ── */
     .upgrade-hero-section {
-      background: #1a3d2b;
+      background: var(--color-forest);
       padding-top: 48px;
       padding-bottom: 48px;
       /* full-bleed breakout from the constrained container */
@@ -51,7 +51,7 @@
     }
     .upgrade-hero { text-align: center; margin-bottom: 2.5rem; }
     .upgrade-hero .eyebrow { font-size: 0.82rem; font-weight: 700; color: #4ade80; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
-    .upgrade-hero h1 { font-family: 'Fraunces', serif; font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: white; }
+    .upgrade-hero h1 { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: white; }
     .upgrade-hero p { font-size: 1rem; color: rgba(255,255,255,0.82); max-width: 440px; margin: 0 auto; line-height: 1.65; }
     /* toggle labels white inside dark hero */
     .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.88rem; }
@@ -59,47 +59,58 @@
     .toggle-wrap .billing-label.active { color: white; font-weight: 700; }
     .save-badge { background: rgba(74,222,128,0.18); color: #4ade80; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid rgba(74,222,128,0.35); }
     /* ── PRICING CARD ── */
-    .upgrade-card { background: #1a3d2b; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 40px rgba(0,0,0,0.10); }
+    .upgrade-card { background: var(--color-forest); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 40px rgba(0,0,0,0.10); }
     .price-display { text-align: center; margin-bottom: 1.5rem; }
     .price-amount { font-size: 3rem; font-weight: 900; color: white; line-height: 1; }
     .price-period { font-size: 1rem; color: var(--clr-muted-fg); }
     .price-annual { font-size: 0.85rem; color: var(--clr-muted-fg); margin-top: 0.25rem; }
     .features-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
     .features-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; }
-    .features-list .check { color: #3d8b5e; font-weight: 900; flex-shrink: 0; margin-top: 0.1rem; }
+    .features-list .check { color: var(--color-green); font-weight: 900; flex-shrink: 0; margin-top: 0.1rem; }
     .features-list .label { font-weight: 600; color: rgba(255,255,255,0.95); }
     .features-list .desc { color: var(--clr-muted-fg); font-size: 0.83rem; margin-top: 0.1rem; }
-    .upgrade-cta-btn { display: block; width: 100%; background: #3d8b5e; color: white; text-align: center; padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; border: none; cursor: pointer; box-shadow: var(--shadow-button); transition: transform 0.15s, box-shadow 0.15s; margin-bottom: 0.6rem; box-sizing: border-box; }
+    .upgrade-cta-btn { display: block; width: 100%; background: var(--color-green); color: white; text-align: center; padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; border: none; cursor: pointer; box-shadow: var(--shadow-button); transition: transform 0.15s, box-shadow 0.15s; margin-bottom: 0.6rem; box-sizing: border-box; }
     .upgrade-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px hsl(152,52%,36%,0.4); }
     /* ── TRUST LINE ── */
     .guarantee { font-size: 13px; color: rgba(255,255,255,0.55); text-align: center; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
     /* ── CARD HEADER ── */
-    .upgrade-card-header { background: #1a3d2b; padding: 16px; border-radius: 20px 20px 0 0; text-align: center; color: white; font-size: 11px; letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; margin: -2rem -2rem 1.5rem -2rem; }
+    .upgrade-card-header { background: var(--color-forest); padding: 16px; border-radius: 20px 20px 0 0; text-align: center; color: white; font-size: 11px; letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; margin: -2rem -2rem 1.5rem -2rem; }
     /* ── OBJECTION LIST ── */
-    .objection-list { margin-top: 2rem; background: #1a3d2b; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 0.75rem; }
-    .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding-left: 12px; border-left: 3px solid #3d8b5e; color: rgba(255,255,255,0.8); }
+    .objection-list { margin-top: 2rem; background: var(--color-forest); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 0.75rem; }
+    .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding-left: 12px; border-left: 3px solid var(--color-green); color: rgba(255,255,255,0.8); }
     .objection strong { color: white; }
     .objection-icon { flex-shrink: 0; font-size: 1rem; }
     /* ── COMPARE TABLE ── */
     .compare-table tbody tr:nth-child(odd)  { background: transparent; }
     .compare-table tbody tr:nth-child(even) { background: transparent; }
-    .compare-table thead tr { background: #1a3d2b !important; }
+    .compare-table thead tr { background: var(--color-forest) !important; }
     .compare-table thead th { color: white !important; }
     .compare-table thead th.pro-col { color: #4ade80 !important; }
-    .compare-check { color: #3d8b5e; font-weight: 700; }
+    .compare-check { color: var(--color-green); font-weight: 700; }
     .compare-x { color: #bbb; font-size: 1.1rem; }
     /* ── BACK LINK ── */
     .back-link { text-align: center; margin-top: 2rem; font-size: 0.85rem; }
-    .back-link a { color: #666; text-decoration: none; }
-    .back-link a:hover { color: #444; }
+    .back-link a { color: var(--clr-muted-fg); text-decoration: none; }
+    .back-link a:hover { color: var(--clr-foreground); }
+    /* Dark mode toggle */
+    .theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.7); transition: all 0.15s; flex-shrink: 0; }
+    .theme-toggle:hover { border-color: white; color: white; }
+    [data-theme="light"] .icon-moon { display: none; }
+    [data-theme="dark"] .icon-sun { display: none; }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
-<nav class="nav" style="position:relative;background:#1a3d2b;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;">
+<nav class="nav" style="position:relative;background:var(--color-forest);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;">
   <a href="/" style="font-family:var(--font-display);font-size:20px;font-weight:900;font-style:italic;color:white;text-decoration:none;">Mealzy</a>
-  <a href="/dashboard.html" style="font-size:14px;color:rgba(255,255,255,0.7);">← Back to dashboard</a>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+    <a href="/dashboard.html" style="font-size:14px;color:rgba(255,255,255,0.7);">← Back to dashboard</a>
+  </div>
 </nav>
 <div id="main" class="upgrade-wrap">
 
@@ -277,6 +288,13 @@
 </div>
 
 <script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('mealzy_theme', next);
+  }
+
   const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
   const STRIPE_YEARLY  = window.STRIPE_ANNUAL || null;
 

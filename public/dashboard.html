@@ -275,7 +275,7 @@
 
     <!-- STAT CARDS -->
     <div class="grid-4" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
+      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--color-forest);">
         <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
         <div class="stat-value" id="statCalories">0</div>
         <div class="stat-sub" id="statCaloriesSub">of 0 kcal goal</div>
@@ -283,7 +283,7 @@
           <div class="progress-bar-fill" id="caloriesProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
+      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--color-forest);">
         <div class="stat-label" data-i18n="stat_protein">Protein</div>
         <div class="stat-value" id="statProtein">0g</div>
         <div class="stat-sub" id="statProteinSub">of 0g goal</div>
@@ -291,12 +291,12 @@
           <div class="progress-bar-fill accent" id="proteinProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
+      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--color-forest);">
         <div class="stat-label" data-i18n="stat_meals_done">Meals Done</div>
         <div class="stat-value" id="statMealsDone">0/0</div>
         <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
       </div>
-      <div class="stat-card" style="border-top:3px solid #3d8b5e;background:#1a2e22;">
+      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--color-forest);">
         <div class="stat-label" data-i18n="stat_water">Water</div>
         <div class="stat-value" id="statWater" style="font-size:2rem;font-weight:700;color:white;">0</div>
         <div class="stat-sub" id="statWaterSub">of 8 goal</div>
@@ -1049,7 +1049,7 @@
     prompt.id = 'upgradePrompt';
     prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     prompt.innerHTML = `
-      <div id="upgradeCard" style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
+      <div id="upgradeCard" style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
         <!-- Primary offer -->
         <div id="upgradeStage1">
           
@@ -1116,7 +1116,7 @@
     overlay.id = 'abandonEmailOverlay';
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     overlay.innerHTML = `
-      <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <div style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
         <div style="font-size:2rem;margin-bottom:0.5rem;">💌</div>
         <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;color:#111;">One last thing</h3>
         <p style="color:#555;font-size:0.85rem;margin-bottom:1rem;line-height:1.6;">
