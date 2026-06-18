@@ -117,23 +117,39 @@
       margin-bottom: 1.5rem;
     }
 
-    /* ── Goal cards with SVG icons ──────────────────────── */
+    /* ── Goal cards — no icons, left-border treatment ──── */
     .goal-grid {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
     }
     .goal-card {
-      border: 1.5px solid var(--clr-border); border-radius: 0.85rem;
-      padding: 1rem 1.1rem; cursor: pointer;
-      display: flex; align-items: center; gap: 0.75rem;
-      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-      background: var(--clr-card);
-      min-height: 56px;
+      border: 1px solid #e0e8e4;
+      border-left: 3px solid transparent;
+      border-radius: 0.85rem;
+      height: 64px;
+      cursor: pointer;
+      display: flex; align-items: center;
+      padding-left: 20px;
+      transition: border-color 0.15s, background 0.15s;
+      background: white;
+      box-sizing: border-box;
+      width: 100%;
     }
-    .goal-card:hover { border-color: var(--clr-primary); background: var(--clr-primary-light); }
-    .goal-card.selected { border-color: var(--clr-primary); background: var(--clr-primary-light); box-shadow: 0 0 0 3px hsl(152,52%,94%); }
-    [data-theme="dark"] .goal-card.selected { box-shadow: 0 0 0 3px hsl(152,25%,15%); }
-    .goal-card-icon { color: var(--clr-primary); flex-shrink: 0; }
-    .goal-label { font-weight: 600; font-size: 0.9rem; }
+    .goal-card:hover {
+      border-left: 3px solid #3d8b5e;
+      background: #f8fbf9;
+    }
+    .goal-card.selected {
+      border-left: 3px solid #3d8b5e;
+      background: #f0f7f4;
+      font-weight: 700;
+    }
+    .goal-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1a3d2b;
+    }
+    .goal-card.selected .goal-label { font-weight: 700; color: #1a3d2b; }
 
     /* ── Dietary chips ───────────────────────────────────── */
     .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
@@ -179,15 +195,22 @@
       color: white;
     }
     [data-theme="dark"] .goal-card {
-      background: #1a2e22;
-      border-color: #2d4a35;
+      background: #1e3828;
+      border: 1px solid #3d6b50;
+      border-left: 3px solid transparent;
       color: #f0f7f4;
     }
-    [data-theme="dark"] .goal-card.selected {
-      background: #3d8b5e;
-      border-color: #3d8b5e;
-      color: white;
+    [data-theme="dark"] .goal-card .goal-label { color: #f0f7f4; }
+    [data-theme="dark"] .goal-card:hover {
+      border-left: 3px solid #3d8b5e;
+      background: #243d2e;
     }
+    [data-theme="dark"] .goal-card.selected {
+      border-left: 3px solid #3d8b5e;
+      background: #1a3d2b;
+      color: #f0f7f4;
+    }
+    [data-theme="dark"] .goal-card.selected .goal-label { color: #f0f7f4; }
     [data-theme="dark"] .chip {
       background: #1a2e22;
       border-color: #2d4a35;
@@ -232,27 +255,21 @@
         <label class="form-label">What's your main goal?</label>
         <div class="goal-grid">
           <div class="goal-card" data-goal="build_muscle" onclick="selectGoal(this)">
-            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5a4 4 0 1 0 5.66 5.66"/><path d="M2 2l20 20"/><path d="M4 12C2.5 9.5 2 7 2 7s3-2 6-1"/><path d="M20 12c1.5 2.5 2 5 2 5s-3 2-6 1"/></svg>
             <div class="goal-label">Build Muscle</div>
           </div>
           <div class="goal-card" data-goal="lose_weight" onclick="selectGoal(this)">
-            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
             <div class="goal-label">Lose Weight</div>
           </div>
           <div class="goal-card" data-goal="maintain_weight" onclick="selectGoal(this)">
-            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             <div class="goal-label">Maintain Weight</div>
           </div>
           <div class="goal-card" data-goal="eat_healthier" onclick="selectGoal(this)">
-            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
             <div class="goal-label">Eat Healthier</div>
           </div>
           <div class="goal-card" data-goal="gain_weight" onclick="selectGoal(this)">
-            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
             <div class="goal-label">Gain Weight</div>
           </div>
           <div class="goal-card" data-goal="improve_energy" onclick="selectGoal(this)">
-            <svg class="goal-card-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             <div class="goal-label">Improve Energy</div>
           </div>
         </div>
