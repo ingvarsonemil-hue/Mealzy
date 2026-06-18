@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
@@ -48,7 +49,7 @@
       background:
         radial-gradient(ellipse 80% 60% at 20% 100%, hsl(152,52%,10%) 0%, transparent 60%),
         radial-gradient(ellipse 60% 40% at 80% 0%, hsl(46,30%,10%) 0%, transparent 50%),
-        var(--clr-background);
+        linear-gradient(135deg, #0f1f17, #0a1a10);
     }
 
     /* ── Card ───────────────────────────────────────────── */
@@ -147,8 +148,51 @@
     }
     [data-theme="dark"] .ob-summary { background: hsl(152,25%,12%); border-color: hsl(152,25%,22%); }
     .ob-summary-title { font-weight: 700; font-size: 0.88rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
+
+    /* ── Dark mode ──────────────────────────────────────── */
+    [data-theme="dark"] .onboarding-card {
+      background: #1a2e22;
+      border-color: #2d4a35;
+    }
+    [data-theme="dark"] .ob-step-title { color: #f0f7f4; }
+    [data-theme="dark"] .ob-step-sub { color: #9db8a8; }
+    [data-theme="dark"] .form-label { color: #9db8a8; }
+    [data-theme="dark"] .form-input {
+      background: #1a2e22;
+      border-color: #2d4a35;
+      color: white;
+    }
+    [data-theme="dark"] .form-select {
+      background: #1a2e22;
+      border-color: #2d4a35;
+      color: white;
+    }
+    [data-theme="dark"] .goal-card {
+      background: #1a2e22;
+      border-color: #2d4a35;
+      color: #f0f7f4;
+    }
+    [data-theme="dark"] .goal-card.selected {
+      background: #3d8b5e;
+      border-color: #3d8b5e;
+      color: white;
+    }
+    [data-theme="dark"] .chip {
+      background: #1a2e22;
+      border-color: #2d4a35;
+      color: #f0f7f4;
+    }
+    [data-theme="dark"] .chip.active {
+      background: #3d8b5e;
+      border-color: #3d8b5e;
+      color: white;
+    }
+    [data-theme="dark"] #btnBack {
+      background: transparent;
+      border-color: #2d4a35;
+      color: #9db8a8;
+    }
   </style>
-<script src="/js/theme-init.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
