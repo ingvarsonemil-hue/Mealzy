@@ -62,13 +62,18 @@
   --radius-xl:   32px;
   --radius-full: 999px;
 
-  /* Shadows */
-  --shadow-sm:     0 2px 8px rgba(26, 61, 43, 0.06);
-  --shadow-md:     0 4px 16px rgba(26, 61, 43, 0.08);
-  --shadow-lg:     0 8px 32px rgba(26, 61, 43, 0.12);
-  --shadow-xl:     0 16px 48px rgba(26, 61, 43, 0.16);
-  --shadow-button: 0 4px 12px rgba(61, 139, 94, 0.25);
-  --shadow-card:   0 2px 12px rgba(26, 61, 43, 0.08);
+  /* Elevation Shadows (layered ambient + soft for depth) */
+  --shadow-sm:     0 2px 8px rgba(26, 61, 43, 0.06);              /* Resting state */
+  --shadow-md:     0 4px 16px rgba(26, 61, 43, 0.08);             /* Raised/hover */
+  --shadow-lg:     0 8px 32px rgba(26, 61, 43, 0.12);             /* Floating overlay */
+  --shadow-xl:     0 16px 48px rgba(26, 61, 43, 0.16);            /* Modal/dropdown */
+  --shadow-button: 0 4px 12px rgba(61, 139, 94, 0.25);            /* CTA buttons */
+  --shadow-card:   0 2px 12px rgba(26, 61, 43, 0.08);             /* Card/surface elevation */
+  /* Semantic layer aliases */
+  --shadow-base:   var(--shadow-sm);                              /* Default surface */
+  --shadow-raised: var(--shadow-md);                              /* Hover/interactive */
+  --shadow-overlay:var(--shadow-lg);                              /* Floating content */
+  --shadow-modal:  var(--shadow-xl);                              /* Modal/dialog */
 
   /* Animation */
   --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
