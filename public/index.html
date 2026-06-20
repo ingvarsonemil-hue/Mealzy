@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mealzy — Free AI Meal Planner, No Sign Up | Full Week in 30 Seconds</title>
-<meta name="description" content="Free AI meal planner — no sign up, no credit card. Enter your calorie goal and grocery budget, get a full week of meals in 30 seconds with a shopping list. Used in 20+ countries.">
+<meta name="description" content="Free AI meal planner — no sign up, no credit card. Enter your calorie goal and grocery budget, get a full week of meals in 30 seconds with a shopping list. Used in 6 countries.">
 <meta name="keywords" content="free AI meal planner, meal planning app, macro meal planner, grocery budget meal plan, AI meal planning">
 <meta property="og:title" content="Mealzy — Free AI Meal Planner, No Sign Up | Full Week in 30 Seconds">
 <meta property="og:description" content="Generate a full week of personalized meals in 30 seconds. Hits your macros, stays in budget, generates the grocery list. Free.">
@@ -79,7 +79,7 @@
       "name": "Does Mealzy work outside the US? Does it work in Sweden and Europe?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Mealzy works in 11 languages including Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese, and English. Grocery cost estimates are localised to your region. Mealzy is used in 20+ countries."
+        "text": "Yes. Mealzy works in 11 languages including Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese, and English. Grocery cost estimates are localised to your region. Mealzy is used in 6 countries."
       }
     },
     {
@@ -173,8 +173,10 @@ body{font-size:1.0625rem;line-height:1.7;}
 .demo-cta-row{text-align:center;padding:2rem 0 1rem;}
 .demo-cta-h{font-family:var(--font-display);font-style:italic;font-size:1.3rem;margin-bottom:.4rem;}
 /* Showcase */
-.showcase{padding:5rem 0;}
+.showcase{padding:2rem 0 5rem 0;}
 .showcase-grid{display:grid;grid-template-columns:3fr 2fr;gap:2.5rem;align-items:start;}
+.card{border-left:3px solid #3d8b5e;}
+.card h3{font-style:normal;font-weight:700;}
 @media(max-width:860px){.showcase-grid{grid-template-columns:1fr;}}
 .recipe-card-mktg{background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
 .recipe-card-title{font-family:var(--font-display);font-style:italic;font-size:1rem;padding-bottom:.75rem;margin-bottom:.75rem;border-bottom:1px solid var(--clr-border);display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap;}
@@ -334,7 +336,7 @@ body{font-size:1.0625rem;line-height:1.7;}
       <h1 id="hero-heading" class="hero-h1">A full week of meals in 30 seconds.</h1>
       <p class="hero-sub">I built Mealzy because meal planning was eating my Sundays. Tell it your goals and budget — it builds the week, hits your macros, and writes the grocery list.</p>
       <div class="hero-actions">
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg">
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg" style="background-color:#3d8b5e;">
           Start Free — No Credit Card
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </a>
@@ -364,7 +366,7 @@ body{font-size:1.0625rem;line-height:1.7;}
           <option value="high-protein">High protein</option>
         </select>
       </div>
-      <button id="demoBtn" onclick="runDemo()" class="btn btn-primary btn-full" style="margin-top:.25rem;">
+      <button id="demoBtn" onclick="runDemo()" class="btn btn-primary btn-full" style="margin-top:.25rem;background-color:#3d8b5e;">
         <span id="demoBtnText">Generate Sample Plan</span>
         <span class="demo-spinner" id="demoSpinner" aria-hidden="true"></span>
       </button>
@@ -375,11 +377,6 @@ body{font-size:1.0625rem;line-height:1.7;}
 <!-- Social proof strip -->
 <div class="trust-strip">
   <div class="trust-strip-inner">
-    <div class="trust-item">
-      <div class="trust-stars">★★★★★</div>
-      <span>Loved by users</span>
-    </div>
-    <div class="trust-divider"></div>
     <div class="trust-item">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
       <span>3 free plans/month</span>
@@ -397,7 +394,7 @@ body{font-size:1.0625rem;line-height:1.7;}
     <div class="trust-divider"></div>
     <div class="trust-item">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>Used in 20+ countries</span>
+      <span>Used in 6 countries</span>
     </div>
   </div>
 </div>
@@ -420,7 +417,7 @@ body{font-size:1.0625rem;line-height:1.7;}
       <div class="demo-cta-row">
         <p class="demo-cta-h">This is just 5 days of lunches and dinners.</p>
         <p style="font-size:.9rem;color:var(--clr-muted-fg);margin-bottom:1.5rem;max-width:50ch;margin-inline:auto;">The full Mealzy plan includes all 7 days, breakfast, snacks, and a sorted grocery list with estimated costs.</p>
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg" onclick="trackDemoToSignup()">Get the Full Week Free — Takes 30 Seconds</a>
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg" style="background-color:#3d8b5e;" onclick="trackDemoToSignup()">Get the Full Week Free — Takes 30 Seconds</a>
         <p style="font-size:.78rem;color:var(--clr-muted-fg);margin-top:.65rem;">No credit card. No catch. Resets every 30 days.</p>
       </div>
     </div>
@@ -564,7 +561,7 @@ body{font-size:1.0625rem;line-height:1.7;}
         </div>
         <div class="founder-stats">
           <div class="founder-stat">
-            <div class="founder-stat-number">20+</div>
+            <div class="founder-stat-number">6</div>
             <div class="founder-stat-label">Countries</div>
           </div>
           <div class="founder-stat">
@@ -625,7 +622,7 @@ body{font-size:1.0625rem;line-height:1.7;}
       <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;color:white;">Stop planning meals by hand.</h2>
       <p class="cta-lede" style="color:rgba(255,255,255,0.75);">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg" style="background-color:#3d8b5e;">Start Free — Takes 2 Minutes</a>
         <a href="pricing.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5);color:white;background:transparent;">See pricing</a>
       </div>
     </div>
@@ -658,14 +655,14 @@ body{font-size:1.0625rem;line-height:1.7;}
       <div>
         <a href="/" class="footer-brand-name" aria-label="Mealzy home">Mealzy</a>
         <p class="footer-brand-tagline">AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
-        <p class="footer-brand-tagline" style="margin-top:0.8rem;">Used in 20+ countries including Sweden, the UK, Germany, and Australia.</p>
+        <p class="footer-brand-tagline" style="margin-top:0.8rem;">Used in 6 countries including Sweden, the UK, Germany, and Australia.</p>
       </div>
       <div>
         <p class="footer-col-heading">Product</p>
         <ul class="footer-link-list" role="list">
           <li><a href="#how-it-works">How it works</a></li>
           <li><a href="pricing.html">Pricing</a></li>
-          <li><a href="dashboard.html">My plans</a></li>
+          <li><a href="/dashboard.html">My plans</a></li>
         </ul>
       </div>
       <div>
