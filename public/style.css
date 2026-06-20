@@ -91,17 +91,23 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 .sidebar-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--clr-sidebar-active); border: 1.5px solid var(--clr-sidebar-hover); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.85rem; }
 
 /* === BUTTONS === */
-.btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; border: none; transition: all var(--duration-base); white-space: nowrap; padding: 0.55rem 1.25rem; font-size: 0.9rem; font-family: var(--font-body); text-decoration: none; }
+.btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; border: none; transition: all var(--duration-base); white-space: nowrap; padding: 0.55rem 1.25rem; font-size: 0.9rem; font-family: var(--font-body); text-decoration: none; outline-offset: 2px; }
+.btn:focus-visible { outline: 2px solid var(--color-green); }
 .btn-primary { background: var(--gradient-primary); color: white; box-shadow: var(--shadow-button); font-weight: var(--font-weight-semibold); }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.btn-primary:active { transform: translateY(0); opacity: 0.95; }
 .btn-accent { background: var(--gradient-accent); color: white; box-shadow: 0 4px 14px hsl(32,88%,54%,0.35); }
 .btn-accent:hover { transform: translateY(-2px); }
+.btn-accent:active { transform: translateY(0); opacity: 0.95; }
 .btn-outline { background: var(--clr-card); border: 1.5px solid var(--clr-border); color: var(--clr-foreground); font-weight: var(--font-weight-medium); }
 .btn-outline:hover { background: var(--clr-primary-light); border-color: var(--clr-primary); color: var(--clr-primary); }
+.btn-outline:active { opacity: 0.9; }
 .btn-ghost { background: transparent; color: var(--clr-muted-fg); border: none; }
 .btn-ghost:hover { color: var(--clr-foreground); }
+.btn-ghost:active { opacity: 0.8; }
 .btn-danger { background: var(--clr-destructive); color: white; }
 .btn-danger:hover { opacity: 0.9; }
+.btn-danger:active { opacity: 0.8; }
 .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.82rem; }
 .btn-lg { padding: 0.75rem 2rem; font-size: 1rem; }
 .btn-full { width: 100%; justify-content: center; }
