@@ -72,7 +72,7 @@
     #decidingPopup .popup-close {
       position:absolute; top:0.7rem; right:0.9rem;
       background:none; border:none; cursor:pointer;
-      font-size:1.1rem; color:var(--clr-muted-fg); line-height:1;
+      font-size:1.25rem; color:#ffffff; opacity:1; line-height:1;
     }
     /* Pricing cards — Week 2 polish */
     .pricing-cards {
@@ -233,7 +233,7 @@
 <main id="main">
 
 <!-- HERO -->
-<section style="padding:clamp(6rem,12vw,9rem) 0 clamp(3rem,6vw,5rem);border-bottom:1px solid var(--clr-border);">
+<section style="padding:clamp(3rem,6vw,4rem) 0 clamp(1.5rem,3vw,2rem);border-bottom:1px solid var(--clr-border);">
   <div class="container" style="text-align:center;">
     <span class="section-label" style="animation:slideUp 0.45s var(--ease-edit) 0.05s both;opacity:0;">Simple Pricing</span>
     <h1 class="pricing-hero-headline" style="animation:slideUp 0.45s var(--ease-edit) 0.15s both;opacity:0;font-family:var(--font-display);font-style:italic;font-weight:700;">
@@ -299,7 +299,7 @@
           <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
-        <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $12/mo — cancel any time.</p>
+        <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $8/mo — cancel any time.</p>
         <ul class="pricing-features">
           <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
           <li><span class="check">✓</span> Automatic grocery list</li>
@@ -420,22 +420,25 @@
     <div class="footer__inner">
       <div class="footer__brand">
         <a href="index.html" class="footer__logo" style="font-variant:normal;font-style:italic;">Mealzy</a>
-        <p>AI meal planning that fits your budget, your diet, and your week.</p>
+        <p>AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
       </div>
       <div class="footer__col">
-        <h4>Product</h4>
-        <ul class="footer__links"><li><a href="index.html#features">Features</a></li><li><a href="pricing.html">Pricing</a></li></ul>
+        <h4>PRODUCT</h4>
+        <ul class="footer__links"><li><a href="index.html#how-it-works">How it works</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="/dashboard.html">My plans</a></li></ul>
       </div>
       <div class="footer__col">
-        <h4>Account</h4>
-        <ul class="footer__links"><li><a href="dashboard.html">Sign In</a></li><li><a href="onboarding.html">Get Started</a></li></ul>
+        <h4>ACCOUNT</h4>
+        <ul class="footer__links"><li><a href="dashboard.html">Sign in</a></li><li><a href="onboarding.html">Start free</a></li><li><a href="reset-password.html">Reset password</a></li></ul>
       </div>
       <div class="footer__col">
-        <h4>Legal</h4>
+        <h4>LEGAL</h4>
         <ul class="footer__links"><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="terms.html">Terms</a></li><li><a href="mailto:support@mealzy.org">Contact</a></li></ul>
       </div>
     </div>
-    <div style="border-top:1px solid rgba(253,246,236,0.1);margin-top:3rem;padding-top:1.5rem;font-size:var(--text-xs);color:rgba(253,246,236,0.4);">© 2026 Mealzy. All rights reserved.</div>
+    <div style="border-top:1px solid rgba(253,246,236,0.1);margin-top:3rem;padding-top:1.5rem;font-size:var(--text-xs);color:rgba(253,246,236,0.6);">
+      <p style="margin:0 0 0.75rem 0;">© 2026 Mealzy — Built by Emil, 16, Sweden.</p>
+      <p style="margin:0;color:rgba(253,246,236,0.4);">Mealzy is an AI tool and does not provide medical or nutritional advice.</p>
+    </div>
   </div>
 </footer>
 
@@ -499,7 +502,7 @@
       ctaNote.textContent = 'Best value — $62/year saves you $82 vs monthly.';
     } else {
       cta.href = STRIPE_MONTHLY; cta.textContent = 'Start Pro — 7 Days Free';
-      ctaNote.textContent = 'Lock in $12/mo — cancel any time.';
+      ctaNote.textContent = 'Lock in $8/mo — cancel any time.';
     }
     const familyCta = document.getElementById('familyCta');
     if (familyCta) {
