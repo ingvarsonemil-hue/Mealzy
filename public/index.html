@@ -603,7 +603,7 @@ body{font-size:1.0625rem;line-height:1.7;}
       </div>
       <div class="faq-item">
         <button class="faq-btn" aria-expanded="false" aria-controls="faq-4">How accurate are the calorie calculations?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-4" role="region"><p class="faq-body-inner">We use the Mifflin-St Jeor equation with your activity level to calculate your daily target. Meals are generated to hit that target within about 50 calories per day.</p></div>
+        <div class="faq-body" id="faq-4" role="region"><p class="faq-body-inner">We estimate your daily calorie target based on your goal. You can adjust it anytime in settings.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-btn" aria-expanded="false" aria-controls="faq-5">What languages does Mealzy support?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
@@ -857,15 +857,18 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 </script>
 
 <script>
-document.querySelector('.faq-list').addEventListener('click', function(e) {
-  const btn = e.target.closest('.faq-btn');
-  if (!btn) return;
-  const item = btn.closest('.faq-item');
-  const isOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-  if (!isOpen) item.classList.add('open');
-  btn.setAttribute('aria-expanded', String(!isOpen));
-});
+const faqList = document.querySelector('.faq-list');
+if (faqList) {
+  faqList.addEventListener('click', function(e) {
+    const btn = e.target.closest('.faq-btn');
+    if (!btn) return;
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+    btn.setAttribute('aria-expanded', String(!isOpen));
+  });
+}
 </script>
 </body>
 </html>
