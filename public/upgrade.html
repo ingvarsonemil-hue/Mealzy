@@ -302,7 +302,7 @@
   let billingMode = STRIPE_YEARLY ? 'yearly' : 'monthly';
   if (!STRIPE_YEARLY) {
     document.querySelector('.toggle-wrap').style.display = 'none';
-    document.getElementById('upgrPrice').textContent = '$12';
+    document.getElementById('upgrPrice').textContent = '$8';
     document.getElementById('upgrBilled').textContent = '';
     document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
     document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
@@ -319,12 +319,12 @@
     if (mode === 'yearly') {
       dot.style.left = '23px';
       document.getElementById('upgrPrice').textContent = '$5.17';
-      document.getElementById('upgrBilled').textContent = 'Billed $62/year — saves $82';
+      document.getElementById('upgrBilled').textContent = 'Billed $62/year — saves $34';
       document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free →';
     } else {
       dot.style.left = '3px';
-      document.getElementById('upgrPrice').textContent = '$12';
+      document.getElementById('upgrPrice').textContent = '$8';
       document.getElementById('upgrBilled').textContent = '';
       document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';

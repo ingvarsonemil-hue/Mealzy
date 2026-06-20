@@ -246,7 +246,7 @@
     <!-- BILLING TOGGLE — only rendered when STRIPE_ANNUAL_READY -->
     <div class="pricing-toggle" id="billingToggle" style="display:none;animation:slideUp 0.45s var(--ease-edit) 0.3s both;" aria-label="Billing period">
       <button class="active" id="btnMonthly" style="min-height:44px;" onclick="setBilling('monthly')">Monthly</button>
-      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Annual — save $82</button>
+      <button id="btnYearly" style="min-height:44px;" onclick="setBilling('yearly')">Annual — save $34</button>
     </div>
   </div>
 </section>
@@ -293,7 +293,7 @@
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Pro</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For people who plan every week.</p>
           <div class="pricing-price">
-            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$12</span>
+            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$8</span>
             <span class="period" style="font-size:var(--text-sm);color:var(--clr-muted-fg);">/month</span>
           </div>
           <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
@@ -475,8 +475,8 @@
   const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
   document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
 
-  const prices    = { monthly:{free:'$0',premium:'$12',family:'$16'}, yearly:{free:'$0',premium:'$5',family:'$11'} };
-  const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $62/year — save $82 vs monthly',family:'Billed $130/year — save $62 vs monthly'} };
+  const prices    = { monthly:{free:'$0',premium:'$8',family:'$16'}, yearly:{free:'$0',premium:'$5',family:'$11'} };
+  const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $62/year — save $34 vs monthly',family:'Billed $130/year — save $62 vs monthly'} };
 
   function setBilling(mode) {
     billingMode = mode;
