@@ -1076,6 +1076,8 @@ app.post('/api/admin/grant-pro', requireAdmin, async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 app.get('/api/admin/export', requireAdmin, async (req, res) => {
+  const token = req.headers['x-admin-token'] || req.query.admin_token;
+  console.log('[export] token received:', token, '| expected:', process.env.PRO_TOKEN);
   try {
     const users    = await db.getAllUsers();
     const leads    = await db.countLeads();
