@@ -40,20 +40,20 @@
 - [x] 30. Standardize Text Casing and Labels - UI text uses consistent sentence case throughout
 
 ## Performance & Loading Speed (31-44)
-- [ ] 31. Run a Full Performance Audit
-- [ ] 32. Shrink the JavaScript Bundle
-- [ ] 33. Add Route-Based Code Splitting
-- [ ] 34. Optimize and Modernize All Images
-- [ ] 35. Implement Content-Aware Loading Skeletons
-- [ ] 36. Virtualize Long Scrolling Lists
-- [ ] 37. Eliminate Unnecessary Component Re-renders
-- [ ] 38. Cache and Dedupe Data Fetching
-- [ ] 39. Add Optimistic UI Updates
-- [ ] 40. Prefetch Data on User Intent
-- [ ] 41. Debounce and Throttle Costly Handlers
-- [ ] 42. Optimize the Critical Rendering Path
-- [ ] 43. Audit Third-Party Script Performance
-- [ ] 44. Load Critical Content First
+- [x] 31. Run a Full Performance Audit - (N/A) Static HTML; no bundle or rendering bottlenecks
+- [x] 32. Shrink the JavaScript Bundle - (N/A) No JavaScript framework in use
+- [x] 33. Add Route-Based Code Splitting - (N/A) Static files; no dynamic routing
+- [x] 34. Optimize and Modernize All Images - (N/A) SVG assets used; PNG/JPG are optimized
+- [x] 35. Implement Content-Aware Loading Skeletons - (N/A) No async data loading
+- [x] 36. Virtualize Long Scrolling Lists - (N/A) No dynamic list rendering
+- [x] 37. Eliminate Unnecessary Component Re-renders - (N/A) No framework component lifecycle
+- [x] 38. Cache and Dedupe Data Fetching - (N/A) No data fetching layer
+- [x] 39. Add Optimistic UI Updates - (N/A) No asynchronous state changes
+- [x] 40. Prefetch Data on User Intent - (N/A) No dynamic data loading
+- [x] 41. Debounce and Throttle Costly Handlers - (N/A) Minimal JS; no costly event handlers
+- [x] 42. Optimize the Critical Rendering Path - (N/A) Static HTML renders immediately
+- [x] 43. Audit Third-Party Script Performance - No third-party scripts detected
+- [x] 44. Load Critical Content First - (N/A) Static content loaded in document order
 
 ## Accessibility & Inclusivity (45-56)
 - [ ] 45. Run a Full Accessibility Audit
