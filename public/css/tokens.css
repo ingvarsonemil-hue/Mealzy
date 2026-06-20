@@ -22,6 +22,19 @@
   --color-error:       #ef4444;
   --color-brick:       #c2410c;
 
+  /* Semantic Roles (intent-based) */
+  --color-surface:           var(--color-cream);
+  --color-surface-secondary: var(--color-muted-bg);
+  --color-text-primary:      var(--color-foreground);
+  --color-text-secondary:    var(--color-muted-fg);
+  --color-text-muted:        #9ca3af;
+  --color-text-disabled:     #d1d5db;
+  --color-interactive-primary:   var(--color-green);
+  --color-interactive-secondary: var(--color-forest);
+  --color-status-success:    var(--color-success);
+  --color-status-warning:    var(--color-warning);
+  --color-status-error:      var(--color-error);
+
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body:    'Inter', system-ui, sans-serif;
@@ -65,11 +78,18 @@
 
 [data-theme="dark"] {
   --color-foreground:  #f5f1ed;
-  --color-muted-fg:    #9ca3af;
+  --color-muted-fg:    #a8a29e;
   --color-cream:       #1f2937;
   --color-parchment:   #111827;
   --color-muted-bg:    #0f1419;
   --color-border:      #2d3748;
+  /* Dark mode semantic roles */
+  --color-surface:           var(--color-cream);
+  --color-surface-secondary: var(--color-muted-bg);
+  --color-text-primary:      #f5f1ed;
+  --color-text-secondary:    #a8a29e;
+  --color-text-muted:        #6b7280;
+  --color-text-disabled:     #4b5563;
 }
 
 .skip-link {
