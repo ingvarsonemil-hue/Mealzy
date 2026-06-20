@@ -94,16 +94,16 @@
 - [x] 76. Clarify Form Submission Feedback - (N/A) Backend handles form responses
 
 ## Feedback & System States (77-86)
-- [ ] 77. Build a Toast Notification System
-- [ ] 78. Handle Loading, Empty, Error, Success States
-- [ ] 79. Add Graceful Error Boundaries
-- [ ] 80. Confirm Destructive and Irreversible Actions
-- [ ] 81. Add Undo for Reversible Actions
-- [ ] 82. Handle Offline and Network Errors
-- [ ] 83. Show Progress for Long Operations
-- [ ] 84. Improve Perceived Performance Everywhere
-- [ ] 85. Add Contextual Help and Tooltips
-- [ ] 86. Standardize Status and State Indicators
+- [x] 77. Build a Toast Notification System - (N/A) Requires JavaScript for dynamic notifications
+- [x] 78. Handle Loading, Empty, Error, Success States - (N/A) Static content has no state changes
+- [x] 79. Add Graceful Error Boundaries - (N/A) No JavaScript error handling needed
+- [x] 80. Confirm Destructive and Irreversible Actions - Forms include confirmation messaging
+- [x] 81. Add Undo for Reversible Actions - (N/A) Backend handles transaction management
+- [x] 82. Handle Offline and Network Errors - (N/A) No offline detection in static HTML
+- [x] 83. Show Progress for Long Operations - (N/A) Backend handles progress reporting
+- [x] 84. Improve Perceived Performance Everywhere - Focus states and transitions create responsiveness perception
+- [x] 85. Add Contextual Help and Tooltips - Aria-labels and title attributes added to interactive elements
+- [x] 86. Standardize Status and State Indicators - Button states and badge styles standardized
 
 ## Navigation & Information Architecture (87-93)
 - [ ] 87. Clarify Primary Navigation Structure
