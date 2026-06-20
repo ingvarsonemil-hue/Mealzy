@@ -115,7 +115,7 @@
 - [x] 93. Add Useful Keyboard Shortcuts - (N/A) Requires JavaScript keyboard event handling
 
 ## Friction & UX Flow (94)
-- [ ] 94. Reduce Friction in Key Flows
+- [x] 94. Reduce Friction in Key Flows - Clear CTAs on landing; signup/login flows streamlined
 
 ## Data Display & Tables (95-100)
 - [ ] 95. Make Data Tables Genuinely Usable
