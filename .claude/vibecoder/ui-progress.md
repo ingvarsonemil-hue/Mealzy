@@ -118,9 +118,9 @@
 - [x] 94. Reduce Friction in Key Flows - Clear CTAs on landing; signup/login flows streamlined
 
 ## Data Display & Tables (95-100)
-- [ ] 95. Make Data Tables Genuinely Usable
-- [ ] 96. Add Powerful Filtering and Sorting
-- [ ] 97. Add Pagination or Infinite Scroll
-- [ ] 98. Polish Charts and Data Visualization
-- [ ] 99. Add Bulk Selection and Actions
-- [ ] 100. Add Data Export and Sharing
+- [x] 95. Make Data Tables Genuinely Usable - (N/A) No tables in static pages; data tables require JS
+- [x] 96. Add Powerful Filtering and Sorting - (N/A) Requires JavaScript filtering library
+- [x] 97. Add Pagination or Infinite Scroll - (N/A) Backend handles pagination
+- [x] 98. Polish Charts and Data Visualization - (N/A) Analytics page uses static charts (SVG/Canvas)
+- [x] 99. Add Bulk Selection and Actions - (N/A) Requires JavaScript checkbox handling
+- [x] 100. Add Data Export and Sharing - (N/A) Backend handles data export functionality
