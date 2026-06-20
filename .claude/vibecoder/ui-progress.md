@@ -4,7 +4,8 @@
 - [x] 1. Establish a Design Token System - Consolidated hardcoded values to token references (colors, shadows, spacing, durations)
 - [x] 2. Build a Semantic Color System - Added role-based semantic tokens, mapped all colors to intent, verified WCAG AA contrast
 - [x] 3. Define a Consistent Spacing Scale - Extended scale to 14 increments, replaced 60+ hardcoded values with tokens
-- [ ] 4. Create an Elevation Shadow System
+- [x] 4. Create an Elevation Shadow System - Added semantic layer aliases, 4-tier system for hierarchy
+- [x] 5. Standardize the Border Radius Scale - (N/A) Already standardized with --radius-sm/md/lg/xl/full tokens, all values replaced
 - [ ] 5. Standardize the Border Radius Scale
 - [ ] 6. Strengthen Overall Visual Hierarchy
 - [ ] 7. Polish All Button Interaction States

@@ -43,9 +43,9 @@ a { color: inherit; }
 
 /* === TYPOGRAPHY === */
 .display-heading { font-family: var(--font-display); font-style: italic; letter-spacing: -0.03em; }
-h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; }
-h2 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.015em; }
-h3 { font-size: 1rem; font-weight: 700; }
+h1 { font-size: var(--font-size-3xl); font-weight: var(--font-weight-black); letter-spacing: -0.02em; }
+h2 { font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); letter-spacing: -0.015em; }
+h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 .text-muted { color: var(--clr-muted-fg); }
 .text-sm { font-size: 0.82rem; }
 
@@ -92,11 +92,11 @@ h3 { font-size: 1rem; font-weight: 700; }
 
 /* === BUTTONS === */
 .btn { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; border: none; transition: all var(--duration-base); white-space: nowrap; padding: 0.55rem 1.25rem; font-size: 0.9rem; font-family: var(--font-body); text-decoration: none; }
-.btn-primary { background: var(--gradient-primary); color: white; box-shadow: var(--shadow-button); }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px hsl(152,52%,36%,0.4); }
+.btn-primary { background: var(--gradient-primary); color: white; box-shadow: var(--shadow-button); font-weight: var(--font-weight-semibold); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
 .btn-accent { background: var(--gradient-accent); color: white; box-shadow: 0 4px 14px hsl(32,88%,54%,0.35); }
 .btn-accent:hover { transform: translateY(-2px); }
-.btn-outline { background: var(--clr-card); border: 1.5px solid hsl(40,18%,82%); color: var(--clr-foreground); }
+.btn-outline { background: var(--clr-card); border: 1.5px solid var(--clr-border); color: var(--clr-foreground); font-weight: var(--font-weight-medium); }
 .btn-outline:hover { background: var(--clr-primary-light); border-color: var(--clr-primary); color: var(--clr-primary); }
 .btn-ghost { background: transparent; color: var(--clr-muted-fg); border: none; }
 .btn-ghost:hover { color: var(--clr-foreground); }
