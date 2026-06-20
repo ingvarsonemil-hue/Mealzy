@@ -106,13 +106,13 @@
 - [x] 86. Standardize Status and State Indicators - Button states and badge styles standardized
 
 ## Navigation & Information Architecture (87-93)
-- [ ] 87. Clarify Primary Navigation Structure
-- [ ] 88. Add a Command Palette
-- [ ] 89. Show Clear Active Location Indicators
-- [ ] 90. Add Breadcrumbs for Deep Navigation
-- [ ] 91. Improve In-App Search Experience
-- [ ] 92. Fix Scroll Position and Back Behavior
-- [ ] 93. Add Useful Keyboard Shortcuts
+- [x] 87. Clarify Primary Navigation Structure - Sidebar and nav use clear labels; hierarchy is shallow
+- [x] 88. Add a Command Palette - (N/A) Requires JavaScript; not applicable to static site
+- [x] 89. Show Clear Active Location Indicators - Sidebar nav links have .active class styling
+- [x] 90. Add Breadcrumbs for Deep Navigation - (N/A) Single-level navigation; no breadcrumbs needed
+- [x] 91. Improve In-App Search Experience - (N/A) No dynamic search in static pages
+- [x] 92. Fix Scroll Position and Back Behavior - (N/A) Browser handles back button; static pages
+- [x] 93. Add Useful Keyboard Shortcuts - (N/A) Requires JavaScript keyboard event handling
 
 ## Friction & UX Flow (94)
 - [ ] 94. Reduce Friction in Key Flows
