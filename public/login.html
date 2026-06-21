@@ -178,9 +178,9 @@
       transition: all 0.15s;
     }
     .auth-tab.active {
-      background: var(--clr-card);
-      color: var(--clr-foreground);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      background: #3d8b5e;
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     }
 
     /* ── Google button ────────────────────────── */
@@ -300,8 +300,12 @@
     .auth-note a { color: var(--clr-primary); text-decoration: none; }
 
     /* ── Dark mode ────────────────────────────── */
-    [data-theme="dark"] .login-col { background: var(--clr-background); }
-    [data-theme="dark"] .form-input { background: var(--clr-muted-bg); }
+    [data-theme="dark"] .login-col { background: #111d17; }
+    [data-theme="dark"] .auth-tab { color: rgba(255,255,255,0.5); }
+    [data-theme="dark"] .auth-tabs { background: #1a2e22; }
+    [data-theme="dark"] .form-input { background: #1a2e22; border-color: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .form-input:focus { border-color: #3d8b5e; }
+    [data-theme="dark"] .btn-google { background: #1a2e22; border-color: rgba(255,255,255,0.12); }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -347,7 +351,7 @@
     <div class="login-col-inner">
 
       <h1 class="login-heading">Welcome back</h1>
-      <p class="login-subheading">Sign in to your Mealzy account</p>
+      <p class="login-subheading">Good to see you again.</p>
 
       <!-- Error / success banner -->
       <div class="auth-error" id="authError" role="alert"></div>
