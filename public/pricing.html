@@ -451,7 +451,18 @@
   <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
 </div>
 
-<script src="motion.js" defer></script>
+<script>
+(function(){
+  var loaded=false;
+  window.addEventListener('scroll',function(){
+    if(loaded) return;
+    loaded=true;
+    var s=document.createElement('script');
+    s.src='/js/motion.js';
+    document.body.appendChild(s);
+  },{once:true,passive:true});
+})();
+</script>
 <script>
   function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
