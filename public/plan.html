@@ -59,6 +59,7 @@
     .plan-stat-label { font-size: 0.72rem; color: var(--clr-muted-fg); text-transform: uppercase; letter-spacing: 0.04em; }
   </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -119,15 +120,7 @@
 </div>
 
 <script>
-  function escHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+
 
 (async function() {
   const params  = new URLSearchParams(window.location.search);

@@ -292,6 +292,7 @@ body{font-size:1.0625rem;line-height:1.7;}
 .grid-3 .card h3{color:#ffffff !important;font-style:normal !important;font-weight:700 !important;}
 </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -715,16 +716,6 @@ body{font-size:1.0625rem;line-height:1.7;}
     const next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('mealzy_theme', next); } catch(e) {}
-  }
-
-  function escHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 
 // === EMAIL POPUP ===

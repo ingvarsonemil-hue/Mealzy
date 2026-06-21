@@ -136,6 +136,7 @@
     .instacart-banner.hidden { display: none; }
   </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -427,10 +428,6 @@
   let profile = null;
   let groceryList = null;
 
-  function getCurrencySymbol(c) {
-    const s = { USD:'$',EUR:'�',GBP:'�',SEK:'kr',NOK:'kr',DKK:'kr',CAD:'$',AUD:'$',NZD:'$',CHF:'Fr',JPY:'�',CNY:'�',KRW:'?',INR:'?',BRL:'R$',MXN:'$',ARS:'$',ZAR:'R',AED:'?.?',SAR:'?',SGD:'$',HKD:'$',PLN:'zl',CZK:'Kc',HUF:'Ft',TRY:'?',THB:'?',MYR:'RM',IDR:'Rp',PHP:'?' };
-    return s[c] || c || '$';
-  }
   let weekStart = '';
 
   function getMondayOfWeek(date) {

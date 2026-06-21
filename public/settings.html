@@ -149,6 +149,7 @@
     }
   </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -719,15 +720,7 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-  function escHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+
 
   // Dark mode
   if (localStorage.getItem('mealzy_theme') === 'dark') {

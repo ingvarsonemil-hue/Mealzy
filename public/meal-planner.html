@@ -339,6 +339,7 @@
 
   </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -600,16 +601,6 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <script>
-  function escHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
-
   // Dark mode
   if (localStorage.getItem('mealzy_theme') === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
@@ -1028,14 +1019,6 @@
     if (view === 'week') renderWeekView();
   }
 
-  function getCurrencySymbol(currency) {
-    const symbols = { USD:'$', EUR:'€', GBP:'£', SEK:'kr', NOK:'kr', DKK:'kr',
-      CAD:'CA$', AUD:'A$', NZD:'NZ$', CHF:'Fr', JPY:'¥', CNY:'¥', KRW:'₩',
-      INR:'₹', BRL:'R$', MXN:'$', ARS:'$', ZAR:'R', AED:'د.إ', SAR:'﷼',
-      SGD:'S$', HKD:'HK$', PLN:'zł', CZK:'Kč', HUF:'Ft', TRY:'₺', THB:'฿',
-      MYR:'RM', IDR:'Rp', PHP:'₱' };
-    return symbols[currency] || '$';
-  }
 
   // Storage for week meal data so popup can reference by index without JSON-in-HTML
   let _weekMeals = {};

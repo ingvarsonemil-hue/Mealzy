@@ -62,6 +62,7 @@
     .demo-field input, .demo-field select { border: 1.5px solid var(--clr-border); border-radius: 0.5rem; padding: 0.6rem 0.85rem; font-size: 0.92rem; font-family: inherit; background: var(--clr-card); color: var(--clr-foreground); min-width: 130px; }
   </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -233,15 +234,7 @@
 </footer>
 
 <script>
-  function escHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+
 
 async function runDemo() {
   const btn    = document.getElementById('demoBtn');
