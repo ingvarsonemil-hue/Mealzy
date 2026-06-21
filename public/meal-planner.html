@@ -48,11 +48,17 @@
 
     /* ── Date navigator ─────────────────────────────────── */
     .date-navigator {
-      display: flex; align-items: center; gap: 0.75rem;
-      margin-bottom: 1.5rem; flex-wrap: wrap;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 0.5rem;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
     }
     .date-display {
-      flex: 1; min-width: 180px;
+      flex-shrink: 0;
+      min-width: 140px;
       font-family: var(--font-display);
       font-style: italic;
       font-weight: 700;
@@ -315,6 +321,15 @@
       text-decoration: underline; text-underline-offset: 2px;
     }
     .limit-modal-dismiss:hover { color: var(--clr-foreground); }
+
+    [data-theme="dark"] #healthDisclaimer {
+      background: hsl(38,30%,10%);
+      border-left-color: hsl(38,65%,40%);
+      color: hsl(38,60%,72%);
+    }
+    [data-theme="dark"] #healthDisclaimer button {
+      color: hsl(38,45%,60%);
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
