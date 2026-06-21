@@ -104,8 +104,7 @@
 <!-- Mealzy Design System -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css">
 <link rel="manifest" href="manifest.json">
@@ -114,6 +113,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mealzy">
+<link rel="dns-prefetch" href="/api">
 <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
 <style>
 /* Prevent invisible text during font load */
@@ -130,8 +130,8 @@ body{font-size:1.0625rem;line-height:1.7;}
 /* Nav */
 .nav-logo-text{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;letter-spacing:-.02em;text-decoration:none;color:var(--clr-foreground);}
 /* Hero */
-.hero-mktg{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 8% 95%,hsl(32,42%,22%,0.5) 0%,transparent 55%),radial-gradient(ellipse 65% 75% at 90% 8%,hsl(152,58%,24%,0.4) 0%,transparent 50%),linear-gradient(148deg,hsl(155,56%,7%) 0%,hsl(148,48%,12%) 48%,hsl(105,28%,17%) 100%);}
-.hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%;padding:0 1.25rem clamp(2.5rem,6vw,5rem);display:grid;grid-template-columns:1fr 380px;gap:3.5rem;align-items:end;}
+.hero-mktg{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 8% 95%,hsl(32,42%,22%,0.5) 0%,transparent 55%),radial-gradient(ellipse 65% 75% at 90% 8%,hsl(152,58%,24%,0.4) 0%,transparent 50%),linear-gradient(148deg,hsl(155,56%,7%) 0%,hsl(148,48%,12%) 48%,hsl(105,28%,17%) 100%);contain:layout style paint;}
+.hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%;padding:0 1.25rem clamp(2.5rem,6vw,5rem);display:grid;grid-template-columns:1fr 380px;gap:3.5rem;align-items:end;contain:content;}
 .hero-copy{color:white;padding-top:5rem;}
 .hero-eyebrow{display:block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:hsl(152,60%,72%);margin-bottom:1.1rem;}
 .hero-h1{font-family:var(--font-display);font-style:italic;font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-bottom:1.25rem;color:white;max-width:14ch;}
@@ -139,7 +139,7 @@ body{font-size:1.0625rem;line-height:1.7;}
 .hero-actions{display:flex;gap:.85rem;flex-wrap:wrap;}
 .hero-fine{font-size:.78rem;color:rgba(255,255,255,.45);margin-top:1.1rem;display:flex;flex-wrap:wrap;gap:1.25rem;}
 .hero-fine span{display:flex;align-items:center;gap:.3rem;}
-.form-card{background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:1rem;padding:1.75rem;box-shadow:0 24px 56px rgba(10,25,15,.45);}
+.form-card{background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:1rem;padding:1.75rem;box-shadow:0 24px 56px rgba(10,25,15,.45);contain:layout style;}
 [data-theme="dark"] .form-card{background:hsl(150,15%,11%,.97);}
 .form-card-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--clr-muted-fg);margin-bottom:1.1rem;display:block;}
 .hff{margin-bottom:.85rem;}
@@ -155,9 +155,11 @@ body{font-size:1.0625rem;line-height:1.7;}
 .demo-form-wrap{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end;margin:0 auto 2rem;}
 @media(max-width:700px){.demo-form-wrap{grid-template-columns:1fr;}}
 .demo-field label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--clr-muted-fg);margin-bottom:.3rem;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .demo-spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
-.demo-result{animation:fadeIn .4s ease;}
-.demo-plan-card{background:var(--clr-foreground);color:rgba(255,255,255,.88);border-radius:1rem;padding:1.75rem;}
+.demo-result{animation:fadeIn .4s ease;contain:content;}
+.demo-plan-card{background:var(--clr-foreground);color:rgba(255,255,255,.88);border-radius:1rem;padding:1.75rem;contain:layout style;}
 [data-theme="dark"] .demo-plan-card{background:var(--clr-card);border:1px solid var(--clr-border);}
 .demo-plan-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(255,255,255,.1);}
 .demo-plan-title{font-family:var(--font-display);font-style:italic;font-size:1.15rem;color:white;margin-bottom:.2rem;}
@@ -243,8 +245,8 @@ body{font-size:1.0625rem;line-height:1.7;}
 @media(max-width:600px){.footer-grid{grid-template-columns:1fr;}}
 /* Reveal */
 @media (prefers-reduced-motion: no-preference) {
-  .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s var(--ease-out,ease),transform .55s var(--ease-out,ease);}
-  .reveal.in-view{opacity:1;transform:none;}
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s var(--ease-out,ease),transform .55s var(--ease-out,ease);will-change:opacity,transform;}
+  .reveal.in-view{opacity:1;transform:none;will-change:auto;}
 }
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important;transition:none!important;}}
 [data-delay="80"]{transition-delay:.08s;}[data-delay="100"]{transition-delay:.1s;}
@@ -256,6 +258,10 @@ body{font-size:1.0625rem;line-height:1.7;}
 [data-theme="light"] .icon-moon{display:none;}
 [data-theme="dark"] .icon-sun{display:none;}
 [data-theme="dark"] .theme-toggle{border-color:var(--clr-border);color:var(--clr-foreground);}
+/* Performance optimizations */
+.email-popup-overlay{contain:layout style paint;}
+.mobile-nav-overlay{contain:layout style paint;}
+.demo-section{contain:content;}
 /* Section layout */
 .section-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--clr-primary);margin-bottom:.5rem;}
 .section-title{font-family:var(--font-display);font-style:italic;font-size:clamp(1.7rem,3.5vw,2.4rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.75rem;}
@@ -404,8 +410,8 @@ body{font-size:1.0625rem;line-height:1.7;}
 <!-- DEMO RESULT -->
 <section class="demo-section" id="demo" aria-label="Sample meal plan result">
   <div class="container">
-    <div id="demoError" style="text-align:center;color:var(--clr-destructive);font-size:.9rem;display:none;margin-bottom:1.5rem;" role="alert"></div>
-    <div class="demo-result" id="demoResult" style="display:none;" aria-live="polite">
+    <div id="demoError" style="text-align:center;color:var(--clr-destructive);font-size:.9rem;display:none;margin-bottom:1.5rem;min-height:1.3rem;" role="alert"></div>
+    <div class="demo-result" id="demoResult" style="display:none;min-height:500px;" aria-live="polite">
       <div class="demo-plan-card">
         <div class="demo-plan-hdr">
           <div>
@@ -735,7 +741,7 @@ function submitEmailPopup(){
   window.location.href='login.html?signup=1&email='+encodeURIComponent(email);
 }
 if(!localStorage.getItem('mealzy_email_submitted')){setTimeout(openEmailPopup,12000);}
-document.getElementById('emailPopupOverlay').addEventListener('click',function(e){if(e.target===this)closeEmailPopup();});
+document.getElementById('emailPopupOverlay')?.addEventListener('click',function(e){if(e.target===this)closeEmailPopup();});
 
 // === EXIT INTENT ===
 let _exitFired=false;
@@ -808,8 +814,6 @@ async function runDemo(){
   errorEl.style.display='none';
   result.style.display='none';
   if(teaser)teaser.style.display='none';
-  // Scroll to demo result area
-  document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'});
   try{
     const res=await fetch('/api/demo-meal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({calorieGoal:cals,budget,dietary:diet})});
     if(res.status===429){errorEl.textContent="You've used today's 3 free demos. Create a free account for unlimited access — it's free.";errorEl.style.display='block';return;}
@@ -818,6 +822,8 @@ async function runDemo(){
     renderDemoPlan(data.plan,cals,budget);
     result.style.display='block';
     fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_generated',data:{cals,budget,diet}})}).catch(()=>{});
+    // Scroll to demo result area after API completes
+    requestAnimationFrame(()=>document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'}));
   }catch(err){
     errorEl.textContent=err.message||'Something went wrong. Please try again.';
     errorEl.style.display='block';
