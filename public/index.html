@@ -291,8 +291,17 @@ body{font-size:1.0625rem;line-height:1.7;}
 .grid-3 .card{border-left:3px solid #3d8b5e !important;}
 .grid-3 .card h3{color:#ffffff !important;font-style:normal !important;font-weight:700 !important;}
 </style>
-<script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
+<script>
+// Inline theme init synchronously before content renders to avoid FOUC
+(function(){
+  var stored=localStorage.getItem('mealzy_theme');
+  if(stored==='dark'){document.documentElement.setAttribute('data-theme','dark');}
+  else if(!stored&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){
+    document.documentElement.setAttribute('data-theme','dark');
+  }
+})();
+</script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -699,6 +708,7 @@ body{font-size:1.0625rem;line-height:1.7;}
 </footer>
 
 <script>
+// Lazy-load motion.js on first scroll
 (function(){
   var loaded=false;
   window.addEventListener('scroll',function(){
@@ -709,16 +719,15 @@ body{font-size:1.0625rem;line-height:1.7;}
     document.body.appendChild(s);
   },{once:true,passive:true});
 })();
-</script>
-<script>
-  function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try { localStorage.setItem('mealzy_theme', next); } catch(e) {}
-  }
 
-// === EMAIL POPUP ===
+// Core functions needed by onclick handlers
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme')||'light';
+  const next=current==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('mealzy_theme',next);}catch(e){}
+}
+
 function openEmailPopup(){const o=document.getElementById('emailPopupOverlay');o.classList.add('open');o.removeAttribute('aria-hidden');}
 function closeEmailPopup(){const o=document.getElementById('emailPopupOverlay');o.classList.remove('open');o.setAttribute('aria-hidden','true');}
 function submitEmailPopup(){
@@ -731,150 +740,99 @@ function submitEmailPopup(){
   localStorage.setItem('mealzy_email_submitted','1');
   window.location.href='login.html?signup=1&email='+encodeURIComponent(email);
 }
-if(!localStorage.getItem('mealzy_email_submitted')){setTimeout(openEmailPopup,12000);}
-document.getElementById('emailPopupOverlay')?.addEventListener('click',function(e){if(e.target===this)closeEmailPopup();});
 
-// === EXIT INTENT ===
-let _exitFired=false;
-document.addEventListener('mouseleave',(e)=>{
-  if(_exitFired||localStorage.getItem('mealzy_email_submitted'))return;
-  if(e.clientY<=0){
-    _exitFired=true;
-    const h=document.querySelector('.email-popup-card h2');
-    const p=document.querySelector('.email-popup-card p');
-    if(h)h.textContent='Wait — save your free plan';
-    if(p)p.textContent='Create a free account and your meal plan is always saved — access it any time, on any device.';
-    openEmailPopup();
-  }
-});
+function openMobileNav(){const h=document.getElementById('hamburger');const o=document.getElementById('mobileNavOverlay');const p=document.getElementById('mobileNavPanel');if(o&&p){o.classList.add('open');p.classList.add('open');if(h)h.setAttribute('aria-expanded','true');}}
+function closeMobileNav(){const h=document.getElementById('hamburger');const o=document.getElementById('mobileNavOverlay');const p=document.getElementById('mobileNavPanel');if(o&&p){o.classList.remove('open');p.classList.remove('open');if(h)h.setAttribute('aria-expanded','false');}}
 
-// === MOBILE NAV ===
-const hamburger=document.getElementById('hamburger');
-const mobileNavOverlay=document.getElementById('mobileNavOverlay');
-const mobileNavPanel=document.getElementById('mobileNavPanel');
-const mobileNavClose=document.getElementById('mobileNavClose');
-function openMobileNav(){mobileNavOverlay.classList.add('open');mobileNavPanel.classList.add('open');hamburger.setAttribute('aria-expanded','true');}
-function closeMobileNav(){mobileNavOverlay.classList.remove('open');mobileNavPanel.classList.remove('open');hamburger.setAttribute('aria-expanded','false');}
-hamburger.addEventListener('click',openMobileNav);
-mobileNavClose.addEventListener('click',closeMobileNav);
-mobileNavOverlay.addEventListener('click',e=>{if(e.target===mobileNavOverlay)closeMobileNav();});
-
-// === SMOOTH SCROLL ===
-document.querySelectorAll('a[href^="#"]').forEach(link=>{
-  link.addEventListener('click',e=>{
-    e.preventDefault();
-    const t=document.querySelector(link.getAttribute('href'));
-    if(t){t.scrollIntoView({behavior:'smooth',block:'start'});closeMobileNav();}
-  });
-});
-
-
-// === NAV SCROLL ===
-const navbar=document.getElementById('navbar');
-if(navbar){
-  const upd=()=>navbar.classList.toggle('scrolled',window.scrollY>24);
-  window.addEventListener('scroll',upd,{passive:true});
-  upd();
-}
-
-// === SERVICE WORKER ===
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
-
-// === REFERRAL CAPTURE ===
-(function(){
-  const params=new URLSearchParams(window.location.search);
-  const ref=params.get('ref');
-  if(!ref)return;
-  if(ref.includes('@')){localStorage.setItem('mealzy_pending_ref',ref);fetch('/api/referral-capture?ref='+encodeURIComponent(ref)).catch(()=>{});}
-  else if(ref.startsWith('ref_')){fetch('/api/ref-lookup?code='+encodeURIComponent(ref)).then(r=>r.json()).then(d=>{if(d.found&&d.email){localStorage.setItem('mealzy_pending_ref',d.email);fetch('/api/referral-capture?ref='+encodeURIComponent(d.email)).catch(()=>{});}}).catch(()=>{});}
-})();
-
-// === DEMO ===
 async function runDemo(){
-  const btn=document.getElementById('demoBtn');
-  const spinner=document.getElementById('demoSpinner');
-  const errorEl=document.getElementById('demoError');
-  const result=document.getElementById('demoResult');
-  const teaser=document.getElementById('demoTeaser');
-  const cals=parseInt(document.getElementById('demoCals').value)||2000;
-  const budget=parseFloat(document.getElementById('demoBudget').value)||60;
-  const diet=document.getElementById('demoDiet').value;
-  btn.disabled=true;
-  document.getElementById('demoBtnText').textContent='Generating...';
-  spinner.style.display='inline-block';
-  errorEl.style.display='none';
-  result.style.display='none';
-  if(teaser)teaser.style.display='none';
-  try{
-    const res=await fetch('/api/demo-meal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({calorieGoal:cals,budget,dietary:diet})});
-    if(res.status===429){errorEl.textContent="You've used today's 3 free demos. Create a free account for unlimited access — it's free.";errorEl.style.display='block';return;}
-    const data=await res.json();
-    if(!data.success||!data.plan?.meals)throw new Error(data.error||'Generation failed');
-    renderDemoPlan(data.plan,cals,budget);
-    result.style.display='block';
-    fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_generated',data:{cals,budget,diet}})}).catch(()=>{});
-    // Scroll to demo result area after API completes
-    requestAnimationFrame(()=>document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'}));
-  }catch(err){
-    errorEl.textContent=err.message||'Something went wrong. Please try again.';
-    errorEl.style.display='block';
-    if(teaser)teaser.style.display='block';
-  }finally{
-    btn.disabled=false;
-    document.getElementById('demoBtnText').textContent='Generate Sample Plan';
-    spinner.style.display='none';
-  }
-}
+  const btn=document.getElementById('demoBtn');const spinner=document.getElementById('demoSpinner');const errorEl=document.getElementById('demoError');const result=document.getElementById('demoResult');const teaser=document.getElementById('demoTeaser');const cals=parseInt(document.getElementById('demoCals').value)||2000;const budget=parseFloat(document.getElementById('demoBudget').value)||60;const diet=document.getElementById('demoDiet').value;btn.disabled=true;document.getElementById('demoBtnText').textContent='Generating...';spinner.style.display='inline-block';errorEl.style.display='none';result.style.display='none';if(teaser)teaser.style.display='none';try{const res=await fetch('/api/demo-meal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({calorieGoal:cals,budget,dietary:diet})});if(res.status===429){errorEl.textContent="You've used today's 3 free demos. Create a free account for unlimited access — it's free.";errorEl.style.display='block';return;}const data=await res.json();if(!data.success||!data.plan?.meals)throw new Error(data.error||'Generation failed');renderDemoPlan(data.plan,cals,budget);result.style.display='block';fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_generated',data:{cals,budget,diet}})}).catch(()=>{});requestAnimationFrame(()=>document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'}));}catch(err){errorEl.textContent=err.message||'Something went wrong. Please try again.';errorEl.style.display='block';if(teaser)teaser.style.display='block';}finally{btn.disabled=false;document.getElementById('demoBtnText').textContent='Generate Sample Plan';spinner.style.display='none';}}
 
 function renderDemoPlan(plan,cals,budget){
-  const byDay={};
-  const dayOrder=['Monday','Tuesday','Wednesday','Thursday','Friday'];
-  plan.meals.forEach(m=>{if(!byDay[m.day])byDay[m.day]=[];byDay[m.day].push(m);});
-  document.getElementById('demoPlanSub').textContent=`${cals} kcal/day · $${budget}/week budget`;
-  document.getElementById('demoPlanBody').innerHTML=dayOrder.map(day=>{
-    const meals=byDay[day]||[];
-    if(!meals.length)return'';
-    return`<div class="demo-day-group"><div class="demo-day-label">${day}</div>${meals.map(m=>`<div class="demo-meal-row"><div><div class="demo-meal-name">${escHtml(m.name)}</div><div class="demo-meal-type">${escHtml(m.type)}</div></div><div class="demo-meal-meta">${escHtml(m.calories)} kcal &middot; ${escHtml(m.protein)}g protein<br><span style="color:hsl(152,52%,62%);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span></div></div>`).join('')}</div>`;
-  }).join('');
+  const byDay={};const dayOrder=['Monday','Tuesday','Wednesday','Thursday','Friday'];plan.meals.forEach(m=>{if(!byDay[m.day])byDay[m.day]=[];byDay[m.day].push(m);});document.getElementById('demoPlanSub').textContent=`${cals} kcal/day · $${budget}/week budget`;document.getElementById('demoPlanBody').innerHTML=dayOrder.map(day=>{const meals=byDay[day]||[];if(!meals.length)return'';return`<div class="demo-day-group"><div class="demo-day-label">${day}</div>${meals.map(m=>`<div class="demo-meal-row"><div><div class="demo-meal-name">${escHtml(m.name)}</div><div class="demo-meal-type">${escHtml(m.type)}</div></div><div class="demo-meal-meta">${escHtml(m.calories)} kcal &middot; ${escHtml(m.protein)}g protein<br><span style="color:hsl(152,52%,62%);font-weight:600;">~$${(m.estimatedCost||0).toFixed(2)}</span></div></div>`).join('')}</div>`;}).join('');
 }
 
-function trackDemoToSignup(){
-  fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_to_signup_click',data:{}})}).catch(()=>{});
+function trackDemoToSignup(){fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_to_signup_click',data:{}})}).catch(()=>{});}
+
+// Defer all heavy initialization until DOMContentLoaded
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initInteractivity);
+}else{
+  initInteractivity();
 }
 
-// === DARK MODE TOGGLE ===
-function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const next = isDark ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('mealzy_theme', next);
-}
+function initInteractivity(){
+  // Email popup setup
+  if(!localStorage.getItem('mealzy_email_submitted')){setTimeout(openEmailPopup,12000);}
+  document.getElementById('emailPopupOverlay')?.addEventListener('click',function(e){if(e.target===this)closeEmailPopup();});
 
-// === SCROLL REVEAL ===
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(el => {
-    if (el.isIntersecting) {
-      el.target.classList.add('in-view');
-      revealObserver.unobserve(el.target);
+  // Exit intent
+  let _exitFired=false;
+  document.addEventListener('mouseleave',(e)=>{
+    if(_exitFired||localStorage.getItem('mealzy_email_submitted'))return;
+    if(e.clientY<=0){
+      _exitFired=true;
+      const h=document.querySelector('.email-popup-card h2');
+      const p=document.querySelector('.email-popup-card p');
+      if(h)h.textContent='Wait — save your free plan';
+      if(p)p.textContent='Create a free account and your meal plan is always saved — access it any time, on any device.';
+      openEmailPopup();
     }
   });
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-</script>
+  // Mobile nav
+  const hamburger=document.getElementById('hamburger');
+  const mobileNavOverlay=document.getElementById('mobileNavOverlay');
+  const mobileNavClose=document.getElementById('mobileNavClose');
+  if(hamburger)hamburger.addEventListener('click',openMobileNav);
+  if(mobileNavClose)mobileNavClose.addEventListener('click',closeMobileNav);
+  if(mobileNavOverlay)mobileNavOverlay.addEventListener('click',e=>{if(e.target===mobileNavOverlay)closeMobileNav();});
 
-<script>
-const faqList = document.querySelector('.faq-list');
-if (faqList) {
-  faqList.addEventListener('click', function(e) {
-    const btn = e.target.closest('.faq-btn');
-    if (!btn) return;
-    const item = btn.closest('.faq-item');
-    const isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
-    btn.setAttribute('aria-expanded', String(!isOpen));
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(link=>{
+    link.addEventListener('click',e=>{
+      e.preventDefault();
+      const t=document.querySelector(link.getAttribute('href'));
+      if(t){t.scrollIntoView({behavior:'smooth',block:'start'});closeMobileNav();}
+    });
   });
+
+  // Nav scroll effect
+  const navbar=document.getElementById('navbar');
+  if(navbar){
+    const upd=()=>navbar.classList.toggle('scrolled',window.scrollY>24);
+    window.addEventListener('scroll',upd,{passive:true});
+    upd();
+  }
+
+  // Service worker registration
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+
+  // Referral capture
+  (function(){
+    const params=new URLSearchParams(window.location.search);
+    const ref=params.get('ref');
+    if(!ref)return;
+    if(ref.includes('@')){localStorage.setItem('mealzy_pending_ref',ref);fetch('/api/referral-capture?ref='+encodeURIComponent(ref)).catch(()=>{});}
+    else if(ref.startsWith('ref_')){fetch('/api/ref-lookup?code='+encodeURIComponent(ref)).then(r=>r.json()).then(d=>{if(d.found&&d.email){localStorage.setItem('mealzy_pending_ref',d.email);fetch('/api/referral-capture?ref='+encodeURIComponent(d.email)).catch(()=>{});}}).catch(()=>{});}
+  })();
+
+  // Reveal animations (intersection observer)
+  const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(el=>{if(el.isIntersecting){el.target.classList.add('in-view');revealObserver.unobserve(el.target);}});},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+  // FAQ accordion
+  const faqList=document.querySelector('.faq-list');
+  if(faqList){
+    faqList.addEventListener('click',function(e){
+      const btn=e.target.closest('.faq-btn');
+      if(!btn)return;
+      const item=btn.closest('.faq-item');
+      const isOpen=item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+      if(!isOpen)item.classList.add('open');
+      btn.setAttribute('aria-expanded',String(!isOpen));
+    });
+  }
 }
 </script>
 </body>
