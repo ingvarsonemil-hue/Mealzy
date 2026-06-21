@@ -314,6 +314,8 @@ img{max-width:100%;display:block;}
 .trust-stars{color:#f59e0b;font-size:13px;letter-spacing:1px;}
 .trust-divider{width:1px;height:16px;background:var(--clr-hairline);flex-shrink:0;}
 @media(max-width:640px){.trust-divider{display:none;}.trust-strip-inner{gap:8px 16px;}}
+/* Hide desktop nav items on mobile */
+@media(max-width:768px){.hide-on-mobile{display:none!important;}}
 [data-theme="dark"] .trust-strip{background:var(--clr-muted-bg);border-color:var(--clr-border);}
 /* Founder section */
 .founder-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:40px;padding:0 var(--container-pad,20px);}
@@ -361,7 +363,7 @@ img{max-width:100%;display:block;}
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <a href="login.html" class="btn btn-ghost btn-sm">Sign in</a>
+      <a href="login.html" class="btn btn-ghost btn-sm hide-on-mobile">Sign in</a>
       <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start free</a>
       <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
         <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
