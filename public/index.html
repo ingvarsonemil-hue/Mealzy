@@ -162,6 +162,15 @@ gtag('config', 'G-27FWEVV6VD');
   --shadow-button: 0 4px 12px rgba(61, 139, 94, 0.25);
   --duration-fast: 0.15s;
 }
+[data-theme="dark"] {
+  --color-foreground: hsl(150, 20%, 92%);
+  --color-cream: hsl(150, 15%, 8%);
+  --color-parchment: hsl(150, 12%, 14%);
+  --color-muted-bg: hsl(150, 12%, 10%);
+  --color-border: hsl(150, 10%, 20%);
+  --color-hairline: hsl(150, 10%, 20%);
+  --color-muted-fg: hsl(150, 10%, 60%);
+}
 html{font-size:16px;scroll-behavior:smooth;}
 body{font-family:var(--font-body);background:var(--clr-background);color:var(--clr-foreground);font-size:1.0625rem;line-height:1.7;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -170,9 +179,9 @@ img{max-width:100%;display:block;}
 /* Nav */
 .nav-logo-text{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;letter-spacing:-.02em;text-decoration:none;color:var(--clr-foreground);}
 /* Hero */
-.hero-mktg{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 8% 95%,hsl(32,42%,22%,0.5) 0%,transparent 55%),radial-gradient(ellipse 65% 75% at 90% 8%,hsl(152,58%,24%,0.4) 0%,transparent 50%),linear-gradient(148deg,hsl(155,56%,7%) 0%,hsl(148,48%,12%) 48%,hsl(105,28%,17%) 100%);contain:layout style paint;}
-.hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%;padding:0 1.25rem clamp(2.5rem,6vw,5rem);display:grid;grid-template-columns:1fr 380px;gap:3.5rem;align-items:end;contain:content;}
-.hero-copy{color:white;padding-top:clamp(4rem, 8vh, 6rem);}
+.hero-mktg{position:relative;display:flex;align-items:center;overflow:hidden;background:radial-gradient(ellipse 80% 70% at 8% 95%,hsl(32,42%,22%,0.5) 0%,transparent 55%),radial-gradient(ellipse 65% 75% at 90% 8%,hsl(152,58%,24%,0.4) 0%,transparent 50%),linear-gradient(148deg,hsl(155,56%,7%) 0%,hsl(148,48%,12%) 48%,hsl(105,28%,17%) 100%);contain:layout style paint;padding:5rem 0 4rem;}
+.hero-inner{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%;padding:0 1.25rem;display:grid;grid-template-columns:1fr 380px;gap:3.5rem;align-items:center;contain:content;}
+.hero-copy{color:white;padding-top:0;}
 .hero-eyebrow{display:block;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:hsl(152,60%,72%);margin-bottom:1.1rem;}
 .hero-h1{font-family:var(--font-display);font-style:italic;font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-bottom:1.25rem;color:white;max-width:14ch;}
 .hero-sub{font-size:1.0625rem;line-height:1.7;color:rgba(255,255,255,.76);max-width:44ch;margin-bottom:2rem;}
@@ -181,6 +190,8 @@ img{max-width:100%;display:block;}
 .hero-fine span{display:flex;align-items:center;gap:.3rem;}
 .form-card{background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:1rem;padding:1.75rem;box-shadow:0 24px 56px rgba(10,25,15,.45);contain:layout style;}
 [data-theme="dark"] .form-card{background:hsl(150,15%,11%,.97);}
+[data-theme="dark"] .form-card-label{color:var(--color-muted-fg);}
+[data-theme="dark"] .hff label{color:var(--color-muted-fg);}
 .form-card-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--clr-muted-fg);margin-bottom:1.1rem;display:block;}
 .hff{margin-bottom:.85rem;}
 .hff label{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--clr-muted-fg);margin-bottom:.3rem;}
@@ -260,13 +271,11 @@ img{max-width:100%;display:block;}
 .faq-list{max-width:680px;margin:0 auto;}
 .faq-item{border-bottom:1px solid var(--clr-hairline,var(--clr-border));}
 .faq-item:first-child{border-top:1px solid var(--clr-hairline,var(--clr-border));}
-.faq-btn{display:flex;align-items:center;justify-content:space-between;padding:20px 0;cursor:pointer;font-family:var(--font-body);font-weight:600;font-size:16px;color:var(--clr-foreground);list-style:none;user-select:none;gap:16px;width:100%;background:none;border:none;text-align:left;}
-.faq-btn::-webkit-details-marker{display:none;}
+.faq-question{display:flex;align-items:center;justify-content:space-between;padding:20px 0;cursor:pointer;font-family:var(--font-body);font-weight:600;font-size:16px;color:var(--clr-foreground);list-style:none;user-select:none;gap:16px;width:100%;background:none;border:none;text-align:left;}
+.faq-question::-webkit-details-marker{display:none;}
 .faq-chevron{font-size:20px;font-weight:400;color:var(--clr-primary,var(--color-green));flex-shrink:0;transition:transform 0.2s ease;line-height:1;}
 .faq-item.open .faq-chevron{transform:rotate(180deg);}
-.faq-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-.faq-item.open .faq-body{max-height:400px;}
-.faq-answer{padding:0 0 20px 0;font-family:var(--font-body);font-size:15px;color:var(--clr-muted-fg);line-height:1.7;}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 0 20px 0;font-family:var(--font-body);font-size:15px;color:var(--clr-muted-fg);line-height:1.7;}
 .faq-body-inner{font-size:1rem;color:var(--clr-muted-fg);line-height:1.7;max-width:65ch;padding-bottom:1.25rem;}
 /* CTA section */
 .cta-section{padding:5rem 0;background:var(--color-forest);border-top:none;}
@@ -664,29 +673,31 @@ img{max-width:100%;display:block;}
       <h2 id="faq-heading" class="section-title">Common questions.</h2>
     </div>
     <div class="reveal" data-delay="80">
+      <div class="faq-list" role="region">
       <div class="faq-item">
-        <button class="faq-btn" aria-expanded="false" aria-controls="faq-1">Is it actually free?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-1" role="region"><p class="faq-body-inner">Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro is $8/month for unlimited everything.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-1">Is it actually free?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-1" role="region"><p class="faq-body-inner">Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro is $8/month for unlimited everything.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-btn" aria-expanded="false" aria-controls="faq-2">How does the budget work?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-2" role="region"><p class="faq-body-inner">You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-2">How does the budget work?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-2" role="region"><p class="faq-body-inner">You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-btn" aria-expanded="false" aria-controls="faq-3">Can it handle dietary restrictions?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-3" role="region"><p class="faq-body-inner">Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-3">Can it handle dietary restrictions?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-3" role="region"><p class="faq-body-inner">Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-btn" aria-expanded="false" aria-controls="faq-4">How accurate are the calorie calculations?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-4" role="region"><p class="faq-body-inner">We estimate your daily calorie target based on your goal. You can adjust it anytime in settings.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-4">How accurate are the calorie calculations?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-4" role="region"><p class="faq-body-inner">We estimate your daily calorie target based on your goal. You can adjust it anytime in settings.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-btn" aria-expanded="false" aria-controls="faq-5">What languages does Mealzy support?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-5" role="region"><p class="faq-body-inner">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-5">What languages does Mealzy support?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-5" role="region"><p class="faq-body-inner">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-btn" aria-expanded="false" aria-controls="faq-6">Does Mealzy work in Europe and Sweden?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-body" id="faq-6" role="region"><p class="faq-body-inner">Yes. Mealzy works in 11 languages including Swedish, Norwegian, German, and French. Grocery budget estimates use local pricing. Emil, Mealzy's founder, is based in Sweden.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-6">Does Mealzy work in Europe and Sweden?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-6" role="region"><p class="faq-body-inner">Yes. Mealzy works in 11 languages including Swedish, Norwegian, German, and French. Grocery budget estimates use local pricing. Emil, Mealzy's founder, is based in Sweden.</p></div>
+      </div>
       </div>
     </div>
   </div>
@@ -883,18 +894,21 @@ function initInteractivity(){
   document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 
   // FAQ accordion
-  const faqList=document.querySelector('.faq-list');
-  if(faqList){
-    faqList.addEventListener('click',function(e){
-      const btn=e.target.closest('.faq-btn');
-      if(!btn)return;
-      const item=btn.closest('.faq-item');
-      const isOpen=item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
-      if(!isOpen)item.classList.add('open');
-      btn.setAttribute('aria-expanded',String(!isOpen));
+  document.querySelector('.faq-list')?.addEventListener('click',function(e){
+    const btn=e.target.closest('.faq-question');
+    if(!btn)return;
+    const item=btn.closest('.faq-item');
+    const answer=item?.querySelector('.faq-answer');
+    const isOpen=item?.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el=>{
+      el.classList.remove('open');
+      el.querySelector('.faq-answer').style.maxHeight=null;
     });
-  }
+    if(!isOpen){
+      item.classList.add('open');
+      answer.style.maxHeight=answer.scrollHeight+'px';
+    }
+  });
 }
 </script>
 </body>

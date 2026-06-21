@@ -172,7 +172,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
 
 /* === HERO SECTION === */
-.hero { min-height: 100vh; display: flex; align-items: center; background: var(--gradient-hero); padding-top: 4rem; }
+.hero { min-height: auto; display: flex; align-items: center; background: var(--gradient-hero); padding: 5rem 0 4rem; }
 .hero-inner { max-width: 1200px; margin: 0 auto; padding: 4rem 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
 .hero-headline { font-family: var(--font-display); font-size: 4rem; font-weight: 700; font-style: italic; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1.25rem; }
 .hero-sub { font-size: 1.1rem; color: var(--clr-muted-fg); margin-bottom: var(--space-8); line-height: 1.7; }
