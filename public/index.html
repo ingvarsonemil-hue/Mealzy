@@ -1,8 +1,17 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-27FWEVV6VD');</script>
+<script>
+window.addEventListener('load', function() {
+  var s = document.createElement('script');
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD';
+  document.head.appendChild(s);
+});
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-27FWEVV6VD');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mealzy — Free AI Meal Planner, No Sign Up | Full Week in 30 Seconds</title>
@@ -104,9 +113,13 @@
 <!-- Mealzy Design System -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="https://region1.google-analytics.com">
+<link rel="preload" href="/css/tokens.css" as="style">
+<link rel="preload" href="/style.css" as="style">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Inter:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/style.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
@@ -771,11 +784,13 @@ function initInteractivity(){
     if(_exitFired||localStorage.getItem('mealzy_email_submitted'))return;
     if(e.clientY<=0){
       _exitFired=true;
-      const h=document.querySelector('.email-popup-card h2');
-      const p=document.querySelector('.email-popup-card p');
-      if(h)h.textContent='Wait — save your free plan';
-      if(p)p.textContent='Create a free account and your meal plan is always saved — access it any time, on any device.';
-      openEmailPopup();
+      requestAnimationFrame(()=>{
+        const h=document.querySelector('.email-popup-card h2');
+        const p=document.querySelector('.email-popup-card p');
+        if(h)h.textContent='Wait — save your free plan';
+        if(p)p.textContent='Create a free account and your meal plan is always saved — access it any time, on any device.';
+        openEmailPopup();
+      });
     }
   });
 
