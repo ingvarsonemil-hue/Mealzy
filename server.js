@@ -243,6 +243,22 @@ function timingSafeCompare(a, b) {
   }
 }
 
+// ── Password strength validation ────────────────────────────────────────────
+function validatePasswordStrength(password) {
+  if (password.length < 12) {
+    return { valid: false, message: 'Password must be at least 12 characters.' };
+  }
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasLowercase = /[a-z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+  const hasComplexity = [hasUppercase, hasLowercase, hasNumbers, hasSpecial].filter(Boolean).length >= 3;
+  if (!hasComplexity) {
+    return { valid: false, message: 'Password must contain uppercase, lowercase, numbers, and special characters.' };
+  }
+  return { valid: true };
+}
+
 // ── In-memory usage tracker (free-plan generation cap) ────────────────────
 const usageTracker = new Map();
 const FREE_PLAN_LIMIT = 3;
@@ -485,8 +501,9 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
     if (!email.includes('@')) {
       return res.status(400).json({ error: 'invalid_email', message: 'Please enter a valid email address.' });
     }
-    if (password.length < 8) {
-      return res.status(400).json({ error: 'password_too_short', message: 'Password must be at least 8 characters.' });
+    const passwordCheck = validatePasswordStrength(password);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ error: 'password_weak', message: passwordCheck.message });
     }
 
     const existing = await db.getUserByEmail(email);
@@ -654,8 +671,9 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
 
     // newHashedPassword from client is either plaintext or SHA256 hex.
     // Validate it's not empty and within reasonable bounds
-    if (newHashedPassword.length < 8) {
-      return res.status(400).json({ error: 'password_too_short', message: 'New password must be at least 8 characters.' });
+    const passwordCheck = validatePasswordStrength(newHashedPassword);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ error: 'password_weak', message: passwordCheck.message });
     }
 
     const incomingHash = require('crypto').createHash('sha256').update(sanitise(req.body.token, 36)).digest('hex');
