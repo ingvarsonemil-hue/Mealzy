@@ -61,6 +61,37 @@ const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
 // Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
+// ── Explicit output shapes — define exactly what each endpoint returns to clients ──
+const OutputShapes = {
+  User: (user, includeRefCode = false) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    pro: user.pro === 1,
+    ...(includeRefCode ? { ref_code: user.ref_code || null } : {})
+  }),
+  UserWithProfile: (user, profile) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    pro: user.pro === 1,
+    ref_code: user.ref_code || null,
+    profile
+  }),
+  AdminUserExport: (user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    pro: user.pro === 1,
+    created_at: user.created_at
+  }),
+  ReferralStatus: (bonusPlans, effectiveLimit, used) => ({
+    bonus_plans: bonusPlans,
+    effective_limit: effectiveLimit,
+    used
+  })
+};
+
 // ── Security headers on every response ────────────────────────────────────
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -89,21 +120,21 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ── CORS policy — restrict /api to the production origin ───────────────────
-const cors = require('cors');
-app.use('/api', cors({
-  origin: process.env.NODE_ENV === 'production' ? 'https://mealzy.org' : 'http://localhost:3000',
-  credentials: true,
-  methods: ['GET', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'x-admin-token', 'x-cron-secret'],
-}));
-
 // ── Stripe webhook needs raw body — must be BEFORE express.json() ─────────
 app.post(
   '/api/stripe/webhook',
   express.raw({ type: 'application/json' }),
   handleStripeWebhook
 );
+
+// ── Explicit CORS configuration with allowlist ─────────────────────────────
+const cors = require('cors');
+app.use(cors({
+  origin: ['https://mealzy.org', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-admin-token', 'x-pro-token', 'x-cron-secret']
+}));
 
 app.use(express.json({ limit: '1mb' }));
 
@@ -432,7 +463,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 
     const jwtPayload = { userId, email, pro: false };
     setJwtCookie(res, jwtPayload);
-    res.json({ success: true, user: { id: userId, name, email, pro: false, refCode } });
+    res.json({ success: true, user: { id: userId, name, email, pro: false, ref_code: refCode } });
   } catch(err) {
     console.error('Signup error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -475,7 +506,7 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
 
     const jwtPayload = { userId: user.id, email: user.email, pro: user.pro === 1 };
     setJwtCookie(res, jwtPayload);
-    res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, pro: user.pro === 1 } });
+    res.json({ success: true, user: OutputShapes.User(user) });
   } catch(err) {
     console.error('Signin error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -498,7 +529,7 @@ app.get('/api/auth/me', async (req, res) => {
   setJwtCookie(res, { userId: user.id, email: user.email, pro: serverPro });
 
   const profile = await db.getProfile(user.id);
-  res.json({ id: user.id, name: user.name, email: user.email, pro: serverPro, ref_code: user.ref_code || null, profile });
+  res.json(OutputShapes.UserWithProfile(user, profile));
 });
 
 // POST /api/auth/signout
@@ -1085,9 +1116,8 @@ app.get('/api/admin/export', requireAdmin, async (req, res) => {
       user_count:  users.length,
       pro_count:   users.filter(u => u.pro === 1).length,
       lead_count:  leads,
-      users,
-      exported_at: new Date().toISOString(),
-      note: 'Passwords are excluded from this export.'
+      users: users.map(u => OutputShapes.AdminUserExport(u)),
+      exported_at: new Date().toISOString()
     });
   } catch(e) {
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -1212,7 +1242,7 @@ app.get('/api/referral-status', async (req, res) => {
     if (dbCount > referralCount) referralCount = dbCount;
   } catch(e) { /* non-fatal */ }
 
-  res.json({ bonus_plans: referralCount, effective_limit: effectiveLimit, used: usage.count });
+  res.json(OutputShapes.ReferralStatus(referralCount, effectiveLimit, usage.count));
 });
 
 // ════════════════════════════════════════════════════════════════════════════
