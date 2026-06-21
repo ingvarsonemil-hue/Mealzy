@@ -102,7 +102,7 @@ app.use((req, res, next) => {
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' https://js.stripe.com https://accounts.google.com https://cdn.jsdelivr.net https://www.googletagmanager.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
-    "font-src https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
+    "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
     "img-src 'self' data: https:; " +
     "connect-src 'self' https://api.stripe.com https://accounts.google.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
     "frame-src https://js.stripe.com;"
