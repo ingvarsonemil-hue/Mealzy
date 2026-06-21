@@ -159,9 +159,13 @@ app.get('/tiktok5D5PTssMk9TzIVSQAXCcHPlwQwQ52nQc.txt', async (req, res) => {
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,   // 1 minute
   max: 10,
-  standardHeaders: true,
+  standardHeaders: true,  // Sets RateLimit-* headers
   legacyHeaders: false,
-  message: { error: 'Too many requests. Please wait a moment and try again.' }
+  message: { error: 'Too many requests. Please wait a moment and try again.' },
+  handler: (req, res) => {
+    res.setHeader('Retry-After', '60');
+    res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' });
+  }
 });
 
 const generateLimiter = rateLimit({
@@ -243,6 +247,36 @@ function timingSafeCompare(a, b) {
 const usageTracker = new Map();
 const FREE_PLAN_LIMIT = 3;
 const referralBonus   = new Map(); // kept for in-session backward compat; SQLite is source of truth
+
+// ── Failed login tracking — per-account rate limiting and lockout ──────────
+const failedLoginAttempts = new Map(); // email -> { count, lastAttempt, lockedUntil }
+const MAX_FAILED_ATTEMPTS = 10;
+const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+function isAccountLocked(email) {
+  const record = failedLoginAttempts.get(email);
+  if (!record || !record.lockedUntil) return false;
+  if (Date.now() < record.lockedUntil) return true;
+  // Lockout expired — clear the record
+  failedLoginAttempts.delete(email);
+  return false;
+}
+
+function recordFailedLogin(email) {
+  const now = Date.now();
+  const record = failedLoginAttempts.get(email) || { count: 0, lastAttempt: now, lockedUntil: null };
+  record.count += 1;
+  record.lastAttempt = now;
+  if (record.count >= MAX_FAILED_ATTEMPTS) {
+    record.lockedUntil = now + LOCKOUT_DURATION_MS;
+    logger.warn('[auth] Account lockout triggered', { email, attempts: record.count });
+  }
+  failedLoginAttempts.set(email, record);
+}
+
+function clearFailedLogins(email) {
+  failedLoginAttempts.delete(email);
+}
 
 function getUsage(ip) {
   const now = new Date();
@@ -490,8 +524,21 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'missing_fields', message: 'email and password are required.' });
     }
 
+    // Check per-account lockout (15 minutes after 10 failed attempts)
+    if (isAccountLocked(email)) {
+      const retryAfter = 900; // 15 minutes in seconds
+      res.setHeader('Retry-After', retryAfter);
+      return res.status(429).json({
+        error: 'invalid_credentials',
+        message: 'Email or password is incorrect.'
+      });
+    }
+
     const user = await db.getUserByEmail(email);
     if (!user) {
+      recordFailedLogin(email);
+      const retryAfter = 60; // 1 minute (IP-based rate limit window)
+      res.setHeader('Retry-After', retryAfter);
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
@@ -515,9 +562,19 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
     }
 
     if (!valid) {
+      recordFailedLogin(email);
+      const record = failedLoginAttempts.get(email);
+      const attemptsLeft = MAX_FAILED_ATTEMPTS - record.count;
+      let retryAfter = 60;
+      if (record.lockedUntil) {
+        retryAfter = Math.ceil((record.lockedUntil - Date.now()) / 1000);
+      }
+      res.setHeader('Retry-After', retryAfter);
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
+    // Success — clear failed login attempts for this account
+    clearFailedLogins(email);
     const jwtPayload = { userId: user.id, email: user.email, pro: user.pro === 1 };
     setJwtCookie(res, jwtPayload);
     res.json({ success: true, user: OutputShapes.User(user) });
