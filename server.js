@@ -233,6 +233,19 @@ function sanitise(val, maxLen = 500) {
   return val.trim().slice(0, maxLen);
 }
 
+// ── HTML escape for email and HTML context ─────────────────────────────────
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+  return str.replace(/[&<>"']/g, (char) => map[char]);
+}
+
 // ── Constant-time string comparison (prevents timing attacks) ───────────────
 function timingSafeCompare(a, b) {
   try {
@@ -402,19 +415,22 @@ function emailBase(content) {
 }
 
 function emailPasswordReset(name, resetUrl) {
+  const safeName = escapeHtml(name || 'there');
+  const safeUrl = escapeHtml(resetUrl);
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Reset your password</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${name || 'there'}, here's your password reset link. It expires in 15 minutes.</p>
-    <a href="${resetUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
-    <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${resetUrl}</span></p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, here's your password reset link. It expires in 15 minutes.</p>
+    <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
+    <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
     <p style="color:#aaa;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email. Your password won't change.</p>
   `);
 }
 
 function emailDay3Nudge(name, plansLeft) {
+  const safeName = escapeHtml(name || 'there');
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You've got ${plansLeft} free plan${plansLeft !== 1 ? 's' : ''} left this month 🥗</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — you signed up 3 days ago. Here's what Pro unlocks when you're ready:</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — you signed up 3 days ago. Here's what Pro unlocks when you're ready:</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
       ${['Unlimited AI meal plans — every week, every goal change', 'PDF export — print your plan, take it to the shop', 'Unlimited AI coaching with Mia — ask anything, any time', 'Advanced macros per meal — protein, carbs, fat broken down'].map(f => `
       <tr><td style="padding:6px 0;color:#333;font-size:14px;">✅ ${f}</td></tr>`).join('')}
@@ -425,9 +441,10 @@ function emailDay3Nudge(name, plansLeft) {
 }
 
 function emailLimitHit(name) {
+  const safeName = escapeHtml(name || 'there');
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You hit your free plan limit 🚀</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — you've used all your free plans this month. That means you're actually using Mealzy — which is great.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — you've used all your free plans this month. That means you're actually using Mealzy — which is great.</p>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Upgrade to Pro and never hit a limit again. Your <strong>7-day free trial</strong> starts the moment you click — no charge until the trial ends.</p>
     <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Start My 7-Day Free Trial →</a>
     <p style="color:#888;font-size:13px;margin:0;">$8/month after the trial. Cancel any time.</p>
@@ -435,18 +452,21 @@ function emailLimitHit(name) {
 }
 
 function emailReferralReward(name, referredName) {
+  const safeName = escapeHtml(name || 'there');
+  const safeReferred = escapeHtml(referredName || 'someone you referred');
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">🎉 You earned a free month of Pro!</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — ${referredName || 'someone you referred'} just upgraded to Pro. As a thank you, we've added <strong>30 days of Pro</strong> to your account.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — ${safeReferred} just upgraded to Pro. As a thank you, we've added <strong>30 days of Pro</strong> to your account.</p>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Your Pro access is now active. Enjoy unlimited meal plans, PDF export, advanced macros, and unlimited AI coaching.</p>
     <a href="https://mealzy.org/dashboard.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Go to My Dashboard →</a>
   `);
 }
 
 function emailWeeklyDigest(name) {
+  const safeName = escapeHtml(name || 'there');
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">New week — new meal plan 🥗</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${name || 'there'} — it's a new week. Take 30 seconds to generate your meal plan and you'll know exactly what to eat (and spend) all week.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — it's a new week. Take 30 seconds to generate your meal plan and you'll know exactly what to eat (and spend) all week.</p>
     <a href="https://mealzy.org/meal-planner.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Generate This Week's Plan →</a>
     <hr style="border:none;border-top:1px solid #e8f0eb;margin:24px 0"/>
     <p style="color:#888;font-size:13px;margin:0 0 12px;">Want more? <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;font-weight:700;">Upgrade to Pro</a> for unlimited plans, PDF export, and unlimited AI coaching — $8/month.</p>
