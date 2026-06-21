@@ -134,6 +134,7 @@
       justify-content: center;
       padding: 2.5rem 1.5rem;
       background: var(--clr-background);
+      width: 100%;
     }
     @media (min-width: 768px) {
       .login-col { padding: 3rem 3.5rem; max-width: 480px; }
@@ -300,6 +301,7 @@
     .auth-note a { color: var(--clr-primary); text-decoration: none; }
 
     /* ── Dark mode ────────────────────────────── */
+    [data-theme="dark"] body { background: #111d17; }
     [data-theme="dark"] .login-col { background: #111d17; }
     [data-theme="dark"] .auth-tab { color: rgba(255,255,255,0.5); }
     [data-theme="dark"] .auth-tabs { background: #1a2e22; }
