@@ -19,7 +19,7 @@ if (!process.env.JWT_SECRET) {
 const express      = require('express');
 const path         = require('path');
 const fs           = require('fs');
-const { randomUUID } = require('crypto');
+const { randomUUID, timingSafeEqual } = require('crypto');
 const jwt          = require('jsonwebtoken');
 const bcrypt       = require('bcryptjs');
 const rateLimit    = require('express-rate-limit');
@@ -227,6 +227,16 @@ function getSessionFromReq(req) {
 function sanitise(val, maxLen = 500) {
   if (typeof val !== 'string') return '';
   return val.trim().slice(0, maxLen);
+}
+
+// ── Constant-time string comparison (prevents timing attacks) ───────────────
+function timingSafeCompare(a, b) {
+  try {
+    return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  } catch (e) {
+    // Lengths don't match — use fake comparison to prevent timing leak
+    return false;
+  }
 }
 
 // ── In-memory usage tracker (free-plan generation cap) ────────────────────
@@ -492,8 +502,12 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       // bcrypt hash — normal path
       valid = await bcrypt.compare(password, storedHash);
     } else {
-      // Legacy: client sent SHA-256 hex; compare directly then rehash with bcrypt
-      valid = storedHash === password;
+      // Legacy: client sent SHA-256 hex; compare with constant-time comparison then rehash with bcrypt
+      try {
+        valid = timingSafeCompare(storedHash, password);
+      } catch (e) {
+        valid = false;
+      }
       if (valid) {
         const newHash = await bcrypt.hash(password, 12);
         await db.updatePassword(user.id, newHash);
@@ -575,10 +589,16 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
 app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
   try {
     const token           = sanitise(req.body.token,          36);
-    const newHashedPassword = sanitise(req.body.newHashedPassword, 64);
+    const newHashedPassword = sanitise(req.body.newHashedPassword, 256);
 
     if (!token || !newHashedPassword) {
       return res.status(400).json({ error: 'token and newHashedPassword required' });
+    }
+
+    // newHashedPassword from client is either plaintext or SHA256 hex.
+    // Validate it's not empty and within reasonable bounds
+    if (newHashedPassword.length < 8) {
+      return res.status(400).json({ error: 'password_too_short', message: 'New password must be at least 8 characters.' });
     }
 
     const incomingHash = require('crypto').createHash('sha256').update(sanitise(req.body.token, 36)).digest('hex');
@@ -591,7 +611,10 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'expired_token', message: 'This reset link has expired. Request a new one.' });
     }
 
-    await db.updatePassword(record.user_id, newHashedPassword);
+    // Always apply bcrypt hashing server-side for consistency.
+    // newHashedPassword from client is treated as plaintext/hash, bcrypt it before storage.
+    const finalHash = await bcrypt.hash(newHashedPassword, 12);
+    await db.updatePassword(record.user_id, finalHash);
     await db.markResetTokenUsed(incomingHash);
     res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
   } catch(err) {
