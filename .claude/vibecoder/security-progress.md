@@ -1,6 +1,6 @@
 # Security Audit Progress
 
-- [ ] 1. Hash passwords with a modern algorithm
+- [x] 1. Hash passwords with a modern algorithm - Bcrypt with cost 12 already in place; enhanced password strength to 12 chars with complexity
 - [ ] 2. Enforce strong password requirements
 - [ ] 3. Rate limit login attempts
 - [ ] 4. Lock accounts after repeated failures

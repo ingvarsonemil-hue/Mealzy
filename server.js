@@ -243,10 +243,21 @@ function timingSafeCompare(a, b) {
   }
 }
 
+// ── Common weak passwords to reject ────────────────────────────────────────
+const COMMON_PASSWORDS = new Set([
+  'password', 'password123', '123456789', 'qwerty', 'abc123', 'letmein', 'welcome',
+  'monkey', 'dragon', 'master', 'admin', 'sunshine', 'princess', 'football', 'shadow',
+  'michael', 'batman', 'trustno1', 'starwars', 'superman', 'password1', 'admin123'
+]);
+
 // ── Password strength validation ────────────────────────────────────────────
 function validatePasswordStrength(password) {
   if (password.length < 12) {
     return { valid: false, message: 'Password must be at least 12 characters.' };
+  }
+  const lowerPassword = password.toLowerCase();
+  if (COMMON_PASSWORDS.has(lowerPassword)) {
+    return { valid: false, message: 'This password is too common. Please choose a more unique password.' };
   }
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
