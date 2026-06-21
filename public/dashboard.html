@@ -1574,7 +1574,7 @@
           '<h2 style="font-size:1.05rem;font-weight:800;margin:0;">Your Achievement Card</h2>' +
           '<button onclick="document.getElementById(\'shareCardModal\').classList.remove(\'open\')" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--clr-muted-fg);line-height:1;">✕</button>' +
         '</div>' +
-        '<img src="' + dataUrl + '" alt="Mealzy achievement card" style="width:100%;border-radius:0.75rem;margin-bottom:1.1rem;box-shadow:0 4px 20px rgba(0,0,0,0.18);" />' +
+        '<img src="' + dataUrl + '" alt="Mealzy achievement card" width="480" height="300" loading="lazy" style="width:100%;height:auto;border-radius:0.75rem;margin-bottom:1.1rem;box-shadow:0 4px 20px rgba(0,0,0,0.18);" />' +
         '<div style="display:flex;gap:0.65rem;justify-content:center;flex-wrap:wrap;">' +
           '<a href="' + dataUrl + '" download="mealzy-achievement.png" class="btn btn-primary">Download</a>' +
           '<a href="https://x.com/intent/tweet?text=' + tweet + '" target="_blank" rel="noopener" class="btn btn-outline">Share on X</a>' +
@@ -2254,7 +2254,7 @@
       </label>
       <input type="file" id="irFileInput" accept="image/jpeg,image/png,image/webp" capture="environment" style="display:none;" onchange="irHandleFile(this)">
       <div id="irPreview" style="display:none;margin-top:1rem;text-align:center;">
-        <img id="irPreviewImg" style="max-height:180px;border-radius:0.5rem;border:1px solid var(--clr-border);" alt="Recipe preview"/>
+        <img id="irPreviewImg" width="300" height="300" loading="lazy" style="max-height:180px;width:auto;border-radius:0.5rem;border:1px solid var(--clr-border);" alt="Recipe preview"/>
         <div style="margin-top:0.75rem;display:flex;gap:0.5rem;justify-content:center;">
           <button class="btn btn-primary" onclick="irExtract()">Extract Recipe →</button>
           <button class="btn btn-ghost" onclick="irReset()">Use different photo</button>
