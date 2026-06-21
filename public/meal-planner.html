@@ -452,8 +452,8 @@
       </div>
     </div>
 
-    <!-- VIEW TOGGLE -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:0.75rem;margin-bottom:1rem;">
+    <!-- VIEW TOGGLE & PRINT -->
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
       <div class="view-toggle">
         <button class="view-toggle-btn active" id="dayViewBtn" onclick="setView('day')">Day View</button>
         <button class="view-toggle-btn" id="weekViewBtn" onclick="setView('week')">Week View</button>
@@ -542,11 +542,9 @@
 
     <!-- WEEK VIEW -->
     <div id="weekViewContainer" style="display:none;"></div>
-  </main>
 
-  <!-- STICKY TOTALS BAR -->
-  <div class="totals-bar" id="totalsBar">
-    <div class="stats-card">
+    <!-- STICKY TOTALS BAR -->
+    <div class="totals-bar" id="totalsBar">
       <div class="total-item">
         <div class="total-lbl">Calories</div>
         <div class="total-val" id="totalCals">0</div>
@@ -564,7 +562,7 @@
         <div class="total-val" id="totalCost">$0</div>
       </div>
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- FREE LIMIT MODAL -->
