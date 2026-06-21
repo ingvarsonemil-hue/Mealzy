@@ -1,9 +1,9 @@
 # Security Audit Progress
 
 - [x] 1. Hash passwords with a modern algorithm - Bcrypt with cost 12 already in place; enhanced password strength to 12 chars with complexity
-- [ ] 2. Enforce strong password requirements
-- [ ] 3. Rate limit login attempts
-- [ ] 4. Lock accounts after repeated failures
+- [x] 2. Enforce strong password requirements - Added 12 char minimum, complexity requirements, common password list
+- [x] 3. Rate limit login attempts - Already in place: 10/min IP-based via authLimiter, returns 429 with Retry-After
+- [x] 4. Lock accounts after repeated failures - 10 failed attempts triggers 15-minute account lockout
 - [ ] 5. Stop username and email enumeration
 - [ ] 6. Secure the password reset flow
 - [ ] 7. Regenerate sessions to block fixation

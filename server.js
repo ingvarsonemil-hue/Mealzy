@@ -645,25 +645,21 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
     const email = sanitise(req.body.email, 254).toLowerCase();
     if (!email) return res.status(400).json({ error: 'email_required' });
 
+    // Always return the same response regardless of whether email exists (prevent enumeration)
     const user = await db.getUserByEmail(email);
-    if (!user) {
-      return res.json({ success: true });
+    if (user) {
+      const rawToken  = randomUUID();
+      const tokenHash = require('crypto').createHash('sha256').update(rawToken).digest('hex');
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
+      await db.createResetToken(tokenHash, user.id, expiresAt);
+
+      const host     = process.env.APP_URL || 'https://mealzy.org';
+      const resetUrl = `${host}/reset-password.html?token=${rawToken}`;
+
+      await sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl)).catch(() => {});
     }
-
-    const rawToken  = randomUUID();
-    const tokenHash = require('crypto').createHash('sha256').update(rawToken).digest('hex');
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
-    await db.createResetToken(tokenHash, user.id, expiresAt);
-
-    const host     = process.env.APP_URL || 'https://mealzy.org';
-    const resetUrl = `${host}/reset-password.html?token=${rawToken}`;
-
-    const emailSent = await sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl));
-    if (emailSent.ok) {
-      res.json({ success: true, found: true });
-    } else {
-      res.json({ success: true, found: true, resetUrl, note: 'Email delivery failed — use this link directly' });
-    }
+    // Return same success message whether or not email exists
+    res.json({ success: true, message: 'If an account exists with this email, we\'ve sent a password reset link. It expires in 15 minutes.' });
   } catch(err) {
     console.error('Reset request error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
