@@ -43,6 +43,15 @@
       .anim-section:nth-child(6) { animation-delay: 0.30s; }
       .anim-section:nth-child(7) { animation-delay: 0.36s; }
     }
+    [data-theme="dark"] body,
+    [data-theme="dark"] .main-content {
+      background: #1a2e22 !important;
+    }
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .metric-card {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.08);
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
@@ -588,7 +597,7 @@
 
     const goals = [
       { label: 'Calories', key: 'calories', goal: profile?.dailyCalories || 2000, unit: 'kcal', color: 'var(--clr-primary)' },
-      { label: 'Protein', key: 'protein', goal: profile?.macros?.protein || 150, unit: 'g', color: 'hsl(32,88%,54%)' },
+      { label: 'Protein', key: 'protein', goal: profile?.macros?.protein || 150, unit: 'g', color: '#3d8b5e' },
       { label: 'Carbs', key: 'carbs', goal: profile?.macros?.carbs || 200, unit: 'g', color: 'hsl(200,100%,50%)' },
       { label: 'Fat', key: 'fat', goal: profile?.macros?.fat || 67, unit: 'g', color: 'hsl(260,60%,55%)' }
     ];

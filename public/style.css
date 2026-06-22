@@ -158,10 +158,10 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 /* === STAT CARD === */
 .stat-card { background: var(--clr-card); border: 1px solid rgba(0,0,0,0.06); border-radius: 0.85rem; padding: var(--space-5); box-shadow: var(--shadow-md); }
 .stat-card-icon { width: 42px; height: 42px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 0.75rem; }
-.stat-card-icon.green { background: var(--clr-primary-light); color: var(--clr-primary); }
-.stat-card-icon.amber { background: var(--clr-accent-light); color: hsl(32,88%,45%); }
-.stat-card-icon.blue { background: hsl(200,100%,93%); color: hsl(200,80%,42%); }
-.stat-card-icon.indigo { background: hsl(240,100%,93%); color: hsl(240,60%,52%); }
+.stat-card-icon.green { background: rgba(61,139,94,0.12); color: #3d8b5e; }
+.stat-card-icon.amber { background: rgba(61,139,94,0.12); color: #3d8b5e; }
+.stat-card-icon.blue { background: rgba(61,139,94,0.12); color: #3d8b5e; }
+.stat-card-icon.indigo { background: rgba(61,139,94,0.12); color: #3d8b5e; }
 .stat-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--clr-muted-fg); margin-bottom: 0.4rem; }
 .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--clr-foreground); }
 .stat-sub { font-size: 0.8rem; color: var(--clr-muted-fg); margin-top: 0.25rem; }
