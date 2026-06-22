@@ -264,10 +264,10 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
 .meal-card.completed .meal-name { text-decoration: line-through; }
 .meal-card:hover { box-shadow: var(--shadow-md); }
 .meal-type-badge { display: inline-flex; align-items: center; padding: 0.2rem 0.65rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.6rem; }
-.meal-type-badge.breakfast { background: var(--clr-accent-light); color: var(--clr-accent); }
-.meal-type-badge.lunch { background: hsl(200,100%,92%); color: hsl(200,100%,35%); }
-.meal-type-badge.dinner { background: hsl(260,60%,93%); color: hsl(260,60%,40%); }
-.meal-type-badge.snack { background: hsl(340,80%,93%); color: hsl(340,80%,40%); }
+.meal-type-badge.breakfast { background: rgba(61,139,94,0.15); color: #3d8b5e; }
+.meal-type-badge.lunch { background: rgba(61,139,94,0.15); color: #3d8b5e; }
+.meal-type-badge.dinner { background: rgba(61,139,94,0.15); color: #3d8b5e; }
+.meal-type-badge.snack { background: rgba(61,139,94,0.15); color: #3d8b5e; }
 .meal-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
 .meal-macros { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
 .macro-pill { background: var(--clr-muted-bg); border-radius: var(--radius-full); padding: 0.2rem 0.6rem; font-size: 0.75rem; font-weight: 600; color: var(--clr-muted-fg); }
@@ -697,10 +697,10 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   color: var(--clr-muted-fg);
   display: block;
 }
-.week-meal-chip.breakfast { background: var(--clr-accent-light); color: var(--clr-accent); }
-.week-meal-chip.lunch { background: hsl(200,100%,92%); color: hsl(200,100%,35%); }
-.week-meal-chip.dinner { background: hsl(260,60%,93%); color: hsl(260,60%,40%); }
-.week-meal-chip.snack { background: hsl(340,80%,93%); color: hsl(340,80%,40%); }
+.week-meal-chip.breakfast { background: rgba(61,139,94,0.15); color: #3d8b5e; }
+.week-meal-chip.lunch { background: rgba(61,139,94,0.15); color: #3d8b5e; }
+.week-meal-chip.dinner { background: rgba(61,139,94,0.15); color: #3d8b5e; }
+.week-meal-chip.snack { background: rgba(61,139,94,0.15); color: #3d8b5e; }
 .week-generate-btn {
   width: 100%;
   padding: 0.4rem;

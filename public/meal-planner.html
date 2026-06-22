@@ -86,10 +86,10 @@
       transition: box-shadow 0.2s;
     }
     .meal-card-v2:hover { box-shadow: var(--shadow-md); }
-    .meal-card-v2.mcv2-breakfast { border-left-color: var(--clr-accent); }
-    .meal-card-v2.mcv2-lunch     { border-left-color: hsl(200,90%,45%); }
-    .meal-card-v2.mcv2-dinner    { border-left-color: hsl(260,55%,52%); }
-    .meal-card-v2.mcv2-snack     { border-left-color: hsl(340,75%,52%); }
+    .meal-card-v2.mcv2-breakfast { border-left-color: #3d8b5e; }
+    .meal-card-v2.mcv2-lunch     { border-left-color: #3d8b5e; }
+    .meal-card-v2.mcv2-dinner    { border-left-color: #3d8b5e; }
+    .meal-card-v2.mcv2-snack     { border-left-color: #3d8b5e; }
     .meal-card-v2.completed      { opacity: 0.55; }
     .meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
 
@@ -156,8 +156,16 @@
     }
 
     [data-theme="dark"] body,
-    [data-theme="dark"] .main-content {
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] .planner-content,
+    [data-theme="dark"] .page-content {
       background: #1a2e22;
+    }
+    [data-theme="dark"] #healthDisclaimer,
+    [data-theme="dark"] .ai-disclaimer,
+    [data-theme="dark"] .disclaimer {
+      background: rgba(255,255,255,0.06);
+      border-left-color: #3d8b5e;
     }
 
     /* ── Stats card wrapper ─────────────────────────────── */
