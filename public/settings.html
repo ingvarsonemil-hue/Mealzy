@@ -148,10 +148,15 @@
       .anim-section:nth-child(9) { animation-delay: 0.48s; }
     }
 
+    body {
+      overflow-x: hidden;
+    }
+
     .card.settings-section {
       margin-left: 260px;
       width: calc(100% - 260px);
       box-sizing: border-box;
+      padding-right: 24px;
     }
 
     .settings-section:not(.card) {
@@ -509,33 +514,33 @@
       <div class="form-group">
         <label class="form-label">App Language</label>
         <select class="form-select" id="settingLanguage">
-          <option value="en">???? English</option>
-          <option value="sv">???? Svenska</option>
-          <option value="no">???? Norsk</option>
-          <option value="da">???? Dansk</option>
-          <option value="de">???? Deutsch</option>
-          <option value="fr">???? Fran�ais</option>
-          <option value="es">???? Espa�ol</option>
-          <option value="it">???? Italiano</option>
-          <option value="pt">???? Portugu�s</option>
-          <option value="nl">???? Nederlands</option>
-          <option value="ja">???? ???</option>
+          <option value="en">English</option>
+          <option value="sv">Svenska</option>
+          <option value="no">Norsk</option>
+          <option value="da">Dansk</option>
+          <option value="de">Deutsch</option>
+          <option value="fr">Français</option>
+          <option value="es">Español</option>
+          <option value="it">Italiano</option>
+          <option value="pt">Português</option>
+          <option value="nl">Nederlands</option>
+          <option value="ja">日本語</option>
         </select>
       </div>
       <div class="form-group">
         <label class="form-label">Preferred Cuisine</label>
         <select class="form-select" id="settingCuisine">
-          <option value="">?? Surprise me (random each day)</option>
-          <option value="mediterranean">?? Mediterranean</option>
-          <option value="asian">?? Asian</option>
-          <option value="indian">?? Indian</option>
-          <option value="middleeastern">?? Middle Eastern</option>
-          <option value="american">?? American</option>
-          <option value="mexican">?? Mexican</option>
-          <option value="scandinavian">?? Scandinavian</option>
-          <option value="african">?? African</option>
-          <option value="european">?? European</option>
-          <option value="latin">?? Latin American</option>
+          <option value="">Surprise me (random each day)</option>
+          <option value="mediterranean">Mediterranean</option>
+          <option value="asian">Asian</option>
+          <option value="indian">Indian</option>
+          <option value="middleeastern">Middle Eastern</option>
+          <option value="american">American</option>
+          <option value="mexican">Mexican</option>
+          <option value="scandinavian">Scandinavian</option>
+          <option value="african">African</option>
+          <option value="european">European</option>
+          <option value="latin">Latin American</option>
         </select>
       </div>
       <div class="form-row">
