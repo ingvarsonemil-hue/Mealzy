@@ -152,6 +152,17 @@
       border-color: rgba(255,255,255,0.12) !important;
       color: rgba(255,255,255,0.85);
     }
+
+    .grocery-item {
+      min-width: 0;
+      overflow: visible;
+    }
+    .grocery-item-name,
+    .grocery-item-qty,
+    .grocery-item-cost {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
@@ -485,7 +496,7 @@
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
     const fmt = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    document.getElementById('weekLabel').textContent = `Week of ${fmt(weekStart)} � ${fmt(weekEnd.toISOString().split('T')[0])}`;
+    document.getElementById('weekLabel').textContent = `Week of ${fmt(weekStart)} – ${fmt(weekEnd.toISOString().split('T')[0])}`;
 
     loadGroceryList();
   }
