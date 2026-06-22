@@ -275,7 +275,7 @@ img{max-width:100%;display:block;}
 .faq-question::-webkit-details-marker{display:none;}
 .faq-chevron{font-size:20px;font-weight:400;color:var(--clr-primary,var(--color-green));flex-shrink:0;transition:transform 0.2s ease;line-height:1;}
 .faq-item.open .faq-chevron{transform:rotate(180deg);}
-.faq-answer{max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 0 20px 0;font-family:var(--font-body);font-size:15px;color:var(--clr-muted-fg);line-height:1.7;}
+.faq-answer{max-height:0;overflow:hidden;opacity:0;transition:max-height .35s ease, opacity .35s ease;padding:0 0 20px 0;font-family:var(--font-body);font-size:15px;color:var(--clr-muted-fg);line-height:1.7;}
 .faq-body-inner{font-size:1rem;color:var(--clr-muted-fg);line-height:1.7;max-width:65ch;padding-bottom:1.25rem;}
 /* CTA section */
 .cta-section{padding:5rem 0;background:var(--color-forest);border-top:none;}
@@ -353,8 +353,9 @@ img{max-width:100%;display:block;}
 [data-theme="dark"] .grocery-panel h3{color:rgba(255,255,255,0.85);}
 [data-theme="dark"] .grocery-cat{color:rgba(255,255,255,0.6);}
 [data-theme="dark"] .grocery-list li{color:rgba(255,255,255,0.85);}
-[data-theme="dark"] .faq-answer{max-height:0 !important;overflow:hidden !important;}
-[data-theme="dark"] .faq-item.open .faq-answer{max-height:600px !important;}
+[data-theme="dark"] .faq-answer{max-height:0 !important;overflow:hidden !important;opacity:0 !important;}
+[data-theme="dark"] .faq-item.open .faq-answer{max-height:600px !important;opacity:1 !important;}
+.faq-item.open .faq-answer{max-height:500px;opacity:1;}
 [data-theme="dark"] .how-numeral{color:rgba(255,255,255,0.2);}
 [data-theme="dark"] .demo-section{background:#1a2e22;}
 [data-theme="dark"] .how{background:#1a2e22;}
@@ -604,7 +605,7 @@ img{max-width:100%;display:block;}
     <div class="grid-3" style="gap:1.5rem;">
       <article class="card reveal" data-delay="0">
         <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="19" r="1"/><circle cx="5" cy="5" r="1"/><circle cx="19" cy="5" r="1"/><circle cx="5" cy="19" r="1"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><path d="M9 21h6M10 17v4M14 17v4"/></svg>
         </div>
         <h3>AI Meal Planning</h3>
         <p class="text-muted" style="margin-top:.5rem;">Tell it your calories, your budget, and what you like. It builds the whole week — practical, home-cooked meals using ingredients from any regular supermarket.</p>
