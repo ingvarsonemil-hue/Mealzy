@@ -167,7 +167,7 @@ function renderPlan(plan, shareId) {
   });
 
   document.getElementById('planStats').innerHTML = [
-    { num: Math.round(totalCal).toLocaleString(), label: 'kcal' },
+    { num: Math.round(totalCal).toLocaleString(), label: '<abbr title="kilocalories">kcal</abbr>' },
     { num: Math.round(totalProtein) + 'g', label: 'protein' },
     { num: '$' + totalCost.toFixed(2), label: 'est. cost' },
     { num: meals.length, label: 'meals' }
@@ -202,7 +202,7 @@ function renderPlan(plan, shareId) {
             <div class="meal-name">${escHtml(m.name)}</div>
             ${m.description ? `<div class="meal-desc">${escHtml(m.description)}</div>` : ''}
             <div class="meal-macros">
-              <span class="macro">${escHtml(m.calories || 0)} kcal</span>
+              <span class="macro">${escHtml(m.calories || 0)} <abbr title="kilocalories">kcal</abbr></span>
               ${m.protein ? `<span class="macro">${escHtml(m.protein)}g protein</span>` : ''}
               ${m.cookTime ? `<span class="macro">${escHtml(m.cookTime)} min</span>` : ''}
             </div>

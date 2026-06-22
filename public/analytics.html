@@ -169,7 +169,7 @@
     <div class="page-header anim-section">
       <h1 style="font-family:var(--font-display);font-weight:700;display:flex;align-items:center;gap:0.5rem;">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        Nutrition Analytics
+        Your Nutrition Progress
       </h1>
       <p class="text-muted" style="margin-top:0.25rem;">Track your progress and nutrition trends over time</p>
     </div>
@@ -207,12 +207,12 @@
       <!-- Calories Chart -->
       <div class="chart-card">
         <h3>Daily Calories (Last 7 Days)</h3>
-        <canvas id="caloriesChart" height="200"></canvas>
+        <canvas id="caloriesChart" height="200" aria-label="Calorie intake chart"></canvas>
       </div>
       <!-- Protein Chart -->
       <div class="chart-card">
         <h3>Daily Protein (Last 7 Days)</h3>
-        <canvas id="proteinChart" height="200"></canvas>
+        <canvas id="proteinChart" height="200" aria-label="Protein intake chart"></canvas>
       </div>
     </div>
 
@@ -221,7 +221,7 @@
       <div class="chart-card">
         <h3>Macro Distribution (Weekly Avg)</h3>
         <div style="max-width:280px;margin:0 auto;">
-          <canvas id="macroChart" height="280"></canvas>
+          <canvas id="macroChart" height="280" aria-label="Macro distribution chart"></canvas>
         </div>
       </div>
       <!-- Consistency & Streak Info -->
