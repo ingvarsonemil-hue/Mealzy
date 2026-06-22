@@ -766,12 +766,31 @@ footer {
 }
 [data-theme="dark"] body { background: var(--parchment); color: var(--espresso); }
 [data-theme="dark"] .nav-fixed.scrolled { background: rgba(15,20,15,0.96); }
+/* Guarantee note & reveal sections */
+[data-theme="dark"] .reveal { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .reveal h3 { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .reveal p { color: rgba(255,255,255,0.85); }
+/* Comparison table */
+[data-theme="dark"] .comp-table { background: #1a2e22; }
 [data-theme="dark"] .comp-table td { color: rgba(255,255,255,0.85); }
-[data-theme="dark"] .comp-table th { color: rgba(255,255,255,0.85); }
-[data-theme="dark"] .pricing-testimonial { background: #1a2e22; color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .comp-table th { color: rgba(255,255,255,0.85); background: #1a2e22; }
+[data-theme="dark"] .comp-table thead { background: #1a2e22; }
+/* Pricing testimonials */
+[data-theme="dark"] .pricing-testimonial { background: #1a2e22; color: rgba(255,255,255,0.85); border-color: hsl(150,10%,22%); }
 [data-theme="dark"] .pricing-testimonial-quote { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .pricing-testimonial-author { color: rgba(255,255,255,0.65); }
+/* FAQ */
+[data-theme="dark"] .faq-section { background: #1a2e22; }
 [data-theme="dark"] .faq-btn { color: rgba(255,255,255,0.85); }
 [data-theme="dark"] .faq-body__inner { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .faq-chevron { color: rgba(255,255,255,0.65); }
+[data-theme="dark"] .faq-item { border-color: hsl(150,10%,22%); }
+/* CTA section */
+[data-theme="dark"] .section-header { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .section-title { color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .cta-band { background: #1a3d2b; color: rgba(255,255,255,0.85); }
+[data-theme="dark"] .cta-band h2 { color: white; }
+[data-theme="dark"] .cta-lede { color: rgba(255,255,255,0.85) !important; }
 
 /* ================================================================
    RESPONSIVE
