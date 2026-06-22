@@ -303,12 +303,20 @@
 
     /* ── Dark mode ────────────────────────────── */
     [data-theme="dark"] body { background: #111d17; }
-    [data-theme="dark"] .login-col { background: #111d17; }
+    [data-theme="dark"] .login-col { background: #1a2e22; }
     [data-theme="dark"] .auth-tab { color: rgba(255,255,255,0.5); }
     [data-theme="dark"] .auth-tabs { background: #1a2e22; }
     [data-theme="dark"] .form-input { background: #1a2e22; border-color: rgba(255,255,255,0.12); }
     [data-theme="dark"] .form-input:focus { border-color: #3d8b5e; }
     [data-theme="dark"] .btn-google { background: #1a2e22; border-color: rgba(255,255,255,0.12); }
+
+    /* ── Form panel centering ─────────────── */
+    .login-col {
+      align-items: center;
+    }
+    .login-col-inner {
+      max-width: 420px !important;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
