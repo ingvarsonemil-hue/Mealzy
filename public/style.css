@@ -52,7 +52,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 /* === LAYOUT === */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem; }
 .app-layout { display: flex; min-height: 100vh; }
-.main-content { flex: 1; margin-left: 260px; padding: var(--space-8); min-height: 100vh; background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,97%) 0%, transparent 55%) var(--clr-background); }
+.main-content { flex: 1; width: calc(100% - 260px); margin-left: 260px; padding: var(--space-8); min-height: 100vh; background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,97%) 0%, transparent 55%) var(--clr-background); }
 .page-header { margin-bottom: var(--space-8); }
 
 /* === NAVIGATION (frosted glass) === */
@@ -455,7 +455,7 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
 [data-theme="dark"] {
   --clr-background: hsl(150, 15%, 8%);
   --clr-foreground: hsl(150, 20%, 92%);
-  --clr-card: hsl(150, 12%, 12%);
+  --clr-card: #1a2e22;
   --clr-border: hsl(150, 10%, 20%);
   --clr-input-bg: hsl(150, 12%, 14%);
   --clr-muted-bg: hsl(150, 12%, 10%);
