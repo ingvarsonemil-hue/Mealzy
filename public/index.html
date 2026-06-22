@@ -749,7 +749,7 @@ img{max-width:100%;display:block;}
     <a href="/" style="font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;color:white;text-decoration:none;display:block;margin-bottom:.5rem;">Mealzy</a>
     <h2 id="popup-title">Save your meal plan</h2>
     <p>Enter your email to create a free account — your plan stays saved and resets every 30 days. No card needed.</p>
-    <p style="font-size:.8rem;background:rgba(255,255,255,.08);border-radius:.5rem;padding:.5rem .75rem;color:rgba(255,255,255,.55);margin-bottom:.75rem;">Free: 3 meal plans/month. Pro: unlimited for $12/month.</p>
+    <p style="font-size:.8rem;background:rgba(255,255,255,.08);border-radius:.5rem;padding:.5rem .75rem;color:rgba(255,255,255,.55);margin-bottom:.75rem;">Free: 3 meal plans/month. Pro: unlimited for $8/month.</p>
     <div class="email-popup-form" id="emailPopupForm">
       <input type="email" class="email-popup-input" id="popupEmailInput" placeholder="your@email.com" aria-label="Email address">
       <button class="email-popup-btn" onclick="submitEmailPopup()">Create Free Account</button>
@@ -856,7 +856,7 @@ if(document.readyState==='loading'){
 
 function initInteractivity(){
   // Email popup setup
-  if(!localStorage.getItem('mealzy_email_submitted')){setTimeout(openEmailPopup,12000);}
+  if(!localStorage.getItem('mealzy_email_submitted')){setTimeout(openEmailPopup,45000);}
   document.getElementById('emailPopupOverlay')?.addEventListener('click',function(e){if(e.target===this)closeEmailPopup();});
 
   // Exit intent
