@@ -172,6 +172,22 @@
       box-shadow: 0 0 0 3px hsl(152,52%,94%);
     }
     [data-theme="dark"] .chat-input:focus { box-shadow: 0 0 0 3px hsl(152,25%,15%); }
+
+    /* ── Send button contrast fix ──────────────────────────── */
+    #sendBtn {
+      background: var(--clr-primary) !important;
+      color: white !important;
+      box-shadow: 0 2px 8px hsl(152,52%,36%,0.2);
+    }
+    #sendBtn svg { stroke: white; }
+    #sendBtn:hover {
+      filter: brightness(0.9);
+      box-shadow: 0 4px 12px hsl(152,52%,36%,0.3);
+    }
+    #sendBtn:active {
+      filter: brightness(0.85);
+      opacity: 1;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
