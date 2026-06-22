@@ -149,7 +149,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 /* === PROGRESS === */
 .progress-bar-wrap { height: 0.5rem; background: var(--clr-border); border-radius: var(--radius-full); overflow: hidden; }
 .progress-bar-fill { height: 100%; background: var(--clr-primary); border-radius: var(--radius-full); transition: width 0.4s ease; }
-.progress-bar-fill.accent { background: var(--clr-accent); }
+.progress-bar-fill.accent { background: #3d8b5e; }
 .progress-bar-fill.info { background: hsl(200,100%,50%); }
 
 /* === DIVIDER === */
@@ -478,6 +478,11 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   --clr-sidebar: hsl(152, 42%, 12%);
   --clr-sidebar-hover: hsl(152, 42%, 18%);
   --clr-sidebar-active: hsl(152, 42%, 23%);
+}
+[data-theme="dark"] .page-header,
+[data-theme="dark"] .grocery-header,
+[data-theme="dark"] .main-content {
+  background: #1a2e22;
 }
 [data-theme="dark"] .btn-outline { background: hsl(150,12%,14%); border-color: hsl(150,10%,22%); }
 [data-theme="dark"] .chip { background: hsl(150,12%,14%); }

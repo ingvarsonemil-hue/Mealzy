@@ -134,6 +134,10 @@
 
     /* Hide banner if user is not in US/CA (set by JS) */
     .instacart-banner.hidden { display: none; }
+
+    [data-theme="dark"] .main-content {
+      background: #1a2e22;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
@@ -314,7 +318,7 @@
 
     <!-- MANUAL ADD -->
     <div style="display:flex;gap:0.6rem;margin-bottom:1rem;">
-      <input type="text" class="form-input" id="manualItemInput" placeholder="Add item manually�" style="flex:1;" onkeydown="if(event.key==='Enter')addManualItem()" />
+      <input type="text" class="form-input" id="manualItemInput" placeholder="Add item manually..." style="flex:1;" onkeydown="if(event.key==='Enter')addManualItem()" />
       <button class="btn btn-outline" onclick="addManualItem()">+ Add</button>
     </div>
 
