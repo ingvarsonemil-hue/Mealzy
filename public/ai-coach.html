@@ -199,6 +199,31 @@
       filter: brightness(0.85);
       opacity: 1;
     }
+
+    /* ── Dark mode chat area backgrounds ────────────────── */
+    [data-theme="dark"] .chat-messages {
+      background: #1a2e22;
+    }
+    [data-theme="dark"] .quick-prompts {
+      background: #1a2e22;
+      border-top-color: rgba(255,255,255,0.08);
+    }
+    [data-theme="dark"] .chat-input-bar {
+      background: #1a2e22;
+      border-top-color: rgba(255,255,255,0.08);
+    }
+
+    /* ── Dark mode Mia bubble visibility ────────────────── */
+    [data-theme="dark"] .chat-msg.assistant .chat-bubble {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* ── Dark mode suggestion chips contrast ────────────── */
+    [data-theme="dark"] .qp-chip {
+      border-color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
