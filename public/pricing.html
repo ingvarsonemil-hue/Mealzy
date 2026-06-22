@@ -235,6 +235,20 @@
       background: white;
       color: #3d8b5e;
     }
+    /* Dark mode: Fix comparison table text visibility */
+    [data-theme="dark"] .comp-table,
+    [data-theme="dark"] .comp-table th,
+    [data-theme="dark"] .comp-table td {
+      color: rgba(255,255,255,0.85) !important;
+      border-color: rgba(255,255,255,0.1) !important;
+    }
+    [data-theme="dark"] section[style*="clr-muted-bg"] {
+      background: #1a2e22 !important;
+    }
+    /* Reveal animation fallback — ensure elements are visible */
+    .reveal {
+      opacity: 1 !important;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
