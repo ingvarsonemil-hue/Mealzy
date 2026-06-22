@@ -287,7 +287,6 @@
         <div class="stat-card"><div class="stat-card-icon amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div><div class="stat-label">Email Leads</div><div class="stat-value" id="saLeads">—</div></div>
       </div>
       <div style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted);">Most active day: <strong id="saMostActiveDay">—</strong></div>
-      <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);">Requires <code>PRO_TOKEN</code> env var. Set via <code>?token=YOUR_TOKEN</code> or the <code>x-pro-token</code> header.</div>
     </div>
   </main>
 </div>
@@ -346,7 +345,7 @@
     const urlToken = new URLSearchParams(window.location.search).get('token') || '';
     const storedToken = localStorage.getItem('mealzy_pro_token') || '';
     const token = urlToken || storedToken;
-    if (!token) { if (statusEl) statusEl.textContent = 'Enter ?token=YOUR_TOKEN to view'; return; }
+    if (!token) { const card = document.getElementById('funnelCard'); if (card) card.style.display = 'none'; return; }
     try {
       const res = await fetch('/api/analytics/funnel', { headers: { 'x-pro-token': token } });
       if (!res.ok) {
@@ -386,7 +385,7 @@
     const storedToken = localStorage.getItem('mealzy_pro_token') || '';
     const token = urlToken || storedToken;
     if (urlToken) localStorage.setItem('mealzy_pro_token', urlToken); // remember for next visit
-    if (!token) { if (statusEl) statusEl.textContent = 'Enter ?token=YOUR_TOKEN to view'; return; }
+    if (!token) { const card = document.getElementById('siteAnalyticsCard'); if (card) card.style.display = 'none'; return; }
     try {
       const res = await fetch('/api/analytics', { headers: { 'x-pro-token': token } });
       if (!res.ok) { if (statusEl) statusEl.textContent = res.status === 401 ? 'Unauthorized — wrong token' : 'Error loading analytics'; return; }
