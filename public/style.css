@@ -407,6 +407,14 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   .page-header, #xpStrip, #statCards, .card, .quick-action-card { animation: none !important; }
 }
 
+/* === MAIN CONTENT SIDEBAR FIX (for desktop) === */
+@media (min-width: 901px) {
+  .main-content {
+    margin-left: 260px !important;
+    width: calc(100% - 260px) !important;
+  }
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 900px) {
   .main-content { margin-left: 0; padding: var(--space-5); padding-top: 5rem; }
