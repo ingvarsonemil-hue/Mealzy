@@ -240,6 +240,14 @@
     .reveal {
       opacity: 1 !important;
     }
+    [data-theme="dark"] #familyCta {
+      border-color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.9);
+    }
+    [data-theme="dark"] #familyCta:hover {
+      border-color: white;
+      color: white;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 </head>
@@ -310,7 +318,7 @@
     <div class="pricing-grid">
 
       <!-- FREE -->
-      <div class="pricing-card" id="cardFree">
+      <div class="pricing-card" id="cardFree" style="padding-top:80px;">
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Free</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">Try it. No credit card, no expiry.</p>
@@ -368,7 +376,7 @@
       </div>
 
       <!-- FAMILY -->
-      <div class="pricing-card" id="cardFamily">
+      <div class="pricing-card" id="cardFamily" style="padding-top:80px;">
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Family</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For households that eat together.</p>
