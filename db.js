@@ -393,8 +393,8 @@ async function markNudgeSent(userId) {
 
 async function getUsersForWeeklyDigest() {
   return all(`
-    SELECT id, name, email FROM users
-    WHERE pro = 0 AND email IS NOT NULL AND email != ''
+    SELECT id, name, email, pro FROM users
+    WHERE email IS NOT NULL AND email != ''
     LIMIT 500
   `);
 }

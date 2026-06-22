@@ -462,14 +462,18 @@ function emailReferralReward(name, referredName) {
   `);
 }
 
-function emailWeeklyDigest(name) {
+function emailWeeklyDigest(name, isPro) {
   const safeName = escapeHtml(name || 'there');
+  const upgradeSection = !isPro
+    ? `<p style="color:#555;font-size:14px;line-height:1.6;margin:0;">Running low on free plans? <strong>Pro unlocks unlimited plans for $8/month.</strong> <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;text-decoration:none;font-weight:700;">Upgrade now →</a></p>`
+    : '';
   return emailBase(`
-    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">New week — new meal plan 🥗</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — it's a new week. Take 30 seconds to generate your meal plan and you'll know exactly what to eat (and spend) all week.</p>
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Your meal plan for this week is waiting.</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName} — it's Monday. Takes 30 seconds to plan your whole week.</p>
     <a href="https://mealzy.org/meal-planner.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Generate This Week's Plan →</a>
+    <p style="color:#888;font-size:13px;margin:0 0 24px;">Your calorie target and budget are already saved. Just hit generate.</p>
     <hr style="border:none;border-top:1px solid #e8f0eb;margin:24px 0"/>
-    <p style="color:#888;font-size:13px;margin:0 0 12px;">Want more? <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;font-weight:700;">Upgrade to Pro</a> for unlimited plans, PDF export, and unlimited AI coaching — $8/month.</p>
+    ${upgradeSection}
   `);
 }
 
@@ -2139,7 +2143,7 @@ app.post('/api/cron/weekly-digest', async (req, res) => {
       const result = await sendEmail(
         user.email,
         'New week — generate your meal plan in 30 seconds 🥗',
-        emailWeeklyDigest(user.name)
+        emailWeeklyDigest(user.name, user.pro === 1)
       );
       if (result.ok) sent++;
       await new Promise(r => setTimeout(r, 150));
