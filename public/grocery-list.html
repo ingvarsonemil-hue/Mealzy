@@ -135,8 +135,9 @@
     /* Hide banner if user is not in US/CA (set by JS) */
     .instacart-banner.hidden { display: none; }
 
-    [data-theme="dark"] .main-content {
-      background: #1a2e22;
+    [data-theme="dark"] .main-content,
+    [data-theme="dark"] body {
+      background: #1a2e22 !important;
     }
 
     [data-theme="dark"] .app-layout {
@@ -145,9 +146,10 @@
     [data-theme="dark"] .grocery-header {
       background: #1a2e22;
     }
-    [data-theme="dark"] #manualItemInput {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.12);
+    [data-theme="dark"] #manualItemInput,
+    [data-theme="dark"] .form-input {
+      background: rgba(255,255,255,0.06) !important;
+      border-color: rgba(255,255,255,0.12) !important;
       color: rgba(255,255,255,0.85);
     }
   </style>
