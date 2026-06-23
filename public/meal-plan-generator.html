@@ -45,6 +45,7 @@
     .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin: 3rem 0; }
     .feature-item { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.75rem; padding: 1.25rem; }
     .feature-item .icon { font-size: 1.5rem; margin-bottom: 0.6rem; }
+    .feature-icon { color: var(--clr-primary); }
     .feature-item h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; }
     .feature-item p { font-size: 0.82rem; color: var(--clr-muted-fg); line-height: 1.55; margin: 0; }
     .faq-block { max-width: 640px; margin: 3rem auto 0; }
@@ -115,39 +116,39 @@
         Generate →
       </button>
     </div>
-    <div id="dError" style="text-align:center;color:var(--clr-destructive);font-size:0.88rem;display:none;margin-top:1rem;"></div>
+    <div id="dError" role="alert" aria-live="polite" style="text-align:center;color:var(--clr-destructive);font-size:0.88rem;display:none;margin-top:1rem;"></div>
     <div id="dResult" style="display:none;margin-top:1.5rem;"></div>
   </div>
 
   <!-- Feature grid -->
   <div class="feature-grid">
     <div class="feature-item">
-      <div class="icon" style="color:var(--clr-primary);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="icon feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
       <h3>Hits your exact macros</h3>
       <p>Set your daily calorie, protein, carb, and fat targets. Every meal plan is built to match them precisely.</p>
     </div>
     <div class="feature-item">
-      <div class="icon" style="color:var(--clr-primary);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="icon feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
       <h3>Respects your budget</h3>
       <p>Set a weekly grocery budget and Mealzy never exceeds it. Every plan includes estimated costs per meal.</p>
     </div>
     <div class="feature-item">
-      <div class="icon" style="color:var(--clr-primary);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+      <div class="icon feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
       <h3>Grocery list included</h3>
       <p>Every ingredient, sorted by supermarket category, with estimated costs. One list for the whole week.</p>
     </div>
     <div class="feature-item">
-      <div class="icon" style="color:var(--clr-primary);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+      <div class="icon feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
       <h3>Any diet, any restriction</h3>
       <p>Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set once, applied to every plan.</p>
     </div>
     <div class="feature-item">
-      <div class="icon" style="color:var(--clr-primary);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div class="icon feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
       <h3>11 languages</h3>
       <p>Plans generated in English, Swedish, French, German, Spanish, Italian, Portuguese, Dutch, Norwegian, Danish, or Japanese.</p>
     </div>
     <div class="feature-item">
-      <div class="icon" style="color:var(--clr-primary);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <div class="icon feature-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
       <h3>Ready in 30 seconds</h3>
       <p>Type your preferences once. The full plan — 4 meals per day, 7 days — is ready in about 30 seconds.</p>
     </div>
