@@ -1,9 +1,28 @@
 User-agent: *
-Allow: /
 Disallow: /api/
+Disallow: /generate/
+Disallow: /private/
 Disallow: /dashboard.html
 Disallow: /meal-planner.html
 Disallow: /onboarding.html
 Disallow: /account.html
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
 
 Sitemap: https://mealzy.org/sitemap.xml

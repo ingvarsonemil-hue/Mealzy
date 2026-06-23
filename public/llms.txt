@@ -1,0 +1,12 @@
+# Mealzy
+
+> Mealzy is a free web app that generates automated budget meal plans and zero-waste grocery lists for families.
+
+## Core Features
+- Strict Budget Ceilings: Users set an exact weekly spend limit; Mealzy never exceeds it.
+- Zero-Waste Logic: Ingredients are reused across multiple meals to eliminate leftover waste.
+- Automated Grocery Compiling: All meals are consolidated into a single, deduplicated shopping list.
+
+## Solution Pages
+- Zero-waste meal planning: https://mealzy.org/solutions/zero-waste-meal-planning
+- $50 weekly meal plan: https://mealzy.org/plans/50-dollar-weekly-meal-plan
