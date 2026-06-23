@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
+<script defer src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -28,6 +28,24 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <meta name="theme-color" content="#1a3d2b"> />
 <script src="/js/theme-init.js"></script>
+<style>
+ul.feature-grid-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 3rem 0;
+  padding: 0;
+}
+
+ul.feature-grid-list li {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+</style>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -55,31 +73,31 @@
   </div>
 
   <!-- What's in a week -->
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin:3rem 0;">
-    <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem;text-align:center;">
+  <ul class="feature-grid-list">
+    <li>
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;">7 Breakfasts</div>
       <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">Quick, nutritious starts. Matched to your morning calorie target.</p>
-    </div>
-    <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem;text-align:center;">
+    </li>
+    <li>
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;">7 Lunches</div>
       <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">Practical, packable or quick-to-cook. Never boring.</p>
-    </div>
-    <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem;text-align:center;">
+    </li>
+    <li>
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;">7 Dinners</div>
       <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">Balanced, satisfying meals. From 20 to 45 minutes to cook.</p>
-    </div>
-    <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1.25rem;text-align:center;">
+    </li>
+    <li>
       <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.3rem;">1 Grocery List</div>
       <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">All ingredients, sorted by category, with estimated costs.</p>
-    </div>
-  </div>
+    </li>
+  </ul>
 
   <!-- Sample 3-day preview -->
   <div style="margin:3rem 0;">
     <h2 style="font-size:1.15rem;font-weight:800;margin-bottom:0.25rem;">Sample weekly plan preview</h2>
     <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-bottom:1.5rem;">From a real Mealzy plan: 2,000 kcal/day · $70/week · no restrictions.</p>
 
-    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+    <div aria-label="Sample weekly meal plan preview" style="display:flex;flex-direction:column;gap:0.75rem;">
       <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
         <div style="background:var(--clr-primary);padding:0.65rem 1rem;color:white;font-weight:800;font-size:0.85rem;">Monday</div>
         <div style="padding:0.75rem 1rem;font-size:0.85rem;display:flex;flex-direction:column;gap:0.4rem;">
@@ -151,7 +169,7 @@
   </div>
 
   <!-- Final CTA -->
-  <div style="text-align:center;margin-top:3rem;padding:2.5rem;background:var(--clr-primary);border-radius:1rem;color:white;">
+  <div role="region" aria-label="Get started" style="text-align:center;margin-top:3rem;padding:2.5rem;background:var(--clr-primary);border-radius:1rem;color:white;">
     <h2 style="font-family:var(--font-display);font-style:italic;font-weight:900;font-size:1.5rem;margin-bottom:0.5rem;">Get your free weekly meal plan</h2>
     <p style="opacity:0.88;font-size:0.9rem;margin-bottom:1.25rem;line-height:1.6;">Enter your calorie goal, budget, and dietary preferences once. Mealzy builds the week in 30 seconds — balanced, practical, and grocery-list ready.</p>
     <a href="login.html?signup=1" style="display:inline-block;background:white;color:var(--clr-primary);font-weight:800;padding:0.9rem 1.75rem;border-radius:0.75rem;text-decoration:none;font-size:0.95rem;">Generate My Free Meal Plan →</a>
