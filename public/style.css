@@ -127,7 +127,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
 
 /* === CARDS === */
-.card { background: var(--clr-card); border: 1px solid var(--clr-border); border-left: 3px solid var(--clr-primary); border-radius: var(--radius-md); padding: var(--space-8); box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, transform 0.2s; }
+.card { background: var(--clr-card); border: 1px solid var(--clr-border); border-left: 3px solid var(--clr-primary); border-radius: var(--radius-md); padding: 2rem !important; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, transform 0.2s; }
 .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
 .card h3 { font-family: var(--font-display); font-style: italic; font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.5rem; color: var(--clr-foreground); }
 .card-sm { padding: var(--space-4); }
