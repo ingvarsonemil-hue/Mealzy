@@ -32,7 +32,7 @@
     .faq-item { margin-bottom: 1.5rem; }
     .faq-q { font-size: 0.9rem; font-weight: 600; color: var(--clr-foreground); margin-bottom: 0.35rem; }
     .faq-a { font-size: 0.88rem; line-height: 1.7; color: var(--clr-muted-fg); }
-    .faq-a a { color: var(--clr-primary); text-decoration: none; }
+    .faq-a a { color: #2d6b48; text-decoration: none; }
     .faq-a a:hover { text-decoration: underline; }
     .contact-box { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: var(--radius-md); padding: 1.75rem; margin-top: 2.5rem; }
     .contact-box h2 { border: none; margin-top: 0; padding-bottom: 0; }
@@ -61,10 +61,12 @@
   <a href="/" class="back-link" style="display:inline-block;margin-bottom:1.5rem;color:var(--clr-primary);text-decoration:none;font-size:0.9rem;">← Back to Mealzy</a>
   <h1>Help &amp; Support</h1>
   <p class="subtitle">Find answers to common questions below. If you don't find what you need, email us — we reply within 24 hours.</p>
+  <input type="search" id="faqSearch" placeholder="Search help articles…" aria-label="Search FAQ" style="width:100%;padding:0.65rem 1rem;border:1.5px solid var(--clr-border);border-radius:0.6rem;font-size:0.9rem;font-family:inherit;background:var(--clr-card);color:var(--clr-foreground);margin-bottom:1.5rem;box-sizing:border-box;">
 
   <!-- ── ACCOUNT ─────────────────────────────────────────────────────────── -->
   <h2>Account</h2>
 
+  <section role="region" aria-label="Frequently Asked Questions">
   <dl style="margin-bottom:2rem;">
     <dt class="faq-q">I forgot my password. How do I reset it?</dt>
     <dd class="faq-a" style="margin-bottom:1.5rem;">Email us at <a href="mailto:support@mealzy.org">support@mealzy.org</a> with the subject "Password reset" and your account email. We'll reset it within 24 hours. (Self-serve password reset is coming soon.)</dd>
@@ -75,10 +77,12 @@
     <dt class="faq-q">Can I try Mealzy without an account?</dt>
     <dd class="faq-a">Yes — the homepage has a free demo that generates a 5-day plan with no signup. You get 3 free demos per day. To save plans and generate more, create a free account at <a href="index.html">mealzy.org</a>.</dd>
   </dl>
+  </section>
 
   <!-- ── MEAL PLANS ──────────────────────────────────────────────────────── -->
   <h2>Meal Plans</h2>
 
+  <section role="region" aria-label="Frequently Asked Questions">
   <dl style="margin-bottom:2rem;">
     <dt class="faq-q">The calories in my plan don't match my target.</dt>
     <dd class="faq-a" style="margin-bottom:1.5rem;">Check your calorie target in <a href="settings.html">Settings</a>. Make sure it's set correctly, then regenerate your plan. If the plan is still off by more than 200 kcal, email us — that's a bug.</dd>
@@ -92,10 +96,12 @@
     <dt class="faq-q">My plan disappeared after I closed the app.</dt>
     <dd class="faq-a">Log in and check your <a href="dashboard.html">Dashboard</a> — your latest plan is saved automatically. If it's missing, email us with your account email and the date you generated the plan.</dd>
   </dl>
+  </section>
 
   <!-- ── PRO & BILLING ───────────────────────────────────────────────────── -->
   <h2>Pro &amp; Billing</h2>
 
+  <section role="region" aria-label="Frequently Asked Questions">
   <dl style="margin-bottom:2rem;">
     <dt class="faq-q">What does Pro include?</dt>
     <dd class="faq-a" style="margin-bottom:1.5rem;">Pro gives you unlimited meal plans, grocery list export, PDF download, Mia the AI nutrition coach, detailed macros per meal, and streak rewards. It's $12/month or $62/year. See the full comparison at <a href="pricing.html">pricing</a>.</dd>
@@ -109,10 +115,12 @@
     <dt class="faq-q">Can I get a refund?</dt>
     <dd class="faq-a">Yes — we offer a full refund within 7 days of subscribing if you haven't found it useful. Email <a href="mailto:support@mealzy.org">support@mealzy.org</a> with your request and payment confirmation.</dd>
   </dl>
+  </section>
 
   <!-- ── AI COACH (MIA) ──────────────────────────────────────────────────── -->
   <h2>AI Coach (Mia)</h2>
 
+  <section role="region" aria-label="Frequently Asked Questions">
   <dl style="margin-bottom:2rem;">
     <dt class="faq-q">Where is the AI coach?</dt>
     <dd class="faq-a" style="margin-bottom:1.5rem;">Mia is a Pro feature. Once you're on Pro, she appears in the <a href="ai-coach.html">AI Coach</a> section of your dashboard. She knows your profile and can answer nutrition questions, explain your meal plan, and help you stay on track.</dd>
@@ -120,6 +128,7 @@
     <dt class="faq-q">Is Mia's advice medically accurate?</dt>
     <dd class="faq-a">Mia is an AI assistant providing general nutrition guidance — not a doctor or registered dietitian. For medical nutrition advice, always consult a qualified healthcare professional. If you spot a specific error in her advice, please report it to us.</dd>
   </dl>
+  </section>
 
   <!-- ── CONTACT ─────────────────────────────────────────────────────────── -->
   <div class="contact-box">
@@ -132,6 +141,40 @@
 </div>
 
 <div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);"><a href="privacy-policy.html" style="color:var(--clr-primary);">Privacy Policy</a> · <a href="terms.html" style="color:var(--clr-primary);">Terms</a></div>
+
+<script>
+document.getElementById('faqSearch').addEventListener('input', function() {
+  const searchValue = this.value.toLowerCase();
+  const headers = document.querySelectorAll('.support-wrap h2');
+
+  headers.forEach(h2 => {
+    let nextElement = h2.nextElementSibling;
+    let hasVisibleItems = false;
+    const itemsBeforeNextH2 = [];
+
+    while (nextElement && nextElement.tagName !== 'H2' && nextElement.tagName !== 'DIV') {
+      if (nextElement.tagName === 'SECTION') {
+        const dts = nextElement.querySelectorAll('dt.faq-q');
+        dts.forEach(dt => {
+          const dtText = dt.textContent.toLowerCase();
+          const ddText = dt.nextElementSibling.textContent.toLowerCase();
+          const faqItem = dt.closest('dl').parentElement;
+
+          if (dtText.includes(searchValue) || ddText.includes(searchValue)) {
+            faqItem.style.display = '';
+            hasVisibleItems = true;
+          } else {
+            faqItem.style.display = 'none';
+          }
+        });
+      }
+      nextElement = nextElement.nextElementSibling;
+    }
+
+    h2.style.display = hasVisibleItems ? '' : 'none';
+  });
+});
+</script>
 </body>
 </html>
 
