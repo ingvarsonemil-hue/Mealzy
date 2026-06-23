@@ -216,12 +216,12 @@
       <!-- Calories Chart -->
       <div class="chart-card">
         <h3>Daily Calories (Last 7 Days)</h3>
-        <canvas id="caloriesChart" height="200" aria-label="Calorie intake chart"></canvas>
+        <canvas id="caloriesChart" height="200" role="img" aria-label="Daily calorie intake line chart showing last 7 days with goal reference line"></canvas>
       </div>
       <!-- Protein Chart -->
       <div class="chart-card">
         <h3>Daily Protein (Last 7 Days)</h3>
-        <canvas id="proteinChart" height="200" aria-label="Protein intake chart"></canvas>
+        <canvas id="proteinChart" height="200" role="img" aria-label="Daily protein intake bar chart showing last 7 days with goal reference line"></canvas>
       </div>
     </div>
 
@@ -230,7 +230,7 @@
       <div class="chart-card">
         <h3>Macro Distribution (Weekly Avg)</h3>
         <div style="max-width:280px;margin:0 auto;">
-          <canvas id="macroChart" height="280" aria-label="Macro distribution chart"></canvas>
+          <canvas id="macroChart" height="280" role="img" aria-label="Weekly average macronutrient distribution doughnut chart showing protein, carbs, and fat breakdown"></canvas>
         </div>
       </div>
       <!-- Consistency & Streak Info -->
@@ -576,11 +576,15 @@
         </div>`;
       }
       const pct = Math.round((data.calories / goalCals) * 100);
-      const color = pct >= 90 && pct <= 110 ? 'var(--clr-primary)' : pct < 90 ? 'hsl(200,100%,50%)' : 'var(--clr-destructive)';
+      const isOnTarget = pct >= 90 && pct <= 110;
+      const isUnder = pct < 90;
+      const color = isOnTarget ? 'var(--clr-primary)' : isUnder ? 'hsl(200,100%,50%)' : 'var(--clr-destructive)';
+      const indicator = isOnTarget ? '→' : isUnder ? '↓' : '↑';
+      const label = isOnTarget ? 'On target' : isUnder ? 'Under goal' : 'Over goal';
       return `<div style="padding:0.5rem 0;border-bottom:1px solid var(--clr-border);">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
           <span style="font-size:0.85rem;font-weight:600;">${dateLabel}</span>
-          <span style="font-size:0.85rem;font-weight:700;color:${color};">${data.calories} kcal</span>
+          <span style="font-size:0.85rem;font-weight:700;color:${color};"><span aria-label="${label}">${indicator}</span> ${data.calories} kcal</span>
         </div>
         <div class="progress-bar-wrap" style="height:0.4rem;">
           <div class="progress-bar-fill" style="width:${Math.min(100, pct)}%;background:${color};"></div>
@@ -604,10 +608,11 @@
     container.innerHTML = goals.map(g => {
       const avg = Math.round(dayData.reduce((s, d) => s + (d[g.key] || 0), 0) / 7);
       const pct = Math.min(100, Math.round((avg / g.goal) * 100));
+      const indicator = pct >= 90 ? '✓' : '○';
       return `<div>
         <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
           <span style="font-weight:600;font-size:0.88rem;">${g.label}</span>
-          <span style="font-size:0.88rem;color:var(--clr-muted-fg);">${avg}${g.unit} avg · ${g.goal}${g.unit} goal · <strong style="color:${g.color};">${pct}%</strong></span>
+          <span style="font-size:0.88rem;color:var(--clr-muted-fg);">${avg}${g.unit} avg · ${g.goal}${g.unit} goal · <strong style="color:${g.color};">${indicator} ${pct}%</strong></span>
         </div>
         <div class="progress-bar-wrap">
           <div class="progress-bar-fill" style="width:${pct}%;background:${g.color};"></div>
@@ -623,6 +628,28 @@
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('mobileSidebarOverlay')) {
       document.getElementById('mobileSidebarOverlay').classList.remove('open');
+    }
+  });
+
+  // Mobile sidebar focus trap
+  const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
+  const sidebar = mobileSidebarOverlay.querySelector('.sidebar');
+  const focusableElements = sidebar.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  sidebar.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
     }
   });
 
