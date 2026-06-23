@@ -59,7 +59,7 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       gap: 0.35rem;
       overflow-x: visible;
       margin-bottom: 1.5rem;
@@ -1182,6 +1182,26 @@
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('mobileSidebarOverlay')) {
       document.getElementById('mobileSidebarOverlay').classList.remove('open');
+    }
+  });
+
+  // Mobile sidebar focus trap
+  document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    if (!overlay.classList.contains('open')) return;
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll(
+      'a, button, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
     }
   });
 
