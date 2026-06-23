@@ -183,6 +183,7 @@
       background: #3d8b5e;
       color: #fff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      border-bottom: 2px solid white;
     }
 
     /* ── Google button ────────────────────────── */
@@ -366,7 +367,7 @@
       <p class="login-subheading">Good to see you again.</p>
 
       <!-- Error / success banner -->
-      <div class="auth-error" id="authError" role="alert"></div>
+      <div class="auth-error" id="authError" role="alert" aria-live="polite"></div>
 
       <!-- Tab bar -->
       <div class="auth-tabs" id="authTabs" role="tablist">
@@ -491,9 +492,9 @@
     const isSignIn = tab === 'signin';
     const isReset  = tab === 'reset';
     document.getElementById('tabSignIn').classList.toggle('active', isSignIn);
-    document.getElementById('tabSignIn').setAttribute('aria-selected', isSignIn);
+    document.getElementById('tabSignIn').setAttribute('aria-selected', isSignIn ? 'true' : 'false');
     document.getElementById('tabSignUp').classList.toggle('active', !isSignIn && !isReset);
-    document.getElementById('tabSignUp').setAttribute('aria-selected', !isSignIn && !isReset);
+    document.getElementById('tabSignUp').setAttribute('aria-selected', (!isSignIn && !isReset) ? 'true' : 'false');
     document.getElementById('formSignIn').style.display = isSignIn ? '' : 'none';
     document.getElementById('formSignUp').style.display = (!isSignIn && !isReset) ? '' : 'none';
     document.getElementById('formReset').style.display  = isReset ? '' : 'none';
@@ -527,6 +528,7 @@
     if (!btn) return;
     btn.disabled = loading;
     btn.textContent = loading ? 'Please wait…' : (btnId === 'btnSignIn' ? 'Sign In' : 'Create Account');
+    btn.style.opacity = loading ? '0.7' : '';
   }
 
   const _EYE_ON  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
