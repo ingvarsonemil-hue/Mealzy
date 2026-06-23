@@ -44,6 +44,7 @@
       .category-group-animated:nth-child(6) { animation-delay: 0.30s; }
       .category-group-animated:nth-child(7) { animation-delay: 0.36s; }
       .category-group-animated:nth-child(8) { animation-delay: 0.42s; }
+      .no-animate .category-group-animated { animation: none; opacity: 1; }
     }
     /* Instacart affiliate banner */
     .instacart-banner {
@@ -558,6 +559,14 @@
     }
 
     container.innerHTML = html || `<div class="empty-state"><div class="empty-state-icon">${emptyCartSVG}</div><h3>All categories are empty</h3></div>`;
+
+    // Cap animations for categories with >8 items
+    document.querySelectorAll('.category-group-animated').forEach(group => {
+      const itemCount = group.querySelectorAll('.grocery-item').length;
+      if (itemCount > 8) {
+        group.classList.add('no-animate');
+      }
+    });
   }
 
   function toggleItem(category, index, checked) {
