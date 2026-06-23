@@ -679,7 +679,8 @@
     profile = JSON.parse(profileData);
 
     const initial = (profile.name || 'U')[0].toUpperCase();
-    document.getElementById('userAvatar').textContent = initial;
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.textContent = initial;
     document.getElementById('mobileUserAvatar').textContent = initial;
     document.getElementById('userName').textContent = profile.name || 'User';
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
