@@ -70,7 +70,7 @@
     }
     .mia-avatar-ring span {
       font-family: var(--font-display);
-      font-weight: 700; font-size: 1.1rem; color: var(--clr-sidebar-logo); font-style: italic;
+      font-weight: 700; font-size: 1.1rem; color: white; font-style: italic;
     }
     .chat-header-name { font-weight: 700; font-size: 0.95rem; letter-spacing: -0.01em; }
     .chat-header-role { font-size: 0.8rem; color: var(--clr-muted-fg); }
@@ -367,7 +367,7 @@
     </div>
 
     <!-- Messages Area -->
-    <div class="chat-messages" id="chatMessages">
+    <div class="chat-messages" id="chatMessages" aria-live="polite" aria-atomic="false">
       <!-- Messages rendered here -->
     </div>
 
@@ -524,7 +524,7 @@
 
     container.innerHTML = conversation.map(msg => {
       if (msg.content === '__LIMIT_REACHED__') {
-        return `<div class="chat-msg assistant">
+        return `<div class="chat-msg assistant" role="article">
           ${ICO.miaAvatar}
           <div class="chat-bubble" style="background:var(--clr-accent-light);border:1px solid var(--clr-border);color:var(--clr-foreground);">
             <p style="margin:0 0 0.75rem;font-weight:600;">You've used your 10 free messages today.</p>
@@ -533,7 +533,7 @@
           </div>
         </div>`;
       }
-      return `<div class="chat-msg ${msg.role}">
+      return `<div class="chat-msg ${msg.role}" role="article">
         ${msg.role === 'assistant' ? ICO.miaAvatar : ''}
         <div class="chat-bubble">${formatMessage(escHtml(msg.content))}</div>
       </div>`;
