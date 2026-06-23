@@ -23,8 +23,8 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --green: hsl(152,52%,36%);
-      --green-dark: hsl(152,52%,26%);
+      --green: #3d8b5e;
+      --green-dark: #1a3d2b;
       --green-light: hsl(152,52%,94%);
       --orange: hsl(32,88%,54%);
       --bg: hsl(46,30%,97%);
@@ -33,14 +33,6 @@
       --muted-bg: hsl(40,20%,95%);
       --muted-fg: hsl(150,10%,44%);
       --border: hsl(40,20%,88%);
-    }
-    [data-theme="dark"] {
-      --bg: hsl(150,15%,10%);
-      --fg: hsl(150,15%,92%);
-      --card: hsl(150,10%,14%);
-      --muted-bg: hsl(150,10%,12%);
-      --muted-fg: hsl(150,8%,55%);
-      --border: hsl(150,10%,22%);
     }
     html { font-size: 15px; scroll-behavior: smooth; }
     body { font-family: var(--font-body); background: var(--bg); color: var(--fg); line-height: 1.65; }
@@ -212,6 +204,16 @@
     .final-cta p { color: rgba(255,255,255,0.8); font-size: 0.95rem; max-width: 420px; margin: 0 auto 2rem; line-height: 1.65; }
     .final-cta-trust { margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
 
+    /* DARK MODE */
+    [data-theme="dark"] {
+      --bg: hsl(150,15%,10%);
+      --fg: hsl(150,15%,92%);
+      --card: hsl(150,10%,14%);
+      --muted-bg: hsl(150,10%,12%);
+      --muted-fg: hsl(150,8%,55%);
+      --border: hsl(150,10%,22%);
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       .hero-inner { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -228,7 +230,7 @@
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- NAV -->
-<nav class="nav">
+<nav class="nav" aria-label="Main navigation">
   <a href="/" style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--color-green);text-decoration:none;">Mealzy</a>
   <div style="display:flex;align-items:center;gap:0.75rem;">
     <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--fg);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
