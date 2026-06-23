@@ -97,6 +97,7 @@
     }
     .ob-step.active {
       background: var(--clr-primary); color: white; border-color: var(--clr-primary);
+      box-shadow: 0 0 0 3px rgba(61,139,94,0.3);
     }
     .ob-step.done {
       background: hsl(152,52%,90%); color: var(--clr-primary); border-color: hsl(152,52%,70%);
@@ -121,6 +122,7 @@
     /* ── Goal cards — no icons, left-border treatment ──── */
     .goal-grid {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
+      role: radiogroup;
     }
     .goal-card {
       border: 1px solid var(--clr-border);
@@ -261,23 +263,23 @@
       </div>
       <div class="form-group" style="margin-top:1.25rem;">
         <label class="form-label">What's your main goal?</label>
-        <div class="goal-grid">
-          <div class="goal-card" data-goal="build_muscle" onclick="selectGoal(this)">
+        <div class="goal-grid" role="radiogroup">
+          <div class="goal-card" role="radio" data-goal="build_muscle" onclick="selectGoal(this)" aria-checked="false">
             <div class="goal-label">Build Muscle</div>
           </div>
-          <div class="goal-card" data-goal="lose_weight" onclick="selectGoal(this)">
+          <div class="goal-card" role="radio" data-goal="lose_weight" onclick="selectGoal(this)" aria-checked="false">
             <div class="goal-label">Lose Weight</div>
           </div>
-          <div class="goal-card" data-goal="maintain_weight" onclick="selectGoal(this)">
+          <div class="goal-card" role="radio" data-goal="maintain_weight" onclick="selectGoal(this)" aria-checked="false">
             <div class="goal-label">Maintain Weight</div>
           </div>
-          <div class="goal-card" data-goal="eat_healthier" onclick="selectGoal(this)">
+          <div class="goal-card" role="radio" data-goal="eat_healthier" onclick="selectGoal(this)" aria-checked="false">
             <div class="goal-label">Eat Healthier</div>
           </div>
-          <div class="goal-card" data-goal="gain_weight" onclick="selectGoal(this)">
+          <div class="goal-card" role="radio" data-goal="gain_weight" onclick="selectGoal(this)" aria-checked="false">
             <div class="goal-label">Gain Weight</div>
           </div>
-          <div class="goal-card" data-goal="improve_energy" onclick="selectGoal(this)">
+          <div class="goal-card" role="radio" data-goal="improve_energy" onclick="selectGoal(this)" aria-checked="false">
             <div class="goal-label">Improve Energy</div>
           </div>
         </div>
@@ -290,7 +292,7 @@
       <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Weekly Food Budget</label>
+          <label class="form-label" for="inputBudget">Weekly Food Budget</label>
           <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100" />
         </div>
         <div class="form-group">
@@ -332,24 +334,24 @@
       <div class="form-group" style="margin-top:0.75rem;">
         <label class="form-label">Any dietary restrictions? <span style="font-weight:400;color:var(--clr-muted-fg);">(optional)</span></label>
         <div class="chips-group" id="dietChips">
-          <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)">Vegetarian</button>
-          <button class="chip" data-pref="vegan" onclick="toggleChip(this)">Vegan</button>
-          <button class="chip" data-pref="keto" onclick="toggleChip(this)">Keto</button>
-          <button class="chip" data-pref="paleo" onclick="toggleChip(this)">Paleo</button>
-          <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)">Mediterranean</button>
-          <button class="chip" data-pref="halal" onclick="toggleChip(this)">Halal</button>
-          <button class="chip" data-pref="kosher" onclick="toggleChip(this)">Kosher</button>
-          <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)">Gluten-Free</button>
-          <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)">Dairy-Free</button>
-          <button class="chip" data-pref="nut_free" onclick="toggleChip(this)">Nut & Peanut-Free</button>
-          <button class="chip" data-pref="no_pork" onclick="toggleChip(this)">No Pork</button>
-          <button class="chip" data-pref="fish_free" onclick="toggleChip(this)">Fish-Free</button>
+          <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)" aria-pressed="false">Vegetarian</button>
+          <button class="chip" data-pref="vegan" onclick="toggleChip(this)" aria-pressed="false">Vegan</button>
+          <button class="chip" data-pref="keto" onclick="toggleChip(this)" aria-pressed="false">Keto</button>
+          <button class="chip" data-pref="paleo" onclick="toggleChip(this)" aria-pressed="false">Paleo</button>
+          <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)" aria-pressed="false">Mediterranean</button>
+          <button class="chip" data-pref="halal" onclick="toggleChip(this)" aria-pressed="false">Halal</button>
+          <button class="chip" data-pref="kosher" onclick="toggleChip(this)" aria-pressed="false">Kosher</button>
+          <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)" aria-pressed="false">Gluten-Free</button>
+          <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)" aria-pressed="false">Dairy-Free</button>
+          <button class="chip" data-pref="nut_free" onclick="toggleChip(this)" aria-pressed="false">Nut & Peanut-Free</button>
+          <button class="chip" data-pref="no_pork" onclick="toggleChip(this)" aria-pressed="false">No Pork</button>
+          <button class="chip" data-pref="fish_free" onclick="toggleChip(this)" aria-pressed="false">Fish-Free</button>
         </div>
       </div>
     </div>
 
     <!-- Step error message -->
-    <div id="stepError" style="display:none;background:hsl(0,72%,97%);border:1px solid hsl(0,72%,85%);color:var(--clr-destructive);border-radius:0.6rem;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;" role="alert"></div>
+    <div id="stepError" style="display:none;background:hsl(0,72%,97%);border:1px solid hsl(0,72%,85%);color:var(--clr-destructive);border-radius:0.6rem;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;" role="alert" aria-live="assertive"></div>
 
     <!-- Navigation Buttons -->
     <div class="onboarding-nav" style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;">
@@ -491,14 +493,19 @@
   }
 
   function selectGoal(el) {
-    document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.goal-card').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+    });
     el.classList.add('selected');
+    el.setAttribute('aria-checked', 'true');
     userData.goal = el.dataset.goal;
     hideStepError();
   }
 
   function toggleChip(el) {
     el.classList.toggle('active');
+    el.setAttribute('aria-pressed', el.classList.contains('active') ? 'true' : 'false');
     updateChipsData();
   }
 
