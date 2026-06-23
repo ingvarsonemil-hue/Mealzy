@@ -32,19 +32,17 @@
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
     .main-content {
       background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,40%,92%) 0%, transparent 70%) var(--clr-background);
     }
-    .settings-section {
-      padding: 1.5rem;
-    }
+
     [data-theme="dark"] .main-content {
-      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,30%,11%) 0%, transparent 70%) var(--clr-background);
+      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,30%,11%) 0%, transparent 70%) #1a2e22;
     }
-    [data-theme="dark"] .main-content,
-    [data-theme="dark"] body {
-      background: #1a2e22 !important;
-    }
+
+    [data-theme="dark"] body { background: #1a2e22 !important; }
+
     [data-theme="dark"] input[type="text"],
     [data-theme="dark"] input[type="number"],
     [data-theme="dark"] select,
@@ -59,39 +57,19 @@
       border: 1px solid rgba(255,255,255,0.08) !important;
     }
 
-    /* -- Section card visual hierarchy -------------------- */
-    .settings-card {
-      background: var(--clr-card);
-      border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 0.85rem;
-      padding: 1.5rem;
-      margin-bottom: 1.25rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    .settings-card-title {
-      font-family: var(--font-display);
-      font-style: italic;
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: -0.02em;
-      color: var(--clr-foreground);
-      margin-bottom: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 2px solid var(--clr-primary-light);
-    }
-    .settings-card-title svg { color: var(--clr-primary); }
-
-    /* -- Goal & activity cards � SVG icon style ----------- */
     .goal-card {
       position: relative;
-      border: 1.5px solid var(--clr-border); border-radius: 0.75rem;
-      padding: 0.85rem 1rem; cursor: pointer;
-      display: flex; align-items: center; gap: 0.7rem;
+      border: 1.5px solid var(--clr-border);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
       transition: border-color 0.15s, background 0.15s;
-      background: var(--clr-card); font-size: 0.9rem; font-weight: 600;
+      background: var(--clr-card);
+      font-size: 0.9rem;
+      font-weight: 600;
     }
     .goal-card:hover { border-color: var(--clr-primary); background: var(--clr-primary-light); }
     .goal-card.selected { border-color: var(--clr-primary-dark); background: var(--clr-primary); color: white; }
@@ -99,13 +77,17 @@
     .goal-card.selected .goal-label { color: white; }
     .goal-card.selected::after { content: ""; display: block; width: 16px; height: 16px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; position: absolute; top: 8px; right: 8px; }
     .goal-card-icon { color: var(--clr-primary); flex-shrink: 0; }
-    .goal-emoji { display: none; } /* hide old emoji divs */
+    .goal-emoji { display: none; }
 
     .activity-card {
       position: relative;
-      border: 1.5px solid var(--clr-border); border-radius: 0.75rem;
-      padding: 0.85rem 1rem; cursor: pointer;
-      display: flex; align-items: center; gap: 0.85rem;
+      border: 1.5px solid var(--clr-border);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
       margin-bottom: 0.5rem;
       transition: border-color 0.15s, background 0.15s;
       background: var(--clr-card);
@@ -117,12 +99,15 @@
     .activity-card.selected .activity-desc { color: rgba(255,255,255,0.75); }
     .activity-card.selected::after { content: ""; display: block; width: 16px; height: 16px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; position: absolute; top: 8px; right: 8px; }
     .activity-icon { color: var(--clr-primary); flex-shrink: 0; }
-    .activity-emoji { display: none; } /* hide old emoji */
+    .activity-emoji { display: none; }
 
     .skill-card {
       position: relative;
-      border: 1.5px solid var(--clr-border); border-radius: 0.75rem;
-      padding: 1rem 0.75rem; cursor: pointer; text-align: center;
+      border: 1.5px solid var(--clr-border);
+      border-radius: 0.75rem;
+      padding: 1rem 0.75rem;
+      cursor: pointer;
+      text-align: center;
       transition: border-color 0.15s, background 0.15s;
       background: var(--clr-card);
     }
@@ -132,14 +117,14 @@
     .skill-card.selected div { color: white !important; }
     .skill-card.selected::after { content: ""; display: block; width: 16px; height: 16px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; position: absolute; top: 8px; right: 8px; }
 
-    /* -- Diet/allergy chips � no emoji -------------------- */
-    .chip { font-size: 0.82rem; }
-
-    /* -- Settings page heading ---------------------------- */
     .settings-page-title {
-      font-family: var(--font-display); font-style: italic;
-      font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
     }
+
     .cancel-reason-option {
       display: flex;
       align-items: center;
@@ -151,19 +136,9 @@
       font-size: 0.9rem;
       transition: border-color 0.15s, background 0.15s;
     }
-    .cancel-reason-option:hover {
-      border-color: var(--clr-primary);
-      background: var(--clr-muted-bg);
-    }
-    .cancel-reason-option input[type="radio"] {
-      accent-color: var(--clr-primary);
-      width: 1rem;
-      height: 1rem;
-      flex-shrink: 0;
-    }
-    .card {
-      padding: 1.5rem !important;
-    }
+    .cancel-reason-option:hover { border-color: var(--clr-primary); background: var(--clr-muted-bg); }
+    .cancel-reason-option input[type="radio"] { accent-color: var(--clr-primary); width: 1rem; height: 1rem; flex-shrink: 0; }
+
     @media (prefers-reduced-motion: no-preference) {
       .anim-section { animation: fadeInUp 0.32s ease both; }
       .anim-section:nth-child(1) { animation-delay: 0.00s; }
@@ -176,6 +151,17 @@
       .anim-section:nth-child(8) { animation-delay: 0.42s; }
       .anim-section:nth-child(9) { animation-delay: 0.48s; }
     }
+
+    .dark-mode-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0;
+      margin-bottom: var(--space-4);
+      border-bottom: 1px solid var(--clr-border);
+    }
+    .dark-mode-label { font-weight: 700; font-size: 1rem; }
+    .dark-mode-sub { font-size: 0.82rem; color: var(--clr-muted-fg); margin-top: 0.15rem; }
 
   </style>
 <script src="/js/theme-init.js"></script>
