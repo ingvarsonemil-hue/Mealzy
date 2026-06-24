@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google Analytics -->
@@ -14,43 +14,31 @@
   <meta name="theme-color" content="#1a3d2b">
   <title>Stop wasting 2 hours on meal planning every Sunday — Mealzy</title>
   <meta name="description" content="Mealzy builds a full week of meals in 30 seconds. Hits your macros. Stays within your grocery budget. Grocery list included. Free." />
-  <!-- Mealzy Design System --><noscript></noscript>
-<link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green: #3d8b5e;
-      --green-dark: #1a3d2b;
-      --green-light: hsl(152,52%,94%);
-      --orange: hsl(32,88%,54%);
-      --bg: hsl(46,30%,97%);
-      --fg: hsl(150,25%,10%);
-      --card: #fff;
-      --muted-bg: hsl(40,20%,95%);
-      --muted-fg: hsl(150,10%,44%);
-      --border: hsl(40,20%,88%);
-    }
     html { font-size: 15px; scroll-behavior: smooth; }
-    body { font-family: var(--font-body); background: var(--bg); color: var(--fg); line-height: 1.65; }
+    body { font-family: var(--font-body); background: var(--color-muted-bg); color: var(--color-foreground); line-height: 1.65; }
 
     /* NAV — minimal, no distractions */
     .nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       background: rgba(245,251,247,0.92); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--color-border);
       padding: 0 1.25rem; height: 3.5rem;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo { font-weight: 800; font-size: 1.1rem; text-decoration: none; color: var(--fg); display: flex; align-items: center; gap: 0.5rem; }
-    .nav-logo-icon { width: 30px; height: 30px; border-radius: 0.5rem; background: var(--green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; }
-    .nav-cta { background: var(--green); color: white; font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1.1rem; border-radius: 0.55rem; text-decoration: none; border: none; cursor: pointer; transition: background 0.15s; }
-    .nav-cta:hover { background: var(--green-dark); }
+    .nav-logo { font-weight: 800; font-size: 1.1rem; text-decoration: none; color: var(--color-foreground); display: flex; align-items: center; gap: 0.5rem; }
+    .nav-logo-icon { width: 30px; height: 30px; border-radius: 0.5rem; background: var(--color-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; }
+    .nav-cta { background: var(--color-green); color: white; font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1.1rem; border-radius: 0.55rem; text-decoration: none; border: none; cursor: pointer; transition: background 0.15s; }
+    .nav-cta:hover { background: var(--color-forest); }
 
     /* HERO */
     .hero {
       min-height: 100vh; display: flex; align-items: center;
       padding: 5rem 1.25rem 3rem;
-      background: linear-gradient(160deg, hsl(152,52%,94%) 0%, hsl(46,40%,96%) 60%, #fff 100%);
+      background: linear-gradient(160deg, var(--color-green-muted) 0%, hsl(46,40%,96%) 60%, #fff 100%);
     }
     .hero-inner {
       max-width: 1100px; margin: 0 auto; width: 100%;
@@ -58,7 +46,7 @@
     }
     .hero-tag {
       display: inline-block;
-      background: var(--green-light); color: var(--green);
+      background: var(--color-green-muted); color: var(--color-green);
       font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.3rem 0.8rem; border-radius: 2rem; margin-bottom: 1.25rem;
     }
@@ -68,33 +56,33 @@
       font-weight: 900; line-height: 1.1;
       letter-spacing: -0.03em;
     }
-    .hero-headline em { font-style: italic; color: var(--green); }
+    .hero-headline em { font-style: italic; color: var(--color-green); }
     .hero-sub {
       margin-top: 1.25rem;
-      font-size: 1.05rem; color: var(--muted-fg); line-height: 1.7;
+      font-size: 1.05rem; color: var(--color-muted-fg); line-height: 1.7;
       max-width: 440px;
     }
-    .hero-sub strong { color: var(--fg); }
+    .hero-sub strong { color: var(--color-foreground); }
     .hero-cta-group { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
     .btn-primary-lg {
       display: inline-flex; align-items: center; justify-content: center;
-      background: var(--green); color: white;
+      background: var(--color-green); color: white;
       font-weight: 700; font-size: 1.05rem; padding: 0.9rem 2rem;
       border-radius: 0.75rem; text-decoration: none; border: none; cursor: pointer;
       transition: all 0.2s; box-shadow: 0 4px 14px hsl(152,52%,36%,0.35);
     }
-    .btn-primary-lg:hover { background: var(--green-dark); transform: translateY(-1px); }
-    .hero-trust { font-size: 0.82rem; color: var(--muted-fg); }
+    .btn-primary-lg:hover { background: var(--color-forest); transform: translateY(-1px); }
+    .hero-trust { font-size: 0.82rem; color: var(--color-muted-fg); }
 
     /* APP MOCKUP */
     .mockup {
-      background: var(--card); border-radius: 1.25rem;
-      border: 1px solid var(--border);
+      background: var(--color-surface); border-radius: 1.25rem;
+      border: 1px solid var(--color-border);
       box-shadow: 0 20px 60px rgba(60,80,40,0.15);
       overflow: hidden;
     }
     .mockup-bar {
-      background: var(--green); padding: 0.85rem 1.25rem;
+      background: var(--color-green); padding: 0.85rem 1.25rem;
       display: flex; align-items: center; justify-content: space-between;
     }
     .mockup-bar-title { color: white; font-weight: 700; font-size: 0.92rem; }
@@ -105,38 +93,38 @@
     }
     .mockup-body { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; }
     .mockup-row {
-      background: var(--muted-bg); border-radius: 0.65rem;
+      background: var(--color-muted-bg); border-radius: 0.65rem;
       padding: 0.65rem 0.85rem;
       display: flex; align-items: center; gap: 0.65rem;
     }
-    .mockup-day { font-size: 0.68rem; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: 0.05em; width: 26px; flex-shrink: 0; }
+    .mockup-day { font-size: 0.68rem; font-weight: 800; color: var(--color-green); text-transform: uppercase; letter-spacing: 0.05em; width: 26px; flex-shrink: 0; }
     .mockup-meal { flex: 1; }
     .mockup-meal-name { font-size: 0.8rem; font-weight: 600; }
-    .mockup-meal-cal { font-size: 0.68rem; color: var(--muted-fg); margin-top: 0.1rem; }
-    .mockup-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .mockup-meal-cal { font-size: 0.68rem; color: var(--color-muted-fg); margin-top: 0.1rem; }
+    .mockup-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-green); flex-shrink: 0; }
     .mockup-footer {
-      border-top: 1px solid var(--border); padding: 0.7rem 1rem;
+      border-top: 1px solid var(--color-border); padding: 0.7rem 1rem;
       display: flex; justify-content: space-between;
     }
     .mockup-stat { text-align: center; }
-    .mockup-stat-num { font-size: 0.88rem; font-weight: 800; color: var(--green); }
-    .mockup-stat-label { font-size: 0.65rem; color: var(--muted-fg); }
+    .mockup-stat-num { font-size: 0.88rem; font-weight: 800; color: var(--color-green); }
+    .mockup-stat-label { font-size: 0.65rem; color: var(--color-muted-fg); }
 
     /* TRUST STRIP */
     .trust-strip {
-      background: var(--fg); padding: 1rem 1.25rem;
+      background: var(--color-forest); padding: 1rem 1.25rem;
       display: flex; align-items: center; justify-content: center;
       gap: 2rem; flex-wrap: wrap;
     }
     .trust-item { color: rgba(255,255,255,0.8); font-size: 0.82rem; font-weight: 500; display: flex; align-items: center; gap: 0.4rem; }
-    .trust-check { color: var(--green); font-weight: 800; }
+    .trust-check { color: var(--color-green); font-weight: 800; }
 
     /* HOW IT WORKS */
     .section { padding: 5rem 1.25rem; }
     .container { max-width: 960px; margin: 0 auto; }
     .section-tag {
       display: inline-block; font-size: 0.75rem; font-weight: 700;
-      letter-spacing: 0.07em; text-transform: uppercase; color: var(--green);
+      letter-spacing: 0.07em; text-transform: uppercase; color: var(--color-green);
       margin-bottom: 0.75rem;
     }
     .section-h2 {
@@ -144,7 +132,7 @@
       font-weight: 900; letter-spacing: -0.025em; line-height: 1.15;
       margin-bottom: 0.75rem;
     }
-    .section-sub { color: var(--muted-fg); font-size: 0.95rem; max-width: 560px; }
+    .section-sub { color: var(--color-muted-fg); font-size: 0.95rem; max-width: 560px; }
 
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
     .step { text-align: center; }
@@ -154,11 +142,11 @@
       font-weight: 900; font-size: 1.1rem; color: white; margin: 0 auto 1rem;
     }
     .step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
-    .step p { font-size: 0.85rem; color: var(--muted-fg); line-height: 1.6; }
+    .step p { font-size: 0.85rem; color: var(--color-muted-fg); line-height: 1.6; }
 
     /* BEFORE / AFTER */
     .before-after {
-      background: var(--fg); border-radius: 1.25rem; padding: 3rem;
+      background: var(--color-forest); border-radius: 1.25rem; padding: 3rem;
       display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
       margin-top: 3rem;
     }
@@ -173,24 +161,24 @@
     /* TESTIMONIALS */
     .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 3rem; }
     .tcard {
-      background: var(--card); border-radius: 1rem; padding: 1.5rem;
-      border: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.85rem;
+      background: var(--color-surface); border-radius: 1rem; padding: 1.5rem;
+      border: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 0.85rem;
     }
-    .tcard-stars { color: var(--orange); font-size: 0.85rem; letter-spacing: 0.05em; }
-    .tcard-text { font-size: 0.88rem; color: var(--muted-fg); line-height: 1.65; flex: 1; }
+    .tcard-stars { color: var(--color-warning); font-size: 0.85rem; letter-spacing: 0.05em; }
+    .tcard-text { font-size: 0.88rem; color: var(--color-muted-fg); line-height: 1.65; flex: 1; }
     .tcard-author { display: flex; align-items: center; gap: 0.65rem; }
     .tcard-initial {
       width: 36px; height: 36px; border-radius: 50%;
-      background: var(--green-light); color: var(--green);
+      background: var(--color-green-muted); color: var(--color-green);
       font-weight: 800; font-size: 0.9rem;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .tcard-name { font-weight: 700; font-size: 0.85rem; }
-    .tcard-meta { font-size: 0.75rem; color: var(--muted-fg); }
+    .tcard-meta { font-size: 0.75rem; color: var(--color-muted-fg); }
 
     /* FINAL CTA */
     .final-cta {
-      background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+      background: linear-gradient(135deg, var(--color-green) 0%, var(--color-forest) 100%);
       padding: 5rem 1.25rem; text-align: center;
     }
     .final-cta h2 {
@@ -200,14 +188,12 @@
     .final-cta p { color: rgba(255,255,255,0.8); font-size: 0.95rem; max-width: 420px; margin: 0 auto 2rem; line-height: 1.65; }
     .final-cta-trust { margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
 
-    /* DARK MODE */
-    [data-theme="dark"] {
-      --bg: #1a2e22;
-      --fg: rgba(255,255,255,0.9);
-      --card: rgba(255,255,255,0.06);
-      --muted-bg: hsl(150,10%,12%);
-      --muted-fg: hsl(150,8%,55%);
-      --border: hsl(150,10%,22%);
+    /* DARK MODE — page-specific surface overrides (token colors handled by tokens.css) */
+    [data-theme="dark"] .nav {
+      background: rgba(15, 20, 25, 0.92);
+    }
+    [data-theme="dark"] .hero {
+      background: linear-gradient(160deg, var(--color-parchment) 0%, var(--color-muted-bg) 100%);
     }
 
     /* RESPONSIVE */
@@ -221,16 +207,15 @@
     }
   </style>
 <script src="/js/theme-init.js"></script>
-  <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
-<a href="#main" class="skip-link">Skip to main content</a>
+<a href="#main" class="skip-link">Skip to content</a>
 
 <!-- NAV -->
 <nav class="nav" aria-label="Main navigation">
   <a href="/" aria-label="Mealzy" style="font-family:var(--font-display);font-weight:700;font-size:22px;color:var(--color-green);text-decoration:none;">Mealzy</a>
   <div style="display:flex;align-items:center;gap:0.75rem;">
-    <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--fg);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--color-border);border-radius:8px;cursor:pointer;color:var(--color-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
     <a href="login.html?signup=1" class="nav-cta">Start Free</a>
   </div>
 </nav>
@@ -293,7 +278,7 @@
             <div class="mockup-meal-name">Stir-fried beef and vegetables</div>
             <div class="mockup-meal-cal">520 kcal · 41g protein · $3.80</div>
           </div>
-          <div class="mockup-dot" style="background:var(--border);"></div>
+          <div class="mockup-dot" style="background:var(--color-border);"></div>
         </div>
         <div class="mockup-row" style="opacity:0.3;">
           <div class="mockup-day">Fri</div>
@@ -301,7 +286,7 @@
             <div class="mockup-meal-name">Salmon with roasted potatoes</div>
             <div class="mockup-meal-cal">490 kcal · 36g protein · $4.20</div>
           </div>
-          <div class="mockup-dot" style="background:var(--border);"></div>
+          <div class="mockup-dot" style="background:var(--color-border);"></div>
         </div>
       </div>
       <div class="mockup-footer">
@@ -324,24 +309,24 @@
 </div>
 
 <!-- HOW IT WORKS -->
-<section class="section" style="background: var(--muted-bg);">
+<section class="section" style="background: var(--color-muted-bg);">
   <div class="container">
     <span class="section-tag">How it works</span>
     <h2 class="section-h2">Three steps. Under 2 minutes total.</h2>
     <p class="section-sub">No spreadsheets. No recipe hunting. No calculating calories by hand.</p>
     <div class="steps">
       <div class="step">
-        <div class="step-num" style="background: var(--green);">1</div>
+        <div class="step-num" style="background: var(--color-green);">1</div>
         <h3>Tell Mealzy about you</h3>
         <p>Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes, once.</p>
       </div>
       <div class="step">
-        <div class="step-num" style="background: var(--orange);">2</div>
+        <div class="step-num" style="background: var(--color-warning);">2</div>
         <h3>Get your week in 30 seconds</h3>
         <p>Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like a meal — swap it in one click.</p>
       </div>
       <div class="step">
-        <div class="step-num" style="background: var(--green);">3</div>
+        <div class="step-num" style="background: var(--color-green);">3</div>
         <h3>Shop the list, cook, done</h3>
         <p>The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system.</p>
       </div>
@@ -377,11 +362,10 @@
 <section class="final-cta">
   <h2>Your Sunday just got 90 minutes back.</h2>
   <p>Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
-  <a href="login.html?signup=1" class="btn-primary-lg" style="display:inline-flex;background:white;color:var(--green);box-shadow:0 4px 20px rgba(0,0,0,0.15);">Start Free — Takes 2 Minutes</a>
+  <a href="login.html?signup=1" class="btn-primary-lg" style="display:inline-flex;background:white;color:var(--color-green);box-shadow:0 4px 20px rgba(0,0,0,0.15);">Start Free — Takes 2 Minutes</a>
   <p class="final-cta-trust">Free to start. No credit card. No catch.</p>
 </section>
 
-<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--muted-fg);"><a href="privacy-policy.html" style="color:var(--color-green);">Privacy Policy</a> · <a href="terms.html" style="color:var(--color-green);">Terms</a></div>
+<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--color-muted-fg);"><a href="privacy-policy.html" style="color:var(--color-green);">Privacy Policy</a> · <a href="terms.html" style="color:var(--color-green);">Terms</a></div>
 </body>
 </html>
-
