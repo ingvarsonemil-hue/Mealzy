@@ -67,7 +67,7 @@
     #decidingPopup .popup-close {
       position:absolute; top:0.7rem; right:0.9rem;
       background:none; border:none; cursor:pointer;
-      font-size:1.25rem; color:#ffffff; opacity:1; line-height:1;
+      font-size:1.25rem; color:var(--clr-foreground); opacity:1; line-height:1;
     }
     /* Pricing cards — Week 2 polish */
     .pricing-cards {
@@ -504,9 +504,9 @@
 </footer>
 
 <!-- 30-SECOND "STILL DECIDING?" POPUP -->
-<div id="decidingPopup" role="dialog" aria-label="Special offer">
+<div id="decidingPopup" role="dialog" aria-modal="true" aria-labelledby="decidingPopupTitle">
   <button class="popup-close" onclick="closeDecidingPopup()" aria-label="Close">&times;</button>
-  <div style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:500;margin-bottom:0.35rem;">Still deciding?</div>
+  <div id="decidingPopupTitle" style="font-family:var(--font-display);font-size:var(--text-lg);font-weight:500;margin-bottom:0.35rem;">Still deciding?</div>
   <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);line-height:1.5;margin-bottom:1rem;">Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.</p>
   <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="popupCta" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;font-size:var(--text-sm);" onclick="trackUpgradeClick();closeDecidingPopup();">Start 7-Day Free Trial →</a>
   <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-top:0.5rem;">No charge for 7 days. Cancel any time.</p>
@@ -598,6 +598,18 @@
   if (!sessionStorage.getItem('pricing_popup_seen')) {
     setTimeout(() => document.getElementById('decidingPopup').classList.add('show'), 30000);
   }
+
+  // Focus trap + Escape key for deciding popup
+  document.addEventListener('keydown', function(e) {
+    const popup = document.getElementById('decidingPopup');
+    if (!popup.classList.contains('show')) return;
+    if (e.key === 'Escape') { closeDecidingPopup(); return; }
+    if (e.key !== 'Tab') return;
+    const focusable = popup.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+    else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
+  });
 
   const hamburger = document.getElementById('hamburger');
   const mobileNavOverlay = document.getElementById('mobileNavOverlay');
