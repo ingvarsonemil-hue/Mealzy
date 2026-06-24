@@ -211,11 +211,13 @@
       <div class="chart-card">
         <h3>Daily Calories (Last 7 Days)</h3>
         <canvas id="caloriesChart" height="200" role="img" aria-label="Daily calorie intake line chart showing last 7 days with goal reference line"></canvas>
+        <p class="sr-only" id="caloriesChartDesc">Line chart showing your daily calorie intake over the last 7 days compared to your calorie goal. Values are loaded from your nutrition log.</p>
       </div>
       <!-- Protein Chart -->
       <div class="chart-card">
         <h3>Daily Protein (Last 7 Days)</h3>
         <canvas id="proteinChart" height="200" role="img" aria-label="Daily protein intake bar chart showing last 7 days with goal reference line"></canvas>
+        <p class="sr-only" id="proteinChartDesc">Bar chart showing your daily protein intake in grams over the last 7 days compared to your protein goal. Bars shown in green when goal is met, orange when below.</p>
       </div>
     </div>
 
@@ -225,6 +227,7 @@
         <h3>Macro Distribution (Weekly Avg)</h3>
         <div style="max-width:280px;margin:0 auto;">
           <canvas id="macroChart" height="280" role="img" aria-label="Weekly average macronutrient distribution doughnut chart showing protein, carbs, and fat breakdown"></canvas>
+          <p class="sr-only" id="macroChartDesc">Doughnut chart showing your weekly average macronutrient breakdown as a percentage of total calories, split between protein, carbohydrates, and fat.</p>
         </div>
       </div>
       <!-- Consistency & Streak Info -->
