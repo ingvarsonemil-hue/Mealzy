@@ -62,15 +62,18 @@
     document.documentElement.setAttribute('data-theme', 'dark');
   }
 
-  // Activate Pro status — both locally and on the server
-  localStorage.setItem('mealzy_pro', 'true');
-
   // Persist Pro flag server-side so it survives browser clears / new devices
+  // Only grant Pro locally after the server confirms a valid session.
   async function activatePro() {
     const status = document.getElementById('activationStatus');
     try {
       const res = await fetch('/api/pro/activate', { method: 'POST' });
+      if (res.status === 401 || res.status === 403) {
+        window.location.replace('/pricing.html');
+        return;
+      }
       if (!res.ok) throw new Error('non-ok');
+      localStorage.setItem('mealzy_pro', 'true');
       if (status) status.textContent = '';
     } catch(e) {
       if (status) {

@@ -547,9 +547,9 @@
     document.getElementById('billingToggle').style.display = '';
   }
 
-  const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
-  const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
-  document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
+  const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || null;
+  const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || null;
+  if (STRIPE_FAMILY_MONTHLY) document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
 
   const prices    = { monthly:{free:'$0',premium:'$8',family:'$16'}, yearly:{free:'$0',premium:'$5',family:'$11'} };
   const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $62/year — save $34 vs monthly',family:'Billed $130/year — save $62 vs monthly'} };
@@ -611,14 +611,6 @@
   // Nav scroll
   const nav = document.getElementById('navbar');
   if (nav) { const t = () => nav.classList.toggle('scrolled', window.scrollY > 24); window.addEventListener('scroll', t, {passive:true}); t(); }
-
-  // === DARK MODE TOGGLE ===
-  function toggleTheme() {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const next = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('mealzy_theme', next);
-  }
 
   // FAQ accordion
   document.querySelectorAll('.faq-btn').forEach(btn => {
