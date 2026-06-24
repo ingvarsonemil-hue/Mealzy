@@ -304,8 +304,8 @@
     .auth-note a { color: var(--clr-primary); text-decoration: none; }
 
     /* ── Dark mode ────────────────────────────── */
-    [data-theme="dark"] body { background: #1a3d2b; }
-    [data-theme="dark"] .login-col { background: #1a3d2b; }
+    [data-theme="dark"] body { background: #1a2e22; }
+    [data-theme="dark"] .login-col { background: #1a2e22; }
     [data-theme="dark"] .auth-tab { color: rgba(255,255,255,0.5); }
     [data-theme="dark"] .auth-tabs { background: #1a2e22; }
     [data-theme="dark"] .form-input { background: #1a2e22; border-color: rgba(255,255,255,0.12); }
@@ -510,16 +510,16 @@
   function showError(msg) {
     const el = document.getElementById('authError');
     el.textContent = msg;
-    el.style.borderLeftColor = 'var(--brick)';
-    el.style.color = 'var(--brick)';
+    el.style.borderLeftColor = '#c0392b';
+    el.style.color = '#c0392b';
     el.classList.add('show');
   }
 
   function showSuccess(msg) {
     const el = document.getElementById('authError');
     el.textContent = msg;
-    el.style.borderLeftColor = 'var(--sage)';
-    el.style.color = 'var(--sage)';
+    el.style.borderLeftColor = '#3d8b5e';
+    el.style.color = '#3d8b5e';
     el.classList.add('show');
   }
 

@@ -20,7 +20,7 @@
   --ink-muted:      var(--clr-muted-fg);
   --hairline:       var(--clr-border);
 
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-display: 'Fraunces', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
 
   --text-xs:   0.8rem;
