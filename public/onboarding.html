@@ -148,6 +148,17 @@
       color: var(--color-forest);
     }
     .goal-card.selected .goal-label { font-weight: 700; color: white; }
+    .goal-radio-input {
+      opacity: 0;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+    .goal-card:focus-within {
+      outline: 2px solid var(--clr-primary);
+      outline-offset: 2px;
+    }
 
     /* ── Dietary chips ───────────────────────────────────── */
     .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
@@ -238,14 +249,15 @@
 <div class="onboarding-wrap">
   <div class="onboarding-card">
     <!-- Stepper -->
-    <main id="main" class="ob-top">
+    <main id="main">
+    <div class="ob-top">
       <a href="/" class="ob-logo">Mealzy</a>
       <div class="ob-stepper" role="progressbar" aria-label="Onboarding progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="obStepper">
         <div class="ob-step active" id="obStep1" aria-label="Step 1">1</div>
         <div class="ob-step-line" id="obLine1"></div>
         <div class="ob-step" id="obStep2" aria-label="Step 2">2</div>
       </div>
-    </main>
+    </div>
 
     <!-- STEP 1: Name + Goal -->
     <div class="step-content" id="step1">
@@ -256,27 +268,35 @@
         <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name" style="font-size:1rem;" />
       </div>
       <div class="form-group" style="margin-top:1.25rem;">
-        <label class="form-label">What's your main goal?</label>
-        <div class="goal-grid" role="radiogroup">
-          <div class="goal-card" role="radio" data-goal="build_muscle" onclick="selectGoal(this)" aria-checked="false">
-            <div class="goal-label">Build Muscle</div>
+        <fieldset style="border:none;padding:0;margin:0;">
+          <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
+          <div class="goal-grid">
+            <label class="goal-card" data-goal="build_muscle">
+              <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+              <span class="goal-label">Build Muscle</span>
+            </label>
+            <label class="goal-card" data-goal="lose_weight">
+              <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+              <span class="goal-label">Lose Weight</span>
+            </label>
+            <label class="goal-card" data-goal="maintain_weight">
+              <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+              <span class="goal-label">Maintain Weight</span>
+            </label>
+            <label class="goal-card" data-goal="eat_healthier">
+              <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+              <span class="goal-label">Eat Healthier</span>
+            </label>
+            <label class="goal-card" data-goal="gain_weight">
+              <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+              <span class="goal-label">Gain Weight</span>
+            </label>
+            <label class="goal-card" data-goal="improve_energy">
+              <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+              <span class="goal-label">Improve Energy</span>
+            </label>
           </div>
-          <div class="goal-card" role="radio" data-goal="lose_weight" onclick="selectGoal(this)" aria-checked="false">
-            <div class="goal-label">Lose Weight</div>
-          </div>
-          <div class="goal-card" role="radio" data-goal="maintain_weight" onclick="selectGoal(this)" aria-checked="false">
-            <div class="goal-label">Maintain Weight</div>
-          </div>
-          <div class="goal-card" role="radio" data-goal="eat_healthier" onclick="selectGoal(this)" aria-checked="false">
-            <div class="goal-label">Eat Healthier</div>
-          </div>
-          <div class="goal-card" role="radio" data-goal="gain_weight" onclick="selectGoal(this)" aria-checked="false">
-            <div class="goal-label">Gain Weight</div>
-          </div>
-          <div class="goal-card" role="radio" data-goal="improve_energy" onclick="selectGoal(this)" aria-checked="false">
-            <div class="goal-label">Improve Energy</div>
-          </div>
-        </div>
+        </fieldset>
       </div>
     </div>
 
@@ -353,14 +373,18 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
         Back
       </button>
-      <div style="display:flex;align-items:center;gap:0.75rem;">
-        <button id="btnSkip" onclick="skipStep()" style="background:none;border:none;color:var(--clr-muted-fg);font-size:0.85rem;cursor:pointer;text-decoration:underline;padding:0.25rem;">Skip</button>
-        <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()" style="display:inline-flex;align-items:center;gap:0.4rem;">
-          Continue
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <button id="btnSkip" onclick="skipStep()" style="background:none;border:none;color:var(--clr-muted-fg);font-size:0.85rem;cursor:pointer;text-decoration:underline;padding:0.25rem;">Skip</button>
+          <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()" style="display:inline-flex;align-items:center;gap:0.4rem;">
+            Continue
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <p id="skipNote" style="font-size:0.75rem;color:var(--clr-muted-fg);margin:0;text-align:right;">We'll use estimated values — you can update these in Settings.</p>
       </div>
     </div>
+    </main>
   </div>
 </div>
 
@@ -432,6 +456,8 @@
     document.getElementById('step' + step).classList.remove('hidden');
     document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
     document.getElementById('btnSkip').style.display = step < totalSteps ? 'inline-block' : 'none';
+    const skipNote = document.getElementById('skipNote');
+    if (skipNote) skipNote.style.display = step < totalSteps ? 'block' : 'none';
     const nextBtn = document.getElementById('btnNext');
     nextBtn.innerHTML = step === totalSteps
       ? `Create My Plan →`
@@ -491,12 +517,8 @@
   }
 
   function selectGoal(el) {
-    document.querySelectorAll('.goal-card').forEach(c => {
-      c.classList.remove('selected');
-      c.setAttribute('aria-checked', 'false');
-    });
+    document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
-    el.setAttribute('aria-checked', 'true');
     userData.goal = el.dataset.goal;
     hideStepError();
   }
