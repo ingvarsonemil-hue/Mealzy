@@ -293,7 +293,7 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
 /* === MEAL PLANNER === */
 .date-navigator { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-8); }
 .date-display { font-weight: 700; font-size: 1.1rem; min-width: 200px; text-align: center; }
-.totals-bar { position: sticky; bottom: 0; background: var(--clr-card); border-top: 1px solid var(--clr-border); padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); z-index: 10; box-shadow: 0 -4px 12px rgba(0,0,0,0.05); }
+.totals-bar { position: sticky; bottom: 0; background: var(--clr-card); border-top: 1px solid var(--clr-border); padding: 1rem 1.5rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); z-index: 10; box-shadow: 0 -4px 12px rgba(26,61,43,0.08); }
 .totals-bar .total-item { text-align: center; }
 .totals-bar .total-val { font-weight: 800; font-size: 1.1rem; }
 .totals-bar .total-lbl { font-size: 0.75rem; color: var(--clr-muted-fg); }
@@ -526,7 +526,7 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   padding: 2.5rem 2rem;
   max-width: 440px;
   width: 100%;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+  box-shadow: 0 24px 64px rgba(26,61,43,0.35);
   text-align: center;
   transform: scale(0.9);
   transition: transform 0.3s;
@@ -737,7 +737,7 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   justify-content: space-between;
   gap: var(--space-4);
   z-index: 400;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 -4px 20px rgba(26,61,43,0.20);
   transform: translateY(100%);
   transition: transform 0.4s ease;
 }
@@ -783,7 +783,7 @@ footer { background: var(--clr-foreground); color: white; padding: 2.5rem 0; }
   background: white;
   border-radius: 50%;
   transition: transform 0.25s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(26,61,43,0.25);
 }
 .toggle-switch input:checked + .toggle-slider { background: var(--clr-primary); }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
