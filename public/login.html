@@ -450,8 +450,6 @@
 </main>
 
 <script>
-  if (localStorage.getItem('mealzy_theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-
   // Show Google OAuth errors from redirect
   const _oauthError = new URLSearchParams(window.location.search).get('error');
   if (_oauthError === 'google_failed')        showError('Google sign-in failed. Please try again or use email.');

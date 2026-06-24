@@ -58,10 +58,6 @@
 </main>
 
 <script>
-  if (localStorage.getItem('mealzy_theme') === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-
   // Persist Pro flag server-side so it survives browser clears / new devices
   // Only grant Pro locally after the server confirms a valid session.
   async function activatePro() {

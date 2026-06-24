@@ -246,7 +246,7 @@
     </div>
 
     <!-- CONVERSION FUNNEL (admin — requires PRO_TOKEN) -->
-    <div class="card anim-section" style="margin-bottom:1.5rem;" id="funnelCard">
+    <div class="card anim-section" style="margin-bottom:1.5rem;display:none;" id="funnelCard">
       <div class="card-header">
         <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -266,7 +266,7 @@
     </div>
 
     <!-- SITE-WIDE ANALYTICS (admin) -->
-    <div class="card anim-section" style="margin-bottom:1.5rem;" id="siteAnalyticsCard">
+    <div class="card anim-section" style="margin-bottom:1.5rem;display:none;" id="siteAnalyticsCard">
       <div class="card-header">
         <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -288,12 +288,6 @@
 </div>
 
 <script>
-
-
-  // Dark mode
-  if (localStorage.getItem('mealzy_theme') === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
 
   // ── Auth helpers (JWT cookie — server is source of truth) ──
   async function cloudLoad(uid) { /* no-op */ }
@@ -341,14 +335,14 @@
     const urlToken = new URLSearchParams(window.location.search).get('token') || '';
     const storedToken = localStorage.getItem('mealzy_pro_token') || '';
     const token = urlToken || storedToken;
-    if (!token) { const card = document.getElementById('funnelCard'); if (card) card.style.display = 'none'; return; }
+    if (!token) return;
     try {
       const res = await fetch('/api/analytics/funnel', { headers: { 'x-pro-token': token } });
-      if (!res.ok) {
-        if (statusEl) statusEl.textContent = res.status === 401 ? 'Unauthorized — wrong token' : 'Error loading funnel';
-        return;
-      }
+      if (!res.ok) return;
       const d = await res.json();
+      if (d.total_users == null) return;
+      const card = document.getElementById('funnelCard');
+      if (card) card.style.display = '';
       if (statusEl) statusEl.textContent = 'Live data';
       const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
       setText('fTotalUsers',   d.total_users   ?? '—');
@@ -357,7 +351,6 @@
       setText('fMrr',         d.mrr_estimate  ?? '—');
       setText('fThisWeek',    d.users_this_week ?? '—');
       setText('fPlansPerUser',d.plans_per_user_avg != null ? d.plans_per_user_avg.toFixed(1) : '—');
-      // Top referrers
       const referrers = d.top_referrers || [];
       const refEl = document.getElementById('funnelReferrers');
       if (refEl && referrers.length > 0) {
@@ -369,36 +362,34 @@
             </div>`
           ).join('')}</div>`;
       }
-    } catch(e) {
-      if (statusEl) statusEl.textContent = 'Could not load — server offline?';
-    }
+    } catch(e) { /* server offline — card stays hidden */ }
   }
 
   async function loadSiteAnalytics() {
     const statusEl = document.getElementById('siteAnalyticsStatus');
-    // Token can be passed via ?token= or stored in localStorage
     const urlToken = new URLSearchParams(window.location.search).get('token') || '';
     const storedToken = localStorage.getItem('mealzy_pro_token') || '';
     const token = urlToken || storedToken;
-    if (urlToken) localStorage.setItem('mealzy_pro_token', urlToken); // remember for next visit
-    if (!token) { const card = document.getElementById('siteAnalyticsCard'); if (card) card.style.display = 'none'; return; }
+    if (urlToken) localStorage.setItem('mealzy_pro_token', urlToken);
+    if (!token) return;
     try {
       const res = await fetch('/api/analytics', { headers: { 'x-pro-token': token } });
-      if (!res.ok) { if (statusEl) statusEl.textContent = res.status === 401 ? 'Unauthorized — wrong token' : 'Error loading analytics'; return; }
+      if (!res.ok) return;
       const data = await res.json();
-      const m = data.this_month || {};
+      if (!data.this_month) return;
+      const card = document.getElementById('siteAnalyticsCard');
+      if (card) card.style.display = '';
+      const m = data.this_month;
       const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
-      setText('saSignups',      m.signups        ?? 0);
-      setText('saPlans',        m.plans_generated ?? 0);
-      setText('saLimitHits',    m.free_limit_hits ?? 0);
-      setText('saUpgradeClicks',m.upgrade_clicks  ?? 0);
-      setText('saShareClicks',  m.share_clicks    ?? 0);
-      setText('saLeads',        data.total_leads  ?? 0);
+      setText('saSignups',      m.signups         ?? 0);
+      setText('saPlans',        m.plans_generated  ?? 0);
+      setText('saLimitHits',    m.free_limit_hits  ?? 0);
+      setText('saUpgradeClicks',m.upgrade_clicks   ?? 0);
+      setText('saShareClicks',  m.share_clicks     ?? 0);
+      setText('saLeads',        data.lead_count    ?? 0);
       setText('saMostActiveDay',data.most_active_day || '—');
       if (statusEl) statusEl.textContent = 'Live data';
-    } catch(e) {
-      if (statusEl) statusEl.textContent = 'Could not load — server offline?';
-    }
+    } catch(e) { /* server offline — card stays hidden */ }
   }
 
   function getLast7Days() {

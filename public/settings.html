@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <!-- Google Analytics -->
@@ -434,28 +434,28 @@
       <div class="form-group">
         <label class="form-label">Diet Style</label>
         <div class="chips-group" id="settingDietChips">
-          <button class="chip" data-pref="vegetarian" onclick="this.classList.toggle('active')">Vegetarian</button>
-          <button class="chip" data-pref="vegan" onclick="this.classList.toggle('active')">Vegan</button>
-          <button class="chip" data-pref="keto" onclick="this.classList.toggle('active')">Keto</button>
-          <button class="chip" data-pref="paleo" onclick="this.classList.toggle('active')">Paleo</button>
-          <button class="chip" data-pref="mediterranean" onclick="this.classList.toggle('active')">Mediterranean</button>
-          <button class="chip" data-pref="halal" onclick="this.classList.toggle('active')">Halal</button>
-          <button class="chip" data-pref="kosher" onclick="this.classList.toggle('active')">Kosher</button>
-          <button class="chip" data-pref="low_carb" onclick="this.classList.toggle('active')">Low Carb</button>
-          <button class="chip" data-pref="high_protein" onclick="this.classList.toggle('active')">High Protein</button>
+          <button class="chip" aria-pressed="false" data-pref="vegetarian" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Vegetarian</button>
+          <button class="chip" aria-pressed="false" data-pref="vegan" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Vegan</button>
+          <button class="chip" aria-pressed="false" data-pref="keto" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Keto</button>
+          <button class="chip" aria-pressed="false" data-pref="paleo" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Paleo</button>
+          <button class="chip" aria-pressed="false" data-pref="mediterranean" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Mediterranean</button>
+          <button class="chip" aria-pressed="false" data-pref="halal" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Halal</button>
+          <button class="chip" aria-pressed="false" data-pref="kosher" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Kosher</button>
+          <button class="chip" aria-pressed="false" data-pref="low_carb" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Low Carb</button>
+          <button class="chip" aria-pressed="false" data-pref="high_protein" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">High Protein</button>
         </div>
       </div>
       <div class="form-group">
         <label class="form-label">Allergies & Restrictions</label>
         <div class="chips-group" id="settingAllergyChips">
-          <button class="chip" data-allergy="gluten" onclick="this.classList.toggle('active')">Gluten-Free</button>
-          <button class="chip" data-allergy="dairy" onclick="this.classList.toggle('active')">Dairy-Free</button>
-          <button class="chip" data-allergy="nuts" onclick="this.classList.toggle('active')">Nut-Free</button>
-          <button class="chip" data-allergy="eggs" onclick="this.classList.toggle('active')">Egg-Free</button>
-          <button class="chip" data-allergy="shellfish" onclick="this.classList.toggle('active')">Shellfish-Free</button>
-          <button class="chip" data-allergy="soy" onclick="this.classList.toggle('active')">Soy-Free</button>
-          <button class="chip" data-allergy="fish" onclick="this.classList.toggle('active')">Fish-Free</button>
-          <button class="chip" data-allergy="pork" onclick="this.classList.toggle('active')">No Pork</button>
+          <button class="chip" aria-pressed="false" data-allergy="gluten" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Gluten-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="dairy" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Dairy-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="nuts" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Nut-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="eggs" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Egg-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="shellfish" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Shellfish-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="soy" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Soy-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="fish" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Fish-Free</button>
+          <button class="chip" aria-pressed="false" data-allergy="pork" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">No Pork</button>
         </div>
       </div>
       <button class="btn btn-primary btn-sm" onclick="saveDiet()">Save Preferences</button>
@@ -533,8 +533,8 @@
           <label class="form-label">Currency</label>
           <select class="form-select" id="settingCurrency">
             <option value="USD">$ USD</option>
-            <option value="EUR">� EUR</option>
-            <option value="GBP">� GBP</option>
+            <option value="EUR">&euro; EUR</option>
+            <option value="GBP">&pound; GBP</option>
             <option value="SEK">kr SEK</option>
             <option value="NOK">kr NOK</option>
             <option value="DKK">kr DKK</option>
@@ -542,10 +542,10 @@
             <option value="AUD">$ AUD</option>
             <option value="NZD">$ NZD</option>
             <option value="CHF">Fr CHF</option>
-            <option value="JPY">� JPY</option>
-            <option value="CNY">� CNY</option>
-            <option value="KRW">? KRW</option>
-            <option value="INR">? INR</option>
+            <option value="JPY">&yen; JPY</option>
+            <option value="CNY">&yen; CNY</option>
+            <option value="KRW">&#8361; KRW</option>
+            <option value="INR">&#8377; INR</option>
             <option value="BRL">R$ BRL</option>
             <option value="MXN">$ MXN</option>
             <option value="ARS">$ ARS</option>
@@ -557,8 +557,8 @@
             <option value="PLN">zl PLN</option>
             <option value="CZK">Kc CZK</option>
             <option value="HUF">Ft HUF</option>
-            <option value="TRY">? TRY</option>
-            <option value="THB">? THB</option>
+            <option value="TRY">&#8378; TRY</option>
+            <option value="THB">&#3647; THB</option>
             <option value="MYR">RM MYR</option>
             <option value="IDR">Rp IDR</option>
             <option value="PHP">? PHP</option>

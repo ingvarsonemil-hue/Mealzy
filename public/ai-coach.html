@@ -92,7 +92,6 @@
     }
     [data-theme="dark"] .chat-msg.assistant .chat-bubble {
       background: rgba(255,255,255,0.06);
-      border-left-color: var(--clr-primary);
       box-shadow: none;
     }
     .chat-msg.user .chat-bubble {
@@ -415,12 +414,6 @@
 </div>
 
 <script>
-
-
-  // Dark mode
-  if (localStorage.getItem('mealzy_theme') === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
 
   // SVG icon for Mia's avatar in chat messages
   const ICO = {
