@@ -341,7 +341,7 @@
     <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:var(--radius-md);background:var(--clr-primary-light);border:1px solid var(--clr-border);color:var(--clr-primary-dark);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
       <span style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> � share your list or print it in one tap.
+        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> &mdash;� share your list or print it in one tap.
       </span>
       <a href="upgrade.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
     </div>
@@ -418,10 +418,10 @@
           onclick="trackInstacart()"
           aria-label="Order groceries on Amazon (affiliate link)"
         >
-          Order now ?
+          Order now &rarr;
         </a>
       </div>
-      <div class="instacart-banner-disclaimer">Affiliate link � Mealzy earns a small commission at no cost to you</div>
+      <div class="instacart-banner-disclaimer">Affiliate link &mdash;� Mealzy earns a small commission at no cost to you</div>
     </div>
 
     <!-- GROCERY LIST -->
@@ -739,7 +739,7 @@
       saveLists();
       renderGroceryList();
       updateProgress();
-      showToast('Using sample list � check server connection', 'error');
+      showToast('Using sample list —� check server connection', 'error');
     } finally {
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;
