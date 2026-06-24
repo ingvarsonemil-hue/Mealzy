@@ -161,7 +161,10 @@
       white-space: nowrap;
     }
 
-    /* Fix 3: dark mode summary card border */
+    /* Summary card: full subtle border replaces left-only stripe */
+    .grocery-progress {
+      border: 1px solid rgba(0,0,0,0.08) !important;
+    }
     [data-theme="dark"] .grocery-progress {
       border: 1px solid rgba(255,255,255,0.08) !important;
     }
@@ -176,6 +179,21 @@
       background: rgba(255,255,255,0.06);
       border: 1.5px solid rgba(255,255,255,0.2);
       cursor: pointer;
+    }
+
+    /* "+ Add" button: green outlined style */
+    #manualItemInput + .btn-outline {
+      border: 1.5px solid #3d8b5e;
+      color: #3d8b5e;
+      background: transparent;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #manualItemInput + .btn-outline:hover {
+      background: #3d8b5e;
+      color: white;
     }
 
     /* Fix 5: dark mode add-item input border weight + button */
