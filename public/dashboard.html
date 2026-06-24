@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#1a3d2b">>
+  <meta name="theme-color" content="#1a3d2b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -607,30 +607,6 @@
     if (mealDateSub) mealDateSub.textContent = dateStr;
   }
 
-  // DEPRECATED — streak now tracked server-side in /api/xp/award
-  // Kept here temporarily. Remove after 2 weeks of stable server-side streak data.
-  // Do not call this function. Server value loaded via init() merge instead.
-  function updateStreak() {
-    const todayStr = new Date().toISOString().split('T')[0];
-    const last = profile.lastActiveDate;
-    let streak = profile.streak || 1;
-
-    if (last && last !== todayStr) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-      streak = last === yesterdayStr ? streak + 1 : 1;
-      profile.streak = streak;
-      profile.lastActiveDate = todayStr;
-      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
-    } else if (!last) {
-      profile.lastActiveDate = todayStr;
-      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
-    }
-
-    document.getElementById('streakBadge').textContent = `${streak} day${streak !== 1 ? 's' : ''} streak`;
-  }
-
   function loadTodayData() {
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const logs = JSON.parse(localStorage.getItem('mealzy_nutrition_logs') || '{}');
@@ -1010,7 +986,6 @@
         if (planCount === 1) showReferralBanner();
       }
     } catch (err) {
-      console.error(err);
       showToast('Something went wrong — please try again.', 'error');
     } finally {
       stopLoadingAnimation();
@@ -1305,7 +1280,6 @@
         card.style.opacity = '';
       }
     } catch (err) {
-      console.error(err);
       showToast('Server offline — swap unavailable', 'error');
       btn.disabled = false;
       btn.textContent = '↺ Swap';

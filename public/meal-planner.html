@@ -19,7 +19,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
-  <meta name="theme-color" content="#1a3d2b">>
+  <meta name="theme-color" content="#1a3d2b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -1041,7 +1041,6 @@
   function renderWeekView() {
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const totalDaysWithMeals = Object.values(plans).filter(p => p && p.meals && p.meals.length > 0).length;
-    console.log('[renderWeekView] plans keys:', Object.keys(plans).length, 'days with meals:', totalDaysWithMeals);
     const container = document.getElementById('weekViewContainer');
     const todayStr = new Date().toISOString().split('T')[0];
     const goalCals = profile?.dailyCalories || 2000;

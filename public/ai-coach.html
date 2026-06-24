@@ -19,7 +19,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
-  <meta name="theme-color" content="#1a3d2b">>
+  <meta name="theme-color" content="#1a3d2b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -601,18 +601,13 @@
         .filter(m => m.role !== 'system' && m.content !== '__LIMIT_REACHED__')
         .map(m => ({ role: m.role, content: m.content }));
 
-      console.log('[ai-coach] sending request, messages:', apiMessages.length);
-
       const response = await fetch('/api/ai-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: apiMessages, profile, is_pro: localStorage.getItem('mealzy_pro') === 'true' })
       });
 
-      console.log('[ai-coach] response status:', response.status);
-
       if (response.status === 402) {
-        console.log('[ai-coach] daily limit reached — showing upgrade CTA');
         conversation.push({
           role: 'assistant',
           content: '__LIMIT_REACHED__',
@@ -621,7 +616,6 @@
       } else if (!response.ok) {
         // Server error (500, rate limit, etc.) — parse and log, don't pretend it's a connection issue
         const errData = await response.json().catch(() => ({}));
-        console.error('[ai-coach] server error', response.status, errData);
         conversation.push({
           role: 'assistant',
           content: "Mia is unavailable right now — please try again in a moment.",
@@ -629,11 +623,9 @@
         });
       } else {
         const data = await response.json();
-        console.log('[ai-coach] success:', data.success, 'has message:', !!data.message);
         if (data.success && data.message) {
           conversation.push(data.message);
         } else {
-          console.error('[ai-coach] unexpected response shape:', data);
           conversation.push({
             role: 'assistant',
             content: "Mia is unavailable right now — please try again in a moment.",
@@ -643,7 +635,6 @@
       }
     } catch (err) {
       // Only real network failures (fetch itself threw) reach here
-      console.error('[ai-coach] network error:', err);
       conversation.push({
         role: 'assistant',
         content: "Network error — please check your connection and try again.",

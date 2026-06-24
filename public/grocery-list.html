@@ -734,7 +734,6 @@
         showToast('Grocery list generated!', 'success');
       }
     } catch (err) {
-      console.error(err);
       const sampleList = getSampleGroceryList();
       groceryList = sampleList;
       saveLists();
