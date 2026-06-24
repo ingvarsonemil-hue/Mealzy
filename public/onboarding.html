@@ -468,6 +468,10 @@
 
   function skipStep() {
     hideStepError();
+    if (currentStep === 1) {
+      const nameInput = document.getElementById('inputName');
+      if (!nameInput.value.trim()) { nameInput.focus(); return; }
+    }
     if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
   }
 
@@ -530,18 +534,6 @@
     userData.dailyCalories = calories;
     userData.macros = { protein, carbs, fat };
     return { calories, protein, carbs, fat };
-  }
-
-  function buildSummary() {
-    const { calories, protein, carbs, fat } = calcNutrition();
-    const goalLabels = { build_muscle:'Build Muscle', lose_weight:'Lose Weight', maintain_weight:'Maintain Weight', eat_healthier:'Eat Healthier', gain_weight:'Gain Weight', improve_energy:'Improve Energy' };
-    const restrictions = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.textContent.trim()).join(', ') || 'None';
-    document.getElementById('summaryContent').innerHTML = `
-      <div>Goal: <strong>${goalLabels[userData.goal] || userData.goal}</strong></div>
-      <div>Daily calories: <strong>${calories} kcal</strong> (P:${protein}g / C:${carbs}g / F:${fat}g)</div>
-      <div>Weekly budget: <strong>${userData.currency} ${userData.budget}</strong></div>
-      <div>Restrictions: <strong>${restrictions}</strong></div>
-    `;
   }
 
   async function finishOnboarding() {
