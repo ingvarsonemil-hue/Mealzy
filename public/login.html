@@ -14,7 +14,6 @@
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; }
@@ -176,10 +175,10 @@
       transition: all 0.15s;
     }
     .auth-tab.active {
-      background: #3d8b5e;
+      background: rgba(255,255,255,0.15);
+      border-radius: 6px;
       color: #fff;
       box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-      border-bottom: 2px solid white;
     }
 
     /* ── Google button ────────────────────────── */
@@ -504,6 +503,10 @@
     document.getElementById('authNote').style.display   = isReset ? 'none' : '';
     document.getElementById('btnGoogle').style.display  = isReset ? 'none' : '';
     document.querySelector('.divider').style.display    = isReset ? 'none' : '';
+    if (!isReset) {
+      document.querySelector('.login-heading').textContent    = isSignIn ? 'Welcome back' : 'Create your account';
+      document.querySelector('.login-subheading').textContent = isSignIn ? 'Good to see you again.' : 'Join thousands planning smarter meals.';
+    }
     hideError();
   }
 
