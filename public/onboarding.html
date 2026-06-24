@@ -126,7 +126,6 @@
     }
     .goal-card {
       border: 1px solid var(--clr-border);
-      border-left: 3px solid transparent;
       border-radius: 0.85rem;
       height: 64px;
       cursor: pointer;
@@ -138,7 +137,7 @@
       width: 100%;
     }
     .goal-card:hover {
-      border-left: 3px solid var(--color-green);
+      border-color: var(--clr-primary);
       background: var(--clr-muted-bg);
     }
     .goal-card.selected {
@@ -172,8 +171,7 @@
     .ob-summary {
       background: var(--clr-primary-light);
       border: 1px solid hsl(152,52%,78%);
-      border-left: 4px solid var(--clr-primary);
-      border-radius: 0 0.85rem 0.85rem 0;
+      border-radius: 0.85rem;
       padding: 1.25rem 1.5rem; margin-bottom: 1rem;
     }
     [data-theme="dark"] .ob-summary { background: hsl(152,25%,12%); border-color: hsl(152,25%,22%); }
@@ -207,16 +205,15 @@
     [data-theme="dark"] .goal-card {
       background: #1e3828;
       border: 1px solid #3d6b50;
-      border-left: 3px solid transparent;
       color: #f0f7f4;
     }
     [data-theme="dark"] .goal-card .goal-label { color: #f0f7f4; }
     [data-theme="dark"] .goal-card:hover {
-      border-left: 3px solid var(--color-green);
+      border-color: var(--clr-primary);
       background: #243d2e;
     }
     [data-theme="dark"] .goal-card.selected {
-      border-left: 3px solid var(--color-green);
+      border-color: var(--clr-primary);
       background: var(--color-forest);
       color: #f0f7f4;
     }

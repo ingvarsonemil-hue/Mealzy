@@ -76,20 +76,15 @@
       color: var(--clr-foreground);
     }
 
-    /* ── Meal cards v2 — matches dashboard ─────────────── */
+    /* ── Meal cards v2 ─────────────────────────────────── */
     .meal-card-v2 {
       background: var(--clr-card);
       border: 1px solid var(--clr-border);
-      border-left: 4px solid var(--clr-primary);
-      border-radius: 0 0.75rem 0.75rem 0;
+      border-radius: 0.75rem;
       padding: 1.1rem 1.25rem;
-      transition: box-shadow 0.2s;
+      transition: box-shadow 0.2s, border-color 0.2s;
     }
-    .meal-card-v2:hover { box-shadow: var(--shadow-md); }
-    .meal-card-v2.mcv2-breakfast { border-left-color: #3d8b5e; }
-    .meal-card-v2.mcv2-lunch     { border-left-color: #3d8b5e; }
-    .meal-card-v2.mcv2-dinner    { border-left-color: #3d8b5e; }
-    .meal-card-v2.mcv2-snack     { border-left-color: #3d8b5e; }
+    .meal-card-v2:hover { box-shadow: var(--shadow-md); border-color: var(--clr-primary); }
     .meal-card-v2.completed      { opacity: 0.55; }
     .meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
 

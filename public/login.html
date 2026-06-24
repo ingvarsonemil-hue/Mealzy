@@ -283,13 +283,18 @@
     .auth-error {
       display: none;
       padding: 0.75rem 1rem;
-      border-left: 3px solid var(--clr-primary);
-      border-radius: 0 0.5rem 0.5rem 0;
-      background: var(--clr-muted-bg);
+      border: 1px solid hsl(0,60%,80%);
+      border-radius: 0.5rem;
+      background: hsl(0,60%,97%);
       font-size: 0.88rem;
-      color: var(--clr-foreground);
+      color: hsl(0,60%,35%);
       margin-bottom: 1rem;
       line-height: 1.5;
+    }
+    [data-theme="dark"] .auth-error {
+      background: hsl(0,30%,12%);
+      border-color: hsl(0,40%,30%);
+      color: hsl(0,50%,75%);
     }
     .auth-error.show { display: block; }
 

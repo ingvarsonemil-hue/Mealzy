@@ -178,17 +178,16 @@ gtag('config', 'G-27FWEVV6VD');
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
-  --color-brick: #c2410c;
   --clr-primary: var(--color-green);
   --clr-primary-dark: var(--color-forest);
   --clr-primary-light: var(--color-green-muted);
-  --clr-accent: var(--color-brick);
+  --clr-accent: var(--color-green);
   --clr-background: var(--color-cream);
   --clr-foreground: var(--color-foreground);
   --clr-card: #f8f5f0;
   --clr-muted-bg: var(--color-muted-bg);
   --clr-border: var(--color-border);
-  --clr-input-bg: var(--color-parchment);
+  --clr-input-bg: #ffffff;
   --clr-muted-fg: var(--color-muted-fg);
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -263,7 +262,7 @@ img{max-width:100%;display:block;}
 /* Showcase */
 .showcase{padding:2rem 0 5rem 0;}
 .showcase-grid{display:grid;grid-template-columns:3fr 2fr;gap:2.5rem;align-items:start;}
-.card{border-left:3px solid #3d8b5e;}
+.card{border:1px solid var(--clr-border);}
 .card h3{font-style:normal;font-weight:700;}
 @media(max-width:860px){.showcase-grid{grid-template-columns:1fr;}}
 .recipe-card-mktg{background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
@@ -374,7 +373,7 @@ img{max-width:100%;display:block;}
 @media(min-width:768px){.founder-stats{flex-direction:column;gap:20px;justify-content:center;}}
 .founder-stat-number{font-family:var(--font-display);font-size:36px;font-weight:900;font-style:italic;color:var(--color-green-light,#4ade80);line-height:1;}
 .founder-stat-label{font-family:var(--font-body);font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px;}
-.grid-3 .card{border-left:3px solid #3d8b5e !important;}
+.grid-3 .card{border:1px solid var(--clr-border) !important;}
 .grid-3 .card h3{color:var(--clr-foreground) !important;font-style:normal !important;font-weight:700 !important;}
 [data-theme="dark"] .grid-3 .card{background:rgba(255,255,255,0.06) !important;border-color:rgba(255,255,255,0.1) !important;}
 [data-theme="dark"] .grid-3 .card h3{color:var(--clr-foreground) !important;}

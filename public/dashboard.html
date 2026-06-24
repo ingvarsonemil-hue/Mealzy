@@ -48,21 +48,16 @@
       .main-content::before { margin: -1.25rem -1.25rem 1.25rem -1.25rem; }
     }
 
-    /* Meal cards v2 — editorial left-border design */
+    /* Meal cards v2 */
     .meal-card-v2 {
       background: var(--clr-card);
       border: 1px solid var(--clr-border);
-      border-left: 4px solid var(--clr-primary);
-      border-radius: 0 0.75rem 0.75rem 0;
+      border-radius: 0.75rem;
       padding: 1.1rem 1.25rem;
       transition: box-shadow 0.2s, border-color 0.2s;
       position: relative;
     }
-    .meal-card-v2:hover { box-shadow: var(--shadow-md); }
-    .meal-card-v2.mcv2-breakfast { border-left-color: var(--clr-accent); }
-    .meal-card-v2.mcv2-lunch { border-left-color: hsl(200,90%,45%); }
-    .meal-card-v2.mcv2-dinner { border-left-color: hsl(260,55%,52%); }
-    .meal-card-v2.mcv2-snack { border-left-color: hsl(340,75%,52%); }
+    .meal-card-v2:hover { box-shadow: var(--shadow-md); border-color: var(--clr-primary); }
     .meal-card-v2.completed { opacity: 0.55; }
     .meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
 
@@ -115,6 +110,30 @@
       .rings-grid-v2 { grid-template-columns: repeat(3, 1fr); }
       .ring-card-v2 svg { width: 80px !important; height: 80px !important; }
     }
+
+    /* Quick action cards — override inline border-left side-stripe */
+    .quick-action-card {
+      border-left: none !important;
+      border: 1px solid var(--clr-border) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .quick-action-card:hover {
+      border-color: var(--clr-primary) !important;
+    }
+    [data-theme="dark"] .quick-action-card {
+      border-color: rgba(255,255,255,0.08) !important;
+      background: rgba(255,255,255,0.05) !important;
+    }
+
+    /* Stat cards — override inline color tokens with design system values */
+    .stat-card {
+      background: var(--clr-card) !important;
+      border: 1px solid var(--clr-border);
+      border-top: 3px solid var(--clr-primary) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+    .stat-card .stat-value { color: var(--clr-primary) !important; }
+    [data-theme="dark"] .stat-card { background: rgba(255,255,255,0.06) !important; }
 
     /* Responsive sidebar for tablets */
     @media (max-width: 1024px) {
