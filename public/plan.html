@@ -107,8 +107,8 @@
     <!-- Share this plan -->
     <div class="share-row" id="shareRow">
       <button class="share-btn" onclick="copyLink()" aria-label="Copy plan link to clipboard">Copy link</button>
-      <a class="share-btn" id="twitterShare" href="#" target="_blank" aria-label="Share on X (opens in new tab)">Share on X</a>
-      <a class="share-btn" id="whatsappShare" href="#" target="_blank" aria-label="Share on WhatsApp (opens in new tab)">Share on WhatsApp</a>
+      <a class="share-btn" id="twitterShare" href="#" target="_blank" rel="noopener noreferrer" aria-label="Share on X (opens in new tab)">Share on X</a>
+      <a class="share-btn" id="whatsappShare" href="#" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp (opens in new tab)">Share on WhatsApp</a>
     </div>
 
     <!-- CTA banner -->
@@ -159,7 +159,7 @@ function renderPlan(plan, shareId) {
   const title  = plan.title || (date ? `Meal plan — ${date}` : 'Shared Meal Plan');
 
   document.getElementById('planTitle').textContent = title;
-  document.title = title + ' — Mealzy';
+  document.title = (plan.ownerName ? plan.ownerName + "'s Meal Plan" : title) + ' — Mealzy';
 
   // Aggregate stats
   let totalCal = 0, totalCost = 0, totalProtein = 0;
