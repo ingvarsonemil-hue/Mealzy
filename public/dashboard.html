@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mealzy — Dashboard</title>
   <meta name="description" content="Your Mealzy dashboard — track your meal plan, nutrition targets, and grocery budget for the week." />
-  <!-- Mealzy Design System --><noscript></noscript>
+  <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.json">
@@ -136,6 +136,7 @@
       .sidebar { width: 220px; }
       .main-content { margin-left: 220px; }
     }
+    .sidebar-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; color: white; font-size: 1.25rem; text-decoration: none; }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
@@ -156,9 +157,7 @@
 <!-- MOBILE SIDEBAR OVERLAY -->
 <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
   <div class="sidebar">
-    <a href="/dashboard.html" style="text-decoration:none;">
-      <span style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:700;font-size:1.35rem;color:white;letter-spacing:-0.02em;">Mealzy</span>
-    </a>
+    <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1v-9.5z"/><path d="M9 21V12h6v9"/></svg></span> Dashboard</a>
       <a href="meal-planner.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 12h14a7 7 0 01-14 0z"/><path d="M8.5 9c0-1.5 1-1.5 1-3"/><path d="M13.5 9c0-1.5 1-1.5 1-3"/></svg></span> Meal Planner</a>
@@ -184,9 +183,7 @@
 <div class="app-layout">
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <a href="/dashboard.html" style="text-decoration:none;">
-      <span style="font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:700;font-size:1.35rem;color:white;letter-spacing:-0.02em;">Mealzy</span>
-    </a>
+    <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
       <a href="dashboard.html" class="active"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1v-9.5z"/><path d="M9 21V12h6v9"/></svg></span> Dashboard</a>
       <a href="meal-planner.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M5 12h14a7 7 0 01-14 0z"/><path d="M8.5 9c0-1.5 1-1.5 1-3"/><path d="M13.5 9c0-1.5 1-1.5 1-3"/></svg></span> Meal Planner</a>
