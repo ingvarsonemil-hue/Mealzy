@@ -30,7 +30,7 @@
     .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
     .slider-label span { font-weight: 600; font-size: 0.88rem; }
     .slider-label .val { font-size: 1rem; font-weight: 800; color: var(--clr-primary); }
-    input[type=range] { width: 100%; accent-color: #3d8b5e; height: 6px; }
+    input[type=range] { width: 100%; accent-color: var(--clr-primary); height: 6px; }
     .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
     .output-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.75rem; padding: 1.25rem; text-align: center; }
     .output-card.primary { border-color: var(--clr-primary); background: var(--clr-primary-light); }
@@ -65,7 +65,7 @@
     <input type="password" id="adminToken" placeholder="PRO_TOKEN" onkeydown="if(event.key==='Enter')checkToken()" />
     <button onclick="checkToken()" class="btn btn-primary btn-full">Unlock</button>
     <p style="font-size:0.75rem;margin-top:0.75rem;color:var(--clr-muted-fg);">Token is stored locally until you clear it.</p>
-    <p id="tokenError" style="color:#dc2626;font-size:0.8rem;display:none;">Wrong token. Try again.</p>
+    <p id="tokenError" style="color:var(--clr-destructive);font-size:0.8rem;display:none;">Wrong token. Try again.</p>
   </div>
 </div>
 

@@ -125,8 +125,7 @@
     .stat-card {
       background: var(--clr-card) !important;
       border: 1px solid var(--clr-border);
-      border-top: 3px solid var(--clr-primary) !important;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      box-shadow: 0 1px 4px rgba(26,61,43,0.08);
     }
     .stat-card .stat-value { color: var(--clr-primary) !important; }
     [data-theme="dark"] .stat-card { background: rgba(255,255,255,0.06) !important; }
@@ -293,7 +292,7 @@
 
     <!-- STAT CARDS -->
     <div class="grid-4" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
-      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--clr-surface);">
+      <div class="stat-card">
         <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
         <div class="stat-value" id="statCalories" style="color:var(--clr-foreground);">0</div>
         <div class="stat-sub" id="statCaloriesSub">of 0 kcal goal</div>
@@ -301,7 +300,7 @@
           <div class="progress-bar-fill" id="caloriesProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--clr-surface);">
+      <div class="stat-card">
         <div class="stat-label" data-i18n="stat_protein">Protein</div>
         <div class="stat-value" id="statProtein" style="color:var(--clr-foreground);">0g</div>
         <div class="stat-sub" id="statProteinSub">of 0g goal</div>
@@ -309,12 +308,12 @@
           <div class="progress-bar-fill accent" id="proteinProgress" style="width:0%;"></div>
         </div>
       </div>
-      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--clr-surface);">
+      <div class="stat-card">
         <div class="stat-label" data-i18n="stat_meals_done">Meals Done</div>
         <div class="stat-value" id="statMealsDone" style="color:var(--clr-foreground);">0/0</div>
         <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
       </div>
-      <div class="stat-card" style="border-top:3px solid var(--color-green);background:var(--clr-surface);">
+      <div class="stat-card">
         <div class="stat-label" data-i18n="stat_water">Water</div>
         <div class="stat-value" id="statWater" style="font-size:2rem;font-weight:700;color:var(--clr-foreground);">0</div>
         <div class="stat-sub" id="statWaterSub">of 8 goal</div>
