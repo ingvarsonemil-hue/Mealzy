@@ -63,7 +63,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 .nav-links a { text-decoration: none; color: var(--clr-muted-fg); font-weight: 500; font-size: 0.9rem; transition: color var(--duration-fast); }
 .nav-links a:hover { color: var(--clr-primary); }
 .nav-actions { display: flex; align-items: center; gap: 0.75rem; }
-.logo { display: flex; align-items: center; gap: 0.6rem; font-weight: 800; font-size: 1.2rem; text-decoration: none; color: var(--clr-foreground); }
+.logo { display: flex; align-items: center; gap: 0.6rem; font-weight: 800; font-size: 1.2rem; font-style: italic; text-decoration: none; color: var(--clr-foreground); }
 .logo-icon { width: 38px; height: 38px; border-radius: 0.65rem; background: var(--clr-primary); display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; }
 .hamburger span { display: block; width: 24px; height: 2px; background: var(--clr-foreground); margin: 5px 0; transition: all var(--duration-base); }
