@@ -42,7 +42,7 @@
     }
     [data-theme="dark"] body,
     [data-theme="dark"] .main-content {
-      background: var(--color-muted-bg) !important;
+      background: var(--clr-muted-bg) !important;
     }
     [data-theme="dark"] .stat-card,
     [data-theme="dark"] .metric-card {
@@ -209,12 +209,22 @@
         <h3>Daily Calories (Last 7 Days)</h3>
         <canvas id="caloriesChart" height="200" role="img" aria-label="Daily calorie intake line chart showing last 7 days with goal reference line"></canvas>
         <p class="sr-only" id="caloriesChartDesc">Line chart showing your daily calorie intake over the last 7 days compared to your calorie goal. Values are loaded from your nutrition log.</p>
+        <div id="caloriesEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--clr-muted-fg);" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <div style="font-weight:700;font-size:1rem;margin:0.75rem 0 0.3rem;">No data yet</div>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);max-width:260px;margin:0 auto;line-height:1.5;">Generate your first meal plan to see analytics here.</p>
+        </div>
       </div>
       <!-- Protein Chart -->
       <div class="chart-card">
         <h3>Daily Protein (Last 7 Days)</h3>
         <canvas id="proteinChart" height="200" role="img" aria-label="Daily protein intake bar chart showing last 7 days with goal reference line"></canvas>
         <p class="sr-only" id="proteinChartDesc">Bar chart showing your daily protein intake in grams over the last 7 days compared to your protein goal. Bars shown in green when goal is met, orange when below.</p>
+        <div id="proteinEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--clr-muted-fg);" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <div style="font-weight:700;font-size:1rem;margin:0.75rem 0 0.3rem;">No data yet</div>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);max-width:260px;margin:0 auto;line-height:1.5;">Generate your first meal plan to see analytics here.</p>
+        </div>
       </div>
     </div>
 
@@ -225,6 +235,11 @@
         <div style="max-width:280px;margin:0 auto;">
           <canvas id="macroChart" height="280" role="img" aria-label="Weekly average macronutrient distribution doughnut chart showing protein, carbs, and fat breakdown"></canvas>
           <p class="sr-only" id="macroChartDesc">Doughnut chart showing your weekly average macronutrient breakdown as a percentage of total calories, split between protein, carbohydrates, and fat.</p>
+        </div>
+        <div id="macroEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--clr-muted-fg);" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l4 4"/></svg>
+          <div style="font-weight:700;font-size:1rem;margin:0.75rem 0 0.3rem;">No data yet</div>
+          <p style="font-size:0.85rem;color:var(--clr-muted-fg);max-width:260px;margin:0 auto;line-height:1.5;">Generate your first meal plan to see analytics here.</p>
         </div>
       </div>
       <!-- Consistency & Streak Info -->
@@ -416,6 +431,13 @@
     const goalCals = profile?.dailyCalories || 2000;
     const goalProtein = profile?.macros?.protein || 150;
 
+    const noCalories = caloriesData.every(v => v === 0);
+    const noProtein  = proteinData.every(v => v === 0);
+    document.getElementById('caloriesChart').style.display = noCalories ? 'none' : '';
+    document.getElementById('caloriesEmpty').style.display  = noCalories ? '' : 'none';
+    document.getElementById('proteinChart').style.display  = noProtein ? 'none' : '';
+    document.getElementById('proteinEmpty').style.display   = noProtein ? '' : 'none';
+
     // Calories Line Chart
     const caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
     new Chart(caloriesCtx, {
@@ -496,6 +518,10 @@
     const avgProtein = Math.round(proteinData.reduce((a, b) => a + b, 0) / 7);
     const avgCarbs = Math.round(days.map((d, i) => getLogOrSample(d, i).carbs || 0).reduce((a, b) => a + b, 0) / 7);
     const avgFat = Math.round(days.map((d, i) => getLogOrSample(d, i).fat || 0).reduce((a, b) => a + b, 0) / 7);
+
+    const noMacros = avgProtein + avgCarbs + avgFat === 0;
+    document.getElementById('macroChart').closest('div').style.display = noMacros ? 'none' : '';
+    document.getElementById('macroEmpty').style.display = noMacros ? '' : 'none';
 
     new Chart(macroCtx, {
       type: 'doughnut',

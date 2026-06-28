@@ -116,14 +116,14 @@
   <!-- Hero -->
   <div class="upgrade-hero-section">
     <div class="upgrade-hero">
-      <div class="eyebrow">Mealzy Pro</div>
+      <div style="font-family:var(--font-display);font-style:italic;color:var(--clr-primary);margin-bottom:0.6rem;font-size:0.9rem;font-weight:700;">Mealzy Pro</div>
       <h1>Unlock the full Mealzy experience</h1>
       <p>You've seen how fast it works. Pro removes all limits — and adds features that make it genuinely better every week.</p>
     </div>
 
     <!-- Billing toggle -->
     <div class="toggle-wrap">
-    <span class="billing-label" id="lblMonthly" onclick="setMode('monthly')">Monthly</span>
+    <span class="billing-label" id="lblMonthly" onclick="setMode('monthly')" aria-checked="true">Monthly</span>
     <button type="button" role="switch" aria-checked="true" aria-label="Billing period" style="position:relative;width:44px;height:24px;background:rgba(255,255,255,0.25);border-radius:2rem;cursor:pointer;flex-shrink:0;border:none;padding:0;" onclick="setMode(billingMode==='monthly'?'yearly':'monthly')">
       <div id="toggleDot" style="position:absolute;top:3px;left:23px;width:18px;height:18px;background:white;border-radius:50%;transition:left 0.2s;"></div>
     </button>
