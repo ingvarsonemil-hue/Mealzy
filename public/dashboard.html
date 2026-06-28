@@ -107,28 +107,27 @@
       .ring-card-v2 svg { width: 80px !important; height: 80px !important; }
     }
 
-    /* Quick action cards — override inline border-left side-stripe */
+    /* Quick action cards */
     .quick-action-card {
-      border-left: none !important;
-      border: 1px solid var(--clr-border) !important;
+      border: 1px solid var(--clr-border);
       box-shadow: 0 1px 4px rgba(0,0,0,0.07);
     }
     .quick-action-card:hover {
-      border-color: var(--clr-primary) !important;
+      border-color: var(--clr-primary);
     }
     [data-theme="dark"] .quick-action-card {
-      border-color: rgba(255,255,255,0.08) !important;
-      background: rgba(255,255,255,0.05) !important;
+      border-color: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.05);
     }
 
-    /* Stat cards — override inline color tokens with design system values */
+    /* Stat cards */
     .stat-card {
-      background: var(--clr-card) !important;
+      background: var(--clr-card);
       border: 1px solid var(--clr-border);
       box-shadow: 0 1px 4px rgba(26,61,43,0.08);
     }
-    .stat-card .stat-value { color: var(--clr-primary) !important; }
-    [data-theme="dark"] .stat-card { background: rgba(255,255,255,0.06) !important; }
+    .stat-card .stat-value { color: var(--clr-primary); }
+    [data-theme="dark"] .stat-card { background: rgba(255,255,255,0.06); }
 
     /* Responsive sidebar for tablets */
     @media (max-width: 1024px) {
@@ -294,7 +293,7 @@
     <div class="grid-4" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
       <div class="stat-card">
         <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
-        <div class="stat-value" id="statCalories" style="color:var(--clr-foreground);">0</div>
+        <div class="stat-value" id="statCalories">0</div>
         <div class="stat-sub" id="statCaloriesSub">of 0 kcal goal</div>
         <div class="progress-bar-wrap" style="margin-top:0.75rem;">
           <div class="progress-bar-fill" id="caloriesProgress" style="width:0%;"></div>
@@ -302,7 +301,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-label" data-i18n="stat_protein">Protein</div>
-        <div class="stat-value" id="statProtein" style="color:var(--clr-foreground);">0g</div>
+        <div class="stat-value" id="statProtein">0g</div>
         <div class="stat-sub" id="statProteinSub">of 0g goal</div>
         <div class="progress-bar-wrap" style="margin-top:0.75rem;">
           <div class="progress-bar-fill accent" id="proteinProgress" style="width:0%;"></div>
@@ -310,12 +309,12 @@
       </div>
       <div class="stat-card">
         <div class="stat-label" data-i18n="stat_meals_done">Meals Done</div>
-        <div class="stat-value" id="statMealsDone" style="color:var(--clr-foreground);">0/0</div>
+        <div class="stat-value" id="statMealsDone">0/0</div>
         <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
       </div>
       <div class="stat-card">
         <div class="stat-label" data-i18n="stat_water">Water</div>
-        <div class="stat-value" id="statWater" style="font-size:2rem;font-weight:700;color:var(--clr-foreground);">0</div>
+        <div class="stat-value" id="statWater" style="font-size:2rem;font-weight:700;">0</div>
         <div class="stat-sub" id="statWaterSub">of 8 goal</div>
         <div id="waterGlasses" style="margin-top:0.5rem;font-size:0.88rem;color:var(--clr-muted-fg);"></div>
       </div>
@@ -373,7 +372,7 @@
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="view_progress">View Progress</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Track calories and macros</p>
         </a>
-        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;border:1px solid var(--clr-border);text-align:left;font-family:inherit;width:100%;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-align:left;font-family:inherit;width:100%;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M3.5 6C3.5 5 4.2 4.5 5 4.5H19C19.8 4.5 20.5 5 20.5 6V18C20.5 19 19.8 19.5 19 19.5H5C4.2 19.5 3.5 19 3.5 18V6Z"/><path d="M8.5 4.5V19.5"/><circle cx="14.5" cy="12" r="3.5"/><path d="M14.5 9.5C13.5 8.5 12.5 8.2 12 9C11.5 9.8 12.5 11 13 11.5"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="import_recipe">Import Recipe</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Scan or paste a recipe</p>
@@ -402,7 +401,7 @@
         <span class="text-muted text-sm" data-i18n="calorie_history_sub">vs your daily goal</span>
       </div>
       <div style="height:180px;position:relative;">
-        <canvas id="calorieHistoryChart"></canvas>
+        <canvas id="calorieHistoryChart" role="img" aria-label="7-day calorie history bar chart showing daily intake versus daily goal"></canvas>
       </div>
     </div>
   </div><!-- /#dashboardContent -->

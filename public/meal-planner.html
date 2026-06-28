@@ -44,13 +44,6 @@
       background: var(--clr-background);
     }
 
-    /* ── Meal grid layout ─────────────────────────────────── */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
     /* ── Date navigator ─────────────────────────────────── */
     .date-navigator {
       display: flex;
@@ -230,8 +223,8 @@
       box-shadow: 0 0 0 1px var(--clr-border), 0 4px 24px rgba(0,0,0,0.3);
     }
     .empty-state-icon {
-      width: 56px; height: 56px;
-      background: rgba(61, 139, 94, 0.1);
+      width: 64px; height: 64px;
+      background: var(--clr-primary-light);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 1rem;
@@ -478,9 +471,9 @@
 
     <!-- DATE NAVIGATOR (day view only) -->
     <div class="date-navigator" id="dateNavigator">
-      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;">&#8592; Prev</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;" aria-label="Go to previous week">&#8592; Prev</button>
       <div class="date-display" id="dateDisplay">Today</div>
-      <button class="btn btn-outline btn-sm" onclick="changeDate(1)" style="min-height:44px;">Next &#8594;</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(1)" style="min-height:44px;" aria-label="Go to next week">Next &#8594;</button>
       <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Generate AI Plan

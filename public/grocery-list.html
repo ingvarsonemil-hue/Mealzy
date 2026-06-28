@@ -212,6 +212,12 @@
       background: rgba(61,139,94,0.2) !important;
       color: #3d8b5e !important;
     }
+
+    /* Checkbox focus ring */
+    .grocery-item input[type="checkbox"]:focus-visible {
+      outline: 2px solid var(--clr-brand, var(--clr-primary));
+      outline-offset: 2px;
+    }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
@@ -393,7 +399,7 @@
     </div>
 
     <!-- Instacart Affiliate Banner -->
-    <div class="instacart-banner" id="instacartBanner">
+    <div class="instacart-banner" id="instacartBanner" role="region" aria-label="Grocery categories">
       <div class="instacart-banner-inner">
         <div class="instacart-banner-text">
           <div class="instacart-banner-logo">
@@ -585,7 +591,7 @@
       if (items.length === 0) continue;
       html += `
         <div class="category-group category-group-animated">
-          <div class="category-header">
+          <div class="category-header" role="heading" aria-level="3">
             <span style="display:flex;align-items:center;">${config.icon}</span>
             <span>${config.label}</span>
             <span class="badge badge-muted" style="margin-left:auto;">${items.length}</span>
@@ -593,7 +599,7 @@
           <div>
             ${items.map((item, idx) => `
               <div class="grocery-item ${item.checked ? 'checked' : ''}" id="item-${catKey}-${idx}">
-                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleItem('${catKey}', ${idx}, this.checked)" />
+                <input type="checkbox" ${item.checked ? 'checked' : ''} aria-checked="${item.checked ? 'true' : 'false'}" onchange="toggleItem('${catKey}', ${idx}, this.checked)" />
                 <span class="grocery-item-name">${item.name}</span>
                 <span class="grocery-item-qty">${item.amount || ''}</span>
                 ${item.cost ? `<span class="grocery-item-cost">${sym}${item.cost.toFixed(2)}</span>` : ''}
