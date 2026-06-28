@@ -1265,7 +1265,28 @@ app.post('/api/track', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/analytics', requireAdmin, async (req, res) => {
+app.get('/api/analytics', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  const proToken = req.headers['x-pro-token'];
+  const isAdmin  = proToken && process.env.PRO_TOKEN &&
+                   timingSafeCompare(proToken, process.env.PRO_TOKEN);
+
+  if (!isAdmin) {
+    const monthStart = new Date();
+    monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
+    const monthStartStr = monthStart.toISOString().replace('T', ' ').slice(0, 19);
+    const genRow = await db.get(
+      `SELECT COUNT(*) as n FROM analytics WHERE event = 'generate_plan' AND json_extract(data, '$.userId') = ? AND created_at >= ?`,
+      [session.userId, monthStartStr]
+    );
+    const plans = await db.getRecentPlans(session.userId, 100);
+    return res.json({
+      plans_this_month:  genRow?.n || 0,
+      total_plans_saved: plans.length,
+    });
+  }
 
   const events = await db.getAnalytics();
   const now    = new Date();
@@ -1480,8 +1501,10 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
     const language           = sanitise(profile.language || 'en', 10);
     const languageNames = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };
     const languageName   = languageNames[language] || 'English';
-    const dailyBudget    = (budget / 7).toFixed(2);
-    const perMealBudget  = (budget / 7 / 4).toFixed(2);
+    const priceTierMultiplier = profile.price_tier === 'budget' ? 0.8 : profile.price_tier === 'premium' ? 1.3 : 1.0;
+    const priceTierLabel = profile.price_tier === 'budget' ? 'Budget' : profile.price_tier === 'premium' ? 'Premium' : 'Mid-range';
+    const dailyBudget    = (budget / 7 * priceTierMultiplier).toFixed(2);
+    const perMealBudget  = (budget / 7 / 4 * priceTierMultiplier).toFixed(2);
 
     // ── Dietary restriction enforcement — explicit banned lists per preference ──
     // These blocks go at the TOP of all meal plan prompts (most important instruction first).
@@ -1634,7 +1657,14 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       snack:     Math.round(dailyCalories * 0.10),
     };
 
-    const fullPlanPrompt = `${dietaryBlock}${allergyBlock}Generate a practical, delicious daily meal plan for ${name} on ${date}.
+    const ingredientOverlapLine = `Ingredient efficiency: prioritize reusing ingredients across meals. If spinach is used at breakfast, use the remainder at lunch or dinner. If chicken is used at dinner, use leftovers in tomorrow's lunch. Minimize the number of unique ingredients across the 4 meals.`;
+    const batchCookingLine = profile.batch_cooking
+      ? `BATCH COOKING MODE: Make dinner yield 3 servings. Schedule the leftovers as Tuesday and Wednesday lunch automatically — label them as 'Leftover: [dinner name]' with identical macros. This reduces daily cooking time significantly.`
+      : '';
+
+    const fullPlanPrompt = `${dietaryBlock}${allergyBlock}${ingredientOverlapLine}
+
+Generate a practical, delicious daily meal plan for ${name} on ${date}.
 
 Cuisine style: ${todayCuisine}. Variety seed: ${randomSeed}. Suggested protein for ONE meal only: ${todayProtein} (use different proteins across other meals for variety — no protein should appear in more than 2 of the 4 meals).
 Use real, everyday supermarket ingredients. Meals must be realistic for a home cook.
@@ -1649,8 +1679,9 @@ User profile:
 - STRICT DAILY BUDGET: ${currency} ${dailyBudget} total. Each meal max ${currency} ${perMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
 - BUDGET MATH: The totalCost field MUST equal the exact arithmetic sum of all 4 estimatedCost values (breakfast + lunch + dinner + snack). Never echo the budget ceiling as totalCost — report only the actual calculated cost.
 - MACRO CALCULATION: Derive each meal's protein, carbs, and fat from its actual ingredients and realistic portion sizes — do not reverse-engineer numbers to hit the daily targets. Each meal must satisfy: (protein×4 + carbs×4 + fat×9) within ±50 kcal of its stated calories field.
+- User's price tier: ${priceTierLabel}. Adjust ingredient quality and brand expectations accordingly — Budget means value supermarket staples, Premium means quality cuts and fresh produce.
 
-${avoidBlock}
+${batchCookingLine ? batchCookingLine + '\n\n' : ''}${avoidBlock}
 
 ${proInstructions}
 
@@ -2079,7 +2110,15 @@ app.get('/api/ref-lookup', async (req, res) => {
 // ANALYTICS FUNNEL — admin endpoint
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/analytics/funnel', requireAdmin, async (req, res) => {
+app.get('/api/analytics/funnel', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
+  const proToken = req.headers['x-pro-token'];
+  const isAdmin  = proToken && process.env.PRO_TOKEN &&
+                   timingSafeCompare(proToken, process.env.PRO_TOKEN);
+  if (!isAdmin) return res.status(401).json({ error: 'Unauthorized' });
+
   try {
     const stats = await db.getFunnelStats();
     res.json(stats);

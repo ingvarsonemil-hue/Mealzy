@@ -742,6 +742,7 @@
           </label>
           <div class="mcv2-btns">
             <span class="mcv2-stat text-muted">${ICO.grain} ${meal.carbs}g &nbsp;${ICO.drop} ${meal.fat}g</span>
+            <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i}, '${meal.type}')" style="font-size:0.78rem;padding:0.25rem 0.65rem;min-height:32px;">Swap</button>
           </div>
         </div>
         <div class="mcv2-expand">
@@ -1198,6 +1199,44 @@
   });
 
   init();
+
+  async function swapMeal(index, type) {
+    const btn = document.getElementById('swapBtn' + index);
+    if (btn) { btn.disabled = true; btn.textContent = 'Swapping...'; }
+
+    try {
+      const res = await fetch('/api/generate-meal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile, date: currentDateStr, swap_meal_type: type })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showToast('Could not swap meal. Try again.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Swap'; }
+        return;
+      }
+      currentMeals[index] = data.meal;
+      const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+      if (plans[currentDateStr]) {
+        plans[currentDateStr].meals = currentMeals;
+        localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+      }
+      renderMeals();
+      updateTotals();
+      const cards = document.querySelectorAll('.meal-card-v2');
+      const card = cards[index];
+      if (card) {
+        card.style.outline = '2px solid #3d8b5e';
+        card.style.outlineOffset = '2px';
+        setTimeout(() => { card.style.outline = ''; card.style.outlineOffset = ''; }, 600);
+      }
+    } catch(e) {
+      showToast('Could not swap meal. Check your connection.', 'error');
+      const b = document.getElementById('swapBtn' + index);
+      if (b) { b.disabled = false; b.textContent = 'Swap'; }
+    }
+  }
 
   // Close limit modal on backdrop click
   document.getElementById('limitModal').addEventListener('click', function(e) {

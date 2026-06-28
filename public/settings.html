@@ -455,6 +455,14 @@
           <button class="chip" aria-pressed="false" data-allergy="pork" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">No Pork</button>
         </div>
       </div>
+      <div class="form-group">
+        <label class="form-label" for="settingPriceTier">Price tier</label>
+        <select class="form-select" id="settingPriceTier">
+          <option value="mid-range">Mid-range</option>
+          <option value="budget">Budget</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
       <button class="btn btn-primary btn-sm" onclick="saveDiet()">Save Preferences</button>
     </div>
 
@@ -561,6 +569,16 @@
             <option value="PHP">? PHP</option>
           </select>
         </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--clr-border);margin-bottom:0.75rem;">
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;">Batch cooking mode</div>
+          <div style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:0.15rem;">Cook dinner in bulk — AI uses leftovers for Tue/Wed lunch</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="settingBatchCooking" />
+          <span class="toggle-slider"></span>
+        </label>
       </div>
       <button class="btn btn-primary btn-sm" onclick="saveCooking()">Save Cooking Preferences</button>
     </div>
@@ -847,6 +865,8 @@
     document.getElementById('settingCookTime').value = cookTime;
     document.getElementById('settingCookTimeVal').textContent = cookTime + ' min';
     document.getElementById('settingBudget').value = profile.budget || 100;
+    document.getElementById('settingPriceTier').value = profile.price_tier || 'mid-range';
+    document.getElementById('settingBatchCooking').checked = !!profile.batch_cooking;
 
     const currency = profile.currency || 'USD';
     document.getElementById('settingCurrency').value = currency;
@@ -977,6 +997,7 @@
   function saveDiet() {
     profile.dietaryPrefs = Array.from(document.querySelectorAll('#settingDietChips .chip.active')).map(c => c.dataset.pref);
     profile.allergies = Array.from(document.querySelectorAll('#settingAllergyChips .chip.active')).map(c => c.dataset.allergy);
+    profile.price_tier = document.getElementById('settingPriceTier').value;
     saveProfile();
     showToast('? Dietary preferences saved!', 'success');
   }
@@ -990,6 +1011,7 @@
     profile.currency = document.getElementById('settingCurrency').value;
     profile.preferred_cuisine = document.getElementById('settingCuisine').value;
     profile.language = document.getElementById('settingLanguage').value;
+    profile.batch_cooking = document.getElementById('settingBatchCooking').checked;
     saveProfile();
     showToast('? Cooking preferences saved!', 'success');
   }
