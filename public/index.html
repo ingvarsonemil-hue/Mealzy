@@ -138,7 +138,26 @@ gtag('config', 'G-27FWEVV6VD');
 <meta name="apple-mobile-web-app-title" content="Mealzy">
 <link rel="dns-prefetch" href="/api">
 <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
-<script src="/js/utils.js"></script>
+<script src="/js/utils.js" defer></script>
+<style>
+  /* How it works — dot markers replacing 01/02/03 numerals */
+  .how-dot {
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--clr-primary);
+    flex-shrink: 0;
+    margin-top: 0.35rem;
+  }
+  /* Section rhythm breaks replacing eyebrow labels */
+  .section-rhythm-break {
+    border: none;
+    border-top: 1px solid var(--clr-border);
+    margin: 0;
+    padding: 0;
+  }
+</style>
 <script>
 // Inline theme init synchronously before content renders to avoid FOUC
 (function(){
@@ -288,7 +307,6 @@ gtag('config', 'G-27FWEVV6VD');
     </div>
     <!-- Static teaser shown before demo runs -->
     <div id="demoTeaser" class="section-header reveal">
-      <span class="section-label">See it in action</span>
       <h2 class="section-title">Generate a real sample plan — no account needed.</h2>
       <p class="section-sub">Enter your goals above and see what Mealzy actually builds. No email. No sign-up. Just the plan.</p>
     </div>
@@ -299,7 +317,6 @@ gtag('config', 'G-27FWEVV6VD');
 <section class="showcase" id="features" aria-labelledby="showcase-heading">
   <div class="container">
     <div class="section-header reveal">
-      <span class="section-label">What you get</span>
       <h2 id="showcase-heading" class="section-title">Your week, planned and ready to shop.</h2>
     </div>
     <div class="showcase-grid">
@@ -341,25 +358,24 @@ gtag('config', 'G-27FWEVV6VD');
 <section class="how" id="how-it-works" aria-labelledby="how-heading">
   <div class="container">
     <div class="how-header reveal" style="margin-bottom:clamp(2rem,4vw,3.5rem);">
-      <span class="section-label">How it works</span>
       <h2 id="how-heading" class="section-title">Three steps. Under 2 minutes.</h2>
     </div>
     <div class="how-step reveal" data-delay="0">
-      <span class="how-numeral" aria-hidden="true">01</span>
+      <span class="how-dot" aria-hidden="true"></span>
       <div>
         <h3 class="how-title">Tell Mealzy about you</h3>
         <p class="how-body">Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes and it remembers everything.</p>
       </div>
     </div>
     <div class="how-step reveal" data-delay="80">
-      <span class="how-numeral" aria-hidden="true">02</span>
+      <span class="how-dot" aria-hidden="true"></span>
       <div>
         <h3 class="how-title">Get your week in 30 seconds</h3>
         <p class="how-body">Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like something — swap it in one click.</p>
       </div>
     </div>
     <div class="how-step reveal" data-delay="160">
-      <span class="how-numeral" aria-hidden="true">03</span>
+      <span class="how-dot" aria-hidden="true"></span>
       <div>
         <h3 class="how-title">Shop from the list, cook, repeat</h3>
         <p class="how-body">The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system.</p>
@@ -372,7 +388,6 @@ gtag('config', 'G-27FWEVV6VD');
 <section class="features-section" aria-labelledby="features-heading">
   <div class="container">
     <div class="section-header reveal">
-      <span class="section-label">What Mealzy does</span>
       <h2 id="features-heading" class="section-title">Everything in one place. Nothing you don't need.</h2>
     </div>
     <div class="grid-3" style="gap:1.5rem;">
@@ -503,7 +518,6 @@ gtag('config', 'G-27FWEVV6VD');
 <section class="cta-section" aria-labelledby="cta-heading">
   <div class="container">
     <div class="reveal">
-      <span class="section-label">Get started</span>
       <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;color:white;">Stop planning meals by hand.</h2>
       <p class="cta-lede" style="color:rgba(255,255,255,0.75);">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">

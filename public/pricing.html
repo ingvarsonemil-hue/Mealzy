@@ -48,6 +48,7 @@
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
     @keyframes pricePop { 0%{transform:scale(0.95);opacity:0.7} 100%{transform:scale(1);opacity:1} }
+    @keyframes pricingPulse { 0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)} }
     @keyframes cardRise { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
     .price-animated { animation: pricePop 0.25s ease; }
     #cardFree    { opacity:0; animation: cardRise 0.5s var(--ease-edit,cubic-bezier(0.16,1,0.3,1)) 0.10s both; }
@@ -298,7 +299,7 @@
   <div class="container" style="text-align:center;">
     <span class="section-label">Simple Pricing</span>
     <h1 class="pricing-hero-headline" style="animation:slideUp 0.45s var(--ease-edit) 0.15s both;font-family:var(--font-display);font-style:italic;font-weight:700;">
-      Mealzy pricing — free plan included, no credit card needed
+      Simple pricing. Start free.
     </h1>
 <p class="pricing-hero-sub" style="font-size:var(--text-lg);color:var(--clr-muted-fg);max-width:480px;margin:0.75rem auto 2.5rem;animation:slideUp 0.45s var(--ease-edit) 0.23s both;">
       Start free — 3 meal plans per month, no credit card required.
@@ -330,16 +331,16 @@
         </div>
         <a href="login.html?signup=1" class="btn" style="width:100%;justify-content:center;margin-bottom:1.5rem;background:var(--clr-primary);color:white;border:none;">Start Free</a>
         <ul class="pricing-features">
-          <li><span class="check">✓</span> 3 meal plans per month</li>
-          <li><span class="check">✓</span> Automatic grocery list</li>
-          <li><span class="check">✓</span> Budget tracking</li>
-          <li><span class="check">✓</span> Calorie and macro targets</li>
-          <li><span class="check">✓</span> AI Coach — 10 messages/day</li>
-          <li><span class="check">✓</span> 11 languages</li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Unlimited plan generation</span></li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Unlimited AI coach</span></li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Priority generation speed</span></li>
-          <li><span class="cross">✗</span> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">PDF export</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 3 meal plans per month</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Automatic grocery list</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Budget tracking</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Calorie and macro targets</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> AI Coach — 10 messages/day</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 11 languages</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><line x1="4" y1="4" x2="12" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/></svg> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Unlimited plan generation</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><line x1="4" y1="4" x2="12" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/></svg> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Unlimited AI coach</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><line x1="4" y1="4" x2="12" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/></svg> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">Priority generation speed</span></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><line x1="4" y1="4" x2="12" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="4" x2="4" y2="12" stroke="var(--clr-muted-fg)" stroke-width="2" stroke-linecap="round"/></svg> <span class="feat-disabled" style="color:var(--clr-muted-fg);opacity:0.55;">PDF export</span></li>
         </ul>
       </div>
 
@@ -362,16 +363,16 @@
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
         <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $8/mo — cancel any time.</p>
         <ul class="pricing-features">
-          <li><span class="check">✓</span> <strong>Unlimited</strong> meal plans</li>
-          <li><span class="check">✓</span> Automatic grocery list</li>
-          <li><span class="check">✓</span> Budget tracking</li>
-          <li><span class="check">✓</span> Calorie and macro targets</li>
-          <li><span class="check">✓</span> <strong>Unlimited</strong> AI Coach</li>
-          <li><span class="check">✓</span> 11 languages</li>
-          <li><span class="check">✓</span> Priority generation — 2x faster</li>
-          <li><span class="check">✓</span> PDF meal plan export</li>
-          <li><span class="check">✓</span> Advanced macro splits per meal</li>
-          <li><span class="check">✓</span> Cancel anytime</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <strong>Unlimited</strong> meal plans</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Automatic grocery list</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Budget tracking</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Calorie and macro targets</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <strong>Unlimited</strong> AI Coach</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 11 languages</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Priority generation — 2x faster</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> PDF meal plan export</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Advanced macro splits per meal</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Cancel anytime</li>
         </ul>
       </div>
 
@@ -389,14 +390,14 @@
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
         <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
-          <li><span class="check">✓</span> <strong>Everything in Pro</strong></li>
-          <li><span class="check">✓</span> Up to <strong>4 individual profiles</strong></li>
-          <li><span class="check">✓</span> Separate calorie &amp; macro goals per person</li>
-          <li><span class="check">✓</span> Allergen management per profile</li>
-          <li><span class="check">✓</span> Combined grocery list (one shop, everyone covered)</li>
-          <li><span class="check">✓</span> Unlimited meal plans for all profiles</li>
-          <li><span class="check">✓</span> Priority support</li>
-          <li><span class="check">✓</span> Cancel anytime</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <strong>Everything in Pro</strong></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Up to <strong>4 individual profiles</strong></li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Separate calorie &amp; macro goals per person</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Allergen management per profile</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Combined grocery list (one shop, everyone covered)</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Unlimited meal plans for all profiles</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Priority support</li>
+          <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Cancel anytime</li>
         </ul>
       </div>
 

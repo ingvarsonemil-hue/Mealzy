@@ -157,29 +157,26 @@
       display: flex;
       gap: 0;
       margin-bottom: 1.5rem;
-      background: var(--clr-muted-bg);
-      border-radius: 0.6rem;
-      padding: 0.2rem;
+      border-bottom: 1px solid var(--clr-border);
     }
     .auth-tab {
       flex: 1;
       padding: 0.55rem 1rem;
       border: none;
       background: none;
-      border-radius: 0.45rem;
+      border-radius: 0;
       font-family: var(--font-body);
       font-size: 0.88rem;
       font-weight: 600;
       color: var(--clr-muted-fg);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: color 0.15s, border-color 0.15s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
     }
     .auth-tab.active {
-      background: rgba(255,255,255,0.25);
-      border-bottom: 2px solid #ffffff;
-      border-radius: 6px;
-      color: #fff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+      border-bottom: 2px solid var(--clr-primary);
+      color: var(--clr-foreground);
     }
 
     /* ── Google button ────────────────────────── */
@@ -244,7 +241,6 @@
       font-family: var(--font-body);
       font-size: 1rem;
       transition: border-color 0.15s, box-shadow 0.15s;
-      outline: none;
       min-height: 44px;
     }
     .form-input:focus {
@@ -512,7 +508,8 @@
   function showError(msg) {
     const el = document.getElementById('authError');
     el.textContent = msg;
-    el.style.borderLeftColor = '#c0392b';
+    el.style.background = 'rgba(192,57,43,0.08)';
+    el.style.borderLeft = 'none';
     el.style.color = '#c0392b';
     el.classList.add('show');
   }
