@@ -22,6 +22,9 @@
   --color-error:       #ef4444;
   --color-brick:       #c2410c;
 
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--color-green) 0%, var(--color-forest) 100%);
+
   /* Semantic Roles (intent-based) */
   --color-surface:           var(--color-cream);
   --color-surface-secondary: var(--color-muted-bg);

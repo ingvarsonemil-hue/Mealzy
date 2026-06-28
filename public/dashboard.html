@@ -1010,7 +1010,7 @@
         <div id="upgradeStage1">
           
           <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;color:var(--clr-foreground);">You've hit your free limit</h2>
-          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$12/month</strong>. Your grocery list is waiting.</p>
+          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$8/month</strong>. Your grocery list is waiting.</p>
           <div style="background:var(--clr-surface);border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:var(--clr-brand);text-align:left;">
             Unlimited AI meal plans<br>
             Full recipes with steps & ingredients<br>
@@ -1018,7 +1018,7 @@
             Priority AI coaching
           </div>
           <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:var(--clr-brand);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $12/month →</a>
+          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:var(--clr-brand);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
           <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.25rem;">
             <a href="upgrade.html" style="font-size:0.8rem;color:#666;text-decoration:underline;">See all Pro features</a>
             <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
@@ -1026,10 +1026,10 @@
         </div>
         <!-- Abandonment offer (shown after "No thanks") -->
         <div id="upgradeStage2" style="display:none;">
-          <div style="background:#fff7ed;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 0.75rem;">⚡</div>
+          <div style="background:#fff7ed;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg></div>
           <div style="background:var(--clr-destructive, #dc2626);color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
           <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:var(--clr-foreground);">Wait — 50% off, just for you</h2>
-          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $12/month. Cancel any time.</p>
+          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $8/month. Cancel any time.</p>
           <a href="${window.STRIPE_DISCOUNT || window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:var(--clr-destructive, #dc2626);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
           <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
         </div>
@@ -1073,7 +1073,7 @@
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     overlay.innerHTML = `
       <div style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">💌</div>
+        <div style="font-size:2rem;margin-bottom:0.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg></div>
         <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;color:#111;">One last thing</h3>
         <p style="color:#555;font-size:0.85rem;margin-bottom:1rem;line-height:1.6;">
           Enter your email and we'll remind you when your free plans reset next month —
@@ -1824,7 +1824,7 @@
             Unlimited AI coaching
           </div>
           <input type="email" id="upgradeEmailPdf" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="(function(){const e=document.getElementById('upgradeEmailPdf');if(e&&e.value)fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),source:'pdf_upgrade'})}).catch(()=>{});trackEvent('upgrade_click',{source:'pdf_btn'});document.getElementById('upgradePrompt').remove();})()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $12/month →</a>
+          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="(function(){const e=document.getElementById('upgradeEmailPdf');if(e&&e.value)fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),source:'pdf_upgrade'})}).catch(()=>{});trackEvent('upgrade_click',{source:'pdf_btn'});document.getElementById('upgradePrompt').remove();})()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
           <a href="upgrade.html" style="font-size:0.82rem;color:#666;text-decoration:underline;">Learn more about Pro</a>
         </div>`;
       document.body.appendChild(prompt);
