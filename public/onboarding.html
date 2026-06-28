@@ -86,7 +86,7 @@
       display: flex; align-items: center; justify-content: center;
       width: 28px; height: 28px; border-radius: 50%;
       font-size: 0.78rem; font-weight: 700;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.35);
       color: rgba(255,255,255,0.6);
       border: 2px solid rgba(255,255,255,0.3);
       transition: background 0.2s, color 0.2s, border-color 0.2s;
@@ -118,7 +118,6 @@
     /* ── Goal cards — no icons, left-border treatment ──── */
     .goal-grid {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
-      role: radiogroup;
     }
     .goal-card {
       border: 1px solid var(--clr-border);
@@ -270,29 +269,29 @@
       <div class="form-group" style="margin-top:1.25rem;">
         <fieldset style="border:none;padding:0;margin:0;">
           <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
-          <div class="goal-grid">
-            <label class="goal-card" data-goal="build_muscle">
-              <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+          <div class="goal-grid" role="radiogroup" aria-label="Select your goal">
+            <label class="goal-card" data-goal="build_muscle" role="radio" aria-checked="false" tabindex="0">
+              <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Build Muscle</span>
             </label>
-            <label class="goal-card" data-goal="lose_weight">
-              <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="lose_weight" role="radio" aria-checked="false" tabindex="0">
+              <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Lose Weight</span>
             </label>
-            <label class="goal-card" data-goal="maintain_weight">
-              <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="maintain_weight" role="radio" aria-checked="false" tabindex="0">
+              <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Maintain Weight</span>
             </label>
-            <label class="goal-card" data-goal="eat_healthier">
-              <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="eat_healthier" role="radio" aria-checked="false" tabindex="0">
+              <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Eat Healthier</span>
             </label>
-            <label class="goal-card" data-goal="gain_weight">
-              <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="gain_weight" role="radio" aria-checked="false" tabindex="0">
+              <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Gain Weight</span>
             </label>
-            <label class="goal-card" data-goal="improve_energy">
-              <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="improve_energy" role="radio" aria-checked="false" tabindex="0">
+              <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Improve Energy</span>
             </label>
           </div>
@@ -517,11 +516,25 @@
   }
 
   function selectGoal(el) {
-    document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.goal-card').forEach(c => {
+      c.classList.remove('selected');
+      c.setAttribute('aria-checked', 'false');
+    });
     el.classList.add('selected');
+    el.setAttribute('aria-checked', 'true');
     userData.goal = el.dataset.goal;
     hideStepError();
   }
+
+  document.querySelectorAll('.goal-card').forEach(card => {
+    card.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        selectGoal(card);
+        card.querySelector('input[type="radio"]').checked = true;
+      }
+    });
+  });
 
   function toggleChip(el) {
     el.classList.toggle('active');
