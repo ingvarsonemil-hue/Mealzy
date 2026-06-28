@@ -35,23 +35,23 @@
     }
 
     [data-theme="dark"] .main-content {
-      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,30%,11%) 0%, transparent 70%) var(--color-muted-bg);
+      background: radial-gradient(ellipse 80% 35% at 50% 0%, hsl(152,30%,11%) 0%, transparent 70%) var(--clr-muted-bg);
     }
 
-    [data-theme="dark"] body { background: var(--color-muted-bg) !important; }
+    html[data-theme="dark"] body { background: var(--clr-muted-bg); }
 
-    [data-theme="dark"] input[type="text"],
-    [data-theme="dark"] input[type="number"],
-    [data-theme="dark"] select,
-    [data-theme="dark"] .form-input {
-      background: rgba(255,255,255,0.06) !important;
-      border-color: rgba(255,255,255,0.12) !important;
+    html[data-theme="dark"] input[type="text"],
+    html[data-theme="dark"] input[type="number"],
+    html[data-theme="dark"] select,
+    html[data-theme="dark"] .form-input {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
       color: rgba(255,255,255,0.85) !important;
     }
 
     [data-theme="dark"] .card.settings-section {
-      background: rgba(255,255,255,0.05) !important;
-      border: 1px solid rgba(255,255,255,0.08) !important;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     .goal-card {

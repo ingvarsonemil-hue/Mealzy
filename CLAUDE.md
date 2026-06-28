@@ -5,7 +5,7 @@ Free AI meal planner at mealzy.org. Generates a week of personalized meals in 30
 
 **Stack:** Node.js + Express (server.js), Turso SQLite (@libsql/client, db.js), JWT in httpOnly cookies, Stripe subscriptions + webhook, Anthropic claude-haiku-4-5-20251001 (meal gen + AI coach "Mia"), Render free tier, Vanilla HTML/CSS/JS (18 pages in /public/), Winston logger.
 
-**Tiers:** Free (3 plans/month) · Pro $12/mo or $62/yr · Family $16/mo or $130/yr
+**Tiers:** Free (3 plans/month) · Pro $8/mo or $62/yr · Family $16/mo or $130/yr
 
 **Repo:** ingvarsonemil-hue/Mealzy
 
@@ -35,6 +35,7 @@ Free AI meal planner at mealzy.org. Generates a week of personalized meals in 30
 - Single source of truth: public/tokens.css
 - Dark mode: public/theme-init.js (must be first script in every page head)
 - Bump service worker cache version (mealzy-vN in sw.js) on every visual deploy
+- Skills: .claude/skills/mealzy-design.md, .claude/skills/impeccable/SKILL.md, .claude/skills/stop-slop/SKILL.md, .claude/skills/ui-ux-pro-max/SKILL.md
 
 ## File Access
 All project files are at: C:\Users\emili\Documents\mealzy\

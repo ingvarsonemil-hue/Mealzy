@@ -76,7 +76,7 @@
       justify-content: center;
       color: var(--clr-primary);
       flex-shrink: 0;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(26,61,43,0.08);
     }
 
     .instacart-banner-heading {
@@ -133,21 +133,21 @@
     /* Hide banner if user is not in US/CA (set by JS) */
     .instacart-banner.hidden { display: none; }
 
-    [data-theme="dark"] .main-content,
-    [data-theme="dark"] body {
-      background: var(--color-muted-bg) !important;
+    html[data-theme="dark"] .main-content,
+    html[data-theme="dark"] body {
+      background: var(--clr-muted-bg);
     }
 
     [data-theme="dark"] .app-layout {
-      background: var(--color-muted-bg);
+      background: var(--clr-muted-bg);
     }
     [data-theme="dark"] .grocery-header {
-      background: var(--color-muted-bg);
+      background: var(--clr-muted-bg);
     }
-    [data-theme="dark"] #manualItemInput,
-    [data-theme="dark"] .form-input {
-      background: rgba(255,255,255,0.06) !important;
-      border-color: rgba(255,255,255,0.12) !important;
+    html[data-theme="dark"] #manualItemInput,
+    html[data-theme="dark"] .form-input {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
       color: rgba(255,255,255,0.85);
     }
 
@@ -166,8 +166,8 @@
     .grocery-progress {
       border: 1px solid rgba(0,0,0,0.08) !important;
     }
-    [data-theme="dark"] .grocery-progress {
-      border: 1px solid rgba(255,255,255,0.08) !important;
+    html[data-theme="dark"] .grocery-progress {
+      border: 1px solid rgba(255,255,255,0.08);
     }
 
     /* Fix 4: dark mode checkboxes */
