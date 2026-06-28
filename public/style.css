@@ -15,6 +15,7 @@
   --clr-input-bg: var(--color-parchment);
   --clr-muted-fg: var(--color-muted-fg);
   --clr-destructive: var(--color-error);
+  --clr-error: #c0392b;
   --clr-success: var(--color-success);
   --gradient-hero: linear-gradient(135deg, var(--color-cream) 0%, var(--color-muted-bg) 100%);
   --gradient-primary: linear-gradient(135deg, var(--color-green) 0%, var(--color-forest) 100%);
@@ -36,6 +37,7 @@
   --clr-sidebar-border: #2d5242;
   --clr-sidebar-logo: #a8d5ba;
   --clr-surface: var(--clr-card, #ffffff);
+  --clr-brand-light: #4ade80;
 }
 html { font-size: 15px; scroll-behavior: smooth; }
 body { font-family: var(--font-body); background: var(--clr-background); color: var(--clr-foreground); line-height: 1.65; }

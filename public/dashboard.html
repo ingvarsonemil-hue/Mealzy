@@ -110,10 +110,13 @@
     /* Quick action cards */
     .quick-action-card {
       border: 1px solid var(--clr-border);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      box-shadow: 0 1px 4px rgba(26,61,43,0.07);
     }
-    .quick-action-card:hover {
+    .quick-action-card:hover,
+    .quick-action-card:focus-visible {
       border-color: var(--clr-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26,61,43,0.3);
     }
     [data-theme="dark"] .quick-action-card {
       border-color: rgba(255,255,255,0.08);
@@ -357,22 +360,22 @@
     <div style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.35s both;">
       <h2 style="margin-bottom:1rem;font-size:1rem;font-weight:700;" data-i18n="quick_actions">Quick Actions</h2>
       <div class="grid-3" style="grid-template-columns:repeat(4,1fr);">
-        <a href="ai-coach.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <a href="ai-coach.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M3.5 5.5C3.5 4.2 4.5 3.5 5.5 3.5H18.5C19.5 3.5 20.5 4.2 20.5 5.5V13.5C20.5 14.8 19.5 15.5 18.5 15.5H9.5L5.5 19.5V15.5C4.5 15.5 3.5 14.8 3.5 13.5V5.5Z"/><path d="M12 7.5L12.4 9L13.8 9.5L12.4 10L12 11.5L11.6 10L10.2 9.5L11.6 9L12 7.5Z"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="ask_coach">Ask Mia</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Get instant nutrition advice</p>
         </a>
-        <a href="grocery-list.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <a href="grocery-list.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M6.5 10H17.5L16.5 20.5C16.5 21 16 21.5 15.5 21.5H8.5C8 21.5 7.5 21 7.5 20.5L6.5 10Z"/><path d="M9.5 10V7.5C9.5 5.8 10.5 4.5 12 4.5C13.5 4.5 14.5 5.8 14.5 7.5V10"/><path d="M10.5 16.5C10.5 14.8 12.8 13.5 13.2 15.2C12.8 16.8 10.5 17 10.5 16.5Z"/><path d="M10.5 16.5L13.2 15.2"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="grocery_list">Grocery List</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Build this week's shopping list</p>
         </a>
-        <a href="analytics.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <a href="analytics.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M4.5 20V13C4.5 12.5 4.8 12 5.3 12H8.2C8.7 12 9 12.5 9 13V20"/><path d="M10.5 20V7C10.5 6.5 10.8 6 11.3 6H14.2C14.7 6 15 6.5 15 7V20"/><path d="M16.5 20V16C16.5 15.5 16.8 15 17.3 15H20.2C20.7 15 21 15.5 21 16V20"/><path d="M3 20H21.5"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="view_progress">View Progress</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Track calories and macros</p>
         </a>
-        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-align:left;font-family:inherit;width:100%;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-align:left;font-family:inherit;width:100%;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M3.5 6C3.5 5 4.2 4.5 5 4.5H19C19.8 4.5 20.5 5 20.5 6V18C20.5 19 19.8 19.5 19 19.5H5C4.2 19.5 3.5 19 3.5 18V6Z"/><path d="M8.5 4.5V19.5"/><circle cx="14.5" cy="12" r="3.5"/><path d="M14.5 9.5C13.5 8.5 12.5 8.2 12 9C11.5 9.8 12.5 11 13 11.5"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="import_recipe">Import Recipe</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Scan or paste a recipe</p>
@@ -696,11 +699,13 @@
 
 
   function renderLocalStores() {
-    const p = JSON.parse(localStorage.getItem('mealzy_profile') || '{}');
-    const currency = p.currency || 'USD';
-    const storeList = getLocalStores(currency);
     const section = document.getElementById('localStoresSection');
     if (!section) return;
+    section.style.display = 'none';
+    const p = JSON.parse(localStorage.getItem('mealzy_profile') || '{}');
+    const currency = p.currency || 'USD';
+    function getLocalStores() { return []; }
+    const storeList = getLocalStores(currency);
     section.innerHTML = `
       <h2 style="margin-bottom:0.75rem;font-size:1rem;font-weight:700;">Where to Shop</h2>
       <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
@@ -998,22 +1003,22 @@
     const prefillEmail = (lsUser.email || '').replace(/"/g, '&quot;');
     const prompt = document.createElement('div');
     prompt.id = 'upgradePrompt';
-    prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+    prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     prompt.innerHTML = `
       <div id="upgradeCard" style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
         <!-- Primary offer -->
         <div id="upgradeStage1">
           
-          <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;color:#111;">You've hit your free limit</h2>
-          <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$12/month</strong>. Your grocery list is waiting.</p>
-          <div style="background:#f0fdf4;border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;text-align:left;">
+          <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;color:var(--clr-foreground);">You've hit your free limit</h2>
+          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$12/month</strong>. Your grocery list is waiting.</p>
+          <div style="background:var(--clr-surface);border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:var(--clr-brand);text-align:left;">
             Unlimited AI meal plans<br>
             Full recipes with steps & ingredients<br>
             Advanced macros & nutrition tracking<br>
             Priority AI coaching
           </div>
           <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:#2e7d4f;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $12/month →</a>
+          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:var(--clr-brand);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $12/month →</a>
           <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.25rem;">
             <a href="upgrade.html" style="font-size:0.8rem;color:#666;text-decoration:underline;">See all Pro features</a>
             <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
@@ -1022,10 +1027,10 @@
         <!-- Abandonment offer (shown after "No thanks") -->
         <div id="upgradeStage2" style="display:none;">
           <div style="background:#fff7ed;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 0.75rem;">⚡</div>
-          <div style="background:#dc2626;color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
-          <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:#111;">Wait — 50% off, just for you</h2>
-          <p style="color:#555;font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $12/month. Cancel any time.</p>
-          <a href="${window.STRIPE_DISCOUNT || window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:#dc2626;color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
+          <div style="background:var(--clr-destructive, #dc2626);color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
+          <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:var(--clr-foreground);">Wait — 50% off, just for you</h2>
+          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $12/month. Cancel any time.</p>
+          <a href="${window.STRIPE_DISCOUNT || window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:var(--clr-destructive, #dc2626);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
           <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
         </div>
       </div>`;
@@ -1065,7 +1070,7 @@
     }
     const overlay = document.createElement('div');
     overlay.id = 'abandonEmailOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     overlay.innerHTML = `
       <div style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
         <div style="font-size:2rem;margin-bottom:0.5rem;">💌</div>
@@ -1805,7 +1810,7 @@
       if (existing) { existing.remove(); }
       const prompt = document.createElement('div');
       prompt.id = 'upgradePrompt';
-      prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+      prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
       prompt.innerHTML = `
         <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
           <button onclick="document.getElementById('upgradePrompt').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button>

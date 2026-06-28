@@ -47,16 +47,16 @@
       box-sizing: border-box;
     }
     .upgrade-hero { text-align: center; margin-bottom: 2.5rem; }
-    .upgrade-hero .eyebrow { font-size: 0.82rem; font-weight: 700; color: #4ade80; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
+    .upgrade-hero .eyebrow { font-size: 0.82rem; font-weight: 700; color: var(--clr-brand-light, #4ade80); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
     .upgrade-hero h1 { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: white; }
     .upgrade-hero p { font-size: 1rem; color: rgba(255,255,255,0.82); max-width: 440px; margin: 0 auto; line-height: 1.65; }
     /* toggle labels white inside dark hero */
     .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.88rem; }
     .toggle-wrap .billing-label { color: rgba(255,255,255,0.65); cursor: pointer; transition: color 0.15s; }
     .toggle-wrap .billing-label.active { color: white; font-weight: 700; }
-    .save-badge { background: rgba(74,222,128,0.18); color: #4ade80; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid rgba(74,222,128,0.35); }
+    .save-badge { background: rgba(74,222,128,0.18); color: var(--clr-brand-light, #4ade80); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid rgba(74,222,128,0.35); }
     /* ── PRICING CARD ── */
-    .upgrade-card { background: var(--color-forest); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 40px rgba(0,0,0,0.10); }
+    .upgrade-card { background: var(--color-forest); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 40px rgba(26,61,43,0.10); }
     .price-display { text-align: center; margin-bottom: 1.5rem; }
     .price-amount { font-size: 3rem; font-weight: 900; color: white; line-height: 1; }
     .price-period { font-size: 1rem; color: var(--clr-muted-fg); }
@@ -84,7 +84,7 @@
     .compare-table thead th { color: white !important; }
     .compare-table thead th.pro-col { color: #4ade80 !important; }
     .compare-check { color: var(--color-green); font-weight: 700; }
-    .compare-x { color: #bbb; font-size: 1.1rem; }
+    .compare-x { color: rgba(255,255,255,0.5); font-size: 1.1rem; }
     /* ── BACK LINK ── */
     .back-link { text-align: center; margin-top: 2rem; font-size: 0.85rem; }
     .back-link a { color: var(--clr-muted-fg); text-decoration: none; }
@@ -95,9 +95,9 @@
     [data-theme="light"] .icon-moon { display: none; }
     [data-theme="dark"] .icon-sun { display: none; }
   </style>
+  <link rel="stylesheet" href="style.css">
 <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
