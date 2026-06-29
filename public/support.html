@@ -41,6 +41,7 @@
     [data-theme="dark"] .support-section { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); }
   </style>
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
@@ -52,7 +53,7 @@
     <div class="nav-links">
       <a href="dashboard.html" class="nav-link">Dashboard</a>
       <a href="pricing.html" class="nav-link">Pricing</a>
-      <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
     </div>
   </div>
 </nav>

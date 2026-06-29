@@ -10,12 +10,16 @@
   <meta property="og:description" content="Free budget meal plan. $50/week, 7 days, full grocery list. AI-generated to your exact goals in 30 seconds." />
   <meta property="og:url" content="https://mealzy.org/budget-meal-plan.html" />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <meta name="theme-color" content="#1a3d2b">
 <script src="/js/theme-init.js"></script>
+<script src="/js/utils.js"></script>
 <style>
 .hidden { display: none; }
 .day-header { background:var(--clr-primary); padding:0.6rem 1rem; color:white; font-weight:700; font-size:0.85rem; display:flex; justify-content:space-between; }
@@ -45,7 +49,7 @@
     <div class="nav-actions">
       <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
       <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start Free</a>
-      <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
     </div>
   </div>
 </nav>
@@ -54,7 +58,7 @@
 
   <!-- Hero -->
   <div style="text-align:center;margin-bottom:3rem;">
-    <span class="section-label">Budget Meal Planning</span>
+    <span class="section-label" aria-hidden="true">Budget Meal Planning</span>
     <h1 style="font-family:var(--font-display);font-style:italic;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;letter-spacing:-0.03em;line-height:1.15;margin-bottom:1rem;">Eat well for $50 a week.<br/>Here's exactly how.</h1>
     <p style="font-size:1.05rem;color:var(--clr-muted-fg);line-height:1.7;max-width:560px;margin:0 auto 1.75rem;">The average UK household spends £65/week on food. The average American spends $160. Both numbers are completely avoidable. This page shows you how to eat well on $50/week — and how to generate a personalised $50 plan for free, built around your actual goals.</p>
     <a href="login.html?signup=1" class="btn btn-primary btn-lg">Generate My $50 Meal Plan Free →</a>

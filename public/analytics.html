@@ -20,6 +20,9 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
   <meta name="theme-color" content="#1a3d2b">
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
@@ -153,7 +156,7 @@
           <div class="text-muted text-sm">Free Plan</div>
         </div>
       </div>
-      <button onclick="(function(){var d=document.documentElement.getAttribute('data-theme')==='dark';d?(document.documentElement.removeAttribute('data-theme'),localStorage.setItem('mealzy_theme','light')):(document.documentElement.setAttribute('data-theme','dark'),localStorage.setItem('mealzy_theme','dark'));})();" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;font-family:inherit;" aria-label="Toggle dark mode">
+      <button onclick="toggleTheme()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;font-family:inherit;" aria-label="Toggle dark mode">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 12.8A9.5 9.5 0 1 1 11.2 2.5 7.5 7.5 0 0 0 21.5 12.8Z"/><path d="M18.5 5L19 6.2L20.2 6.7L19 7.2L18.5 8.5L18 7.2L16.8 6.7L18 6.2L18.5 5Z"/></svg>
         Dark mode
       </button>
