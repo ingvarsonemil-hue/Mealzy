@@ -350,27 +350,27 @@
     <div class="card settings-section anim-section">
       <div class="settings-section-title">Fitness Goal</div>
       <div class="goal-grid" id="settingGoalGrid" role="radiogroup" aria-label="Select your fitness goal">
-        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="build_muscle" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="build_muscle" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C9 2 7 4 7 7v2H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v1a5 5 0 0 0 10 0v-1h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2V7c0-3-2-5-5-5z"/></svg>
           <div class="goal-label">Build Muscle</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="lose_weight" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="lose_weight" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
           <div class="goal-label">Lose Weight</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="maintain_weight" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="maintain_weight" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/></svg>
           <div class="goal-label">Maintain Weight</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="eat_healthier" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="eat_healthier" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a4 4 0 0 1 4 4v1H8V6a4 4 0 0 1 4-4z"/><path d="M8 7C5 7 3 10 3 14a9 9 0 0 0 9 7 9 9 0 0 0 9-7c0-4-2-7-5-7"/><path d="M12 2v5"/></svg>
           <div class="goal-label">Eat Healthier</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="gain_weight" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="gain_weight" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
           <div class="goal-label">Gain Weight</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="improve_energy" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="improve_energy" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
           <div class="goal-label">Improve Energy</div>
         </button>
@@ -384,35 +384,35 @@
     <div class="card settings-section anim-section">
       <div class="settings-section-title">Activity Level</div>
       <div id="settingActivityCards" role="radiogroup" aria-label="Select your activity level" style="display:flex;flex-direction:column;gap:0.5rem;">
-        <button type="button" class="activity-card" role="radio" aria-checked="false" data-activity="sedentary" data-multiplier="1.2" onclick="selectSettingActivity(this)">
+        <button type="button" class="activity-card" role="radio" aria-checked="false" aria-pressed="false" data-activity="sedentary" data-multiplier="1.2" onclick="selectSettingActivity(this)">
           <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="12" rx="2"/><path d="M3 19h18"/><path d="M8 19v-4"/><path d="M16 19v-4"/></svg>
           <div class="activity-info">
             <div class="activity-title">Sedentary</div>
             <div class="activity-desc">Little or no exercise, desk job</div>
           </div>
         </button>
-        <button type="button" class="activity-card" role="radio" aria-checked="false" data-activity="lightly_active" data-multiplier="1.375" onclick="selectSettingActivity(this)">
+        <button type="button" class="activity-card" role="radio" aria-checked="false" aria-pressed="false" data-activity="lightly_active" data-multiplier="1.375" onclick="selectSettingActivity(this)">
           <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4h-2l-1 4H7l1 4h3l1 8h2l1-8h3l1-4h-3l-1-4z"/></svg>
           <div class="activity-info">
             <div class="activity-title">Lightly Active</div>
             <div class="activity-desc">Light exercise 1–3 days/week</div>
           </div>
         </button>
-        <button type="button" class="activity-card" role="radio" aria-checked="false" data-activity="moderately_active" data-multiplier="1.55" onclick="selectSettingActivity(this)">
+        <button type="button" class="activity-card" role="radio" aria-checked="false" aria-pressed="false" data-activity="moderately_active" data-multiplier="1.55" onclick="selectSettingActivity(this)">
           <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5L9 11l4-2 2 4h4"/><path d="M9 11L5.5 14"/></svg>
           <div class="activity-info">
             <div class="activity-title">Moderately Active</div>
             <div class="activity-desc">Moderate exercise 3–5 days/week</div>
           </div>
         </button>
-        <button type="button" class="activity-card" role="radio" aria-checked="false" data-activity="very_active" data-multiplier="1.725" onclick="selectSettingActivity(this)">
+        <button type="button" class="activity-card" role="radio" aria-checked="false" aria-pressed="false" data-activity="very_active" data-multiplier="1.725" onclick="selectSettingActivity(this)">
           <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4v16"/><path d="M18 4v16"/><path d="M6 8h12"/><path d="M6 16h12"/><rect x="2" y="6" width="4" height="12" rx="1"/><rect x="18" y="6" width="4" height="12" rx="1"/></svg>
           <div class="activity-info">
             <div class="activity-title">Very Active</div>
             <div class="activity-desc">Hard exercise 6–7 days/week</div>
           </div>
         </button>
-        <button type="button" class="activity-card" role="radio" aria-checked="false" data-activity="extra_active" data-multiplier="1.9" onclick="selectSettingActivity(this)">
+        <button type="button" class="activity-card" role="radio" aria-checked="false" aria-pressed="false" data-activity="extra_active" data-multiplier="1.9" onclick="selectSettingActivity(this)">
           <svg class="activity-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           <div class="activity-info">
             <div class="activity-title">Extra Active</div>
@@ -472,17 +472,17 @@
       <div class="form-group">
         <label class="form-label">Cooking Skill Level</label>
         <div class="skill-grid" id="settingSkillGrid" role="radiogroup" aria-label="Select your cooking skill level">
-          <button type="button" class="skill-card" role="radio" aria-checked="false" data-skill="beginner" onclick="selectSettingSkill(this)">
+          <button type="button" class="skill-card" role="radio" aria-checked="false" aria-pressed="false" data-skill="beginner" onclick="selectSettingSkill(this)">
             <svg style="color:var(--clr-primary);margin:0 auto 0.5rem;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <div style="font-weight:700;font-size:0.88rem;">Beginner</div>
             <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.2rem;">Simple recipes</div>
           </button>
-          <button type="button" class="skill-card" role="radio" aria-checked="false" data-skill="intermediate" onclick="selectSettingSkill(this)">
+          <button type="button" class="skill-card" role="radio" aria-checked="false" aria-pressed="false" data-skill="intermediate" onclick="selectSettingSkill(this)">
             <svg style="color:var(--clr-primary);margin:0 auto 0.5rem;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
             <div style="font-weight:700;font-size:0.88rem;">Intermediate</div>
             <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.2rem;">Comfortable cooking</div>
           </button>
-          <button type="button" class="skill-card" role="radio" aria-checked="false" data-skill="advanced" onclick="selectSettingSkill(this)">
+          <button type="button" class="skill-card" role="radio" aria-checked="false" aria-pressed="false" data-skill="advanced" onclick="selectSettingSkill(this)">
             <svg style="color:var(--clr-primary);margin:0 auto 0.5rem;" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <div style="font-weight:700;font-size:0.88rem;">Advanced</div>
             <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.2rem;">Complex techniques</div>
@@ -836,6 +836,7 @@
       const isSelected = c.dataset.goal === selectedGoal;
       c.classList.toggle('selected', isSelected);
       c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      c.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
 
     // Activity
@@ -845,6 +846,7 @@
       const isSelected = c.dataset.activity === selectedActivity;
       c.classList.toggle('selected', isSelected);
       c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      c.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
 
     // Diet preferences
@@ -865,6 +867,7 @@
       const isSelected = c.dataset.skill === selectedSkill;
       c.classList.toggle('selected', isSelected);
       c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+      c.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
 
     const cookTime = profile.cookingTimeMinutes || 30;
@@ -890,9 +893,11 @@
     document.querySelectorAll('#settingGoalGrid .goal-card').forEach(c => {
       c.classList.remove('selected');
       c.setAttribute('aria-checked', 'false');
+      c.setAttribute('aria-pressed', 'false');
     });
     el.classList.add('selected');
     el.setAttribute('aria-checked', 'true');
+    el.setAttribute('aria-pressed', 'true');
     selectedGoal = el.dataset.goal;
   }
 
@@ -900,9 +905,11 @@
     document.querySelectorAll('#settingActivityCards .activity-card').forEach(c => {
       c.classList.remove('selected');
       c.setAttribute('aria-checked', 'false');
+      c.setAttribute('aria-pressed', 'false');
     });
     el.classList.add('selected');
     el.setAttribute('aria-checked', 'true');
+    el.setAttribute('aria-pressed', 'true');
     selectedActivity = el.dataset.activity;
     selectedActivityMultiplier = parseFloat(el.dataset.multiplier);
   }
@@ -911,9 +918,11 @@
     document.querySelectorAll('#settingSkillGrid .skill-card').forEach(c => {
       c.classList.remove('selected');
       c.setAttribute('aria-checked', 'false');
+      c.setAttribute('aria-pressed', 'false');
     });
     el.classList.add('selected');
     el.setAttribute('aria-checked', 'true');
+    el.setAttribute('aria-pressed', 'true');
     selectedSkill = el.dataset.skill;
   }
 

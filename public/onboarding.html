@@ -523,9 +523,11 @@
     document.querySelectorAll('.goal-card').forEach(c => {
       c.classList.remove('selected');
       c.setAttribute('aria-checked', 'false');
+      c.setAttribute('aria-pressed', 'false');
     });
     el.classList.add('selected');
     el.setAttribute('aria-checked', 'true');
+    el.setAttribute('aria-pressed', 'true');
     userData.goal = el.dataset.goal;
     hideStepError();
   }
