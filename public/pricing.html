@@ -7,9 +7,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pricing | Mealzy — Free & Pro Plans</title>
-  <meta name="description" content="Start free with 3 meal plans per month. Upgrade to Pro for unlimited plans, advanced macros, and AI coaching. Cancel any time." />
+  <meta name="description" content="Start free with 3 meal plans per month. Upgrade to Pro for $12/month (or $8/month billed yearly). Unlimited plans, advanced macros, and AI coaching. Cancel any time." />
   <meta property="og:title" content="Pricing | Mealzy — Free & Pro Plans" />
-  <meta property="og:description" content="Start free with 3 meal plans per month. Upgrade to Pro for unlimited plans and AI coaching." />
+  <meta property="og:description" content="Start free with 3 meal plans per month. Upgrade to Pro for $12/month (or $8/month billed yearly) — unlimited plans, macros, and AI coaching." />
   <meta property="og:image" content="https://mealzy.org/card-cta.svg" />
   <meta property="og:url" content="https://mealzy.org/pricing.html" />
   <meta property="og:type" content="website" />
@@ -32,7 +32,7 @@
       "name": "Do I need a credit card to sign up?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. The free plan requires no credit card. You only need a card if you upgrade to Pro ($8/month) or Family ($16/month)."
+        "text": "No. The free plan requires no credit card. You only need a card if you upgrade to Pro ($12/month monthly, or $8/month billed yearly) or Family ($16/month)."
       }
     }
   ]
@@ -351,19 +351,19 @@
         <span class="badge-green">Most popular</span>
         <div style="margin-bottom:0.75rem;">
           <p style="font-size:var(--text-xs);color:var(--clr-primary);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Introductory pricing</p>
-          <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);margin-top:0.2rem;">Early adopter pricing — locks in at $8/mo forever.</p>
+          <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);margin-top:0.2rem;">$12/month monthly, or $8/month billed annually.</p>
         </div>
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Pro</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For people who plan every week.</p>
           <div class="pricing-price">
-            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$8</span>
+            <span class="amount" id="pricePremiumMo" style="font-family:var(--font-display);font-size:var(--text-4xl);font-weight:600;">$12</span>
             <span class="period" style="font-size:var(--text-sm);color:var(--clr-muted-fg);">/month</span>
           </div>
           <div class="pricing-billed" id="billedPremium" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="proCta" onclick="trackUpgradeClick('pro')">Start Pro — 7 Days Free</a>
-        <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">Lock in $8/mo — cancel any time.</p>
+        <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;" id="proCtaNote">$12/mo — cancel any time.</p>
         <ul class="pricing-features">
           <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <strong>Unlimited</strong> meal plans</li>
           <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Automatic grocery list</li>
@@ -558,8 +558,8 @@
     document.getElementById('familyCta').textContent = 'Contact us →';
   }
 
-  const prices    = { monthly:{free:'$0',premium:'$8',family:'$16'}, yearly:{free:'$0',premium:'$5',family:'$11'} };
-  const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $62/year — save $34 vs monthly',family:'Billed $130/year — save $62 vs monthly'} };
+  const prices    = { monthly:{free:'$0',premium:'$12',family:'$16'}, yearly:{free:'$0',premium:'$8',family:'$11'} };
+  const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $96/year — save $48 vs monthly',family:'Billed $130/year — save $62 vs monthly'} };
 
   function setBilling(mode) {
     billingMode = mode;
@@ -581,10 +581,10 @@
     const ctaNote = document.getElementById('proCtaNote');
     if (mode === 'yearly') {
       cta.href = STRIPE_YEARLY; cta.textContent = 'Start Pro Annual — 7 Days Free';
-      ctaNote.textContent = 'Best value — $62/year saves you $82 vs monthly.';
+      ctaNote.textContent = 'Best value — $96/year saves you $48 vs monthly.';
     } else {
       cta.href = STRIPE_MONTHLY; cta.textContent = 'Start Pro — 7 Days Free';
-      ctaNote.textContent = 'Lock in $8/mo — cancel any time.';
+      ctaNote.textContent = '$12/mo — cancel any time.';
     }
     const familyCta = document.getElementById('familyCta');
     if (familyCta) {
