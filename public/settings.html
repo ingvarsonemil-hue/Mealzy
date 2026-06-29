@@ -12,7 +12,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Manage your Mealzy profile, dietary preferences, cooking skill level, and subscription settings." />
-  <title>Mealzy – Settings</title>
+  <title>Mealzy — Settings</title>
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
@@ -40,13 +40,13 @@
 
     html[data-theme="dark"] body { background: var(--clr-muted-bg); }
 
-    html[data-theme="dark"] input[type="text"],
-    html[data-theme="dark"] input[type="number"],
-    html[data-theme="dark"] select,
-    html[data-theme="dark"] .form-input {
+    html[data-theme="dark"] .main-content input[type="text"],
+    html[data-theme="dark"] .main-content input[type="number"],
+    html[data-theme="dark"] .main-content select,
+    html[data-theme="dark"] .main-content .form-input {
       background: rgba(255,255,255,0.06);
       border-color: rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.85) !important;
+      color: rgba(255,255,255,0.85);
     }
 
     [data-theme="dark"] .card.settings-section {
@@ -1221,6 +1221,17 @@
 
   document.querySelector('.danger-zone button[onclick="openResetModal()"]')?.addEventListener('click', e => {
     if(!confirm('Are you sure you want to delete your account? This cannot be undone.')) e.preventDefault();
+  });
+
+  // Keyboard support for radio-style card groups
+  document.querySelectorAll('.goal-card, .activity-card').forEach(card => {
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        card.click();
+      }
+    });
   });
 
   init();

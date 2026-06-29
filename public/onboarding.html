@@ -31,7 +31,7 @@
 
     [data-theme="dark"] .onboarding-card {
       background: var(--clr-muted-bg) !important;
-      border-color: #2d4a35 !important;
+      border-color: var(--clr-sidebar-border) !important;
       color: #f0f7f4 !important;
     }
 
@@ -470,8 +470,9 @@
       const el = document.getElementById('obStep' + s);
       if (!el) continue;
       el.classList.remove('active', 'done');
+      el.removeAttribute('aria-current');
       if (s < step) { el.classList.add('done'); el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`; }
-      else if (s === step) { el.classList.add('active'); el.textContent = s; }
+      else if (s === step) { el.classList.add('active'); el.textContent = s; el.setAttribute('aria-current', 'step'); }
       else { el.textContent = s; }
     }
     for (let l = 1; l < totalSteps; l++) {

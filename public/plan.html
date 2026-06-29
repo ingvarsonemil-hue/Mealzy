@@ -85,8 +85,8 @@
 <main id="main" class="plan-wrap" style="margin-top: 4.5rem;">
 
   <!-- Loading state -->
-  <div class="loading" id="loadingState">
-    <span class="spinner" role="status" aria-live="polite" aria-label="Loading meal plan"></span>
+  <div class="loading" id="loadingState" role="status" aria-label="Loading your meal plan">
+    <span class="spinner" aria-hidden="true"></span>
     <p>Loading meal plan…</p>
   </div>
 
@@ -141,6 +141,7 @@ function toggleTheme() {
   const shareId = params.get('id');
 
   if (!shareId) {
+    document.querySelector('#errorState p').textContent = 'No plan ID provided. Check your link and try again.';
     showError();
     return;
   }
@@ -164,6 +165,7 @@ function showError() {
 function renderPlan(plan, shareId) {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('planContent').style.display  = '';
+  document.querySelector('link[rel="canonical"]').href = 'https://mealzy.org/plan.html?id=' + shareId;
 
   const meals  = plan.plan?.meals || plan.meals || [];
   const date   = plan.date || plan.plan?.date || '';

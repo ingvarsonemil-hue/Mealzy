@@ -12,7 +12,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
-  <meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $8/month or $5/month billed yearly. Cancel anytime." />
+  <meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $8/month billed yearly ($96/year). Cancel anytime." />
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -50,7 +50,6 @@
       box-sizing: border-box;
     }
     .upgrade-hero { text-align: center; margin-bottom: 2.5rem; }
-    .upgrade-hero .eyebrow { font-size: 0.82rem; font-weight: 700; color: var(--clr-brand-light, #4ade80); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.6rem; }
     .upgrade-hero h1 { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: white; }
     .upgrade-hero p { font-size: 1rem; color: rgba(255,255,255,0.82); max-width: 440px; margin: 0 auto; line-height: 1.65; }
     /* toggle labels white inside dark hero */
@@ -59,7 +58,7 @@
     .toggle-wrap .billing-label.active { color: white; font-weight: 700; }
     .save-badge { background: rgba(74,222,128,0.18); color: var(--clr-brand-light, #4ade80); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid rgba(74,222,128,0.35); }
     /* ── PRICING CARD ── */
-    .upgrade-card { background: var(--color-forest); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 40px rgba(26,61,43,0.10); }
+    .upgrade-card { background: var(--clr-surface); color: var(--color-forest); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2rem; box-shadow: 0 12px 60px rgba(26,61,43,0.18); }
     .price-display { text-align: center; margin-bottom: 1.5rem; }
     .price-amount { font-size: 3rem; font-weight: 900; color: white; line-height: 1; }
     .price-period { font-size: 1rem; color: var(--clr-muted-fg); }
@@ -92,6 +91,9 @@
     .back-link { text-align: center; margin-top: 2rem; font-size: 0.85rem; }
     .back-link a { color: var(--clr-muted-fg); text-decoration: none; }
     .back-link a:hover { color: var(--clr-foreground); }
+    /* ── SKIP LINK ── */
+    .skip-link { position:absolute; top:-40px; left:0; background:var(--color-green); color:#fff; padding:8px 16px; z-index:9999; border-radius:0 0 4px 0; }
+    .skip-link:focus { top:0; }
     /* Dark mode toggle */
     .theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.7); transition: all 0.15s; flex-shrink: 0; }
     .theme-toggle:hover { border-color: white; color: white; }
@@ -119,15 +121,14 @@
   <!-- Hero -->
   <div class="upgrade-hero-section">
     <div class="upgrade-hero">
-      <div style="font-family:var(--font-display);font-style:italic;color:var(--clr-primary);margin-bottom:0.6rem;font-size:0.9rem;font-weight:700;">Mealzy Pro</div>
       <h1>Unlock the full Mealzy experience</h1>
       <p>You've seen how fast it works. Pro removes all limits — and adds features that make it genuinely better every week.</p>
     </div>
 
     <!-- Billing toggle -->
-    <div class="toggle-wrap">
-    <span class="billing-label" id="lblMonthly" onclick="setMode('monthly')" aria-checked="true">Monthly</span>
-    <button type="button" role="switch" aria-checked="true" aria-label="Billing period" style="position:relative;width:44px;height:24px;background:rgba(255,255,255,0.25);border-radius:2rem;cursor:pointer;flex-shrink:0;border:none;padding:0;" onclick="setMode(billingMode==='monthly'?'yearly':'monthly')">
+    <div class="toggle-wrap" id="billingToggleWrap" role="switch" aria-checked="true" aria-label="Billing period: yearly">
+    <span class="billing-label" id="lblMonthly" onclick="setMode('monthly')">Monthly</span>
+    <button type="button" id="billingToggleBtn" aria-hidden="true" aria-label="Toggle billing period" style="position:relative;width:44px;height:24px;background:rgba(255,255,255,0.25);border-radius:2rem;cursor:pointer;flex-shrink:0;border:none;padding:0;" onclick="setMode(billingMode==='monthly'?'yearly':'monthly')">
       <div id="toggleDot" style="position:absolute;top:3px;left:23px;width:18px;height:18px;background:white;border-radius:50%;transition:left 0.2s;"></div>
     </button>
     <span class="billing-label active" id="lblYearly" onclick="setMode('yearly')">Yearly <span class="save-badge">Save 33%</span></span>
@@ -140,10 +141,10 @@
     <div class="upgrade-card-header">Most Popular</div>
     <div class="price-display">
       <div>
-        <span class="price-amount" id="upgrPrice">$5</span>
+        <span class="price-amount" id="upgrPrice">$8</span>
         <span class="price-period">/month</span>
       </div>
-      <div class="price-annual" id="upgrBilled">Billed $62/year — saves $34</div>
+      <div class="price-annual" id="upgrBilled">Billed $96/year — saves $48</div>
     </div>
 
     <ul class="features-list">
@@ -273,10 +274,10 @@
   <!-- Abandonment offer (shown after 45s if user hasn't clicked CTA) -->
   <div id="abandonOffer" aria-hidden="true" style="display:none;margin-top:2rem;padding:1.5rem;background:var(--color-forest);border-radius:0.75rem;text-align:center;">
     <div style="font-size:0.72rem;font-weight:800;color:var(--clr-brand-light,#4ade80);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;">FIRST MONTH OFFER</div>
-    <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;color:white;">Get your first month for $4</div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;color:white;">Get your first month for $6</div>
     <p style="font-size:0.84rem;color:rgba(255,255,255,0.8);margin-bottom:0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
     <a id="discountOfferBtn" href="#" onclick="window.location.href=window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY;trackUpgrade('abandon_offer');return false;" style="display:inline-block;background:var(--clr-brand-light,#4ade80);color:var(--color-forest);padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;" onmouseover="this.style.background='#22c55e'" onmouseout="this.style.background='var(--clr-brand-light)'">
-      Get first month for $4 →
+      Get first month for $6 →
     </a>
   </div>
 
@@ -304,7 +305,7 @@
   let billingMode = STRIPE_YEARLY ? 'yearly' : 'monthly';
   if (!STRIPE_YEARLY) {
     document.querySelector('.toggle-wrap').style.display = 'none';
-    document.getElementById('upgrPrice').textContent = '$8';
+    document.getElementById('upgrPrice').textContent = '$12';
     document.getElementById('upgrBilled').textContent = '';
     document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
     document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
@@ -320,18 +321,18 @@
     document.getElementById('lblYearly').classList.toggle('active', mode === 'yearly');
     if (mode === 'yearly') {
       dot.style.left = '23px';
-      document.getElementById('upgrPrice').textContent = '$5.17';
-      document.getElementById('upgrBilled').textContent = 'Billed $62/year — saves $34';
+      document.getElementById('upgrPrice').textContent = '$8';
+      document.getElementById('upgrBilled').textContent = 'Billed $96/year — saves $48';
       document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free →';
     } else {
       dot.style.left = '3px';
-      document.getElementById('upgrPrice').textContent = '$8';
+      document.getElementById('upgrPrice').textContent = '$12';
       document.getElementById('upgrBilled').textContent = '';
       document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
     }
-    document.querySelector('[role="switch"]').setAttribute('aria-checked', mode === 'yearly' ? 'true' : 'false');
+    document.getElementById('billingToggleWrap').setAttribute('aria-checked', mode === 'yearly' ? 'true' : 'false');
   }
 
   function trackUpgrade(source) {

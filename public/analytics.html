@@ -53,6 +53,12 @@
       border-color: rgba(255,255,255,0.08);
     }
     .muted-text { color: var(--clr-muted-fg); }
+    .icon-amber  { color: var(--clr-warning, hsl(32,88%,54%)); }
+    .icon-blue   { color: var(--clr-info, hsl(200,100%,50%)); }
+    .icon-indigo { color: var(--clr-accent, hsl(260,60%,55%)); }
+    [data-theme="dark"] .icon-amber  { color: hsl(32,90%,65%); }
+    [data-theme="dark"] .icon-blue   { color: hsl(200,100%,65%); }
+    [data-theme="dark"] .icon-indigo { color: hsl(260,60%,72%); }
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
@@ -562,7 +568,7 @@
     const avgProt = Math.round(dayData.reduce((s, d) => s + d.protein, 0) / 7);
     const goalCals = profile?.dailyCalories || 2000;
     const goalProt = profile?.macros?.protein || 150;
-    const streak = profile?.streak || 1;
+    const streak = profile?.streak || 0;
 
     document.getElementById('avgCalories').textContent = avgCals;
     const calDiff = avgCals - goalCals;
