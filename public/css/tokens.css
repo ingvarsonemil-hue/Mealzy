@@ -92,6 +92,16 @@
   --shadow-overlay:var(--shadow-lg);                              /* Floating content */
   --shadow-modal:  var(--shadow-xl);                              /* Modal/dialog */
 
+  /* Extended semantic tokens */
+  --clr-page-dark:     #1a2e22;          /* Dark mode card / chat bg */
+  --clr-input-bg:      var(--clr-surface);
+  --clr-primary-dark:  var(--color-forest);
+  --color-green-rgb:   61, 139, 94;      /* For rgba() usage: rgba(var(--color-green-rgb), 0.1) */
+  --clr-error:         #c0392b;
+  --clr-warning:       hsl(32,88%,54%);  /* Protein ring, warm amber */
+  --clr-info:          hsl(200,100%,50%); /* Carbs ring, info blue */
+  --clr-accent:        hsl(260,60%,55%); /* Fat ring, purple accent */
+
   /* Animation */
   --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);

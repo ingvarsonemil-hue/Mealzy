@@ -256,7 +256,7 @@
           <div class="ring-label-v2" data-i18n="stat_protein">Protein</div>
           <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
-            <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(32,88%,54%)" stroke-width="10"
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-warning)" stroke-width="10"
               stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
               transform="rotate(-90 50 50)" id="ringProtein"/>
             <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringProteinVal">0g</text>
@@ -268,7 +268,7 @@
           <div class="ring-label-v2" data-i18n="macro_carbs">Carbs</div>
           <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
-            <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(200,100%,50%)" stroke-width="10"
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-info)" stroke-width="10"
               stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
               transform="rotate(-90 50 50)" id="ringCarbs"/>
             <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringCarbsVal">0g</text>
@@ -280,7 +280,7 @@
           <div class="ring-label-v2" data-i18n="macro_fat">Fat</div>
           <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
-            <circle cx="50" cy="50" r="40" fill="none" stroke="hsl(260,60%,55%)" stroke-width="10"
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-accent)" stroke-width="10"
               stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
               transform="rotate(-90 50 50)" id="ringFat"/>
             <text x="50" y="46" text-anchor="middle" font-size="14" font-weight="800" fill="var(--clr-foreground)" id="ringFatVal">0g</text>
@@ -1005,7 +1005,7 @@
     prompt.id = 'upgradePrompt';
     prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     prompt.innerHTML = `
-      <div id="upgradeCard" style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
+      <div id="upgradeCard" style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(26,61,43,0.25);position:relative;">
         <!-- Primary offer -->
         <div id="upgradeStage1">
           
@@ -1072,7 +1072,7 @@
     overlay.id = 'abandonEmailOverlay';
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
     overlay.innerHTML = `
-      <div style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+      <div style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(26,61,43,0.25);">
         <div style="font-size:2rem;margin-bottom:0.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg></div>
         <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;color:#111;">One last thing</h3>
         <p style="color:#555;font-size:0.85rem;margin-bottom:1rem;line-height:1.6;">
@@ -1568,7 +1568,7 @@
           '<h2 style="font-size:1.05rem;font-weight:800;margin:0;">Your Achievement Card</h2>' +
           '<button onclick="document.getElementById(\'shareCardModal\').classList.remove(\'open\')" style="background:none;border:none;cursor:pointer;font-size:1.2rem;color:var(--clr-muted-fg);line-height:1;">✕</button>' +
         '</div>' +
-        '<img src="' + dataUrl + '" alt="Mealzy achievement card" width="480" height="300" loading="lazy" style="width:100%;height:auto;border-radius:0.75rem;margin-bottom:1.1rem;box-shadow:0 4px 20px rgba(0,0,0,0.18);" />' +
+        '<img src="' + dataUrl + '" alt="Mealzy achievement card" width="480" height="300" loading="lazy" style="width:100%;height:auto;border-radius:0.75rem;margin-bottom:1.1rem;box-shadow:0 4px 20px rgba(26,61,43,0.18);" />' +
         '<div style="display:flex;gap:0.65rem;justify-content:center;flex-wrap:wrap;">' +
           '<a href="' + dataUrl + '" download="mealzy-achievement.png" class="btn btn-primary">Download</a>' +
           '<a href="https://x.com/intent/tweet?text=' + tweet + '" target="_blank" rel="noopener" class="btn btn-outline">Share on X</a>' +
@@ -1812,7 +1812,7 @@
       prompt.id = 'upgradePrompt';
       prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
       prompt.innerHTML = `
-        <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;">
+        <div style="background:#fff;border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(26,61,43,0.25);position:relative;">
           <button onclick="document.getElementById('upgradePrompt').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:#999;">✕</button>
 
           <h2 style="font-size:1.25rem;font-weight:800;margin-bottom:0.5rem;color:#111;">PDF Export is a Pro feature</h2>

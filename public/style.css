@@ -5,7 +5,6 @@
   --clr-primary: var(--color-green);
   --clr-primary-dark: var(--color-forest);
   --clr-primary-light: var(--color-green-muted);
-  --clr-accent: var(--color-brick);
   --clr-accent-light: #F5E8E3;
   --clr-background: var(--color-cream);
   --clr-foreground: var(--color-foreground);
@@ -143,7 +142,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 /* === BADGES / CHIPS === */
 .badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; }
 .badge-primary { background: var(--clr-primary-light); color: var(--clr-primary); border: 1px solid hsl(152,52%,85%); }
-.badge-accent { background: var(--clr-accent-light); color: var(--clr-accent); }
+.badge-accent { background: var(--clr-accent-light); color: var(--color-brick); }
 .badge-success { background: hsl(152,52%,90%); color: var(--clr-success); }
 .badge-muted { background: var(--clr-muted-bg); color: var(--clr-muted-fg); }
 .chip { display: inline-flex; align-items: center; padding: 0.35rem 0.85rem; border: 1.5px solid var(--clr-border); border-radius: var(--radius-full); font-size: 0.82rem; cursor: pointer; user-select: none; transition: all var(--duration-fast); background: white; color: var(--clr-foreground); font-family: var(--font-body); font-weight: 500; }
@@ -208,7 +207,7 @@ h3 { font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); }
 .feature-card { text-align: center; }
 .feature-icon { width: 56px; height: 56px; border-radius: 0.85rem; background: var(--clr-primary-light); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem; }
 .testimonial-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: var(--radius-md); padding: var(--space-6); }
-.stars { color: var(--clr-accent); letter-spacing: 2px; margin-bottom: 0.75rem; }
+.stars { color: var(--color-brick); letter-spacing: 2px; margin-bottom: 0.75rem; }
 .testimonial-author { display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem; }
 .author-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 .cta-banner { background: var(--gradient-primary); color: white; border-radius: 1.5rem; padding: 3.5rem; text-align: center; }

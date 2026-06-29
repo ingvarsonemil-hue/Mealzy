@@ -184,8 +184,8 @@
 
     /* "+ Add" button: green outlined style */
     #manualItemInput + .btn-outline {
-      border: 1.5px solid #3d8b5e;
-      color: #3d8b5e;
+      border: 1.5px solid var(--color-green);
+      color: var(--color-green);
       background: transparent;
       border-radius: 8px;
       padding: 8px 16px;
@@ -193,7 +193,7 @@
       cursor: pointer;
     }
     #manualItemInput + .btn-outline:hover {
-      background: #3d8b5e;
+      background: var(--color-green);
       color: white;
     }
 
@@ -202,15 +202,15 @@
       border: 1.5px solid rgba(255,255,255,0.12) !important;
     }
     [data-theme="dark"] #manualItemInput + .btn-outline {
-      background: #3d8b5e !important;
-      border-color: #3d8b5e !important;
+      background: var(--color-green) !important;
+      border-color: var(--color-green) !important;
       color: white !important;
     }
 
     /* Fix 6: category badge count — brand green in both modes */
     .badge.badge-muted {
       background: rgba(61,139,94,0.2) !important;
-      color: #3d8b5e !important;
+      color: var(--color-green) !important;
     }
 
     /* Checkbox focus ring */
@@ -818,7 +818,7 @@
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
       overlay.innerHTML = `
-        <div style="background:var(--clr-card,#fff);border-radius:1.25rem;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+        <div style="background:var(--clr-card,#fff);border-radius:1.25rem;padding:2rem;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(26,61,43,0.25);">
           <button onclick="this.closest('[style]').remove()" style="float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--clr-muted-fg,#999);">&times;</button>
           <div style="width:48px;height:48px;background:var(--clr-primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="hsl(152,50%,35%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -877,7 +877,7 @@
 
   init();
 </script>
-<div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,#3d8b5e);">Privacy Policy</a></div>
+<div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,var(--color-green));">Privacy Policy</a></div>
 </body>
 </html>
 
