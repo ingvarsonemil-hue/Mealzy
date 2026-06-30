@@ -487,6 +487,7 @@ app.get('/api/health', async (req, res) => {
   res.json({
     status: dbOk ? 'ok' : 'degraded',
     db: dbOk ? 'connected' : 'error',
+    resend: !!process.env.RESEND_API_KEY,
     timestamp: new Date().toISOString(),
     version: '3.0.0'
   });
