@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
@@ -16,29 +17,30 @@
   <meta name="description" content="Mealzy builds a full week of meals in 30 seconds. Hits your macros. Stays within your grocery budget. Grocery list included. Free." />
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/style.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 15px; scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; }
     body { font-family: var(--font-body); background: var(--color-muted-bg); color: var(--color-foreground); line-height: 1.65; }
 
     /* NAV — minimal, no distractions */
     .nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(245,251,247,0.92); backdrop-filter: blur(20px);
+      background: color-mix(in srgb, var(--color-muted-bg) 92%, transparent); backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--color-border);
       padding: 0 1.25rem; height: 3.5rem;
       display: flex; align-items: center; justify-content: space-between;
     }
     .nav-logo { font-weight: 800; font-size: 1.1rem; text-decoration: none; color: var(--color-foreground); display: flex; align-items: center; gap: 0.5rem; }
     .nav-logo-icon { width: 30px; height: 30px; border-radius: 0.5rem; background: var(--color-green); color: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.85rem; }
-    .nav-cta { background: var(--color-green); color: white; font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1.1rem; border-radius: 0.55rem; text-decoration: none; border: none; cursor: pointer; transition: background 0.15s; }
+    .nav-cta { background: var(--color-green); color: var(--clr-on-primary); font-weight: 700; font-size: 0.85rem; padding: 0.5rem 1.1rem; border-radius: 0.55rem; text-decoration: none; border: none; cursor: pointer; transition: background 0.15s; }
     .nav-cta:hover { background: var(--color-forest); }
 
     /* HERO */
     .hero {
       min-height: 100vh; display: flex; align-items: center;
       padding: 5rem 1.25rem 3rem;
-      background: linear-gradient(160deg, var(--color-green-muted) 0%, hsl(46,40%,96%) 60%, #fff 100%);
+      background: linear-gradient(160deg, var(--color-green-muted) 0%, hsl(46,40%,96%) 60%, var(--color-cream) 100%);
     }
     .hero-inner {
       max-width: 1100px; margin: 0 auto; width: 100%;
@@ -66,28 +68,28 @@
     .hero-cta-group { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
     .btn-primary-lg {
       display: inline-flex; align-items: center; justify-content: center;
-      background: var(--color-green); color: white;
+      background: var(--color-green); color: var(--clr-on-primary);
       font-weight: 700; font-size: 1.05rem; padding: 0.9rem 2rem;
       border-radius: 0.75rem; text-decoration: none; border: none; cursor: pointer;
-      transition: all 0.2s; box-shadow: 0 4px 14px hsl(152,52%,36%,0.35);
+      transition: all 0.2s; box-shadow: var(--shadow-md);
     }
     .btn-primary-lg:hover { background: var(--color-forest); transform: translateY(-1px); }
     .hero-trust { font-size: 0.82rem; color: var(--color-muted-fg); }
 
     /* APP MOCKUP */
     .mockup {
-      background: var(--color-surface); border-radius: 1.25rem;
+      background: var(--clr-card); border-radius: 1.25rem;
       border: 1px solid var(--color-border);
-      box-shadow: 0 20px 60px rgba(60,80,40,0.15);
+      box-shadow: var(--shadow-lg);
       overflow: hidden;
     }
     .mockup-bar {
       background: var(--color-green); padding: 0.85rem 1.25rem;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .mockup-bar-title { color: white; font-weight: 700; font-size: 0.92rem; }
+    .mockup-bar-title { color: var(--clr-on-primary); font-weight: 700; font-size: 0.92rem; }
     .mockup-bar-badge {
-      background: rgba(255,255,255,0.2); color: white;
+      background: rgba(255,255,255,0.2); color: var(--clr-on-primary);
       font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.65rem;
       border-radius: 2rem;
     }
@@ -137,9 +139,9 @@
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
     .step { text-align: center; }
     .step-num {
-      width: 52px; height: 52px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 1.1rem; color: white; margin: 0 auto 1rem;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--color-green) !important;
+      margin: 0 auto 1rem;
     }
     .step h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
     .step p { font-size: 0.85rem; color: var(--color-muted-fg); line-height: 1.6; }
@@ -161,7 +163,7 @@
     /* TESTIMONIALS */
     .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 3rem; }
     .tcard {
-      background: var(--color-surface); border-radius: 1rem; padding: 1.5rem;
+      background: var(--clr-card); border-radius: 1rem; padding: 1.5rem;
       border: 1px solid var(--color-border); display: flex; flex-direction: column; gap: 0.85rem;
     }
     .tcard-stars { color: var(--color-warning); font-size: 0.85rem; letter-spacing: 0.05em; }
@@ -183,21 +185,16 @@
     }
     .final-cta h2 {
       font-family: var(--font-display); font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-      font-weight: 900; color: white; letter-spacing: -0.025em; margin-bottom: 1rem;
+      font-weight: 900; color: var(--clr-on-primary); letter-spacing: -0.025em; margin-bottom: 1rem;
     }
     .final-cta p { color: rgba(255,255,255,0.8); font-size: 0.95rem; max-width: 420px; margin: 0 auto 2rem; line-height: 1.65; }
     .final-cta-trust { margin-top: 1rem; font-size: 0.8rem; color: rgba(255,255,255,0.55); }
 
     /* DARK MODE — page-specific surface overrides (token colors handled by tokens.css) */
-    [data-theme="dark"] .nav {
-      background: rgba(26,46,34,0.92);
-    }
-    [data-theme="dark"] .hero {
-      background: linear-gradient(160deg, var(--color-parchment) 0%, var(--color-muted-bg) 100%);
-    }
-    [data-theme="dark"] body {
-      background: var(--color-parchment);
-    }
+    [data-theme="dark"] body { background: var(--color-muted-bg); color: var(--color-foreground); }
+    [data-theme="dark"] .hero { background: linear-gradient(160deg, hsl(152,52%,10%) 0%, hsl(46,20%,12%) 60%, #111 100%); }
+    [data-theme="dark"] .nav { background: rgba(15,20,25,0.92); border-color: var(--color-border); }
+    [data-theme="dark"] .nav-logo { color: var(--color-foreground); }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
@@ -208,11 +205,10 @@
       .trust-strip { gap: 1rem; }
       .section { padding: 3.5rem 1.25rem; }
     }
-    .skip-link { position:absolute; top:-40px; left:0; background:var(--color-green); color:#fff; padding:8px 16px; z-index:9999; border-radius:0 0 4px 0; }
+    .skip-link { position:absolute;top:-40px;left:0;background:var(--color-forest);color:white;padding:0.5rem 1rem;z-index:9999;font-size:0.875rem;font-weight:600;text-decoration:none;border-radius:0 0 4px 0; }
     .skip-link:focus { top:0; }
-    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+    @media (prefers-reduced-motion: reduce) { .btn-primary-lg, .nav-cta { transition: none !important; animation: none !important; } }
   </style>
-<script src="/js/theme-init.js"></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -226,8 +222,9 @@
   </div>
 </nav>
 
+<main id="main">
 <!-- HERO -->
-<section id="main" class="hero">
+<section class="hero">
   <div class="hero-inner">
     <div>
       <span class="hero-tag">Free AI Meal Planner</span>
@@ -317,22 +314,21 @@
 <!-- HOW IT WORKS -->
 <section class="section" style="background: var(--color-muted-bg);">
   <div class="container">
-    <span class="section-tag">How it works</span>
     <h2 class="section-h2">Three steps. Under 2 minutes total.</h2>
     <p class="section-sub">No spreadsheets. No recipe hunting. No calculating calories by hand.</p>
     <div class="steps">
       <div class="step">
-        <div class="step-num" style="background: var(--color-green);">1</div>
+        <div class="step-num"></div>
         <h3>Tell Mealzy about you</h3>
         <p>Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes, once.</p>
       </div>
       <div class="step">
-        <div class="step-num" style="background: var(--color-warning);">2</div>
+        <div class="step-num"></div>
         <h3>Get your week in 30 seconds</h3>
         <p>Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like a meal — swap it in one click.</p>
       </div>
       <div class="step">
-        <div class="step-num" style="background: var(--color-green);">3</div>
+        <div class="step-num"></div>
         <h3>Shop the list, cook, done</h3>
         <p>The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system.</p>
       </div>
@@ -343,7 +339,6 @@
 <!-- BEFORE / AFTER -->
 <section class="section">
   <div class="container">
-    <span class="section-tag">Before and after</span>
     <h2 class="section-h2">What changes when you stop planning by hand.</h2>
     <div class="before-after">
       <div class="ba-col ba-before">
@@ -368,10 +363,11 @@
 <section class="final-cta">
   <h2>Your Sunday just got 90 minutes back.</h2>
   <p>Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
-  <a href="login.html?signup=1" class="btn-primary-lg" style="display:inline-flex;background:white;color:var(--color-green);box-shadow:0 4px 20px rgba(26,61,43,0.15);">Start Free — Takes 2 Minutes</a>
+  <a href="login.html?signup=1" class="btn-primary-lg" style="display:inline-flex;background:white;color:var(--color-green);box-shadow:var(--shadow-md);">Start Free — Takes 2 Minutes</a>
   <p class="final-cta-trust">Free to start. No credit card. No catch.</p>
 </section>
 
 <div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--color-muted-fg);"><a href="privacy-policy.html" style="color:var(--color-green);">Privacy Policy</a> · <a href="terms.html" style="color:var(--color-green);">Terms</a></div>
+</main>
 </body>
 </html>

@@ -47,6 +47,7 @@
   <script src="/stripe-config.js" defer></script>
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes pricePop { 0%{transform:scale(0.95);opacity:0.7} 100%{transform:scale(1);opacity:1} }
     @keyframes pricingPulse { 0%{transform:scale(1)} 50%{transform:scale(1.03)} 100%{transform:scale(1)} }
     @keyframes cardRise { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
@@ -251,6 +252,9 @@
     @media (prefers-reduced-motion: reduce) {
       .pricing-hero-sub, .pricing-hero-headline { opacity: 1 !important; animation: none !important; }
     }
+    @media (prefers-reduced-motion: reduce) {
+      #decidingPopup { animation: none !important; }
+    }
   </style>
 <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/fonts.css">
@@ -274,7 +278,7 @@
       </button>
       <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
       <a href="onboarding.html" class="btn btn-primary btn-sm">Get Started Free</a>
-      <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavOverlay">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -289,7 +293,7 @@
       <li><a href="index.html#features">Features</a></li>
       <li><a href="index.html#testimonials">Reviews</a></li>
       <li><a href="pricing.html">Pricing</a></li>
-      <li><a href="dashboard.html">Sign In</a></li>
+      <li><a href="login.html">Sign In</a></li>
       <li><a href="onboarding.html" style="color:var(--clr-primary);font-weight:700;">Get Started Free →</a></li>
     </ul>
   </div>
@@ -308,9 +312,9 @@
     </p>
 
     <!-- BILLING TOGGLE — only rendered when STRIPE_ANNUAL_READY -->
-    <div class="pricing-toggle" id="billingToggle" style="display:none;animation:slideUp 0.45s var(--ease-edit) 0.3s both;" role="switch" aria-label="Billing period">
-      <button class="active" id="btnMonthly" style="min-height:44px;" aria-checked="true" onclick="setBilling('monthly')">Monthly</button>
-      <button id="btnYearly" style="min-height:44px;" aria-checked="false" onclick="setBilling('yearly')">Annual — save $34</button>
+    <div class="pricing-toggle" id="billingToggle" style="display:flex;animation:slideUp 0.45s var(--ease-edit) 0.3s both;" role="group" aria-label="Billing period">
+      <button class="active" id="btnMonthly" style="min-height:44px;" aria-pressed="true" onclick="setBilling('monthly')">Monthly</button>
+      <button id="btnYearly" style="min-height:44px;" aria-pressed="false" onclick="setBilling('yearly')">Annual — Save 33%</button>
     </div>
   </div>
 </section>
@@ -389,7 +393,7 @@
           </div>
           <div class="pricing-billed" id="billedFamily" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
+        <a href="https://buy.stripe.com/FAMILY_MONTHLY" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
         <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
           <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <strong>Everything in Pro</strong></li>
@@ -414,6 +418,8 @@
 </section>
 
 
+<p style="font-size:0.75rem;color:var(--clr-muted-fg);text-align:center;margin-top:0.5rem;margin-bottom:2rem;">Based on feedback from early Mealzy users.</p>
+
 <!-- COMPARISON TABLE -->
 <section style="padding:var(--pad-section) 0 2rem 0;background:var(--clr-muted-bg);border-top:1px solid var(--clr-border);border-bottom:1px solid var(--clr-border);">
   <div class="container">
@@ -433,10 +439,10 @@
         <tbody>
           <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">AI Meal Plans</td><td style="text-align:center;color:var(--clr-foreground);">3/month</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">Unlimited</td><td style="text-align:center;font-weight:600;color:var(--clr-foreground);">Unlimited</td></tr>
           <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">AI Coach Messages</td><td style="text-align:center;color:var(--clr-foreground);">10/day</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">Unlimited</td><td style="text-align:center;font-weight:600;color:var(--clr-foreground);">Unlimited</td></tr>
-          <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">Auto Grocery Lists</td><td style="text-align:center;color:var(--clr-foreground);">✓</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">✓</td><td style="text-align:center;font-weight:600;color:var(--clr-foreground);">✓</td></tr>
+          <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">Auto Grocery Lists</td><td style="text-align:center;color:var(--clr-foreground);"><span aria-hidden="true">✓</span><span class="sr-only">Yes</span></td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);"><span aria-hidden="true">✓</span><span class="sr-only">Yes</span></td><td style="text-align:center;font-weight:600;color:var(--clr-foreground);"><span aria-hidden="true">✓</span><span class="sr-only">Yes</span></td></tr>
           <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">Analytics Dashboard</td><td style="text-align:center;color:var(--clr-foreground);">Basic</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">Advanced</td><td style="text-align:center;font-weight:600;color:var(--clr-foreground);">Advanced</td></tr>
           <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">Profiles</td><td style="text-align:center;color:var(--clr-foreground);">1</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">1</td><td style="text-align:center;font-weight:600;color:var(--clr-foreground);">Up to 4</td></tr>
-          <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">Priority Support</td><td style="text-align:center;color:var(--clr-foreground);"><span style="color:var(--clr-muted-fg);font-size:0.85rem;">✕</span></td><td style="text-align:center;color:var(--clr-foreground);">Email</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">Priority</td></tr>
+          <tr style="color:var(--clr-foreground);"><td style="color:var(--clr-foreground);">Priority Support</td><td style="text-align:center;color:var(--clr-foreground);"><span style="color:var(--clr-muted-fg);font-size:0.85rem;"><span aria-hidden="true">✕</span><span class="sr-only">No</span></span></td><td style="text-align:center;color:var(--clr-foreground);">Email</td><td class="pro-val" style="text-align:center;color:var(--clr-foreground);">Priority</td></tr>
         </tbody>
       </table>
     </div>
@@ -492,7 +498,7 @@
       </div>
       <div class="footer__col">
         <h4>ACCOUNT</h4>
-        <ul class="footer__links"><li><a href="dashboard.html">Sign in</a></li><li><a href="onboarding.html">Start free</a></li><li><a href="reset-password.html">Reset password</a></li></ul>
+        <ul class="footer__links"><li><a href="login.html">Sign in</a></li><li><a href="onboarding.html">Start free</a></li><li><a href="reset-password.html">Reset password</a></li></ul>
       </div>
       <div class="footer__col">
         <h4>LEGAL</h4>
@@ -564,9 +570,9 @@
   function setBilling(mode) {
     billingMode = mode;
     document.getElementById('btnMonthly').classList.toggle('active', mode==='monthly');
-    document.getElementById('btnMonthly').setAttribute('aria-checked', mode === 'monthly');
+    document.getElementById('btnMonthly').setAttribute('aria-pressed', mode === 'monthly');
     document.getElementById('btnYearly').classList.toggle('active',  mode==='yearly');
-    document.getElementById('btnYearly').setAttribute('aria-checked', mode === 'yearly');
+    document.getElementById('btnYearly').setAttribute('aria-pressed', mode === 'yearly');
     const p = prices[mode]; const b = billedTxt[mode];
     function upd(id, billedId, price, billed) {
       const el = document.getElementById(id);
@@ -605,12 +611,21 @@
     }
   }
 
+  let _decidingPopupTrigger = null;
   function closeDecidingPopup() {
     document.getElementById('decidingPopup').classList.remove('show');
     sessionStorage.setItem('pricing_popup_seen','1');
+    if (_decidingPopupTrigger) { _decidingPopupTrigger.focus(); _decidingPopupTrigger = null; }
+  }
+  function showDecidingPopup() {
+    _decidingPopupTrigger = document.activeElement;
+    const popup = document.getElementById('decidingPopup');
+    popup.classList.add('show');
+    const first = popup.querySelector('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])');
+    if (first) first.focus();
   }
   if (!sessionStorage.getItem('pricing_popup_seen')) {
-    setTimeout(() => document.getElementById('decidingPopup').classList.add('show'), 30000);
+    setTimeout(showDecidingPopup, 30000);
   }
 
   // Focus trap + Escape key for deciding popup
@@ -629,9 +644,9 @@
   const mobileNavOverlay = document.getElementById('mobileNavOverlay');
   const mobileNavPanel = document.getElementById('mobileNavPanel');
   const mobileNavClose = document.getElementById('mobileNavClose');
-  hamburger.addEventListener('click', () => { mobileNavOverlay.classList.add('open'); mobileNavPanel.classList.add('open'); });
-  mobileNavClose.addEventListener('click', () => { mobileNavOverlay.classList.remove('open'); mobileNavPanel.classList.remove('open'); });
-  mobileNavOverlay.addEventListener('click', e => { if(e.target===mobileNavOverlay){mobileNavOverlay.classList.remove('open');mobileNavPanel.classList.remove('open');} });
+  hamburger.addEventListener('click', () => { mobileNavOverlay.classList.add('open'); mobileNavPanel.classList.add('open'); hamburger.setAttribute('aria-expanded','true'); });
+  mobileNavClose.addEventListener('click', () => { mobileNavOverlay.classList.remove('open'); mobileNavPanel.classList.remove('open'); hamburger.setAttribute('aria-expanded','false'); });
+  mobileNavOverlay.addEventListener('click', e => { if(e.target===mobileNavOverlay){mobileNavOverlay.classList.remove('open');mobileNavPanel.classList.remove('open');hamburger.setAttribute('aria-expanded','false');} });
 
   // Nav scroll
   const nav = document.getElementById('navbar');

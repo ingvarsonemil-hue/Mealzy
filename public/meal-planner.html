@@ -133,6 +133,10 @@
     }
     .total-item:first-child .total-val { color: var(--clr-sidebar-logo); }
 
+    [data-theme="dark"] .main-content {
+      background: var(--clr-muted-bg);
+    }
+
     [data-theme="dark"] .totals-bar { background: hsl(152,55%,8%); }
 
     /* ── Dark theme warning colors ─────────────────────────────── */
@@ -342,8 +346,8 @@
     .limit-modal-dismiss:hover { color: var(--clr-foreground); }
 
   </style>
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js"></script>
+<script src="/js/theme-init.js" defer></script>
+<script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
@@ -352,13 +356,13 @@
 <!-- MOBILE TOPBAR -->
 <div class="mobile-topbar">
   <a href="dashboard.html" style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;font-style:italic;color:var(--clr-primary);text-decoration:none;">Mealzy</a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileSidebarOverlay">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
-<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" aria-hidden="true">
   <div class="sidebar">
     <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
@@ -473,9 +477,9 @@
 
     <!-- DATE NAVIGATOR (day view only) -->
     <div class="date-navigator" id="dateNavigator">
-      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;" aria-label="Previous day">&#8592; Prev</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;" aria-label="Previous week">&#8592; Prev</button>
       <div class="date-display" id="dateDisplay">Today</div>
-      <button class="btn btn-outline btn-sm" onclick="changeDate(1)" style="min-height:44px;" aria-label="Next day">Next &#8594;</button>
+      <button class="btn btn-outline btn-sm" onclick="changeDate(1)" style="min-height:44px;" aria-label="Next week">Next &#8594;</button>
       <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Generate AI Plan
@@ -894,12 +898,19 @@
     </div>`;
   }
 
+  let _limitModalTrigger = null;
+
   function showLimitModal() {
-    document.getElementById('limitModal').classList.add('open');
+    _limitModalTrigger = document.activeElement;
+    const modal = document.getElementById('limitModal');
+    modal.classList.add('open');
+    const focusable = modal.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])');
+    if (focusable[0]) focusable[0].focus();
   }
 
   function closeLimitModal() {
     document.getElementById('limitModal').classList.remove('open');
+    if (_limitModalTrigger) { _limitModalTrigger.focus(); _limitModalTrigger = null; }
   }
 
   async function generateShareLink(meals) {
@@ -1164,33 +1175,39 @@
   });
 
   // Mobile menu
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
-  });
+  function openMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusable[0]) focusable[0].focus();
+  }
+  function closeMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+  document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mobileSidebarOverlay')) {
-      document.getElementById('mobileSidebarOverlay').classList.remove('open');
-    }
+    if (e.target === document.getElementById('mobileSidebarOverlay')) closeMobileSidebar();
   });
-
-  // Mobile sidebar focus trap
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('mobileSidebarOverlay').classList.contains('open')) closeMobileSidebar();
+  });
   document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) => {
     if (e.key !== 'Tab') return;
     const overlay = document.getElementById('mobileSidebarOverlay');
     if (!overlay.classList.contains('open')) return;
-    const focusable = overlay.querySelector('.sidebar').querySelectorAll(
-      'a, button, [tabindex]:not([tabindex="-1"])'
-    );
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   init();
@@ -1236,6 +1253,17 @@
   // Close limit modal on backdrop click
   document.getElementById('limitModal').addEventListener('click', function(e) {
     if (e.target === this) closeLimitModal();
+  });
+
+  // Focus trap and Escape key for limit modal
+  document.getElementById('limitModal').addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeLimitModal(); return; }
+    if (e.key !== 'Tab') return;
+    const focusable = this.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 </script>
 <div style="text-align:center;padding:0.5rem 0;font-size:0.78rem;color:var(--clr-muted-fg,#888);"><a href="privacy-policy.html" style="color:var(--clr-primary,#3d8b5e);">Privacy Policy</a></div>

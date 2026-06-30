@@ -25,19 +25,19 @@
     .calc-wrap { max-width: 700px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
     .calc-header { margin-bottom: 2.5rem; }
     .calc-header h1 { font-family: var(--font-display); font-style: italic; font-size: 1.8rem; font-weight: 900; margin-bottom: 0.4rem; }
-    .calc-header p { color: var(--clr-muted-fg); font-size: 0.9rem; }
+    .calc-header p { color: var(--clr-muted-fg); font-size: var(--font-size-sm); }
     .slider-group { margin-bottom: 1.5rem; }
     .slider-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
     .slider-label span { font-weight: 600; font-size: 0.88rem; }
-    .slider-label .val { font-size: 1rem; font-weight: 800; color: var(--clr-primary); }
+    .slider-label .val { font-size: var(--font-size-base); font-weight: 800; color: var(--clr-primary); }
     input[type=range] { width: 100%; accent-color: var(--clr-primary); height: 6px; }
     .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
     .output-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.75rem; padding: 1.25rem; text-align: center; }
     .output-card.primary { border-color: var(--clr-primary); background: var(--clr-primary-light); }
-    .output-card .val { font-size: 1.8rem; font-weight: 900; color: var(--clr-primary); }
+    .output-card .val { font-size: var(--font-size-3xl); font-weight: 900; color: var(--clr-primary); }
     .output-card .label { font-size: 0.78rem; color: var(--clr-muted-fg); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.3rem; }
     .scenario-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1.5rem; }
-    .scenario-table th { background: var(--clr-muted-bg); padding: 0.7rem 0.85rem; text-align: left; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--clr-muted-fg); }
+    .scenario-table th { background: var(--clr-muted-bg); padding: 0.7rem 0.85rem; text-align: left; font-weight: 700; font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--clr-muted-fg); }
     .scenario-table td { padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--clr-border); }
     .scenario-table tr:last-child td { border-bottom: none; }
     .target-line { background: var(--clr-primary-light); }
@@ -48,7 +48,7 @@
     #authGate p { font-size: 0.88rem; color: var(--clr-muted-fg); margin-bottom: 1rem; }
     #authGate input { width: 100%; box-sizing: border-box; border: 1px solid var(--clr-border); border-radius: 0.5rem; padding: 0.65rem 0.85rem; font-size: 0.9rem; margin-bottom: 0.75rem; font-family: inherit; background: var(--clr-input-bg); }
     .section-divider { border: none; border-top: 1px solid var(--clr-border); margin: 2rem 0; }
-    @media (prefers-reduced-motion: reduce) { .fadeInUp { animation: none; opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .fadeInUp { animation: none; opacity: 1; transform: none; } }
   </style>
 <script src="/js/theme-init.js"></script>
   <link rel="stylesheet" href="/css/fonts.css">
@@ -58,15 +58,15 @@
 
 <!-- AUTH GATE -->
 <main id="main">
-<div id="authGate">
+<div id="authGate" role="dialog" aria-modal="true" aria-labelledby="authGateHeading">
   <div class="inner">
     <div style="color:var(--clr-primary);margin-bottom:0.5rem;display:flex;justify-content:center;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-    <p style="font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;text-align:center;margin-bottom:1rem;color:var(--clr-foreground);">Internal Tool — Admin Access Required</p>
-    <label for="adminToken" style="display:block;font-size:0.82rem;font-weight:600;margin-bottom:0.35rem;color:var(--clr-muted-fg);">Access Token</label>
-    <input type="password" id="adminToken" placeholder="PRO_TOKEN" onkeydown="if(event.key==='Enter')checkToken()" />
-    <button onclick="checkToken()" class="btn btn-primary btn-full">Unlock</button>
+    <h2 id="authGateHeading" style="font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.3rem;text-align:center;margin-bottom:1rem;color:var(--clr-foreground);">Internal Tool — Admin Access Required</h2>
+    <label for="authPass" style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.4rem;color:var(--clr-muted-fg);text-transform:uppercase;letter-spacing:0.04em;">Access password</label>
+    <input type="password" id="authPass" placeholder="Enter access password" onkeydown="if(event.key==='Enter')checkToken()" />
+    <button onclick="checkToken()" class="btn btn-primary btn-full" aria-label="Unlock calculator">Unlock</button>
     <p style="font-size:0.75rem;margin-top:0.75rem;color:var(--clr-muted-fg);">Token is stored locally until you clear it.</p>
-    <p id="tokenError" style="color:var(--clr-destructive);font-size:0.8rem;display:none;">Wrong token. Try again.</p>
+    <p id="tokenError" aria-live="polite" style="color:var(--clr-destructive);font-size:0.8rem;display:none;">Wrong token. Try again.</p>
   </div>
 </div>
 
@@ -74,53 +74,53 @@
 
   <div class="calc-header">
     <a href="dashboard.html" style="font-size:0.82rem;color:var(--clr-muted-fg);text-decoration:none;">← Dashboard</a>
-    <h1 style="margin-top:1rem;">Growth Calculator</h1>
+    <h1 id="calcH1" tabindex="-1" style="margin-top:1rem;">Growth Calculator</h1>
     <p>Adjust the sliders to model your path to $10k MRR. All calculations update live.</p>
   </div>
 
   <div class="slider-group">
     <div class="slider-label"><span>Monthly Visitors</span><span class="val" id="lblVisitors">50,000</span></div>
-    <input type="range" id="slVisitors" min="1000" max="500000" step="1000" value="50000" aria-label="Monthly visitor count" oninput="calc()" />
+    <input type="range" id="slVisitors" min="1000" max="500000" step="1000" value="50000" aria-label="Monthly Visitors" oninput="calc()" />
   </div>
 
   <div class="slider-group">
     <div class="slider-label"><span>Visitor → Signup Rate</span><span class="val" id="lblSignup">4%</span></div>
-    <input type="range" id="slSignup" min="0.5" max="15" step="0.5" value="4" aria-label="Visitor to signup conversion rate" oninput="calc()" />
+    <input type="range" id="slSignup" min="0.5" max="15" step="0.5" value="4" aria-label="Visitor → Signup Rate" oninput="calc()" />
   </div>
 
   <div class="slider-group">
     <div class="slider-label"><span>Free → Paid Conversion</span><span class="val" id="lblConvert">6%</span></div>
-    <input type="range" id="slConvert" min="0.5" max="25" step="0.5" value="6" aria-label="Free to paid conversion rate" oninput="calc()" />
+    <input type="range" id="slConvert" min="0.5" max="25" step="0.5" value="6" aria-label="Free → Paid Conversion" oninput="calc()" />
   </div>
 
   <div class="slider-group">
     <div class="slider-label"><span>Pro / Family Split (% Pro)</span><span class="val" id="lblMix">80%</span></div>
-    <input type="range" id="slMix" min="0" max="100" step="5" value="80" aria-label="Pro to Family plan split percentage" oninput="calc()" />
+    <input type="range" id="slMix" min="0" max="100" step="5" value="80" aria-label="Pro / Family Split (% Pro)" oninput="calc()" />
     <div style="font-size:0.75rem;color:var(--clr-muted-fg);margin-top:0.25rem;">Pro = $12/mo &nbsp;·&nbsp; Family = $16/mo</div>
   </div>
 
   <div class="slider-group">
     <div class="slider-label"><span>Monthly Churn Rate</span><span class="val" id="lblChurn">5%</span></div>
-    <input type="range" id="slChurn" min="0.5" max="20" step="0.5" value="5" aria-label="Monthly customer churn rate" oninput="calc()" />
+    <input type="range" id="slChurn" min="0.5" max="20" step="0.5" value="5" aria-label="Monthly Churn Rate" oninput="calc()" />
   </div>
 
   <hr class="section-divider" />
 
   <div class="output-grid">
     <div class="output-card primary">
-      <div class="val" id="outMRR">$0</div>
+      <div class="val" aria-live="polite" id="outMRR">$0</div>
       <div class="label">Projected MRR</div>
     </div>
     <div class="output-card">
-      <div class="val" id="outARR">$0</div>
+      <div class="val" aria-live="polite" id="outARR">$0</div>
       <div class="label">Annual Revenue</div>
     </div>
     <div class="output-card">
-      <div class="val" id="outPaid">0</div>
+      <div class="val" aria-live="polite" id="outPaid">0</div>
       <div class="label">Paying Users</div>
     </div>
     <div class="output-card">
-      <div class="val" id="outMonths">∞</div>
+      <div class="val" aria-live="polite" id="outMonths">∞</div>
       <div class="label">Months to $10k MRR</div>
     </div>
   </div>
@@ -154,8 +154,8 @@
 <script>
   // Auth gate
   function checkToken() {
-    const input = document.getElementById('adminToken').value.trim();
-    const stored = localStorage.getItem('mealzy_pro_token') || '';
+    const input = document.getElementById('authPass').value.trim();
+    const stored = sessionStorage.getItem('mealzy_pro_token') || '';
     if (input === stored && input) {
       unlock();
     } else {
@@ -163,7 +163,7 @@
       fetch('/api/analytics', { headers: { 'x-pro-token': input } })
         .then(r => {
           if (r.ok) {
-            localStorage.setItem('mealzy_pro_token', input);
+            sessionStorage.setItem('mealzy_pro_token', input);
             unlock();
           } else {
             document.getElementById('tokenError').style.display = 'block';
@@ -181,12 +181,15 @@
     document.getElementById('authGate').style.display = 'none';
     document.getElementById('calcContent').style.display = 'block';
     calc();
+    const h1 = document.getElementById('calcH1');
+    if (h1) h1.focus();
   }
 
   // Check if already authenticated
-  const _stored = localStorage.getItem('mealzy_pro_token');
+  const _stored = sessionStorage.getItem('mealzy_pro_token');
+  if (!_stored) { document.getElementById('authPass').focus(); }
   if (_stored) {
-    document.getElementById('adminToken').value = _stored;
+    document.getElementById('authPass').value = _stored;
     // Try server check in background
     fetch('/api/analytics', { headers: { 'x-pro-token': _stored } })
       .then(r => { if (r.ok) unlock(); })
@@ -273,7 +276,7 @@
       const sMrr = visitors * sp * cp / churnPct * blendedARPU;
       const isCurrent = s.name.includes('Current');
       return `<tr class="${isCurrent ? 'target-line' : ''}">
-        <td>${s.name}</td>
+        <td scope="row">${s.name}</td>
         <td>${(sp*100).toFixed(0)}%</td>
         <td>${(cp*100).toFixed(0)}%</td>
         <td>${fmt(vNeeded)}/mo</td>

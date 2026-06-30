@@ -16,6 +16,7 @@
   <meta name="description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan." />
   <meta property="og:title" content="Get Started — Mealzy" />
   <meta property="og:description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan." />
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg" />
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
@@ -65,7 +66,7 @@
     /* ── Card ───────────────────────────────────────────── */
     .onboarding-card {
       background: var(--clr-card);
-      border-radius: 1.5rem;
+      border-radius: var(--radius-xl);
       padding: 2.5rem;
       width: 100%; max-width: 580px;
       box-shadow: var(--shadow-lg);
@@ -138,7 +139,7 @@
       background: var(--clr-muted-bg);
     }
     .goal-card.selected {
-      background: rgba(var(--color-green-rgb, 61,139,94),0.35);
+      background: var(--clr-primary-light);
       border: 2px solid var(--color-green);
       color: #fff;
     }
@@ -196,7 +197,7 @@
     [data-theme="dark"] .form-input {
       background: var(--clr-muted-bg);
       border-color: #2d4a35;
-      color: white;
+      color: var(--clr-on-primary);
     }
     #selectCurrency {
       appearance: none;
@@ -211,11 +212,11 @@
     [data-theme="dark"] .form-select {
       background-color: var(--clr-muted-bg);
       border-color: #2d4a35;
-      color: white;
+      color: var(--clr-on-primary);
     }
     [data-theme="dark"] .goal-card {
-      background: #1e3828;
-      border: 1px solid #3d6b50;
+      background: var(--color-forest);
+      border: 1px solid var(--color-border);
       color: #f0f7f4;
     }
     [data-theme="dark"] .goal-card .goal-label { color: #f0f7f4; }
@@ -237,7 +238,7 @@
     [data-theme="dark"] .chip.active {
       background: var(--color-green);
       border-color: var(--color-green);
-      color: white;
+      color: var(--clr-on-primary);
     }
     [data-theme="dark"] #btnBack {
       background: transparent;
@@ -251,22 +252,23 @@
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
 
-<div class="onboarding-wrap">
+<main id="main" class="onboarding-wrap">
   <div class="onboarding-card">
     <!-- Stepper -->
-    <main id="main">
     <div class="ob-top">
       <a href="/" class="ob-logo">Mealzy</a>
-      <div class="ob-stepper" role="progressbar" aria-label="Onboarding progress" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="obStepper">
-        <div class="ob-step active" id="obStep1" aria-label="Step 1">1</div>
-        <div class="ob-step-line" id="obLine1"></div>
-        <div class="ob-step" id="obStep2" aria-label="Step 2">2</div>
-      </div>
+      <nav aria-label="Onboarding progress">
+        <div class="ob-stepper" role="progressbar" aria-label="Onboarding step 1 of 2" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="stepProgress">
+          <div class="ob-step active" id="obStep1" aria-label="Step 1 of 2">1</div>
+          <div class="ob-step-line" id="obLine1"></div>
+          <div class="ob-step" id="obStep2" aria-label="Step 2 of 2">2</div>
+        </div>
+      </nav>
     </div>
 
     <!-- STEP 1: Name + Goal -->
     <div class="step-content" id="step1">
-      <div class="ob-step-title">Let's personalise your plan</div>
+      <h1 class="ob-step-title" style="font-family: var(--font-display); font-style: italic; font-weight: 900;">Let's personalise your plan</h1>
       <div class="ob-step-sub">Two quick questions and we'll generate your first meal plan — automatically.</div>
       <div class="form-group">
         <label class="form-label" for="inputName">Your first name</label>
@@ -276,28 +278,28 @@
         <fieldset style="border:none;padding:0;margin:0;">
           <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
           <div class="goal-grid" role="radiogroup" aria-label="Select your goal">
-            <label class="goal-card" data-goal="build_muscle" role="radio" aria-checked="false" aria-pressed="false" tabindex="0">
-              <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="build_muscle" tabindex="0">
+              <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Build Muscle</span>
             </label>
-            <label class="goal-card" data-goal="lose_weight" role="radio" aria-checked="false" aria-pressed="false" tabindex="0">
-              <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="lose_weight" tabindex="0">
+              <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Lose Weight</span>
             </label>
-            <label class="goal-card" data-goal="maintain_weight" role="radio" aria-checked="false" aria-pressed="false" tabindex="0">
-              <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="maintain_weight" tabindex="0">
+              <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Maintain Weight</span>
             </label>
-            <label class="goal-card" data-goal="eat_healthier" role="radio" aria-checked="false" aria-pressed="false" tabindex="0">
-              <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="eat_healthier" tabindex="0">
+              <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Eat Healthier</span>
             </label>
-            <label class="goal-card" data-goal="gain_weight" role="radio" aria-checked="false" aria-pressed="false" tabindex="0">
-              <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="gain_weight" tabindex="0">
+              <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Gain Weight</span>
             </label>
-            <label class="goal-card" data-goal="improve_energy" role="radio" aria-checked="false" aria-pressed="false" tabindex="0">
-              <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" aria-hidden="true" onchange="selectGoal(this.closest('label'))" />
+            <label class="goal-card" data-goal="improve_energy" tabindex="0">
+              <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
               <span class="goal-label">Improve Energy</span>
             </label>
           </div>
@@ -315,7 +317,7 @@
           <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100" />
         </div>
         <div class="form-group">
-          <label class="form-label">Currency</label>
+          <label class="form-label" for="selectCurrency">Currency</label>
           <select class="form-select" id="selectCurrency">
             <option value="USD">$ USD</option>
             <option value="EUR">€ EUR</option>
@@ -389,9 +391,8 @@
         <p id="skipNote" style="font-size:0.75rem;color:var(--clr-muted-fg);margin:0;text-align:right;">We'll use estimated values — you can update these in Settings.</p>
       </div>
     </div>
-    </main>
   </div>
-</div>
+</main>
 
 <script>
   if (localStorage.getItem('mealzy_theme') === 'dark') {
@@ -481,6 +482,8 @@
       const line = document.getElementById('obLine' + l);
       if (line) line.classList.toggle('done', l < step);
     }
+    document.getElementById('stepProgress').setAttribute('aria-valuenow', currentStep);
+    document.getElementById('stepProgress').setAttribute('aria-label', 'Onboarding step ' + currentStep + ' of ' + totalSteps);
   }
 
   function nextStep() {
@@ -525,12 +528,12 @@
   function selectGoal(el) {
     document.querySelectorAll('.goal-card').forEach(c => {
       c.classList.remove('selected');
-      c.setAttribute('aria-checked', 'false');
-      c.setAttribute('aria-pressed', 'false');
+      const inp = c.querySelector('input[type="radio"]');
+      if (inp) inp.setAttribute('aria-checked', 'false');
     });
     el.classList.add('selected');
-    el.setAttribute('aria-checked', 'true');
-    el.setAttribute('aria-pressed', 'true');
+    const inp = el.querySelector('input[type="radio"]');
+    if (inp) inp.setAttribute('aria-checked', 'true');
     userData.goal = el.dataset.goal;
     hideStepError();
   }
@@ -623,7 +626,7 @@
     window.location.href = 'dashboard.html?autoGenerate=1';
   }
 </script>
-<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:#888;"><a href="privacy-policy.html" style="color:var(--color-green);">Privacy Policy</a></div>
+<footer style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:#888;"><a href="privacy-policy.html" style="color:var(--color-green);">Privacy Policy</a></footer>
 </body>
 </html>
 

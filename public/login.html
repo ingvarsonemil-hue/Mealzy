@@ -10,10 +10,17 @@
   <title>Sign In | Mealzy</title>
   <meta name="description" content="Sign in to your Mealzy account or create a free account to start generating personalised AI meal plans." />
   <link rel="canonical" href="https://mealzy.org/login.html" />
+  <meta property="og:title" content="Sign In — Mealzy">
+  <meta property="og:description" content="Sign in to your Mealzy account or create a free account. No credit card required.">
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+  <meta property="og:url" content="https://mealzy.org/login.html">
+  <meta property="og:type" content="website">
   <!-- Mealzy Design System -->
+  <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css">
-  <link rel="preload" as="font" href="/fonts/fraunces.woff2" crossorigin>
+  <link rel="preload" as="font" href="/fonts/fraunces/fraunces-latin-900-italic.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="/fonts/inter/inter-latin-400-normal.woff2" type="font/woff2" crossorigin>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <style>
     * { box-sizing: border-box; }
@@ -63,7 +70,7 @@
       font-size: 1.75rem;
       font-weight: 900;
       font-style: italic;
-      color: white;
+      color: var(--clr-on-primary);
       letter-spacing: -0.03em;
       margin-bottom: auto;
       text-decoration: none;
@@ -73,7 +80,7 @@
       font-size: clamp(2rem, 3.5vw, 2.8rem);
       font-weight: 700;
       font-style: italic;
-      color: white;
+      color: var(--clr-on-primary);
       line-height: 1.15;
       letter-spacing: -0.03em;
       margin-bottom: 2.5rem;
@@ -116,7 +123,7 @@
       font-size: 1.3rem;
       font-weight: 900;
       font-style: italic;
-      color: white;
+      color: var(--clr-on-primary);
       text-decoration: none;
       letter-spacing: -0.02em;
     }
@@ -319,7 +326,6 @@
   </style>
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
-  <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -363,15 +369,15 @@
     <div class="login-col-inner">
 
       <h1 class="login-heading">Welcome back</h1>
-      <p class="login-subheading">Good to see you again.</p>
+      <p class="login-subheading">Your plans are waiting.</p>
 
       <!-- Error / success banner -->
       <div class="auth-error" id="authError" role="alert" aria-live="polite"></div>
 
       <!-- Tab bar -->
-      <div class="auth-tabs" id="authTabs" role="tablist">
-        <button class="auth-tab active" id="tabSignIn" role="tab" aria-selected="true" aria-controls="formSignIn" onclick="switchTab('signin')">Sign In</button>
-        <button class="auth-tab" id="tabSignUp" role="tab" aria-selected="false" aria-controls="formSignUp" onclick="switchTab('signup')">Create Account</button>
+      <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Authentication options">
+        <button class="auth-tab active" id="tabSignin" role="tab" aria-selected="true" aria-controls="signinPanel" onclick="switchTab('signin')">Sign In</button>
+        <button class="auth-tab" id="tabRegister" role="tab" aria-selected="false" aria-controls="registerPanel" onclick="switchTab('signup')">Create account</button>
       </div>
 
       <!-- Google OAuth -->
@@ -383,7 +389,7 @@
       <div class="divider">or</div>
 
       <!-- SIGN IN FORM -->
-      <form id="formSignIn" role="tabpanel" aria-labelledby="tabSignIn" onsubmit="handleSignIn(event)">
+      <form id="signinPanel" role="tabpanel" aria-labelledby="tabSignin" onsubmit="handleSignIn(event)">
         <div class="form-group">
           <label class="form-label" for="siEmail">Email</label>
           <input type="email" class="form-input" id="siEmail" placeholder="you@example.com" required autocomplete="email" />
@@ -396,13 +402,13 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
-          <span class="reset-link" onclick="handleReset()" tabindex="0" role="button" onkeypress="if(event.key==='Enter')handleReset()">Forgot password?</span>
+          <button type="button" class="reset-link" onclick="handleReset()">Forgot password?</button>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;min-height:44px;" id="btnSignIn">Sign In</button>
       </form>
 
       <!-- SIGN UP FORM -->
-      <form id="formSignUp" role="tabpanel" aria-labelledby="tabSignUp" onsubmit="handleSignUp(event)" style="display:none;">
+      <form id="registerPanel" role="tabpanel" aria-labelledby="tabRegister" onsubmit="handleSignUp(event)" style="display:none;">
         <div class="form-group">
           <label class="form-label" for="suName">Full Name</label>
           <input type="text" class="form-input" id="suName" placeholder="Your name" required />
@@ -488,12 +494,12 @@
   function switchTab(tab) {
     const isSignIn = tab === 'signin';
     const isReset  = tab === 'reset';
-    document.getElementById('tabSignIn').classList.toggle('active', isSignIn);
-    document.getElementById('tabSignIn').setAttribute('aria-selected', isSignIn ? 'true' : 'false');
-    document.getElementById('tabSignUp').classList.toggle('active', !isSignIn && !isReset);
-    document.getElementById('tabSignUp').setAttribute('aria-selected', (!isSignIn && !isReset) ? 'true' : 'false');
-    document.getElementById('formSignIn').style.display = isSignIn ? '' : 'none';
-    document.getElementById('formSignUp').style.display = (!isSignIn && !isReset) ? '' : 'none';
+    document.getElementById('tabSignin').classList.toggle('active', isSignIn);
+    document.getElementById('tabSignin').setAttribute('aria-selected', isSignIn ? 'true' : 'false');
+    document.getElementById('tabRegister').classList.toggle('active', !isSignIn && !isReset);
+    document.getElementById('tabRegister').setAttribute('aria-selected', (!isSignIn && !isReset) ? 'true' : 'false');
+    document.getElementById('signinPanel').style.display = isSignIn ? '' : 'none';
+    document.getElementById('registerPanel').style.display = (!isSignIn && !isReset) ? '' : 'none';
     document.getElementById('formReset').style.display  = isReset ? '' : 'none';
     document.getElementById('authTabs').style.display   = isReset ? 'none' : '';
     document.getElementById('authNote').style.display   = isReset ? 'none' : '';
@@ -501,7 +507,7 @@
     document.querySelector('.divider').style.display    = isReset ? 'none' : '';
     if (!isReset) {
       document.querySelector('.login-heading').textContent    = isSignIn ? 'Welcome back' : 'Create your account';
-      document.querySelector('.login-subheading').textContent = isSignIn ? 'Good to see you again.' : 'Join thousands planning smarter meals.';
+      document.querySelector('.login-subheading').textContent = isSignIn ? 'Your plans are waiting.' : 'Join thousands planning smarter meals.';
     }
     hideError();
   }

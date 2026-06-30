@@ -29,6 +29,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <!-- chart.min.js local fallback omitted: /public/js/chart.min.js does not exist. Add it to enable offline/CDN-fail recovery. -->
   <style>
     .sidebar-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; color: white; font-size: 1.25rem; text-decoration: none; }
     @keyframes fadeInUp {
@@ -55,15 +56,16 @@
       border-color: rgba(255,255,255,0.08);
     }
     .muted-text { color: var(--clr-muted-fg); }
-    .icon-amber  { color: var(--clr-warning, hsl(32,88%,54%)); }
-    .icon-blue   { color: var(--clr-info, hsl(200,100%,50%)); }
-    .icon-indigo { color: var(--clr-accent, hsl(260,60%,55%)); }
+    .icon-amber  { color: var(--color-warning); }
+    .icon-blue   { color: var(--color-info); }
+    .icon-indigo { color: var(--color-indigo); }
+    .sr-only { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap; }
     [data-theme="dark"] .icon-amber  { color: hsl(32,90%,65%); }
     [data-theme="dark"] .icon-blue   { color: hsl(200,100%,65%); }
     [data-theme="dark"] .icon-indigo { color: hsl(260,60%,72%); }
   </style>
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js"></script>
+<script src="/js/theme-init.js" defer></script>
+<script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
@@ -75,13 +77,13 @@
     <span class="logo-icon" style="width:30px;height:30px;font-size:14px;font-weight:900;">M</span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileSidebarOverlay">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
-<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" aria-hidden="true">
   <div class="sidebar">
     <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
@@ -219,6 +221,9 @@
       <div class="chart-card">
         <h3>Daily Calories (Last 7 Days)</h3>
         <canvas id="caloriesChart" height="200" role="img" aria-label="Daily calorie intake line chart showing last 7 days with goal reference line"></canvas>
+        <table class="sr-only" aria-label="Daily calorie intake line chart showing last 7 days with goal reference line data">
+          <caption>Daily Calories (Last 7 Days)</caption>
+        </table>
         <p class="sr-only" id="caloriesChartDesc">Line chart showing your daily calorie intake over the last 7 days compared to your calorie goal. Values are loaded from your nutrition log.</p>
         <div id="caloriesEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--clr-muted-fg);" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -230,6 +235,9 @@
       <div class="chart-card">
         <h3>Daily Protein (Last 7 Days)</h3>
         <canvas id="proteinChart" height="200" role="img" aria-label="Daily protein intake bar chart showing last 7 days with goal reference line"></canvas>
+        <table class="sr-only" aria-label="Daily protein intake bar chart showing last 7 days with goal reference line data">
+          <caption>Daily Protein (Last 7 Days)</caption>
+        </table>
         <p class="sr-only" id="proteinChartDesc">Bar chart showing your daily protein intake in grams over the last 7 days compared to your protein goal. Bars shown in green when goal is met, orange when below.</p>
         <div id="proteinEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--clr-muted-fg);" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -245,6 +253,9 @@
         <h3>Macro Distribution (Weekly Avg)</h3>
         <div style="max-width:280px;margin:0 auto;">
           <canvas id="macroChart" height="280" role="img" aria-label="Weekly average macronutrient distribution doughnut chart showing protein, carbs, and fat breakdown"></canvas>
+          <table class="sr-only" aria-label="Weekly average macronutrient distribution doughnut chart showing protein, carbs, and fat breakdown data">
+            <caption>Macro Distribution (Weekly Avg)</caption>
+          </table>
           <p class="sr-only" id="macroChartDesc">Doughnut chart showing your weekly average macronutrient breakdown as a percentage of total calories, split between protein, carbohydrates, and fat.</p>
         </div>
         <div id="macroEmpty" style="display:none;text-align:center;padding:3rem 1rem;">
@@ -644,35 +655,39 @@
   }
 
   // Mobile menu
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
-  });
+  function openMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusable[0]) focusable[0].focus();
+  }
+  function closeMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+  document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mobileSidebarOverlay')) {
-      document.getElementById('mobileSidebarOverlay').classList.remove('open');
-    }
+    if (e.target === document.getElementById('mobileSidebarOverlay')) closeMobileSidebar();
   });
-
-  // Mobile sidebar focus trap
-  const mobileSidebarOverlay = document.getElementById('mobileSidebarOverlay');
-  const sidebar = mobileSidebarOverlay.querySelector('.sidebar');
-  const focusableElements = sidebar.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
-  const firstFocusable = focusableElements[0];
-  const lastFocusable = focusableElements[focusableElements.length - 1];
-
-  sidebar.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('mobileSidebarOverlay').classList.contains('open')) closeMobileSidebar();
+  });
+  document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) => {
     if (e.key !== 'Tab') return;
-    if (e.shiftKey) {
-      if (document.activeElement === firstFocusable) {
-        e.preventDefault();
-        lastFocusable.focus();
-      }
-    } else {
-      if (document.activeElement === lastFocusable) {
-        e.preventDefault();
-        firstFocusable.focus();
-      }
-    }
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    if (!overlay.classList.contains('open')) return;
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   init();

@@ -14,6 +14,10 @@
   <title>Help &amp; Support | Mealzy</title>
   <meta name="description" content="Get help with Mealzy — FAQ, account questions, billing support, and how to contact us." />
   <link rel="canonical" href="https://mealzy.org/support.html" />
+  <meta property="og:title" content="Help &amp; Support — Mealzy">
+  <meta property="og:description" content="Get help with Mealzy — FAQ, billing support, and how to contact us.">
+  <meta property="og:url" content="https://mealzy.org/support.html">
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
@@ -24,7 +28,7 @@
     .support-wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
     .support-wrap h1 { font-family: var(--font-display); font-style: italic; font-size: 2rem; margin-bottom: 0.25rem; }
     .support-wrap .subtitle { color: var(--clr-muted-fg); font-size: 0.95rem; margin-bottom: 2.5rem; line-height: 1.6; }
-    .support-wrap h2 { font-family: var(--font-display); font-style: italic; font-size: 1rem; font-weight: 700; margin: 2.5rem 0 1rem; color: var(--clr-foreground); border-bottom: 1px solid var(--clr-border); padding-bottom: 0.5rem; }
+    .support-wrap h2 { font-family: var(--font-display); font-style: italic; font-size: var(--font-size-lg); font-weight: 700; margin: 2.5rem 0 1rem; color: var(--clr-foreground); border-bottom: 1px solid var(--clr-border); padding-bottom: 0.5rem; }
     .faq-item { margin-bottom: 1.5rem; }
     .faq-q { font-size: 0.9rem; font-weight: 600; color: var(--clr-foreground); margin-bottom: 0.35rem; }
     .faq-a { font-size: 0.88rem; line-height: 1.7; color: var(--clr-muted-fg); }
@@ -43,6 +47,7 @@
 <script src="/js/theme-init.js"></script>
 <script src="/js/utils.js"></script>
   <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="preload" href="/fonts/fraunces/fraunces-latin-900-italic.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -50,11 +55,13 @@
 <nav class="nav-fixed" aria-label="Main navigation">
   <div class="container nav-inner">
     <a href="/" class="nav-logo-text">Mealzy</a>
-    <div class="nav-links">
-      <a href="dashboard.html" class="nav-link">Dashboard</a>
-      <a href="pricing.html" class="nav-link">Pricing</a>
-      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-    </div>
+    <ul class="nav-links" role="list">
+      <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+      <li><a href="pricing.html" class="nav-link">Pricing</a></li>
+      <li><a href="settings.html" class="nav-link">Settings</a></li>
+      <li><button onclick="signOut()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.7rem;font-size:0.82rem;font-family:inherit;line-height:1;">Sign Out</button></li>
+      <li><button onclick="toggleTheme()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></li>
+    </ul>
   </div>
 </nav>
 
@@ -62,7 +69,7 @@
   <a href="/" class="back-link" style="display:inline-block;margin-bottom:1.5rem;color:var(--clr-primary);text-decoration:none;font-size:0.9rem;">← Back to Mealzy</a>
   <h1>Help &amp; Support</h1>
   <p class="subtitle">Find answers to common questions below. If you don't find what you need, email us — we reply within 24 hours.</p>
-  <search aria-label="Search support articles">
+  <search role="search" aria-label="Search support articles">
   <input type="search" id="faqSearch" placeholder="Search help articles…" aria-label="Search FAQ" style="width:100%;padding:0.65rem 1rem;border:1.5px solid var(--clr-border);border-radius:0.6rem;font-size:0.9rem;font-family:inherit;background:var(--clr-card);color:var(--clr-foreground);margin-bottom:1.5rem;box-sizing:border-box;">
   <noscript><p>Search requires JavaScript. Use Ctrl+F to search this page.</p></noscript>
   </search>
@@ -108,16 +115,16 @@
   <section role="region" aria-label="Billing FAQs">
   <dl style="margin-bottom:2rem;">
     <dt class="faq-q">What does Pro include?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Pro gives you unlimited meal plans, grocery list export, PDF download, Mia the AI nutrition coach, detailed macros per meal, and streak rewards. It's $8/month or $62/year. See the full comparison at <a href="pricing.html">pricing</a>.</dd>
+    <dd class="faq-a" style="margin-bottom:1.5rem;">Pro gives you unlimited meal plans, grocery list export, PDF download, Mia the AI nutrition coach, detailed macros per meal, and streak rewards. It's $8/month or $96/year. See the full comparison at <a href="pricing.html">pricing</a>.</dd>
 
     <dt class="faq-q">I paid but I'm still on the free plan.</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Pro usually activates within 60 seconds. If it hasn't after 5 minutes, email <a href="mailto:support@mealzy.org">support@mealzy.org</a> with your payment confirmation email — we'll activate it manually within a few hours.</dd>
+    <dd class="faq-a" style="margin-bottom:1.5rem;">Pro usually activates within 60 seconds. If it hasn't after 5 minutes, email <a href="mailto:support@mealzy.org">Email our support team</a> with your payment confirmation email — we'll activate it manually within a few hours.</dd>
 
     <dt class="faq-q">How do I cancel my subscription?</dt>
     <dd class="faq-a" style="margin-bottom:1.5rem;">Go to <a href="settings.html">Settings</a> and scroll to the Subscription section. You'll keep Pro access until the end of your current billing period. Your plans and data are never deleted.</dd>
 
     <dt class="faq-q">Can I get a refund?</dt>
-    <dd class="faq-a">Yes — we offer a full refund within 7 days of subscribing if you haven't found it useful. Email <a href="mailto:support@mealzy.org">support@mealzy.org</a> with your request and payment confirmation.</dd>
+    <dd class="faq-a">Yes — we offer a full refund within 7 days of subscribing if you haven't found it useful. Email <a href="mailto:support@mealzy.org">Email our support team</a> with your request and payment confirmation.</dd>
   </dl>
   </section>
 
@@ -144,7 +151,7 @@
 
 </main>
 
-<div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);"><a href="privacy-policy.html" style="color:var(--clr-primary);">Privacy Policy</a> · <a href="terms.html" style="color:var(--clr-primary);">Terms</a></div>
+<footer><div style="text-align:center;padding:1rem 0 0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);"><a href="privacy-policy.html" style="color:var(--clr-primary);">Privacy Policy</a> · <a href="terms.html" style="color:var(--clr-primary);">Terms</a></div></footer>
 
 <script>
 document.getElementById('faqSearch').addEventListener('input', function() {
@@ -152,30 +159,26 @@ document.getElementById('faqSearch').addEventListener('input', function() {
   const headers = document.querySelectorAll('.support-wrap h2');
 
   headers.forEach(h2 => {
+    let hasVisiblePairs = false;
     let nextElement = h2.nextElementSibling;
-    let hasVisibleItems = false;
-    const itemsBeforeNextH2 = [];
 
-    while (nextElement && nextElement.tagName !== 'H2' && nextElement.tagName !== 'DIV') {
+    while (nextElement && nextElement.tagName !== 'H2' && nextElement.tagName !== 'FOOTER') {
       if (nextElement.tagName === 'SECTION') {
         const dts = nextElement.querySelectorAll('dt.faq-q');
         dts.forEach(dt => {
-          const dtText = dt.textContent.toLowerCase();
-          const ddText = dt.nextElementSibling.textContent.toLowerCase();
-          const faqItem = dt.closest('dl').parentElement;
-
-          if (dtText.includes(searchValue) || ddText.includes(searchValue)) {
-            faqItem.style.display = '';
-            hasVisibleItems = true;
-          } else {
-            faqItem.style.display = 'none';
-          }
+          const dd = dt.nextElementSibling;
+          const matches = !searchValue ||
+            dt.textContent.toLowerCase().includes(searchValue) ||
+            (dd && dd.textContent.toLowerCase().includes(searchValue));
+          dt.style.display = matches ? '' : 'none';
+          if (dd) dd.style.display = matches ? '' : 'none';
+          if (matches) hasVisiblePairs = true;
         });
       }
       nextElement = nextElement.nextElementSibling;
     }
 
-    h2.style.display = hasVisibleItems ? '' : 'none';
+    h2.style.display = (!searchValue || hasVisiblePairs) ? '' : 'none';
   });
 });
 </script>

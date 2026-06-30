@@ -27,9 +27,8 @@
   <meta name="apple-mobile-web-app-title" content="Mealzy">
   <style>
     .sidebar-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; color: white; font-size: 1.25rem; text-decoration: none; }
-    body { overflow: hidden; }
-    .app-layout { height: 100vh; overflow: hidden; }
-    .main-content { margin-left: 260px; padding: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--clr-background); }
+    .app-layout { height: 100dvh; }
+    .main-content { margin-left: 260px; padding: 0; display: flex; flex-direction: column; height: 100vh; background: var(--clr-background); }
     [data-theme="dark"] .main-content { background: var(--clr-background); }
     @media (max-width: 900px) {
       .main-content { height: calc(100vh - 4rem); margin-top: 4rem; }
@@ -108,6 +107,8 @@
 
     /* ── Messages container ─────────────────────────────── */
     .chat-messages {
+      flex: 1;
+      overflow-y: auto;
       background: var(--clr-surface);
     }
 
@@ -222,11 +223,12 @@
       color: rgba(255,255,255,0.8);
     }
   </style>
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js"></script>
+<script src="/js/theme-init.js" defer></script>
+<script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
+<a href="#chat-input" class="skip-link">Skip to chat input</a>
 <a href="#main" class="skip-link">Skip to main content</a>
 
 <!-- MOBILE TOPBAR -->
@@ -235,13 +237,13 @@
     <span class="logo-icon" style="width:30px;height:30px;font-size:14px;font-weight:900;">M</span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileSidebarOverlay">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
-<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" aria-hidden="true">
   <div class="sidebar">
     <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
@@ -359,7 +361,11 @@
     </div>
 
     <!-- Messages Area -->
-    <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-atomic="false">
+    <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Conversation with Mia" aria-atomic="false">
+      <div id="chatError" role="alert" style="display:none; text-align:center; padding:2rem; color:var(--clr-destructive); font-size:0.9rem; background:var(--clr-accent-light); border-radius:var(--radius-md); margin:1rem;">
+        Something went wrong connecting to your coach.
+        <button onclick="document.getElementById('chatError').style.display='none'" style="display:block;margin:0.75rem auto 0;color:var(--clr-primary);background:none;border:none;cursor:pointer;font-weight:600;font-size:0.9rem;">Try again</button>
+      </div>
       <!-- Messages rendered here -->
     </div>
 
@@ -398,19 +404,24 @@
     <div id="msgLimitAnnouncer" aria-live="polite" aria-atomic="true" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;"></div>
 
     <!-- Input Bar -->
-    <div class="chat-input-bar">
+    <div class="chat-input-bar" style="flex-direction:column;gap:0.4rem;">
+    <div style="display:flex;gap:0.75rem;align-items:flex-end;width:100%;">
       <textarea
         class="chat-input"
-        id="chatInput"
+        id="chat-input"
         placeholder="Ask Mia anything about nutrition, recipes, or your meal plan..."
         rows="1"
         onkeydown="handleKeydown(event)"
         oninput="autoResize(this)"
         aria-label="Message Mia"
+        aria-keyshortcuts="Enter"
+        aria-describedby="chat-input-hint"
       ></textarea>
       <button class="btn btn-primary" id="sendBtn" onclick="sendMessage()" style="flex-shrink:0;" aria-label="Send message">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
+    </div>
+    <p id="chat-input-hint" style="margin:0;font-size:0.72rem;color:var(--clr-muted-fg);text-align:right;">(Press Enter to send)</p>
     </div>
   </main>
 </div>
@@ -566,7 +577,7 @@
   }
 
   async function sendMessage() {
-    const input = document.getElementById('chatInput');
+    const input = document.getElementById('chat-input');
     const text = input.value.trim();
     if (!text) return;
 
@@ -632,6 +643,8 @@
       }
     } catch (err) {
       // Only real network failures (fetch itself threw) reach here
+      hideTyping();
+      document.getElementById('chatError').style.display = 'block';
       conversation.push({
         role: 'assistant',
         content: "Network error — please check your connection and try again.",
@@ -651,7 +664,7 @@
   }
 
   function useQuickPrompt(el) {
-    document.getElementById('chatInput').value = el.textContent;
+    document.getElementById('chat-input').value = el.textContent;
     sendMessage();
   }
 
@@ -675,13 +688,39 @@
   }
 
   // Mobile menu
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
-  });
+  function openMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusable[0]) focusable[0].focus();
+  }
+  function closeMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+  document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mobileSidebarOverlay')) {
-      document.getElementById('mobileSidebarOverlay').classList.remove('open');
-    }
+    if (e.target === document.getElementById('mobileSidebarOverlay')) closeMobileSidebar();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('mobileSidebarOverlay').classList.contains('open')) closeMobileSidebar();
+  });
+  document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    if (!overlay.classList.contains('open')) return;
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   init();

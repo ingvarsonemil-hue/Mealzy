@@ -13,7 +13,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Manage your Mealzy profile, dietary preferences, cooking skill level, and subscription settings." />
   <meta property="og:title" content="Settings — Mealzy" />
-  <meta property="og:description" content="Manage your Mealzy profile, dietary preferences, cooking skill level, and subscription settings." />
+  <meta property="og:description" content="Manage your profile, dietary preferences, and subscription." />
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg" />
   <title>Mealzy — Settings</title>
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
@@ -41,20 +42,6 @@
     }
 
     html[data-theme="dark"] body { background: var(--clr-muted-bg); }
-
-    html[data-theme="dark"] .main-content input[type="text"],
-    html[data-theme="dark"] .main-content input[type="number"],
-    html[data-theme="dark"] .main-content select,
-    html[data-theme="dark"] .main-content .form-input {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.85);
-    }
-
-    [data-theme="dark"] .card.settings-section {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
 
     .goal-card {
       position: relative;
@@ -162,8 +149,8 @@
     .dark-mode-sub { font-size: 0.82rem; color: var(--clr-muted-fg); margin-top: 0.15rem; }
 
   </style>
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js"></script>
+<script src="/js/theme-init.js" defer></script>
+<script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
@@ -175,13 +162,13 @@
     <span class="logo-icon" style="width:30px;height:30px;font-size:14px;font-weight:900;">M</span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileSidebarOverlay">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
-<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" aria-hidden="true">
   <div class="sidebar">
     <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
@@ -296,6 +283,8 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         Save All Settings
       </button>
+      <span id="saveAllStatus" role="status" aria-live="polite" style="display:none;font-size:0.82rem;color:var(--clr-primary);margin-left:0.5rem;"></span>
+      <span id="saveAllError" role="alert" style="display:none;font-size:0.82rem;color:var(--clr-destructive);margin-left:0.5rem;"></span>
     </div>
 
     <!-- DARK MODE TOGGLE -->
@@ -350,35 +339,37 @@
 
     <!-- SECTION 2: Fitness Goals -->
     <div class="card settings-section anim-section">
-      <div class="settings-section-title">Fitness Goal</div>
-      <div class="goal-grid" id="settingGoalGrid" role="radiogroup" aria-label="Select your fitness goal">
-        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="build_muscle" onclick="selectSettingGoal(this)">
+      <div class="settings-section-title" id="fitness-goal-heading">Fitness Goal</div>
+      <div class="goal-grid" id="settingGoalGrid" role="radiogroup" aria-labelledby="fitness-goal-heading">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="build_muscle" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2C9 2 7 4 7 7v2H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v1a5 5 0 0 0 10 0v-1h2a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2V7c0-3-2-5-5-5z"/></svg>
           <div class="goal-label">Build Muscle</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="lose_weight" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="lose_weight" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>
           <div class="goal-label">Lose Weight</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="maintain_weight" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="maintain_weight" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/></svg>
           <div class="goal-label">Maintain Weight</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="eat_healthier" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="eat_healthier" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a4 4 0 0 1 4 4v1H8V6a4 4 0 0 1 4-4z"/><path d="M8 7C5 7 3 10 3 14a9 9 0 0 0 9 7 9 9 0 0 0 9-7c0-4-2-7-5-7"/><path d="M12 2v5"/></svg>
           <div class="goal-label">Eat Healthier</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="gain_weight" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="gain_weight" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
           <div class="goal-label">Gain Weight</div>
         </button>
-        <button type="button" class="goal-card" role="radio" aria-checked="false" aria-pressed="false" data-goal="improve_energy" onclick="selectSettingGoal(this)">
+        <button type="button" class="goal-card" role="radio" aria-checked="false" data-goal="improve_energy" onclick="selectSettingGoal(this)">
           <svg class="goal-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
           <div class="goal-label">Improve Energy</div>
         </button>
       </div>
       <div style="margin-top:1rem;">
-        <button class="btn btn-primary btn-sm" onclick="saveGoal()">Save Goal</button>
+        <button class="btn btn-primary btn-sm" id="saveGoalBtn" onclick="saveGoal()">Save Goal</button>
+        <span id="saveGoalStatus" role="status" aria-live="polite" style="display:none;font-size:0.82rem;color:var(--clr-primary);margin-left:0.5rem;"></span>
+        <span id="saveGoalError" role="alert" style="display:none;font-size:0.82rem;color:var(--clr-destructive);margin-left:0.5rem;"></span>
       </div>
     </div>
 
@@ -423,7 +414,9 @@
         </button>
       </div>
       <div style="margin-top:1rem;">
-        <button class="btn btn-primary btn-sm" onclick="saveActivity()">Save Activity Level</button>
+        <button class="btn btn-primary btn-sm" id="saveActivityBtn" onclick="saveActivity()">Save Activity Level</button>
+        <span id="saveActivityStatus" role="status" aria-live="polite" style="display:none;font-size:0.82rem;color:var(--clr-primary);margin-left:0.5rem;"></span>
+        <span id="saveActivityError" role="alert" style="display:none;font-size:0.82rem;color:var(--clr-destructive);margin-left:0.5rem;"></span>
       </div>
     </div>
 
@@ -445,17 +438,19 @@
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Allergies & Restrictions</label>
-        <div class="chips-group" id="settingAllergyChips">
-          <button class="chip" aria-pressed="false" data-allergy="gluten" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Gluten-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="dairy" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Dairy-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="nuts" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Nut-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="eggs" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Egg-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="shellfish" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Shellfish-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="soy" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Soy-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="fish" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Fish-Free</button>
-          <button class="chip" aria-pressed="false" data-allergy="pork" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">No Pork</button>
-        </div>
+        <fieldset style="border:none;padding:0;margin:0;">
+          <legend style="display:block;font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Dietary restrictions</legend>
+          <div class="chips-group" id="settingAllergyChips">
+            <button class="chip" aria-pressed="false" data-allergy="gluten" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Gluten-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="dairy" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Dairy-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="nuts" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Nut-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="eggs" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Egg-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="shellfish" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Shellfish-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="soy" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Soy-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="fish" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">Fish-Free</button>
+            <button class="chip" aria-pressed="false" data-allergy="pork" onclick="this.classList.toggle('active'); this.setAttribute('aria-pressed', this.classList.contains('active') ? 'true' : 'false')">No Pork</button>
+          </div>
+        </fieldset>
       </div>
       <div class="form-group">
         <label class="form-label" for="settingPriceTier">Price tier</label>
@@ -465,7 +460,9 @@
           <option value="premium">Premium</option>
         </select>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="saveDiet()">Save Preferences</button>
+      <button class="btn btn-primary btn-sm" id="saveDietBtn" onclick="saveDiet()">Save Preferences</button>
+      <span id="saveDietStatus" role="status" aria-live="polite" style="display:none;font-size:0.82rem;color:var(--clr-primary);margin-left:0.5rem;"></span>
+      <span id="saveDietError" role="alert" style="display:none;font-size:0.82rem;color:var(--clr-destructive);margin-left:0.5rem;"></span>
     </div>
 
     <!-- SECTION 5: Cooking & Budget -->
@@ -582,7 +579,9 @@
           <span class="toggle-slider"></span>
         </label>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="saveCooking()">Save Cooking Preferences</button>
+      <button class="btn btn-primary btn-sm" id="saveCookingBtn" onclick="saveCooking()">Save Cooking Preferences</button>
+      <span id="saveCookingStatus" role="status" aria-live="polite" style="display:none;font-size:0.82rem;color:var(--clr-primary);margin-left:0.5rem;"></span>
+      <span id="saveCookingError" role="alert" style="display:none;font-size:0.82rem;color:var(--clr-destructive);margin-left:0.5rem;"></span>
     </div>
 
     <!-- SECTION 6: Family Profiles (Pro users only) -->
@@ -748,7 +747,7 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- SUCCESS MESSAGE -->
-<div class="settings-saved" role="alert" aria-live="polite" style="display:none;">Settings saved</div>
+<div class="settings-saved" role="alert" aria-live="polite" aria-atomic="true" style="display:none;">Settings saved</div>
 
 <script>
 
@@ -838,7 +837,6 @@
       const isSelected = c.dataset.goal === selectedGoal;
       c.classList.toggle('selected', isSelected);
       c.setAttribute('aria-checked', isSelected ? 'true' : 'false');
-      c.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
 
     // Activity
@@ -895,11 +893,9 @@
     document.querySelectorAll('#settingGoalGrid .goal-card').forEach(c => {
       c.classList.remove('selected');
       c.setAttribute('aria-checked', 'false');
-      c.setAttribute('aria-pressed', 'false');
     });
     el.classList.add('selected');
     el.setAttribute('aria-checked', 'true');
-    el.setAttribute('aria-pressed', 'true');
     selectedGoal = el.dataset.goal;
   }
 
@@ -967,18 +963,31 @@
   }
 
   function saveAllSettings() {
-    saveBodyStats();
-    saveGoal();
-    saveActivity();
-    saveDiet();
-    saveCooking();
     const btn = document.getElementById('saveAllBtn');
-    if (btn) {
-      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Saved!`;
-      btn.style.background = 'var(--gradient-primary)';
+    const statusEl = document.getElementById('saveAllStatus');
+    const errorEl = document.getElementById('saveAllError');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    if (statusEl) statusEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    try {
+      saveBodyStats();
+      saveGoal();
+      saveActivity();
+      saveDiet();
+      saveCooking();
+      if (btn) {
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg> Saved`;
+        btn.style.background = 'var(--gradient-primary)';
+        btn.disabled = false;
+      }
+      if (statusEl) { statusEl.textContent = 'All settings saved'; statusEl.style.display = 'inline'; }
       setTimeout(() => {
-        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All Settings`;
+        if (btn) btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save All Settings`;
+        if (statusEl) statusEl.style.display = 'none';
       }, 2000);
+    } catch(e) {
+      if (btn) { btn.textContent = 'Save changes'; btn.disabled = false; }
+      if (errorEl) { errorEl.textContent = 'Error saving settings'; errorEl.style.display = 'inline'; }
     }
   }
 
@@ -1005,40 +1014,92 @@
 
   function saveGoal() {
     if (!selectedGoal) { showToast('Please select a goal', 'error'); return; }
-    profile.goal = selectedGoal;
-    recalcMacros();
-    saveProfile();
-    showToast('? Goal saved!', 'success');
+    const btn = document.getElementById('saveGoalBtn');
+    const statusEl = document.getElementById('saveGoalStatus');
+    const errorEl = document.getElementById('saveGoalError');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    if (statusEl) statusEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    try {
+      profile.goal = selectedGoal;
+      recalcMacros();
+      saveProfile();
+      if (btn) { btn.textContent = 'Saved'; btn.disabled = false; }
+      if (statusEl) { statusEl.textContent = 'Goal saved'; statusEl.style.display = 'inline'; }
+      showToast('? Goal saved!', 'success');
+    } catch(e) {
+      if (btn) { btn.textContent = 'Save changes'; btn.disabled = false; }
+      if (errorEl) { errorEl.textContent = 'Error saving'; errorEl.style.display = 'inline'; }
+    }
   }
 
   function saveActivity() {
-    profile.activityLevel = selectedActivity;
-    profile.activityMultiplier = selectedActivityMultiplier;
-    recalcMacros();
-    saveProfile();
-    showToast('? Activity level saved!', 'success');
+    const btn = document.getElementById('saveActivityBtn');
+    const statusEl = document.getElementById('saveActivityStatus');
+    const errorEl = document.getElementById('saveActivityError');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    if (statusEl) statusEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    try {
+      profile.activityLevel = selectedActivity;
+      profile.activityMultiplier = selectedActivityMultiplier;
+      recalcMacros();
+      saveProfile();
+      if (btn) { btn.textContent = 'Saved'; btn.disabled = false; }
+      if (statusEl) { statusEl.textContent = 'Activity level saved'; statusEl.style.display = 'inline'; }
+      showToast('? Activity level saved!', 'success');
+    } catch(e) {
+      if (btn) { btn.textContent = 'Save changes'; btn.disabled = false; }
+      if (errorEl) { errorEl.textContent = 'Error saving'; errorEl.style.display = 'inline'; }
+    }
   }
 
   function saveDiet() {
-    profile.dietaryPrefs = Array.from(document.querySelectorAll('#settingDietChips .chip.active')).map(c => c.dataset.pref);
-    profile.allergies = Array.from(document.querySelectorAll('#settingAllergyChips .chip.active')).map(c => c.dataset.allergy);
-    profile.price_tier = document.getElementById('settingPriceTier').value;
-    saveProfile();
-    showToast('? Dietary preferences saved!', 'success');
+    const btn = document.getElementById('saveDietBtn');
+    const statusEl = document.getElementById('saveDietStatus');
+    const errorEl = document.getElementById('saveDietError');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    if (statusEl) statusEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    try {
+      profile.dietaryPrefs = Array.from(document.querySelectorAll('#settingDietChips .chip.active')).map(c => c.dataset.pref);
+      profile.allergies = Array.from(document.querySelectorAll('#settingAllergyChips .chip.active')).map(c => c.dataset.allergy);
+      profile.price_tier = document.getElementById('settingPriceTier').value;
+      saveProfile();
+      if (btn) { btn.textContent = 'Saved'; btn.disabled = false; }
+      if (statusEl) { statusEl.textContent = 'Preferences saved'; statusEl.style.display = 'inline'; }
+      showToast('? Dietary preferences saved!', 'success');
+    } catch(e) {
+      if (btn) { btn.textContent = 'Save changes'; btn.disabled = false; }
+      if (errorEl) { errorEl.textContent = 'Error saving'; errorEl.style.display = 'inline'; }
+    }
   }
 
   function saveCooking() {
     const budget = parseFloat(document.getElementById('settingBudget').value);
     if (!budget || budget < 0) { showToast('Please enter a valid budget', 'error'); return; }
-    profile.cookingSkill = selectedSkill;
-    profile.cookingTimeMinutes = parseInt(document.getElementById('settingCookTime').value);
-    profile.budget = budget;
-    profile.currency = document.getElementById('settingCurrency').value;
-    profile.preferred_cuisine = document.getElementById('settingCuisine').value;
-    profile.language = document.getElementById('settingLanguage').value;
-    profile.batch_cooking = document.getElementById('settingBatchCooking').checked;
-    saveProfile();
-    showToast('? Cooking preferences saved!', 'success');
+    const btn = document.getElementById('saveCookingBtn');
+    const statusEl = document.getElementById('saveCookingStatus');
+    const errorEl = document.getElementById('saveCookingError');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    if (statusEl) statusEl.style.display = 'none';
+    if (errorEl) errorEl.style.display = 'none';
+    try {
+      profile.cookingSkill = selectedSkill;
+      profile.cookingTimeMinutes = parseInt(document.getElementById('settingCookTime').value);
+      profile.budget = budget;
+      profile.currency = document.getElementById('settingCurrency').value;
+      profile.preferred_cuisine = document.getElementById('settingCuisine').value;
+      profile.language = document.getElementById('settingLanguage').value;
+      profile.batch_cooking = document.getElementById('settingBatchCooking').checked;
+      saveProfile();
+      if (btn) { btn.textContent = 'Saved'; btn.disabled = false; }
+      if (statusEl) { statusEl.textContent = 'Preferences saved'; statusEl.style.display = 'inline'; }
+      showToast('? Cooking preferences saved!', 'success');
+    } catch(e) {
+      if (btn) { btn.textContent = 'Save changes'; btn.disabled = false; }
+      if (errorEl) { errorEl.textContent = 'Error saving'; errorEl.style.display = 'inline'; }
+    }
   }
 
   function openResetModal() {
@@ -1158,13 +1219,39 @@
   });
 
   // Mobile menu
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
-  });
+  function openMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusable[0]) focusable[0].focus();
+  }
+  function closeMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+  document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mobileSidebarOverlay')) {
-      document.getElementById('mobileSidebarOverlay').classList.remove('open');
-    }
+    if (e.target === document.getElementById('mobileSidebarOverlay')) closeMobileSidebar();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('mobileSidebarOverlay').classList.contains('open')) closeMobileSidebar();
+  });
+  document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    if (!overlay.classList.contains('open')) return;
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   // -- Cancel subscription modal --------------------------------------------

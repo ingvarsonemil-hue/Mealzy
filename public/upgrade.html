@@ -17,6 +17,11 @@
 <link rel="stylesheet" href="/css/tokens.css">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#1a3d2b">
+  <meta property="og:title" content="Upgrade to Mealzy Pro">
+  <meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $8/month billed yearly ($96/year). Cancel anytime.">
+  <link rel="canonical" href="https://mealzy.org/upgrade.html">
+  <meta property="og:url" content="https://mealzy.org/upgrade.html">
+  <meta property="og:type" content="website">
   <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -50,7 +55,7 @@
       box-sizing: border-box;
     }
     .upgrade-hero { text-align: center; margin-bottom: 2.5rem; }
-    .upgrade-hero h1 { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: white; }
+    .upgrade-hero h1 { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: var(--clr-on-primary); }
     .upgrade-hero p { font-size: 1rem; color: rgba(255,255,255,0.82); max-width: 440px; margin: 0 auto; line-height: 1.65; }
     /* toggle labels white inside dark hero */
     .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.88rem; }
@@ -58,9 +63,9 @@
     .toggle-wrap .billing-label.active { color: white; font-weight: 700; }
     .save-badge { background: rgba(74,222,128,0.18); color: var(--clr-brand-light, #4ade80); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid rgba(74,222,128,0.35); }
     /* ── PRICING CARD ── */
-    .upgrade-card { background: var(--clr-surface); color: var(--color-forest); border: 1px solid var(--clr-border); border-radius: 20px; padding: 2rem; box-shadow: 0 12px 60px rgba(26,61,43,0.18); }
+    .upgrade-card { background: var(--clr-surface); color: var(--color-forest); border: 1px solid var(--clr-border); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-xl); }
     .price-display { text-align: center; margin-bottom: 1.5rem; }
-    .price-amount { font-size: 3rem; font-weight: 900; color: white; line-height: 1; }
+    .price-amount { font-size: 3rem; font-weight: 900; color: var(--color-forest); line-height: 1; }
     .price-period { font-size: 1rem; color: var(--clr-muted-fg); }
     .price-annual { font-size: 0.85rem; color: var(--clr-muted-fg); margin-top: 0.25rem; }
     .features-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
@@ -73,10 +78,10 @@
     /* ── TRUST LINE ── */
     .guarantee { font-size: 13px; color: rgba(255,255,255,0.55); text-align: center; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
     /* ── CARD HEADER ── */
-    .upgrade-card-header { background: var(--color-forest); padding: 16px; border-radius: 20px 20px 0 0; text-align: center; color: white; font-size: 11px; letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; margin: -2rem -2rem 1.5rem -2rem; }
+    .upgrade-card-header { background: var(--color-forest); padding: 16px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; text-align: center; color: var(--clr-on-primary); font-size: 11px; letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; margin: -2rem -2rem 1.5rem -2rem; }
     /* ── OBJECTION LIST ── */
     .objection-list { margin-top: 2rem; background: var(--color-forest); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 0.75rem; }
-    .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.6rem 0.75rem; background: rgba(255,255,255,0.05); border-radius: 8px; color: rgba(255,255,255,0.8); }
+    .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.6rem 0.75rem; background: var(--clr-surface-subtle); border-radius: 8px; color: rgba(255,255,255,0.8); }
     .objection strong { color: white; }
     .objection-icon { flex-shrink: 0; font-size: 1rem; }
     /* ── COMPARE TABLE ── */
@@ -99,6 +104,10 @@
     .theme-toggle:hover { border-color: white; color: white; }
     [data-theme="light"] .icon-moon { display: none; }
     [data-theme="dark"] .icon-sun { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      #abandonPopup, #abandonOffer, [id*="abandon"], [id*="popup"] { animation: none !important; }
+    }
+    .upgrade-nav { position: relative; background: var(--color-forest); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
   </style>
   <link rel="stylesheet" href="style.css">
 <script src="/js/theme-init.js"></script>
@@ -106,8 +115,8 @@
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
-<nav class="nav" aria-label="Main navigation" style="position:relative;background:var(--color-forest);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;">
-  <a href="/" style="font-family:var(--font-display);font-size:20px;font-weight:900;font-style:italic;color:white;text-decoration:none;">Mealzy</a>
+<nav class="nav upgrade-nav" aria-label="Main navigation">
+  <a href="/" style="font-family:var(--font-display);font-size:20px;font-weight:900;font-style:italic;color:var(--clr-on-primary);text-decoration:none;">Mealzy</a>
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
       <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -126,12 +135,12 @@
     </div>
 
     <!-- Billing toggle -->
-    <div class="toggle-wrap" id="billingToggleWrap" role="switch" aria-checked="true" aria-label="Billing period: yearly">
-    <span class="billing-label" id="lblMonthly" onclick="setMode('monthly')">Monthly</span>
+    <div class="toggle-wrap" id="billingToggleWrap" role="group" aria-label="Billing period">
+    <button type="button" class="billing-label" id="lblMonthly" onclick="setMode('monthly')" aria-pressed="false">Monthly</button>
     <button type="button" id="billingToggleBtn" aria-hidden="true" aria-label="Toggle billing period" style="position:relative;width:44px;height:24px;background:rgba(255,255,255,0.25);border-radius:2rem;cursor:pointer;flex-shrink:0;border:none;padding:0;" onclick="setMode(billingMode==='monthly'?'yearly':'monthly')">
       <div id="toggleDot" style="position:absolute;top:3px;left:23px;width:18px;height:18px;background:white;border-radius:50%;transition:left 0.2s;"></div>
     </button>
-    <span class="billing-label active" id="lblYearly" onclick="setMode('yearly')">Yearly <span class="save-badge">Save 33%</span></span>
+    <button type="button" class="billing-label active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Yearly <span class="save-badge">Save 33%</span></button>
   </div>
 
   </div><!-- /upgrade-hero-section -->
@@ -272,9 +281,10 @@
   </div>
 
   <!-- Abandonment offer (shown after 45s if user hasn't clicked CTA) -->
-  <div id="abandonOffer" aria-hidden="true" style="display:none;margin-top:2rem;padding:1.5rem;background:var(--color-forest);border-radius:0.75rem;text-align:center;">
+  <div id="abandonOffer" role="dialog" aria-modal="true" aria-labelledby="abandonOfferId" aria-hidden="true" style="display:none;margin-top:2rem;padding:1.5rem;background:var(--color-forest);border-radius:0.75rem;text-align:center;position:relative;">
+    <button onclick="closeAbandonOffer()" aria-label="Close offer" style="position:absolute;top:0.6rem;right:0.75rem;background:none;border:none;cursor:pointer;font-size:1.1rem;color:rgba(255,255,255,0.6);line-height:1;">&times;</button>
     <div style="font-size:0.72rem;font-weight:800;color:var(--clr-brand-light,#4ade80);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;">FIRST MONTH OFFER</div>
-    <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;color:white;">Get your first month for $6</div>
+    <div id="abandonOfferId" style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;color:var(--clr-on-primary);">Get your first month for $6</div>
     <p style="font-size:0.84rem;color:rgba(255,255,255,0.8);margin-bottom:0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
     <a id="discountOfferBtn" href="#" onclick="window.location.href=window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY;trackUpgrade('abandon_offer');return false;" style="display:inline-block;background:var(--clr-brand-light,#4ade80);color:var(--color-forest);padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;" onmouseover="this.style.background='#22c55e'" onmouseout="this.style.background='var(--clr-brand-light)'">
       Get first month for $6 →
@@ -332,7 +342,8 @@
       document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
     }
-    document.getElementById('billingToggleWrap').setAttribute('aria-checked', mode === 'yearly' ? 'true' : 'false');
+    document.getElementById('lblMonthly').setAttribute('aria-pressed', mode === 'monthly' ? 'true' : 'false');
+    document.getElementById('lblYearly').setAttribute('aria-pressed', mode === 'yearly' ? 'true' : 'false');
   }
 
   function trackUpgrade(source) {
@@ -343,15 +354,32 @@
     }).catch(() => {});
   }
 
+  function closeAbandonOffer() {
+    const ao = document.getElementById('abandonOffer');
+    ao.style.display = 'none';
+    ao.setAttribute('aria-hidden', 'true');
+    document.getElementById('upgradeCtaBtn').focus();
+  }
+
   // Show abandonment offer after 45s if user hasn't clicked
   let _clicked = false;
   document.getElementById('upgradeCtaBtn').addEventListener('click', () => { _clicked = true; });
   setTimeout(() => {
     if (!_clicked) {
-      document.getElementById('abandonOffer').style.display = 'block';
-      document.getElementById('abandonOffer').removeAttribute('aria-hidden');
+      const ao = document.getElementById('abandonOffer');
+      ao.style.display = 'block';
+      ao.removeAttribute('aria-hidden');
+      const first = ao.querySelector('button,a[href]');
+      if (first) first.focus();
     }
   }, 45000);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const ao = document.getElementById('abandonOffer');
+      if (ao && ao.style.display !== 'none') closeAbandonOffer();
+    }
+  });
 </script>
 <footer style="text-align:center;padding:24px;font-size:0.75rem;color:var(--clr-muted-fg);">
   <a href="/privacy-policy.html" style="color:var(--clr-muted-fg);">Privacy</a> ·

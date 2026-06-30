@@ -14,6 +14,7 @@
   <meta name="description" content="Your auto-generated grocery list for the week — organized by section and ready to shop, with costs calculated from your meal plan." />
   <meta property="og:title" content="Grocery List — Mealzy" />
   <meta property="og:description" content="Your auto-generated grocery list for the week — organized by section and ready to shop, with costs calculated from your meal plan." />
+  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
   <title>Mealzy – Grocery List</title>
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
@@ -45,14 +46,20 @@
       .category-group-animated:nth-child(8) { animation-delay: 0.42s; }
       .no-animate .category-group-animated { animation: none; opacity: 1; }
     }
-    /* Instacart affiliate banner */
+    /* Instacart affiliate banner — sticky footer */
     .instacart-banner {
-      background: var(--clr-primary-light);
-      border: 1px solid var(--clr-border);
-      border-radius: var(--radius-lg, 20px);
-      padding: 16px 20px;
-      margin-bottom: 24px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--clr-card, #fff);
+      border-top: 1px solid var(--clr-border);
+      padding: 10px 20px;
     }
+
+    /* Push content above the sticky banner */
+    .main-content { padding-bottom: 80px; }
 
     .instacart-banner-inner {
       display: flex;
@@ -128,7 +135,7 @@
 
     /* Dark mode */
     [data-theme="dark"] .instacart-banner {
-      background: var(--clr-muted-bg);
+      background: var(--clr-surface, #1e2a23);
       border-color: var(--clr-border);
     }
 
@@ -221,8 +228,8 @@
       outline-offset: 2px;
     }
   </style>
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js"></script>
+<script src="/js/theme-init.js" defer></script>
+<script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
 <body>
@@ -234,13 +241,13 @@
     <span class="logo-icon" style="width:30px;height:30px;font-size:14px;font-weight:900;">M</span>
     Mealzy
   </a>
-  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+  <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileSidebarOverlay">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
 </div>
 
 <!-- MOBILE SIDEBAR OVERLAY -->
-<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay">
+<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" aria-hidden="true">
   <div class="sidebar">
     <a href="/dashboard.html" class="sidebar-logo">Mealzy</a>
     <nav class="sidebar-nav">
@@ -400,34 +407,11 @@
       <button class="btn btn-outline" onclick="addManualItem()">+ Add</button>
     </div>
 
-    <!-- Instacart Affiliate Banner -->
-    <div class="instacart-banner" id="instacartBanner" role="region" aria-label="Grocery categories">
-      <div class="instacart-banner-inner">
-        <div class="instacart-banner-text">
-          <div class="instacart-banner-logo">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          </div>
-          <div>
-            <div class="instacart-banner-heading">Order your groceries on Amazon</div>
-            <div class="instacart-banner-sub">Find ingredients on Amazon</div>
-          </div>
-        </div>
-        <a
-          href="https://www.amazon.com/s?k=grocery&tag=mealzy20-20"
-          id="instacartLink"
-          class="instacart-banner-btn"
-          target="_blank"
-          rel="noopener sponsored"
-          onclick="trackInstacart()"
-          aria-label="Order groceries on Amazon (affiliate link)"
-        >
-          Order now &rarr;
-        </a>
-      </div>
-      <div class="instacart-banner-disclaimer">Affiliate link &mdash;� Mealzy earns a small commission at no cost to you</div>
-    </div>
-
     <!-- GROCERY LIST -->
+    <div id="emptyGrocery" style="display:none; text-align:center; padding:3rem 1rem;">
+      <p style="color:var(--clr-muted-fg);font-size:0.9rem;margin-bottom:1.25rem;max-width:300px;margin-inline:auto;">No grocery list yet — generate a meal plan first to see your shopping list here.</p>
+      <a href="meal-planner.html" class="btn btn-primary">Generate a plan</a>
+    </div>
     <div id="groceryContainer">
       <div class="empty-state">
         <div class="empty-state-icon">
@@ -442,6 +426,33 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- Instacart Affiliate Banner — sticky footer -->
+<div class="instacart-banner" id="instacartBanner" role="region" aria-label="Order groceries online">
+  <div class="instacart-banner-inner">
+    <div class="instacart-banner-text">
+      <div class="instacart-banner-logo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </div>
+      <div>
+        <div class="instacart-banner-heading">Order your groceries on Amazon</div>
+        <div class="instacart-banner-sub">Find ingredients on Amazon</div>
+      </div>
+    </div>
+    <a
+      href="https://www.amazon.com/s?k=grocery&tag=mealzy20-20"
+      id="instacartLink"
+      class="instacart-banner-btn"
+      target="_blank"
+      rel="noopener noreferrer"
+      onclick="trackInstacart()"
+      aria-label="Order groceries on Instacart (opens external site)"
+    >
+      Order now &rarr;
+    </a>
+  </div>
+  <div class="instacart-banner-disclaimer">Affiliate link &mdash;&#65533; Mealzy earns a small commission at no cost to you</div>
 </div>
 
 <!-- LOADING OVERLAY -->
@@ -558,6 +569,13 @@
     const lists = JSON.parse(localStorage.getItem('mealzy_grocery_lists') || '{}');
     groceryList = lists[weekStart] || null;
     if (groceryList) {
+      const savedChecked = JSON.parse(localStorage.getItem('mealzy_checked_items') || '[]');
+      if (savedChecked.length > 0 && groceryList.categories) {
+        const checkedSet = new Set(savedChecked);
+        for (const [cat, items] of Object.entries(groceryList.categories)) {
+          items.forEach((item, i) => { item.checked = checkedSet.has(`${cat}-${i}`); });
+        }
+      }
       renderGroceryList();
       updateProgress();
     } else {
@@ -569,6 +587,7 @@
   const starSVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
   function renderEmpty() {
+    document.getElementById('emptyGrocery').style.display = 'block';
     document.getElementById('groceryContainer').innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">${emptyCartSVG}</div>
@@ -593,11 +612,11 @@
       if (items.length === 0) continue;
       html += `
         <div class="category-group category-group-animated">
-          <div class="category-header" role="heading" aria-level="3">
+          <h3 class="category-header">
             <span style="display:flex;align-items:center;">${config.icon}</span>
             <span>${config.label}</span>
             <span class="badge badge-muted" style="margin-left:auto;">${items.length}</span>
-          </div>
+          </h3>
           <div>
             ${items.map((item, idx) => `
               <div class="grocery-item ${item.checked ? 'checked' : ''}" id="item-${catKey}-${idx}">
@@ -621,10 +640,21 @@
     });
   }
 
+  function saveCheckedItems() {
+    const checkedIds = [];
+    if (groceryList && groceryList.categories) {
+      for (const [cat, items] of Object.entries(groceryList.categories)) {
+        items.forEach((item, i) => { if (item.checked) checkedIds.push(`${cat}-${i}`); });
+      }
+    }
+    localStorage.setItem('mealzy_checked_items', JSON.stringify(checkedIds));
+  }
+
   function toggleItem(category, index, checked) {
     if (!groceryList || !groceryList.categories[category]) return;
     groceryList.categories[category][index].checked = checked;
     saveLists();
+    saveCheckedItems();
     updateProgress();
 
     const itemEl = document.getElementById(`item-${category}-${index}`);
@@ -803,13 +833,39 @@
   }
 
   // Mobile menu
-  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-    document.getElementById('mobileSidebarOverlay').classList.toggle('open');
-  });
+  function openMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    btn.setAttribute('aria-expanded', 'true');
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusable[0]) focusable[0].focus();
+  }
+  function closeMobileSidebar() {
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    const btn = document.getElementById('mobileMenuBtn');
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.focus();
+  }
+  document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
   document.getElementById('mobileSidebarOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('mobileSidebarOverlay')) {
-      document.getElementById('mobileSidebarOverlay').classList.remove('open');
-    }
+    if (e.target === document.getElementById('mobileSidebarOverlay')) closeMobileSidebar();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('mobileSidebarOverlay').classList.contains('open')) closeMobileSidebar();
+  });
+  document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const overlay = document.getElementById('mobileSidebarOverlay');
+    if (!overlay.classList.contains('open')) return;
+    const focusable = overlay.querySelector('.sidebar').querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!focusable.length) return;
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
   // === PDF EXPORT (Pro only) ===
