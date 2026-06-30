@@ -831,7 +831,7 @@ function initInteractivity(){
   })();
 
   // Reveal animations (intersection observer)
-  const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(el=>{if(el.isIntersecting){el.target.classList.add('in-view');revealObserver.unobserve(el.target);}});},{threshold:0.05,rootMargin:'0px 0px -10px 0px'});
+  const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(el=>{if(el.isIntersecting){el.target.classList.add('in-view');revealObserver.unobserve(el.target);}});},{threshold:0,rootMargin:'0px 0px 100px 0px'});
   document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
 
   // Safety net: force all fade elements visible after 1.5s regardless of scroll state
@@ -861,6 +861,20 @@ function initInteractivity(){
     }
   });
 }
+</script>
+<script>
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var allSections = document.querySelectorAll('section, footer');
+    allSections.forEach(function(el) {
+      var computed = window.getComputedStyle(el);
+      if (parseFloat(computed.opacity) < 1) {
+        el.style.setProperty('opacity', '1', 'important');
+        el.style.setProperty('transform', 'none', 'important');
+      }
+    });
+  }, 2000);
+});
 </script>
 </body>
 </html>
