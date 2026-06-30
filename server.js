@@ -917,33 +917,45 @@ app.post('/api/demo-meal', demoLimiter, async (req, res) => {
       ? `DIETARY REQUIREMENT: All meals must be ${dietary}. Strictly no ingredients that violate this.`
       : '';
 
-    const perMealBudget = (budget / 7 / 2).toFixed(2); // lunch + dinner only
+    const perMealBudget = (budget / 7 / 3).toFixed(2); // breakfast + lunch + dinner
     const dailyBudget   = (budget / 7).toFixed(2);
 
-    const demoPrompt = `You are a professional meal planner. Generate a simple, practical Monday-to-Friday lunch and dinner plan.
+    const demoPrompt = `You are a professional meal planner. Generate a simple, practical full 7-day meal plan with breakfast, lunch, and dinner every day.
 
 Requirements:
-- Daily calorie target: ${calorieGoal} kcal total (split roughly 35% lunch, 40% dinner, 25% other)
+- Daily calorie target: ${calorieGoal} kcal total (split roughly 25% breakfast, 35% lunch, 40% dinner)
 - Weekly grocery budget: $${budget} total. Per-meal budget: max $${perMealBudget} each.
 - Cooking skill: beginner-friendly, everyday supermarket ingredients only.
+- Target 20-40g protein per meal to keep nutrition reasonably consistent across all meals.
 ${dietaryLine}
 
-Generate exactly 10 meals: lunch and dinner for Monday, Tuesday, Wednesday, Thursday, Friday.
+Generate exactly 21 meals: breakfast, lunch, and dinner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.
 Keep meal names short (under 6 words) and descriptions under 8 words.
 
 Respond ONLY with valid JSON, no markdown, no extra text:
 {
   "meals": [
-    { "day": "Monday",    "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Monday",    "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Tuesday",   "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Tuesday",   "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Wednesday", "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Wednesday", "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Thursday",  "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Thursday",  "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Friday",    "type": "lunch",  "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
-    { "day": "Friday",    "type": "dinner", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number }
+    { "day": "Monday",    "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Monday",    "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Monday",    "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Tuesday",   "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Tuesday",   "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Tuesday",   "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Wednesday", "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Wednesday", "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Wednesday", "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Thursday",  "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Thursday",  "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Thursday",  "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Friday",    "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Friday",    "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Friday",    "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Saturday",  "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Saturday",  "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Saturday",  "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Sunday",    "type": "breakfast", "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Sunday",    "type": "lunch",     "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number },
+    { "day": "Sunday",    "type": "dinner",    "name": "string", "description": "string", "calories": number, "protein": number, "estimatedCost": number }
   ],
   "weeklyEstimatedCost": number,
   "avgDailyCalories": number
@@ -951,7 +963,7 @@ Respond ONLY with valid JSON, no markdown, no extra text:
 
     const completion = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1800,
+      max_tokens: 3500,
       system: [{ type: 'text', text: 'You are a meal planning API. Always respond with valid JSON only. No markdown fences, no explanations.', cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: demoPrompt }]
     });
