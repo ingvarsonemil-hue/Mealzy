@@ -241,11 +241,6 @@
         <a href="meal-planner.html" class="btn btn-ghost btn-sm" data-i18n="view_planner">View Planner →</a>
       </div>
       <div id="mealsContainer">
-        <div class="empty-state">
-          <h3>No meals planned yet</h3>
-          <p>Generate your personalized AI meal plan to get started.</p>
-          <button class="btn btn-primary" onclick="generateMealPlan()">Generate Meal Plan</button>
-        </div>
       </div>
       <div id="emptyState" style="display:none; text-align:center; padding:3rem 1rem;">
         <div style="width:64px;height:64px;border-radius:50%;background:var(--clr-primary-light);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
@@ -726,12 +721,7 @@
   function renderMeals() {
     const container = document.getElementById('mealsContainer');
     if (!todayMeals || todayMeals.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <h3>No meals planned yet</h3>
-          <p>Generate your personalized AI meal plan to get started.</p>
-          <button class="btn btn-primary" onclick="generateMealPlan()">Generate Meal Plan</button>
-        </div>`;
+      container.innerHTML = '';
       document.getElementById('emptyState').style.display = 'block';
       return;
     }
