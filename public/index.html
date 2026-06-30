@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<script defer src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
@@ -129,6 +129,7 @@ gtag('config', 'G-27FWEVV6VD');
 <link rel="preconnect" href="https://region1.google-analytics.com">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/style.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -137,7 +138,7 @@ gtag('config', 'G-27FWEVV6VD');
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mealzy">
 <link rel="dns-prefetch" href="/api">
-<script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
+<noscript><style>.reveal{opacity:1!important;transform:none!important;}</style></noscript>
 <script src="/js/utils.js" defer></script>
 <style>
   /* How it works — dot markers replacing 01/02/03 numerals */
@@ -157,6 +158,92 @@ gtag('config', 'G-27FWEVV6VD');
     margin: 0;
     padding: 0;
   }
+  .btn-ghost-dark {
+    color: rgba(255,255,255,0.85);
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.08);
+  }
+  .btn-ghost-dark:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .hero-copy, .form-card {
+      opacity: 1 !important;
+      transform: none !important;
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+  /* Footer grid */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  .footer-brand-name {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: rgba(253,246,236,0.9);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  .footer-brand-tagline {
+    font-size: 0.85rem;
+    color: rgba(253,246,236,0.5);
+    line-height: 1.55;
+    max-width: 28ch;
+  }
+  .footer-col-heading {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(253,246,236,0.4);
+    margin-bottom: 1rem;
+  }
+  .footer-link-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .footer-link-list a {
+    font-size: 0.88rem;
+    color: rgba(253,246,236,0.7);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .footer-link-list a:hover { color: rgba(253,246,236,1); }
+  .footer-bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(253,246,236,0.1);
+    font-size: 0.75rem;
+    color: rgba(253,246,236,0.35);
+  }
+  /* Founder stats grid — 4-col desktop, 2-col mobile */
+  .founder-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .founder-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 400px) {
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+  .hide-on-mobile { display: inline-flex; }
+  @media (max-width: 600px) { .hide-on-mobile { display: none !important; } }
 </style>
 <script>
 // Inline theme init synchronously before content renders to avoid FOUC
@@ -178,7 +265,7 @@ gtag('config', 'G-27FWEVV6VD');
     <a href="/" class="nav-logo-text" aria-label="Mealzy home">Mealzy</a>
     <ul class="nav-links" role="list">
       <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#testimonials">Our story</a></li>
+      <li><a href="#our-story">Our story</a></li>
       <li><a href="pricing.html">Pricing</a></li>
       <li><a href="#faq">FAQ</a></li>
     </ul>
@@ -189,7 +276,7 @@ gtag('config', 'G-27FWEVV6VD');
       </button>
       <a href="login.html" class="btn btn-ghost btn-sm hide-on-mobile">Sign in</a>
       <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start free</a>
-      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavOverlay">
         <span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span>
       </button>
     </div>
@@ -202,7 +289,7 @@ gtag('config', 'G-27FWEVV6VD');
     <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close menu">&times;</button>
     <ul class="mobile-nav-links" role="list">
       <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#testimonials">Our story</a></li>
+      <li><a href="#our-story">Our story</a></li>
       <li><a href="pricing.html">Pricing</a></li>
       <li><a href="login.html">Sign in</a></li>
       <li><a href="login.html?signup=1" style="color:var(--clr-primary);font-weight:700;">Start free</a></li>
@@ -224,7 +311,7 @@ gtag('config', 'G-27FWEVV6VD');
           Start Free — No Credit Card
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </a>
-        <a href="#demo" class="btn btn-outline btn-lg" style="color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.08);">See a sample plan</a>
+        <a href="#demo" class="btn btn-outline btn-lg btn-ghost-dark">See a sample plan</a>
       </div>
     </div>
 
@@ -250,7 +337,7 @@ gtag('config', 'G-27FWEVV6VD');
           <option value="high-protein">High protein</option>
         </select>
       </div>
-      <button id="demoBtn" onclick="runDemo()" class="btn btn-primary btn-full" style="margin-top:.25rem;">
+      <button id="demoBtn" class="btn btn-primary btn-full" style="margin-top:.25rem;">
         <span id="demoBtnText">Generate Sample Plan</span>
         <span class="demo-spinner" id="demoSpinner" aria-hidden="true"></span>
       </button>
@@ -278,7 +365,7 @@ gtag('config', 'G-27FWEVV6VD');
     <div class="trust-divider"></div>
     <div class="trust-item">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      <span>Used in 6 countries</span>
+      <span>Used in 10 countries</span>
     </div>
   </div>
 </div>
@@ -392,43 +479,49 @@ gtag('config', 'G-27FWEVV6VD');
     </div>
     <div class="grid-3" style="gap:1.5rem;">
       <article class="card reveal" data-delay="0">
-        <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6h3l-1 11"/></svg>
+        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+          <!-- AI Meal Planning: calendar week-grid + sparkle accent -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/><path d="M17.5 7v1.5M17.5 10.5v-1.5M16 9h1.5M19 9h-1.5"/></svg>
         </div>
         <h3>AI Meal Planning</h3>
         <p class="text-muted" style="margin-top:.5rem;">Tell it your calories, your budget, and what you like. It builds the whole week — practical, home-cooked meals using ingredients from any regular supermarket.</p>
       </article>
       <article class="card reveal" data-delay="80">
-        <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>
+        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+          <!-- Automatic Grocery List: clipboard with one checkmark -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 12 2 2 4-4M9 17h4"/></svg>
         </div>
         <h3>Automatic Grocery List</h3>
         <p class="text-muted" style="margin-top:.5rem;">Every ingredient from your week's plan, organised by category, with estimated costs. You only buy what you need. Nothing goes to waste.</p>
       </article>
       <article class="card reveal" data-delay="160">
-        <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v2"/><path d="M12 16v2"/><path d="M9 9h1.5a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3H9"/><path d="M15 9h-1"/></svg>
+        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+          <!-- Budget That Holds: wallet -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
         </div>
         <h3>Budget That Holds</h3>
         <p class="text-muted" style="margin-top:.5rem;">Set your weekly grocery budget once. Mealzy builds every plan around it. The number doesn't move unless you change it.</p>
       </article>
       <article class="card reveal" data-delay="0">
-        <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M19 3l-1 4h3l-1 4"/></svg>
+        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+          <!-- AI Nutrition Coach: chat bubble with small heart accent -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 10c.5-1.2 2.2-1.2 2.2.4 0 1.2-1.1 2-2.2 2.9-1.1-.9-2.2-1.7-2.2-2.9C9.8 8.8 11.5 8.8 12 10z"/></svg>
         </div>
         <h3>AI Nutrition Coach</h3>
         <p class="text-muted" style="margin-top:.5rem;">Ask Mia — your AI nutritionist — anything. Recipe ideas, macro questions, what to cook with what's in your fridge. Available any time.</p>
       </article>
       <article class="card reveal" data-delay="80">
-        <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+          <!-- Calorie and Macro Tracking: bar chart -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
         </div>
         <h3>Calorie and Macro Tracking</h3>
         <p class="text-muted" style="margin-top:.5rem;">Every meal is already calculated. Log what you eat, see your weekly trends, and watch how your nutrition stacks up against your targets.</p>
       </article>
       <article class="card reveal" data-delay="160">
-        <div style="color:var(--clr-primary);margin-bottom:0.75rem;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8"/><path d="M8 14h5"/></svg>
+        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+          <!-- 11 Languages: globe -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </div>
         <h3>11 Languages</h3>
         <p class="text-muted" style="margin-top:.5rem;">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese. The whole app works in your language.</p>
@@ -438,38 +531,43 @@ gtag('config', 'G-27FWEVV6VD');
 </section>
 
 <!-- FOUNDER NOTE -->
-<section class="pullquote-section" id="testimonials" aria-labelledby="founder-heading">
-  <div class="pullquote-inner">
+<section class="pullquote-section" id="our-story" aria-label="Our story">
+  <div class="container" style="max-width:760px;">
     <div class="reveal">
-      <div class="founder-inner">
-        <div class="founder-quote">
-          <svg class="founder-quote-mark" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-            <text x="0" y="36" font-size="48" fill="rgba(255,255,255,0.15)" font-family="Georgia, serif">"</text>
-          </svg>
-          <blockquote>
-            I built Mealzy because meal planning was eating my Sundays. Tell it your goals and budget — it builds the week, hits your macros, and writes the grocery list. No spreadsheet. No guessing. Just a plan that works.
-          </blockquote>
-          <div class="founder-attribution">
-            <div class="founder-avatar">E</div>
-            <div>
-              <div class="founder-name">Emil Ingvarson</div>
-              <div class="founder-title">Founder · 16 years old · Uppsala, Sweden</div>
-            </div>
-          </div>
+      <!-- Quote -->
+      <div style="position:relative;padding-top:1.5rem;margin-bottom:2rem;">
+        <svg style="position:absolute;top:0;left:0;opacity:0.15;" width="48" height="48" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <text x="0" y="36" font-size="48" fill="white" font-family="Georgia, serif">"</text>
+        </svg>
+        <blockquote style="font-family:var(--font-display);font-style:italic;font-size:clamp(1.25rem,2.8vw,1.75rem);color:rgba(253,246,236,0.92);line-height:1.4;">
+          I built Mealzy because meal planning was eating my Sundays. Tell it your goals and budget — it builds the week, hits your macros, and writes the grocery list. No spreadsheet. No guessing. Just a plan that works.
+        </blockquote>
+      </div>
+      <!-- Founder attribution -->
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem;">
+        <div aria-hidden="true" style="width:48px;height:48px;border-radius:50%;background:var(--color-green);display:flex;align-items:center;justify-content:center;color:white;font-family:var(--font-display);font-style:italic;font-weight:700;font-size:1.25rem;flex-shrink:0;">E</div>
+        <div>
+          <div style="font-family:var(--font-display);font-style:italic;font-size:1.05rem;font-weight:700;color:rgba(253,246,236,0.92);">Emil Ingvarson</div>
+          <div style="font-size:0.82rem;color:rgba(253,246,236,0.5);">Founder · 16 years old · Uppsala, Sweden</div>
         </div>
-        <div class="founder-stats">
-          <div class="founder-stat">
-            <div class="founder-stat-number">6</div>
-            <div class="founder-stat-label">Countries</div>
-          </div>
-          <div class="founder-stat">
-            <div class="founder-stat-number">30s</div>
-            <div class="founder-stat-label">To plan a week</div>
-          </div>
-          <div class="founder-stat">
-            <div class="founder-stat-number">Free</div>
-            <div class="founder-stat-label">Always</div>
-          </div>
+      </div>
+      <!-- Stat grid -->
+      <div class="founder-stats-grid">
+        <div style="background:rgba(253,246,236,0.07);border:1px solid rgba(253,246,236,0.14);border-radius:0.85rem;padding:1.25rem;text-align:center;">
+          <div style="font-family:var(--font-display);font-style:italic;font-size:2rem;font-weight:700;color:rgba(253,246,236,0.95);line-height:1;">10</div>
+          <div style="font-size:0.78rem;color:rgba(253,246,236,0.5);margin-top:0.4rem;font-family:var(--font-body);">Countries</div>
+        </div>
+        <div style="background:rgba(253,246,236,0.07);border:1px solid rgba(253,246,236,0.14);border-radius:0.85rem;padding:1.25rem;text-align:center;">
+          <div style="font-family:var(--font-display);font-style:italic;font-size:2rem;font-weight:700;color:rgba(253,246,236,0.95);line-height:1;">30s</div>
+          <div style="font-size:0.78rem;color:rgba(253,246,236,0.5);margin-top:0.4rem;font-family:var(--font-body);">To plan a week</div>
+        </div>
+        <div style="background:rgba(253,246,236,0.07);border:1px solid rgba(253,246,236,0.14);border-radius:0.85rem;padding:1.25rem;text-align:center;">
+          <div style="font-family:var(--font-display);font-style:italic;font-size:2rem;font-weight:700;color:rgba(253,246,236,0.95);line-height:1;">Free</div>
+          <div style="font-size:0.78rem;color:rgba(253,246,236,0.5);margin-top:0.4rem;font-family:var(--font-body);">To start</div>
+        </div>
+        <div style="background:rgba(253,246,236,0.07);border:1px solid rgba(253,246,236,0.14);border-radius:0.85rem;padding:1.25rem;text-align:center;">
+          <div style="font-family:var(--font-display);font-style:italic;font-size:2rem;font-weight:700;color:rgba(253,246,236,0.95);line-height:1;">Always</div>
+          <div style="font-size:0.78rem;color:rgba(253,246,236,0.5);margin-top:0.4rem;font-family:var(--font-body);">Improving</div>
         </div>
       </div>
     </div>
@@ -480,7 +578,7 @@ gtag('config', 'G-27FWEVV6VD');
 <section class="faq-section" id="faq" aria-labelledby="faq-heading">
   <div class="container" style="max-width:720px;">
     <div class="section-header reveal">
-      <span class="section-label" aria-hidden="true">FAQ</span>
+      <span class="section-label">FAQ</span>
       <h2 id="faq-heading" class="section-title">Common questions.</h2>
     </div>
     <div class="reveal" data-delay="80">
@@ -515,7 +613,7 @@ gtag('config', 'G-27FWEVV6VD');
 </section>
 
 <!-- CTA BAND -->
-<section class="cta-section" aria-labelledby="cta-heading">
+<section class="cta-band" aria-labelledby="cta-heading">
   <div class="container">
     <div class="reveal">
       <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;color:white;">Stop planning meals by hand.</h2>
@@ -530,6 +628,11 @@ gtag('config', 'G-27FWEVV6VD');
 
 </main>
 
+<!-- EMAIL CAPTURE POPUP
+     The hero form (above) lets visitors generate a demo plan without signing up.
+     This popup appears after 45 s of inactivity or on exit intent to capture the
+     visitor's email and redirect them to account creation — two different conversion
+     moments, so both are intentionally kept. -->
 <!-- EMAIL CAPTURE POPUP -->
 <div class="email-popup-overlay" id="emailPopupOverlay" inert>
   <div class="email-popup-card" role="dialog" aria-labelledby="popup-title" aria-modal="true">
@@ -554,7 +657,7 @@ gtag('config', 'G-27FWEVV6VD');
       <div>
         <a href="/" class="footer-brand-name" aria-label="Mealzy home">Mealzy</a>
         <p class="footer-brand-tagline">AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
-        <p class="footer-brand-tagline" style="margin-top:0.8rem;">Used in 6 countries including Sweden, the USA, Germany, and Canada.</p>
+        <p class="footer-brand-tagline" style="margin-top:0.8rem;">Used in 10 countries including Sweden, the USA, Germany, and Canada.</p>
       </div>
       <div>
         <p class="footer-col-heading">Product</p>
@@ -589,6 +692,8 @@ gtag('config', 'G-27FWEVV6VD');
 </footer>
 
 <script>
+document.getElementById('demoBtn')?.addEventListener('click', runDemo);
+
 // Lazy-load motion.js on first scroll
 (function(){
   var loaded=false;
@@ -622,8 +727,8 @@ function submitEmailPopup(){
   window.location.href='login.html?signup=1&email='+encodeURIComponent(email);
 }
 
-function openMobileNav(){const h=document.getElementById('hamburger');const o=document.getElementById('mobileNavOverlay');const p=document.getElementById('mobileNavPanel');if(o&&p){o.classList.add('open');p.classList.add('open');if(h)h.setAttribute('aria-expanded','true');}}
-function closeMobileNav(){const h=document.getElementById('hamburger');const o=document.getElementById('mobileNavOverlay');const p=document.getElementById('mobileNavPanel');if(o&&p){o.classList.remove('open');p.classList.remove('open');if(h)h.setAttribute('aria-expanded','false');}}
+function openMobileNav(){const h=document.getElementById('hamburger');const o=document.getElementById('mobileNavOverlay');const p=document.getElementById('mobileNavPanel');if(o&&p){o.classList.add('open');p.classList.add('open');o.setAttribute('aria-hidden','false');if(h)h.setAttribute('aria-expanded','true');const firstLink=o.querySelector('a,button');if(firstLink)firstLink.focus();}}
+function closeMobileNav(){const h=document.getElementById('hamburger');const o=document.getElementById('mobileNavOverlay');const p=document.getElementById('mobileNavPanel');if(o&&p){o.classList.remove('open');p.classList.remove('open');o.setAttribute('aria-hidden','true');if(h){h.setAttribute('aria-expanded','false');h.focus();}}}
 
 async function runDemo(){
   const btn=document.getElementById('demoBtn');const spinner=document.getElementById('demoSpinner');const errorEl=document.getElementById('demoError');const result=document.getElementById('demoResult');const teaser=document.getElementById('demoTeaser');const cals=parseInt(document.getElementById('demoCals').value)||2000;const budget=parseFloat(document.getElementById('demoBudget').value)||60;const diet=document.getElementById('demoDiet').value;btn.disabled=true;document.getElementById('demoBtnText').textContent='Generating...';spinner.style.display='inline-block';errorEl.style.display='none';result.style.display='none';if(teaser)teaser.style.display='none';try{const res=await fetch('/api/demo-meal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({calorieGoal:cals,budget,dietary:diet})});if(res.status===429){errorEl.textContent="You've used today's 3 free demos. Create a free account for unlimited access — it's free.";errorEl.style.display='block';return;}const data=await res.json();if(!data.success||!data.plan?.meals)throw new Error(data.error||'Generation failed');renderDemoPlan(data.plan,cals,budget);result.style.display='block';fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'demo_generated',data:{cals,budget,diet}})}).catch(()=>{});requestAnimationFrame(()=>document.getElementById('demo').scrollIntoView({behavior:'smooth',block:'start'}));}catch(err){errorEl.textContent=err.message||'Something went wrong. Please try again.';errorEl.style.display='block';if(teaser)teaser.style.display='block';}finally{btn.disabled=false;document.getElementById('demoBtnText').textContent='Generate Sample Plan';spinner.style.display='none';}}
@@ -694,6 +799,7 @@ function initInteractivity(){
   if(hamburger)hamburger.addEventListener('click',openMobileNav);
   if(mobileNavClose)mobileNavClose.addEventListener('click',closeMobileNav);
   if(mobileNavOverlay)mobileNavOverlay.addEventListener('click',e=>{if(e.target===mobileNavOverlay)closeMobileNav();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&mobileNavOverlay&&mobileNavOverlay.classList.contains('open'))closeMobileNav();});
 
   // Smooth scroll
   document.querySelectorAll('a[href^="#"]').forEach(link=>{
