@@ -881,11 +881,9 @@
       ? 'Based on National Academy of Medicine guidelines, adjusted for your body weight'
       : 'Add your weight in Settings for a personalized target';
     container.innerHTML =
-      `<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.3rem;">` +
+      `<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.3rem;">` +
       `<button onclick="removeWater()" aria-label="Remove a glass" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--clr-border);background:var(--clr-muted-bg);color:var(--clr-foreground);font-size:1rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;">−</button>` +
-      `<span style="font-weight:600;min-width:4ch;text-align:center;">${waterCount} / ${waterGoal}</span>` +
       `<button onclick="addWater()" aria-label="Add a glass" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--clr-primary);background:var(--clr-primary);color:var(--clr-on-primary);font-size:1rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;">+</button>` +
-      `<span style="font-size:0.8rem;color:var(--clr-muted-fg);">glasses (8oz each)</span>` +
       `</div>` +
       `<span style="font-size:0.78rem;color:var(--clr-muted-fg);">${note} · ` +
       `<a href="https://nutritionsource.hsph.harvard.edu/water/" target="_blank" rel="noopener" ` +
