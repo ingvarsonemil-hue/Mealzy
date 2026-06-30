@@ -1795,6 +1795,17 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       }));
     }
 
+    // Save to DB server-side before responding so the plan is persisted even if
+    // the client navigates away while this fetch is in-flight.
+    if (session) {
+      try {
+        const planDate = date || new Date().toISOString().split('T')[0];
+        await db.savePlan(randomUUID(), session.userId, { date: planDate, plan: mealPlan, savedAt: new Date().toISOString() });
+      } catch (saveErr) {
+        console.error('[generate-meal] DB save error (non-fatal):', saveErr);
+      }
+    }
+
     res.json({ success: true, date, mealPlan });
 
   } catch(error) {
