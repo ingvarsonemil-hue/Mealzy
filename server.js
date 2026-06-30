@@ -419,7 +419,7 @@ function emailPasswordReset(name, resetUrl) {
   const safeUrl = escapeHtml(resetUrl);
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Reset your password</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, here's your password reset link. It expires in 15 minutes.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, here's your password reset link. It expires in 1 hour.</p>
     <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
     <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
     <p style="color:#aaa;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email. Your password won't change.</p>
@@ -675,7 +675,7 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
     if (user) {
       const rawToken  = randomUUID();
       const tokenHash = require('crypto').createHash('sha256').update(rawToken).digest('hex');
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
       await db.createResetToken(tokenHash, user.id, expiresAt);
 
       const host     = process.env.APP_URL || 'https://mealzy.org';
@@ -684,7 +684,7 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
       await sendEmail(user.email, 'Reset your Mealzy password', emailPasswordReset(user.name, resetUrl)).catch(() => {});
     }
     // Return same success message whether or not email exists
-    res.json({ success: true, message: 'If an account exists with this email, we\'ve sent a password reset link. It expires in 15 minutes.' });
+    res.json({ success: true, message: 'If an account exists with this email, we\'ve sent a password reset link. It expires in 1 hour.' });
   } catch(err) {
     console.error('Reset request error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -709,11 +709,11 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
     const incomingHash = require('crypto').createHash('sha256').update(sanitise(req.body.token, 36)).digest('hex');
     const record = await db.getResetToken(incomingHash);
     if (!record) {
-      return res.status(400).json({ error: 'invalid_token', message: 'Invalid or already-used reset link. Request a new one.' });
+      return res.status(400).json({ error: 'invalid_token', message: 'This link has already been used. Try signing in with your new password — if that doesn\'t work, request a new reset link.' });
     }
     if (new Date(record.expires_at) < new Date()) {
       await db.markResetTokenUsed(incomingHash);
-      return res.status(400).json({ error: 'expired_token', message: 'This reset link has expired. Request a new one.' });
+      return res.status(400).json({ error: 'expired_token', message: 'This link has expired. Reset links are valid for 1 hour — please request a new one.' });
     }
 
     const finalHash = await bcrypt.hash(newPassword, 12);
