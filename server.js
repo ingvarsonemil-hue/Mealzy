@@ -694,16 +694,14 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
 // POST /api/auth/reset-confirm
 app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
   try {
-    const token           = sanitise(req.body.token,          36);
-    const newHashedPassword = sanitise(req.body.newHashedPassword, 256);
+    const token       = sanitise(req.body.token, 36);
+    const newPassword = typeof req.body.newPassword === 'string' ? req.body.newPassword : '';
 
-    if (!token || !newHashedPassword) {
-      return res.status(400).json({ error: 'token and newHashedPassword required' });
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'token and newPassword required' });
     }
 
-    // newHashedPassword from client is either plaintext or SHA256 hex.
-    // Validate it's not empty and within reasonable bounds
-    const passwordCheck = validatePasswordStrength(newHashedPassword);
+    const passwordCheck = validatePasswordStrength(newPassword);
     if (!passwordCheck.valid) {
       return res.status(400).json({ error: 'password_weak', message: passwordCheck.message });
     }
@@ -718,9 +716,7 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'expired_token', message: 'This reset link has expired. Request a new one.' });
     }
 
-    // Always apply bcrypt hashing server-side for consistency.
-    // newHashedPassword from client is treated as plaintext/hash, bcrypt it before storage.
-    const finalHash = await bcrypt.hash(newHashedPassword, 12);
+    const finalHash = await bcrypt.hash(newPassword, 12);
     await db.updatePassword(record.user_id, finalHash);
     await db.markResetTokenUsed(incomingHash);
     res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
