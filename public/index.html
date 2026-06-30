@@ -592,27 +592,27 @@ gtag('config', 'G-27FWEVV6VD');
       <div class="faq-list" role="region" aria-label="Frequently Asked Questions">
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false" aria-controls="faq-1">Is it actually free?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-1" role="region"><p class="faq-body-inner">Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro is $12/month for unlimited everything.</p></div>
+        <div class="faq-answer" id="faq-1" role="region" aria-hidden="true"><p class="faq-body-inner">Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro is $12/month for unlimited everything.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false" aria-controls="faq-2">How does the budget work?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-2" role="region"><p class="faq-body-inner">You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over.</p></div>
+        <div class="faq-answer" id="faq-2" role="region" aria-hidden="true"><p class="faq-body-inner">You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false" aria-controls="faq-3">Can it handle dietary restrictions?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-3" role="region"><p class="faq-body-inner">Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.</p></div>
+        <div class="faq-answer" id="faq-3" role="region" aria-hidden="true"><p class="faq-body-inner">Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false" aria-controls="faq-4">How accurate are the calorie calculations?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-4" role="region"><p class="faq-body-inner">We estimate your daily calorie target based on your goal. You can adjust it anytime in settings.</p></div>
+        <div class="faq-answer" id="faq-4" role="region" aria-hidden="true"><p class="faq-body-inner">We estimate your daily calorie target based on your goal. You can adjust it anytime in settings.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false" aria-controls="faq-5">What languages does Mealzy support?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-5" role="region"><p class="faq-body-inner">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p></div>
+        <div class="faq-answer" id="faq-5" role="region" aria-hidden="true"><p class="faq-body-inner">English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.</p></div>
       </div>
       <div class="faq-item">
         <button class="faq-question" aria-expanded="false" aria-controls="faq-6">Does Mealzy work in Europe and Sweden?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-6" role="region"><p class="faq-body-inner">Yes. Mealzy works in 11 languages including Swedish, Norwegian, German, and French. Grocery budget estimates use local pricing. Emil, Mealzy's founder, is based in Sweden.</p></div>
+        <div class="faq-answer" id="faq-6" role="region" aria-hidden="true"><p class="faq-body-inner">Yes. Mealzy works in 11 languages including Swedish, Norwegian, German, and French. Grocery budget estimates use local pricing. Emil, Mealzy's founder, is based in Sweden.</p></div>
       </div>
       </div>
     </div>
@@ -860,10 +860,15 @@ function initInteractivity(){
     const isOpen=item?.classList.contains('open');
     document.querySelectorAll('.faq-item.open').forEach(el=>{
       el.classList.remove('open');
-      el.querySelector('.faq-answer').style.maxHeight=null;
+      el.querySelector('.faq-question').setAttribute('aria-expanded','false');
+      const a=el.querySelector('.faq-answer');
+      a.setAttribute('aria-hidden','true');
+      a.style.maxHeight=null;
     });
     if(!isOpen){
       item.classList.add('open');
+      btn.setAttribute('aria-expanded','true');
+      answer.setAttribute('aria-hidden','false');
       answer.style.maxHeight=answer.scrollHeight+'px';
     }
   });

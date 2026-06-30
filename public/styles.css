@@ -546,6 +546,17 @@ h3 { font-size: clamp(1.1rem, 2vw, var(--text-xl)); }
   font-size: var(--text-base); color: var(--ink-muted);
   line-height: 1.7; max-width: 65ch; padding-bottom: 1.5rem;
 }
+/* .faq-question / .faq-answer — actual classes used in index.html */
+.faq-question {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; background: none; border: none; text-align: left;
+  cursor: pointer; padding: 1.5rem 0; font-weight: 600; font-size: 1rem;
+  color: var(--espresso); gap: 1.5rem;
+}
+.faq-question:focus-visible { outline: 2px solid var(--brick); outline-offset: 2px; }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s var(--ease-edit); }
+.faq-item.open .faq-answer { max-height: 600px; }
+.faq-body-inner { font-size: var(--text-base); color: var(--ink-muted); line-height: 1.7; padding-bottom: 1.5rem; }
 
 /* ================================================================
    CTA BANNER
