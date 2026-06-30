@@ -13,9 +13,9 @@
   --parchment:      var(--clr-background);
   --parchment-deep: var(--clr-muted-bg);
   --espresso:       var(--clr-foreground);
-  --espresso-soft:  #3D2E1F;
+  --espresso-soft:  var(--color-foreground);
   --brick:          var(--clr-accent);
-  --brick-deep:     #A23A24;
+  --brick-deep:     var(--color-brick);
   --sage:           var(--clr-primary);
   --ink-muted:      var(--clr-muted-fg);
   --hairline:       var(--clr-border);
@@ -35,7 +35,7 @@
 
   --radius:      4px;
   --radius-lg:   12px;
-  --shadow-card: 0 12px 32px -16px rgba(26,18,8,0.18);
+  --shadow-card: 0 12px 32px -16px rgba(26,61,43,0.12);
   --ease-edit:   cubic-bezier(0.16, 1, 0.3, 1);
 
   --pad-section: clamp(4rem, 10vw, 8rem);
@@ -57,9 +57,9 @@
   --clr-muted-fg:      var(--ink-muted);
   --clr-destructive:   #C0392B;
   --clr-success:       var(--sage);
-  --shadow-sm:         0 2px 8px rgba(26,18,8,0.06);
-  --shadow-md:         0 8px 24px rgba(26,18,8,0.10);
-  --shadow-lg:         0 16px 48px rgba(26,18,8,0.16);
+  --shadow-sm:         0 2px 8px rgba(26,61,43,0.06);
+  --shadow-md:         0 8px 24px rgba(26,61,43,0.08);
+  --shadow-lg:         0 16px 48px rgba(26,61,43,0.12);
   --shadow-button:     0 4px 14px rgba(74,124,89,0.3);
   --gradient-hero:     linear-gradient(135deg, var(--parchment) 0%, var(--parchment-deep) 100%);
   --gradient-primary:  linear-gradient(135deg, var(--sage) 0%, #3a6347 100%);
@@ -750,7 +750,7 @@ footer {
   .hero-text .hero-actions, .hero-text > p:not(.hero-sub), .hero__panel {
     animation: none; opacity: 1;
   }
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .reveal, .fade-in, [class*="fade"] { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
 
 /* ================================================================

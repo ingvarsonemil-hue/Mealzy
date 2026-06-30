@@ -168,7 +168,7 @@ gtag('config', 'G-27FWEVV6VD');
     color: white;
   }
   @media (prefers-reduced-motion: reduce) {
-    .reveal, .hero-copy, .form-card {
+    .reveal, .fade-in, [class*="fade"], .hero-copy, .form-card {
       opacity: 1 !important;
       transform: none !important;
       animation: none !important;
@@ -831,8 +831,18 @@ function initInteractivity(){
   })();
 
   // Reveal animations (intersection observer)
-  const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(el=>{if(el.isIntersecting){el.target.classList.add('in-view');revealObserver.unobserve(el.target);}});},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  const revealObserver=new IntersectionObserver((entries)=>{entries.forEach(el=>{if(el.isIntersecting){el.target.classList.add('in-view');revealObserver.unobserve(el.target);}});},{threshold:0.05,rootMargin:'0px 0px -10px 0px'});
   document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+  // Safety net: force all fade elements visible after 1.5s regardless of scroll state
+  window.addEventListener('load',()=>{
+    setTimeout(()=>{
+      document.querySelectorAll('.reveal,.fade-in,[class*="fade"]').forEach(el=>{
+        el.style.opacity='1';
+        el.style.transform='none';
+      });
+    },1500);
+  });
 
   // FAQ accordion
   document.querySelector('.faq-list')?.addEventListener('click',function(e){
