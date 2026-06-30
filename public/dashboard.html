@@ -821,8 +821,8 @@
 
     document.getElementById('statMealsDone').textContent = `${completedMeals.length}/${todayMeals.length}`;
 
-    const waterGoal = Math.round((profile?.weight || 70) * 0.033 * 1000 / 240) || 8;
-    document.getElementById('statWaterSub').textContent = `of ${waterGoal} goal`;
+    const waterGoal = calcWaterGoal(profile);
+    document.getElementById('statWaterSub').textContent = `of ${waterGoal} glasses (8oz each)`;
 
     // Update rings
     updateRing('ringProtein', totalProtein, goalProtein, totalProtein + 'g');
@@ -854,10 +854,38 @@
     if (el) el.style.strokeDashoffset = offset;
   }
 
+  // Water target per National Academy of Medicine Dietary Reference Intake (via Harvard T.H. Chan
+  // School of Public Health, Nutrition Source: nutritionsource.hsph.harvard.edu/water/).
+  // Formula: weight_kg × 32.5 ml (midpoint of 30–35 ml/kg range) ÷ 236.588 ml per 8 oz cup.
+  // Sex-based floors: ≥9 cups (women) / ≥13 cups (men) per NAM guidance.
+  // Fallback (no weight/sex): 11 cups (average of 13 male / 9 female NAM DRI).
+  function calcWaterGoal(p) {
+    const weight = p?.weight;
+    const gender = (p?.gender || '').toLowerCase();
+    let cups;
+    if (weight) {
+      cups = (weight * 32.5) / 236.588;
+      const floor = gender === 'female' ? 9 : gender === 'male' ? 13 : 0;
+      if (floor) cups = Math.max(cups, floor);
+    } else {
+      cups = 11;
+    }
+    return Math.round(cups);
+  }
+
   function renderWaterGlasses() {
-    const waterGoal = Math.round((profile?.weight || 70) * 0.033 * 1000 / 240) || 8;
+    const waterGoal = calcWaterGoal(profile);
     const container = document.getElementById('waterGlasses');
-    container.textContent = `${waterCount} / ${waterGoal} glasses`;
+    const hasPersonalized = !!(profile?.weight && profile.gender && profile.gender !== 'other');
+    const hasWeight = !!(profile?.weight);
+    const note = hasWeight
+      ? 'Based on National Academy of Medicine guidelines, adjusted for your body weight'
+      : 'Add your weight in Settings for a personalized target';
+    container.innerHTML =
+      `<span>${waterCount} / ${waterGoal} glasses (8oz each)</span><br>` +
+      `<span style="font-size:0.78rem;color:var(--clr-muted-fg);">${note} · ` +
+      `<a href="https://nutritionsource.hsph.harvard.edu/water/" target="_blank" rel="noopener" ` +
+      `style="color:var(--clr-primary);text-decoration:none;">Harvard T.H. Chan</a></span>`;
     const statWater = document.getElementById('statWater');
     if (statWater) statWater.textContent = waterCount;
   }
