@@ -307,6 +307,18 @@
     }
     .auth-note a { color: var(--clr-primary); text-decoration: none; }
 
+    /* ── Password strength checklist ─────────── */
+    .pw-checklist { margin: 0.5rem 0 0; padding: 0; list-style: none; display: none; }
+    .pw-checklist.visible { display: block; }
+    .pw-checklist-hint { font-size: 0.75rem; color: var(--clr-muted-fg); margin: 0 0 0.4rem; line-height: 1.5; }
+    .pw-checklist li {
+      display: flex; align-items: center; gap: 0.45rem;
+      font-size: 0.78rem; color: var(--clr-muted-fg);
+      padding: 0.15rem 0; transition: color 0.2s ease;
+    }
+    .pw-checklist li.met { color: var(--clr-foreground); }
+    .pw-checklist li svg { flex-shrink: 0; transition: all 0.2s ease; }
+
     /* ── Dark mode ────────────────────────────── */
     [data-theme="dark"] body { background: var(--clr-page-dark); }
     [data-theme="dark"] .login-col { background: var(--clr-page-dark); }
@@ -420,11 +432,19 @@
         <div class="form-group">
           <label class="form-label" for="suPassword">Password</label>
           <div class="pw-wrap">
-            <input type="password" class="form-input" id="suPassword" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password" />
+            <input type="password" class="form-input" id="suPassword" placeholder="Min. 12 characters" required minlength="12" autocomplete="new-password" oninput="updatePwChecklist('suPassword','suPwChecklist')" onfocus="document.getElementById('suPwChecklist').classList.add('visible')" aria-describedby="suPwChecklist" />
             <button type="button" class="pw-toggle" onclick="togglePw('suPassword',this)" aria-label="Show password">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
+          <p class="pw-checklist-hint">Password must be 12+ characters with at least 3 of: uppercase, lowercase, numbers, special characters</p>
+          <ul class="pw-checklist" id="suPwChecklist" aria-label="Password requirements" aria-live="polite">
+            <li data-rule="len" data-label="At least 12 characters"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="var(--clr-muted-fg)" stroke-width="1.5"/></svg>At least 12 characters</li>
+            <li data-rule="upper" data-label="One uppercase letter"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="var(--clr-muted-fg)" stroke-width="1.5"/></svg>One uppercase letter</li>
+            <li data-rule="lower" data-label="One lowercase letter"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="var(--clr-muted-fg)" stroke-width="1.5"/></svg>One lowercase letter</li>
+            <li data-rule="num" data-label="One number"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="var(--clr-muted-fg)" stroke-width="1.5"/></svg>One number</li>
+            <li data-rule="special" data-label="One special character"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="var(--clr-muted-fg)" stroke-width="1.5"/></svg>One special character</li>
+          </ul>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:0.5rem;min-height:44px;" id="btnSignUp">Create Account</button>
       </form>
@@ -454,6 +474,26 @@
 </main>
 
 <script>
+  const _SVG_UNMET = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="var(--clr-muted-fg)" stroke-width="1.5"/></svg>`;
+  const _SVG_MET   = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--clr-brand,var(--clr-primary))"/><polyline points="4.5,8 7,10.5 11.5,5.5" stroke="#fff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const _PW_RULES = {
+    len:     pw => pw.length >= 12,
+    upper:   pw => /[A-Z]/.test(pw),
+    lower:   pw => /[a-z]/.test(pw),
+    num:     pw => /\d/.test(pw),
+    special: pw => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw),
+  };
+  function updatePwChecklist(inputId, listId) {
+    const pw = document.getElementById(inputId).value;
+    const list = document.getElementById(listId);
+    if (!list) return;
+    list.querySelectorAll('li[data-rule]').forEach(li => {
+      const met = _PW_RULES[li.dataset.rule](pw);
+      li.classList.toggle('met', met);
+      li.innerHTML = (met ? _SVG_MET : _SVG_UNMET) + li.dataset.label;
+    });
+  }
+
   // Show Google OAuth errors from redirect
   const _oauthError = new URLSearchParams(window.location.search).get('error');
   if (_oauthError === 'google_failed')        showError('Google sign-in failed. Please try again or use email.');
