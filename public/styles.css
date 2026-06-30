@@ -875,9 +875,9 @@ input:focus-visible { outline: none; border-bottom-color: var(--espresso) !impor
   padding-top: 3.5rem; /* clear fixed nav (~3.5rem) before hero-inner's own padding */
 }
 .trust-strip {
-  background: var(--clr-muted-bg);
-  border-top: 1px solid var(--clr-border);
-  border-bottom: 1px solid var(--clr-border);
+  background: transparent;
+  border-top: none;
+  border-bottom: none;
   padding: 0.85rem 0;
 }
 .trust-strip-inner {
