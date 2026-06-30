@@ -442,7 +442,46 @@ h3 { font-size: clamp(1.1rem, 2vw, var(--text-xl)); }
 /* ================================================================
    FOUNDER / PULL QUOTE
    ================================================================ */
-.pullquote-section { padding-block: var(--pad-section); background: var(--espresso); }
+.pullquote-section { padding-block: var(--pad-section); background: var(--color-forest); }
+.pullquote__quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+  color: rgba(255,255,255,0.92);
+  line-height: 1.4;
+}
+.pullquote__founder-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+}
+.pullquote__founder-sub {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+}
+.pullquote__stat-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+.pullquote__stat-num {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.95);
+  line-height: 1;
+}
+.pullquote__stat-label {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.5);
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+}
 .pullquote { max-width: 720px; margin-inline: auto; text-align: center; padding-inline: var(--gutter); }
 .pullquote__mark {
   display: block; font-family: var(--font-display); font-size: 5rem;
@@ -514,7 +553,7 @@ h3 { font-size: clamp(1.1rem, 2vw, var(--text-xl)); }
    FOOTER
    ================================================================ */
 footer {
-  background: var(--espresso); color: var(--parchment);
+  background: var(--color-forest); color: white;
   padding-block: clamp(3rem, 6vw, 5rem);
 }
 .footer__inner {
@@ -810,3 +849,50 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   outline: 2px solid var(--brick); outline-offset: 3px; border-radius: var(--radius);
 }
 input:focus-visible { outline: none; border-bottom-color: var(--espresso) !important; }
+
+/* ================================================================
+   MARKETING LANDING (hero-mktg, trust-strip, how-step)
+   ================================================================ */
+.hero-mktg {
+  padding-top: 3.5rem; /* clear fixed nav (~3.5rem) before hero-inner's own padding */
+}
+.trust-strip {
+  background: var(--clr-muted-bg);
+  border-top: 1px solid var(--clr-border);
+  border-bottom: 1px solid var(--clr-border);
+  padding: 0.85rem 0;
+}
+.trust-strip-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.75rem; /* left padding ensures checkmark icons are never clipped */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--clr-muted-fg);
+}
+.trust-divider {
+  width: 1px;
+  height: 1rem;
+  background: var(--clr-border);
+  flex-shrink: 0;
+}
+.how-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-block: 2rem;
+  border-top: 1px solid var(--hairline);
+}
+.how-step:last-of-type { border-bottom: 1px solid var(--hairline); }
+.how-title { font-size: var(--text-xl); margin-bottom: 0.4rem; }
+.how-body  { font-size: var(--text-base); color: var(--ink-muted); max-width: 54ch; }
