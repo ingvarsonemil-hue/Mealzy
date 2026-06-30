@@ -12,7 +12,7 @@
 :root {
   --parchment:      var(--clr-background);
   --parchment-deep: var(--clr-muted-bg);
-  --espresso:       var(--clr-foreground);
+  --espresso:       hsl(20, 35%, 18%);
   --espresso-soft:  var(--color-foreground);
   --brick:          var(--clr-accent);
   --brick-deep:     var(--color-brick);
@@ -763,12 +763,11 @@ footer {
 [data-theme="dark"] {
   --parchment:      #1a2e22;
   --parchment-deep: #1a2e22;
-  --espresso:       hsl(46,20%,90%);
   --espresso-soft:  hsl(46,15%,75%);
   --ink-muted:      hsl(150,8%,55%);
   --hairline:       hsl(150,10%,22%);
 }
-[data-theme="dark"] body { background: var(--parchment); color: var(--espresso); }
+[data-theme="dark"] body { background: var(--parchment); color: var(--espresso-soft); }
 [data-theme="dark"] .nav-fixed.scrolled { background: rgba(15,20,15,0.96); }
 /* Guarantee note & reveal sections */
 [data-theme="dark"] .reveal { color: rgba(255,255,255,0.85); }
