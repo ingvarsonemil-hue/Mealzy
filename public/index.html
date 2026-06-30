@@ -865,7 +865,7 @@ function initInteractivity(){
 <script>
 window.addEventListener('load', function() {
   setTimeout(function() {
-    var allSections = document.querySelectorAll('section, footer');
+    var allSections = document.querySelectorAll('section, footer, .reveal');
     allSections.forEach(function(el) {
       var computed = window.getComputedStyle(el);
       if (parseFloat(computed.opacity) < 1) {
