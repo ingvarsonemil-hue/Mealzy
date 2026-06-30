@@ -373,7 +373,7 @@
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Get instant nutrition advice</p>
         </a>
         <a href="grocery-list.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M6.5 10H17.5L16.5 20.5C16.5 21 16 21.5 15.5 21.5H8.5C8 21.5 7.5 21 7.5 20.5L6.5 10Z"/><path d="M9.5 10V7.5C9.5 5.8 10.5 4.5 12 4.5C13.5 4.5 14.5 5.8 14.5 7.5V10"/><path d="M10.5 16.5C10.5 14.8 12.8 13.5 13.2 15.2C12.8 16.8 10.5 17 10.5 16.5Z"/><path d="M10.5 16.5L13.2 15.2"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="grocery_list">Grocery List</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Build this week's shopping list</p>
         </a>
@@ -383,26 +383,13 @@
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Track calories and macros</p>
         </a>
         <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-align:left;font-family:inherit;width:100%;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M3.5 6C3.5 5 4.2 4.5 5 4.5H19C19.8 4.5 20.5 5 20.5 6V18C20.5 19 19.8 19.5 19 19.5H5C4.2 19.5 3.5 19 3.5 18V6Z"/><path d="M8.5 4.5V19.5"/><circle cx="14.5" cy="12" r="3.5"/><path d="M14.5 9.5C13.5 8.5 12.5 8.2 12 9C11.5 9.8 12.5 11 13 11.5"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="import_recipe">Import Recipe</div>
           <p class="text-muted text-sm" style="margin-top:0.3rem;">Scan or paste a recipe</p>
         </button>
       </div>
     </div>
 
-
-    <!-- DIETARY PREFERENCES QUICK-EDIT -->
-    <div class="card" style="margin-bottom:1.5rem;">
-      <div class="card-header" style="cursor:pointer;" onclick="toggleDietaryEdit()">
-        <div class="card-title" style="display:flex;align-items:center;gap:0.4rem;"><span data-i18n="dietary_prefs">Dietary Preferences</span></div>
-        <span class="text-muted text-sm" id="dietaryEditToggleLabel">Edit ▾</span>
-      </div>
-      <p id="dietaryEmptyPlaceholder" style="font-size:14px;color:var(--color-muted-fg);margin:0.5rem 0 0;display:none;">No dietary restrictions set. Edit to add preferences.</p>
-      <div id="dietaryEditPanel" style="display:none;padding-top:0.75rem;">
-        <p style="font-size:0.82rem;color:var(--clr-muted);margin-bottom:0.75rem;">Changes apply to your next meal plan generation.</p>
-        <div id="dietaryOptions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:0.2rem;"></div>
-      </div>
-    </div>
 
     <!-- 7-DAY CALORIE HISTORY -->
     <div class="card" style="margin-bottom:1.5rem;">
@@ -591,7 +578,6 @@
     checkProStatus();
     checkWelcomeMessage();
     checkWeeklyReengagement();
-    renderDietaryEdit();
     showGKeyTooltip();
 
     // Auto-generate from onboarding (Phase 4 — value in 15 seconds)
@@ -1832,53 +1818,6 @@
     // Pro user — print immediately
     trackEvent('pdf_export', { source: 'print_btn' });
     window.print();
-  }
-
-  // === DIETARY PREFERENCES QUICK-EDIT ===
-  const DIETARY_OPTIONS = [
-    { id: 'vegetarian', label: 'Vegetarian' },
-    { id: 'vegan', label: 'Vegan' },
-    { id: 'gluten_free', label: 'Gluten-Free' },
-    { id: 'dairy_free', label: 'Dairy-Free' },
-    { id: 'keto', label: 'Keto' },
-    { id: 'paleo', label: 'Paleo' },
-    { id: 'low_carb', label: 'Low-Carb' },
-    { id: 'halal', label: 'Halal' },
-    { id: 'kosher', label: 'Kosher' },
-    { id: 'nut_free', label: 'Nut-Free' },
-  ];
-
-  function renderDietaryEdit() {
-    const container = document.getElementById('dietaryOptions');
-    if (!container) return;
-    const current = (profile && profile.dietaryRestrictions) ? profile.dietaryRestrictions : [];
-    const placeholder = document.getElementById('dietaryEmptyPlaceholder');
-    if (placeholder) placeholder.style.display = current.length === 0 ? '' : 'none';
-    container.innerHTML = DIETARY_OPTIONS.map(opt => {
-      const active = current.includes(opt.id);
-      return `<button onclick="updateDietaryPref('${opt.id}')" style="padding:0.45rem 0.75rem;border-radius:0.5rem;border:1px solid ${active ? 'var(--clr-primary)' : 'var(--clr-border)'};background:${active ? 'var(--clr-primary)' : 'var(--clr-muted-bg)'};color:${active ? '#fff' : 'var(--clr-text)'};font-size:0.82rem;cursor:pointer;font-family:inherit;">${opt.label}</button>`;
-    }).join('');
-  }
-
-  function updateDietaryPref(id) {
-    if (!profile) return;
-    if (!profile.dietaryRestrictions) profile.dietaryRestrictions = [];
-    const idx = profile.dietaryRestrictions.indexOf(id);
-    if (idx === -1) profile.dietaryRestrictions.push(id);
-    else profile.dietaryRestrictions.splice(idx, 1);
-    localStorage.setItem('mealzy_profile', JSON.stringify(profile));
-    renderDietaryEdit();
-    showToast('Dietary preference updated', 'success');
-  }
-
-  function toggleDietaryEdit() {
-    const panel = document.getElementById('dietaryEditPanel');
-    const label = document.getElementById('dietaryEditToggleLabel');
-    if (!panel) return;
-    const isOpen = panel.style.display !== 'none';
-    panel.style.display = isOpen ? 'none' : '';
-    if (label) label.textContent = isOpen ? 'Edit ▾' : 'Close ▴';
-    if (!isOpen) renderDietaryEdit();
   }
 
   // === G KEY SHORTCUT ===
