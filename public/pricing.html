@@ -44,7 +44,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#1a3d2b">
-  <script src="/stripe-config.js" defer></script>
+  <script src="/stripe-config.js"></script>
   <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
   <style>
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -325,7 +325,7 @@
     <div class="pricing-grid">
 
       <!-- FREE -->
-      <div class="pricing-card" id="cardFree" style="padding-top:80px;">
+      <div class="pricing-card" id="cardFree" style="padding-top:72px;">
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Free</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">Try it. No credit card, no expiry.</p>
@@ -352,11 +352,7 @@
 
       <!-- PRO (POPULAR) -->
       <div class="pricing-card popular" id="cardPremium" style="position:relative;">
-        <span class="badge-green">Most popular</span>
-        <div style="margin-bottom:0.75rem;">
-          <p style="font-size:var(--text-xs);color:var(--clr-primary);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">Introductory pricing</p>
-          <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);margin-top:0.2rem;">$12/month monthly, or $8/month billed annually.</p>
-        </div>
+        <span class="badge-green" style="display:inline-block;margin-bottom:1rem;">Most popular</span>
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Pro</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For people who plan every week.</p>
@@ -383,7 +379,7 @@
       </div>
 
       <!-- FAMILY -->
-      <div class="pricing-card" id="cardFamily" style="padding-top:80px;">
+      <div class="pricing-card" id="cardFamily" style="padding-top:72px;">
         <div class="pricing-card-top">
           <div class="pricing-plan-name" style="font-family:var(--font-display);font-size:var(--text-2xl);font-weight:500;">Family</div>
           <p style="font-size:var(--text-sm);color:var(--clr-muted-fg);margin-top:0.25rem;">For households that eat together.</p>
@@ -393,7 +389,7 @@
           </div>
           <div class="pricing-billed" id="billedFamily" style="font-size:var(--text-xs);color:var(--clr-muted-fg);height:1.2rem;">&nbsp;</div>
         </div>
-        <a href="https://buy.stripe.com/FAMILY_MONTHLY" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family Plan →</a>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0.5rem;" id="familyCta" onclick="trackUpgradeClick('family')">Start Family</a>
         <p style="font-size:var(--text-xs);color:var(--clr-muted-fg);text-align:center;margin-bottom:1.5rem;">Perfect for couples, parents, or anyone cooking for more than one person.</p>
         <ul class="pricing-features">
           <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;vertical-align:middle;"><polyline points="2,8 6,12 14,4" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> <strong>Everything in Pro</strong></li>
@@ -555,14 +551,9 @@
     document.getElementById('billingToggle').style.display = '';
   }
 
-  const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || null;
-  const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || null;
-  if (STRIPE_FAMILY_MONTHLY) {
-    document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
-  } else {
-    document.getElementById('familyCta').href = 'mailto:support@mealzy.org?subject=Family%20Plan';
-    document.getElementById('familyCta').textContent = 'Contact us →';
-  }
+  const STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
+  const STRIPE_FAMILY_YEARLY  = window.STRIPE_FAMILY_ANNUAL  || STRIPE_MONTHLY;
+  document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
 
   const prices    = { monthly:{free:'$0',premium:'$12',family:'$16'}, yearly:{free:'$0',premium:'$8',family:'$11'} };
   const billedTxt = { monthly:{free:'',premium:'',family:''}, yearly:{free:'',premium:'Billed $96/year — save $48 vs monthly',family:'Billed $130/year — save $62 vs monthly'} };
@@ -593,16 +584,8 @@
       ctaNote.textContent = '$12/mo — cancel any time.';
     }
     const familyCta = document.getElementById('familyCta');
-    if (familyCta) {
-      const familyUrl = mode === 'yearly' ? STRIPE_FAMILY_YEARLY : STRIPE_FAMILY_MONTHLY;
-      if (familyUrl) {
-        familyCta.href = familyUrl;
-        familyCta.textContent = mode === 'yearly' ? 'Start Family Annual →' : 'Start Family Plan →';
-      } else {
-        familyCta.href = 'mailto:support@mealzy.org?subject=Family%20Plan';
-        familyCta.textContent = 'Contact us →';
-      }
-    }
+    familyCta.href = mode === 'yearly' ? STRIPE_FAMILY_YEARLY : STRIPE_FAMILY_MONTHLY;
+    familyCta.textContent = mode === 'yearly' ? 'Start Family Annual' : 'Start Family';
     if (mode === 'yearly') {
       const card = document.getElementById('cardPremium');
       card.style.animation = 'none'; void card.offsetWidth;
