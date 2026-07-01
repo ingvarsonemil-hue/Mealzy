@@ -175,60 +175,6 @@ gtag('config', 'G-27FWEVV6VD');
       transition: none !important;
     }
   }
-  /* Footer grid */
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-  .footer-brand-name {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-weight: 700;
-    font-size: 1.3rem;
-    color: rgba(255,255,255,0.9);
-    text-decoration: none;
-    display: block;
-    margin-bottom: 0.75rem;
-  }
-  .footer-brand-tagline {
-    font-size: 0.85rem;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.55;
-    max-width: 28ch;
-  }
-  .footer-col-heading {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
-    margin-bottom: 1rem;
-  }
-  .footer-link-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .footer-link-list a {
-    font-size: 0.88rem;
-    color: rgba(255,255,255,0.7);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-  .footer-link-list a:hover { color: rgba(255,255,255,1); }
-  .footer-bottom-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.35);
-  }
   /* Founder stats grid — 4-col desktop, 2-col mobile */
   .founder-stats-grid {
     display: grid;
@@ -237,10 +183,6 @@ gtag('config', 'G-27FWEVV6VD');
   }
   @media (max-width: 600px) {
     .founder-stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .footer-grid { grid-template-columns: 1fr 1fr; }
-  }
-  @media (max-width: 400px) {
-    .footer-grid { grid-template-columns: 1fr; }
   }
   .hide-on-mobile { display: inline-flex; }
   @media (max-width: 600px) { .hide-on-mobile { display: none !important; } }
@@ -657,42 +599,42 @@ gtag('config', 'G-27FWEVV6VD');
 </div>
 
 <!-- FOOTER -->
-<footer class="site-footer">
+<footer>
   <div class="container">
-    <div class="footer-grid">
-      <div>
-        <a href="/" class="footer-brand-name" aria-label="Mealzy home">Mealzy</a>
-        <p class="footer-brand-tagline">AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
-        <p class="footer-brand-tagline" style="margin-top:0.8rem;">Used in 10 countries including Sweden, the USA, Germany, and Canada.</p>
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo" aria-label="Mealzy home">Mealzy</a>
+        <p>AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
+        <p style="margin-top:0.6rem;">Used in 10 countries including Sweden, the USA, Germany, and Canada.</p>
       </div>
-      <div>
-        <p class="footer-col-heading">Product</p>
-        <ul class="footer-link-list" role="list">
+      <div class="footer__col">
+        <h4>Product</h4>
+        <ul class="footer__links" role="list">
           <li><a href="#how-it-works">How it works</a></li>
           <li><a href="pricing.html">Pricing</a></li>
           <li><a href="/dashboard.html">My plans</a></li>
         </ul>
       </div>
-      <div>
-        <p class="footer-col-heading">Account</p>
-        <ul class="footer-link-list" role="list">
+      <div class="footer__col">
+        <h4>Account</h4>
+        <ul class="footer__links" role="list">
           <li><a href="login.html">Sign in</a></li>
           <li><a href="login.html?signup=1">Start free</a></li>
           <li><a href="reset-password.html">Reset password</a></li>
         </ul>
       </div>
-      <div>
-        <p class="footer-col-heading">Legal</p>
-        <ul class="footer-link-list" role="list">
+      <div class="footer__col">
+        <h4>Legal</h4>
+        <ul class="footer__links" role="list">
           <li><a href="privacy-policy.html">Privacy Policy</a></li>
           <li><a href="terms.html">Terms</a></li>
           <li><a href="mailto:support@mealzy.org">Contact</a></li>
         </ul>
       </div>
     </div>
-    <div class="footer-bottom-bar">
-      <span>&copy; 2026 Mealzy &mdash; Built by Emil, 16, Sweden. Nutritional calculations aligned with USDA dietary guidelines.</span>
-      <span>Mealzy is an AI tool and does not provide medical or nutritional advice.</span>
+    <div class="footer__bottom">
+      <p>&copy; 2026 Mealzy &mdash; Built by Emil, 16, Sweden. Nutritional calculations aligned with USDA dietary guidelines.</p>
+      <p>Mealzy is an AI tool and does not provide medical or nutritional advice.</p>
     </div>
   </div>
 </footer>
