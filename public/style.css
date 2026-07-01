@@ -484,7 +484,6 @@ footer { background: var(--color-forest); color: white; padding: 2.5rem 0; }
   --clr-sidebar-active: hsl(152, 42%, 23%);
 }
 [data-theme="dark"] body { background: var(--clr-page-dark); }
-[data-theme="dark"] .page-header,
 [data-theme="dark"] .grocery-header,
 [data-theme="dark"] .main-content {
   background: var(--clr-page-dark);
