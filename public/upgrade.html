@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Amplitude Analytics -->
+<script src="https://cdn.amplitude.com/script/7d13e8b48558147de585423d7956f05d.js"></script>
+<script>window.amplitude.init('7d13e8b48558147de585423d7956f05d', {"fetchRemoteConfig":true,"autocapture":true});</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
@@ -308,6 +311,10 @@
     localStorage.setItem('mealzy_theme', next);
   }
 
+  if (window.amplitude && localStorage.getItem('mealzy_user') && localStorage.getItem('mealzy_pro') !== 'true') {
+    amplitude.track('Upgrade Page Viewed', { page: 'upgrade' });
+  }
+
   const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
   const STRIPE_YEARLY  = window.STRIPE_ANNUAL || null;
 
@@ -347,6 +354,7 @@
   }
 
   function trackUpgrade(source) {
+    if (window.amplitude) amplitude.track('Checkout Started', { plan: 'pro', billing: billingMode, source: source || 'upgrade_page' });
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

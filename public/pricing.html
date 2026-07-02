@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Amplitude Analytics -->
+<script src="https://cdn.amplitude.com/script/7d13e8b48558147de585423d7956f05d.js"></script>
+<script>window.amplitude.init('7d13e8b48558147de585423d7956f05d', {"fetchRemoteConfig":true,"autocapture":true});</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-27FWEVV6VD');</script>
@@ -540,6 +543,11 @@
 
   function trackUpgradeClick(plan) {
     fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'pricing_page',plan:plan||'pro'}})}).catch(()=>{});
+    if (window.amplitude) amplitude.track('Checkout Started', { plan: plan || 'pro', billing: billingMode, source: 'pricing_page' });
+  }
+
+  if (window.amplitude && localStorage.getItem('mealzy_user') && localStorage.getItem('mealzy_pro') !== 'true') {
+    amplitude.track('Upgrade Page Viewed', { page: 'pricing' });
   }
 
   let billingMode = 'monthly';

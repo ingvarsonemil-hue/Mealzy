@@ -1,6 +1,9 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Amplitude Analytics -->
+<script src="https://cdn.amplitude.com/script/7d13e8b48558147de585423d7956f05d.js"></script>
+<script>window.amplitude.init('7d13e8b48558147de585423d7956f05d', {"fetchRemoteConfig":true,"autocapture":true});</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
@@ -1417,6 +1420,9 @@
 
   // === TRACK EVENT ===
   function trackEvent(event, data) {
+    if (event === 'upgrade_click' && window.amplitude) {
+      amplitude.track('Checkout Started', { plan: 'pro', billing: 'monthly', source: (data && data.source) || 'dashboard' });
+    }
     fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event, data }) }).catch(()=>{});
   }
 

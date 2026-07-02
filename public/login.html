@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Amplitude Analytics -->
+<script src="https://cdn.amplitude.com/script/7d13e8b48558147de585423d7956f05d.js"></script>
+<script>window.amplitude.init('7d13e8b48558147de585423d7956f05d', {"fetchRemoteConfig":true,"autocapture":true});</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-27FWEVV6VD');</script>
@@ -598,6 +601,7 @@
       if (!res.ok) { showError(data.error === 'account_exists' ? 'An account with this email already exists. Sign in instead.' : (data.message || 'Sign up failed. Please try again.')); setLoading('btnSignUp', false); return; }
       localStorage.setItem('mealzy_user', JSON.stringify({ name:data.user.name, email:data.user.email }));
       if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
+      if (window.amplitude) amplitude.track('Sign Up');
       try { fetch('/api/email-leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,name,source:'signup'})}); } catch(e) {}
       const pendingRef = localStorage.getItem('mealzy_pending_ref');
       if (pendingRef && pendingRef !== email) {
