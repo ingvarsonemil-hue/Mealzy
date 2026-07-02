@@ -43,6 +43,7 @@
     <li>Your dietary profile: goals, calorie targets, allergies, dietary preferences, budget, and cooking preferences</li>
     <li>Meal plans you generate and save</li>
     <li>Basic usage events (e.g. page views, plan generations) for analytics — stored in our database, not shared with third parties</li>
+    <li>A truncated, partial IP address (the last 8 characters only) logged against page views, demo plan generations, free-limit events, and referral visits. This is kept for abuse prevention and basic analytics — we do not retain your full IP address, and it is not used to identify individuals.</li>
   </ul>
 
   <h2>How we use your data</h2>
@@ -51,6 +52,7 @@
     <li>To maintain your account and remember your preferences</li>
     <li>To send you transactional emails (password reset, plan reminders) if you opt in</li>
     <li>To improve the product based on aggregated, anonymous usage patterns</li>
+    <li>To enforce the free-plan limit of 3 meal plans per 30 days (Pro accounts have no limit)</li>
   </ul>
 
   <h2>Anthropic Claude API</h2>
@@ -59,8 +61,11 @@
   <h2>Stripe</h2>
   <p>Payments are processed by Stripe. When you upgrade to Pro, your payment details go directly to Stripe — Mealzy never sees or stores your card number. Stripe's privacy policy is available at <a href="https://stripe.com/privacy" target="_blank" rel="noopener">stripe.com/privacy</a>.</p>
 
-  <h2>Cookies</h2>
-  <p>We use one httpOnly cookie to keep you signed in (a JWT session token). No tracking cookies. Google Analytics is used for aggregate page-view statistics — it does not receive your profile data.</p>
+  <h2>Cookies &amp; analytics</h2>
+  <p>We use one httpOnly cookie to keep you signed in (a JWT session token). No tracking cookies are set until you accept analytics in the cookie banner. Once accepted, we load two analytics tools: Google Analytics, for aggregate page-view statistics, and Amplitude, for product usage analytics and session replay (currently recorded at a 100% sample rate). Neither receives your dietary profile or meal plan content.</p>
+
+  <h2>Hosting &amp; infrastructure</h2>
+  <p>Mealzy's application server is hosted on Render, in Render's default US data center (Oregon, USA) unless we've configured otherwise. Our database runs on Turso (libSQL), hosted on AWS in the eu-west-1 region (Ireland). If you are in the EEA/UK, this means your account and profile data are stored in the EU, while application processing and logs may pass through US infrastructure; see Render's <a href="https://render.com/privacy" target="_blank" rel="noopener">privacy policy</a> and Turso's <a href="https://turso.tech/privacy-policy" target="_blank" rel="noopener">privacy policy</a> for details on their respective safeguards.</p>
 
   <h2>Data retention</h2>
   <p>Your data is stored in our database for as long as your account is active. We do not sell, rent, or share your personal data with any third parties for marketing purposes.</p>
