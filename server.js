@@ -148,6 +148,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// privacy.html is a stale duplicate of privacy-policy.html; redirect old/bookmarked/indexed links
+app.get('/privacy.html', (req, res) => {
+  res.redirect(301, '/privacy-policy.html');
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // TikTok domain verification
