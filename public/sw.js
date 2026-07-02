@@ -1,4 +1,4 @@
-const CACHE = 'mealzy-v165';
+const CACHE = 'mealzy-v166';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -34,6 +34,9 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Never intercept cross-origin requests — let the browser handle them natively
+  if (new URL(e.request.url).origin !== self.location.origin) return;
+
   // Never intercept non-GET or API calls
   if (e.request.method !== 'GET') return;
   if (e.request.url.includes('/api/')) return;
