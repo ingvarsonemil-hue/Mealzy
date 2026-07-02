@@ -1900,20 +1900,36 @@ function splitGroceryListByDay(groceryList) {
 
 app.post('/api/generate-grocery-list', async (req, res) => {
   try {
-    const { profile, meals, weekStart } = req.body;
+    const { profile, meals, weekStart, day, planId: requestedPlanId } = req.body;
     if (!meals || meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
 
-    const groceryList = await generateGroceryListForMeals({ meals, profile, weekStart });
+    const groceryList = await generateGroceryListForMeals({ meals, profile, weekStart, day });
 
     const session = getSessionFromReq(req);
     let planId;
     if (session) {
       try {
-        planId = randomUUID();
-        const byDay = splitGroceryListByDay(groceryList);
-        await Promise.all(Object.entries(byDay).map(([day, dayList]) =>
-          db.saveGroceryList(randomUUID(), session.userId, planId, day, dayList)
-        ));
+        if (day) {
+          // Single-day generate/refresh — reuse the caller's planId only if it
+          // already belongs to them, so a spoofed id can't delete/overwrite
+          // another user's saved days.
+          planId = requestedPlanId || null;
+          if (planId) {
+            const existingRows = await db.getGroceryListsForPlan(planId);
+            if (existingRows.length > 0 && existingRows[0].userId !== session.userId) {
+              planId = null;
+            }
+          }
+          if (!planId) planId = randomUUID();
+          await db.deleteGroceryListForPlanDay(planId, day);
+          await db.saveGroceryList(randomUUID(), session.userId, planId, day, groceryList);
+        } else {
+          planId = randomUUID();
+          const byDay = splitGroceryListByDay(groceryList);
+          await Promise.all(Object.entries(byDay).map(([d, dayList]) =>
+            db.saveGroceryList(randomUUID(), session.userId, planId, d, dayList)
+          ));
+        }
       } catch (saveErr) {
         console.error('[generate-grocery-list] DB save error (non-fatal):', saveErr);
       }

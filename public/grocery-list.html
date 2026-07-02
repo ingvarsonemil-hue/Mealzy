@@ -3,7 +3,7 @@
 <head>
 <!-- Amplitude Analytics -->
 <script src="https://cdn.amplitude.com/script/7d13e8b48558147de585423d7956f05d.js"></script>
-<script>window.amplitude.init('7d13e8b48558147de585423d7956f05d', {"fetchRemoteConfig":true,"autocapture":true});</script>
+<script>window.amplitude.init('7d13e8b48558147de585423d7956f05d', {"fetchRemoteConfig":true,"autocapture":true,"sessionReplay":{"sampleRate":1}});</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-27FWEVV6VD"></script>
 <script>
@@ -359,6 +359,8 @@
       <a href="upgrade.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
     </div>
 
+    <div class="day-switcher" id="daySwitcher" role="tablist" aria-label="Select a day"></div>
+
     <div class="grocery-header">
       <div>
         <h1 style="font-size:1.6rem;font-weight:700;font-family:var(--font-display);font-style:italic;display:flex;align-items:center;gap:0.5rem;">
@@ -411,10 +413,6 @@
     </div>
 
     <!-- GROCERY LIST -->
-    <div id="emptyGrocery" style="display:none; text-align:center; padding:3rem 1rem;">
-      <p style="color:var(--clr-muted-fg);font-size:0.9rem;margin-bottom:1.25rem;max-width:300px;margin-inline:auto;">No grocery list yet — generate a meal plan first to see your shopping list here.</p>
-      <a href="meal-planner.html" class="btn btn-primary">Generate a plan</a>
-    </div>
     <div id="groceryContainer">
       <div class="empty-state">
         <div class="empty-state-icon">
@@ -523,8 +521,15 @@
 
   let profile = null;
   let groceryList = null;
+  let planId = null;
+  let availableDays = new Set();
 
   let weekStart = '';
+  let weekDates = [];
+  let selectedDay = '';
+
+  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const DAY_ABBR  = { Monday:'Mon', Tuesday:'Tue', Wednesday:'Wed', Thursday:'Thu', Friday:'Fri', Saturday:'Sat', Sunday:'Sun' };
 
   function getMondayOfWeek(date) {
     const d = new Date(date);
@@ -532,6 +537,126 @@
     const diff = d.getDate() - day + (day === 0 ? -6 : 1);
     d.setDate(diff);
     return d.toISOString().split('T')[0];
+  }
+
+  function getWeekDates(monday) {
+    const dates = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(d.getDate() + i);
+      dates.push({ date: d.toISOString().split('T')[0], dayName: DAY_NAMES[i] });
+    }
+    return dates;
+  }
+
+  // -- Plan id + per-day list cache (keyed by weekStart, same scheme mealzy_meal_plans uses for dates) --
+  function loadPlanId() {
+    const map = JSON.parse(localStorage.getItem('mealzy_grocery_plan_ids') || '{}');
+    return map[weekStart] || null;
+  }
+
+  function savePlanId(id) {
+    const map = JSON.parse(localStorage.getItem('mealzy_grocery_plan_ids') || '{}');
+    map[weekStart] = id;
+    localStorage.setItem('mealzy_grocery_plan_ids', JSON.stringify(map));
+    planId = id;
+  }
+
+  function getCachedDayList(day) {
+    const lists = JSON.parse(localStorage.getItem('mealzy_grocery_lists') || '{}');
+    const weekLists = lists[weekStart];
+    if (!weekLists || typeof weekLists !== 'object' || weekLists.categories) return null;
+    return weekLists[day] || null;
+  }
+
+  function setCachedDayList(day, list) {
+    const lists = JSON.parse(localStorage.getItem('mealzy_grocery_lists') || '{}');
+    if (!lists[weekStart] || typeof lists[weekStart] !== 'object' || lists[weekStart].categories) {
+      lists[weekStart] = {};
+    }
+    lists[weekStart][day] = list;
+    localStorage.setItem('mealzy_grocery_lists', JSON.stringify(lists));
+    cloudSave();
+  }
+
+  function dayHasList(day) {
+    return availableDays.has(day) || !!getCachedDayList(day);
+  }
+
+  async function refreshAvailableDays() {
+    availableDays = new Set();
+    if (!planId) return;
+    try {
+      const res = await fetch(`/api/grocery-list/${planId}/days`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) availableDays = new Set(data.days || []);
+      } else if (res.status === 404) {
+        planId = null;
+      }
+    } catch (e) { /* offline — fall back to whatever is cached locally */ }
+  }
+
+  function renderDaySwitcher() {
+    const wrap = document.getElementById('daySwitcher');
+    const todayStr = new Date().toISOString().split('T')[0];
+    wrap.innerHTML = weekDates.map(({ date, dayName }) => {
+      const hasList = dayHasList(dayName);
+      const isActive = dayName === selectedDay;
+      const isToday = date === todayStr;
+      const dateLabel = new Date(`${date}T00:00:00`).getDate();
+      return `<button type="button" class="day-tab${isActive ? ' active' : ''}${isToday ? ' today' : ''}${hasList ? '' : ' empty'}" role="tab" aria-selected="${isActive}" onclick="selectDay('${dayName}')" title="${hasList ? '' : 'No grocery list yet for this day'}">
+        <span>${DAY_ABBR[dayName]}</span>
+        <span class="day-tab-date">${dateLabel}</span>
+      </button>`;
+    }).join('');
+  }
+
+  function updateProgressForEmpty() {
+    document.getElementById('progressText').textContent = '0 of 0 items checked';
+    document.getElementById('progressPct').textContent = '0%';
+    document.getElementById('progressFill').style.width = '0%';
+    const budget = profile?.budget || 100;
+    const currency = profile?.currency || 'USD';
+    const sym = getCurrencySymbol(currency);
+    document.getElementById('totalCostDisplay').textContent = `${sym}0.00`;
+    document.getElementById('budgetDisplay').textContent = `${sym}0.00 / ${sym}${budget}`;
+    document.getElementById('budgetFill').style.width = '0%';
+  }
+
+  async function selectDay(day) {
+    selectedDay = day;
+    renderDaySwitcher();
+
+    const cached = getCachedDayList(day);
+    if (cached) {
+      groceryList = cached;
+      renderGroceryList();
+      updateProgress();
+      return;
+    }
+
+    if (!availableDays.has(day) || !planId) {
+      groceryList = null;
+      renderEmpty();
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/grocery-list/${planId}/${encodeURIComponent(day)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.groceryList) {
+          groceryList = data.groceryList;
+          setCachedDayList(day, groceryList);
+          renderGroceryList();
+          updateProgress();
+          return;
+        }
+      }
+    } catch (e) { /* fall through to empty state */ }
+    groceryList = null;
+    renderEmpty();
   }
 
   async function init() {
@@ -560,46 +685,35 @@
     }
 
     weekStart = getMondayOfWeek(new Date());
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
+    weekDates = getWeekDates(weekStart);
     const fmt = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    document.getElementById('weekLabel').textContent = `Week of ${fmt(weekStart)} – ${fmt(weekEnd.toISOString().split('T')[0])}`;
+    document.getElementById('weekLabel').textContent = `Week of ${fmt(weekDates[0].date)} – ${fmt(weekDates[6].date)}`;
 
-    loadGroceryList();
-  }
+    planId = loadPlanId();
+    await refreshAvailableDays();
 
-  function loadGroceryList() {
-    const lists = JSON.parse(localStorage.getItem('mealzy_grocery_lists') || '{}');
-    groceryList = lists[weekStart] || null;
-    if (groceryList) {
-      const savedChecked = JSON.parse(localStorage.getItem('mealzy_checked_items') || '[]');
-      if (savedChecked.length > 0 && groceryList.categories) {
-        const checkedSet = new Set(savedChecked);
-        for (const [cat, items] of Object.entries(groceryList.categories)) {
-          items.forEach((item, i) => { item.checked = checkedSet.has(`${cat}-${i}`); });
-        }
-      }
-      renderGroceryList();
-      updateProgress();
-    } else {
-      renderEmpty();
-    }
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayEntry = weekDates.find(d => d.date === todayStr);
+    selectedDay = todayEntry ? todayEntry.dayName : weekDates[0].dayName;
+
+    renderDaySwitcher();
+    selectDay(selectedDay);
   }
 
   const emptyCartSVG = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`;
   const starSVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
 
   function renderEmpty() {
-    document.getElementById('emptyGrocery').style.display = 'block';
     document.getElementById('groceryContainer').innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">${emptyCartSVG}</div>
         <h3>No grocery list yet</h3>
-        <p>Generate a list from your week's meal plan, or generate a smart list now.</p>
+        <p>No grocery list yet for ${selectedDay}. Generate one from your meal plan, or generate a smart list now.</p>
         <button class="btn btn-primary" onclick="generateGroceryList()" style="display:inline-flex;align-items:center;gap:0.4rem;">
           ${starSVG} Generate Grocery List
         </button>
       </div>`;
+    updateProgressForEmpty();
   }
 
   function renderGroceryList() {
@@ -643,21 +757,10 @@
     });
   }
 
-  function saveCheckedItems() {
-    const checkedIds = [];
-    if (groceryList && groceryList.categories) {
-      for (const [cat, items] of Object.entries(groceryList.categories)) {
-        items.forEach((item, i) => { if (item.checked) checkedIds.push(`${cat}-${i}`); });
-      }
-    }
-    localStorage.setItem('mealzy_checked_items', JSON.stringify(checkedIds));
-  }
-
   function toggleItem(category, index, checked) {
     if (!groceryList || !groceryList.categories[category]) return;
     groceryList.categories[category][index].checked = checked;
     saveLists();
-    saveCheckedItems();
     updateProgress();
 
     const itemEl = document.getElementById(`item-${category}-${index}`);
@@ -700,11 +803,13 @@
     const name = input.value.trim();
     if (!name) return;
     if (!groceryList) {
-      groceryList = { categories: { produce:[], protein:[], dairy:[], grains:[], pantry:[], frozen:[], beverages:[], other:[] }, generatedAt: new Date().toISOString() };
+      groceryList = { weekStart, categories: { produce:[], protein:[], dairy:[], grains:[], pantry:[], frozen:[], beverages:[], other:[] }, generatedAt: new Date().toISOString() };
     }
     if (!groceryList.categories.other) groceryList.categories.other = [];
     groceryList.categories.other.push({ name, amount: '', checked: false });
     saveLists();
+    availableDays.add(selectedDay);
+    renderDaySwitcher();
     renderGroceryList();
     updateProgress();
     input.value = '';
@@ -712,10 +817,8 @@
   }
 
   function saveLists() {
-    const lists = JSON.parse(localStorage.getItem('mealzy_grocery_lists') || '{}');
-    lists[weekStart] = groceryList;
-    localStorage.setItem('mealzy_grocery_lists', JSON.stringify(lists));
-    cloudSave();
+    if (!groceryList) return;
+    setCachedDayList(selectedDay, groceryList);
   }
 
   function clearAll() {
@@ -732,21 +835,16 @@
   }
 
   async function generateGroceryList() {
+    const dayEntry = weekDates.find(d => d.dayName === selectedDay);
+    const dateStr = dayEntry ? dayEntry.date : new Date().toISOString().split('T')[0];
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-    const allMeals = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(weekStart);
-      d.setDate(d.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
-      if (plans[dateStr] && plans[dateStr].meals) {
-        allMeals.push(...plans[dateStr].meals);
-      }
-    }
+    const dayMeals = (plans[dateStr] && plans[dateStr].meals) ? plans[dateStr].meals : [];
 
-    if (allMeals.length === 0) {
-      const sampleList = getSampleGroceryList();
-      groceryList = sampleList;
+    if (dayMeals.length === 0) {
+      groceryList = getSampleGroceryList();
       saveLists();
+      availableDays.add(selectedDay);
+      renderDaySwitcher();
       renderGroceryList();
       updateProgress();
       showToast('Sample grocery list generated!', 'success');
@@ -759,23 +857,27 @@
       const response = await fetch('/api/generate-grocery-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, meals: allMeals, weekStart })
+        body: JSON.stringify({ profile, meals: dayMeals, weekStart, day: selectedDay, planId })
       });
       const data = await response.json();
       if (data.success && data.groceryList) {
         groceryList = data.groceryList;
+        if (data.planId) savePlanId(data.planId);
         saveLists();
+        availableDays.add(selectedDay);
+        renderDaySwitcher();
         renderGroceryList();
         updateProgress();
         showToast('Grocery list generated!', 'success');
       }
     } catch (err) {
-      const sampleList = getSampleGroceryList();
-      groceryList = sampleList;
+      groceryList = getSampleGroceryList();
       saveLists();
+      availableDays.add(selectedDay);
+      renderDaySwitcher();
       renderGroceryList();
       updateProgress();
-      showToast('Using sample list —� check server connection', 'error');
+      showToast('Using sample list — check server connection', 'error');
     } finally {
       document.getElementById('loadingOverlay').classList.remove('open');
       document.getElementById('generateBtn').disabled = false;

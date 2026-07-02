@@ -543,6 +543,10 @@ async function getGroceryListsForPlan(planId) {
   }));
 }
 
+async function deleteGroceryListForPlanDay(planId, day) {
+  await run('DELETE FROM grocery_lists WHERE plan_id = ? AND day = ?', [planId, day]);
+}
+
 async function getGroceryListByDay(planId, day) {
   const row = await get(
     'SELECT id, user_id, day, data, created_at FROM grocery_lists WHERE plan_id = ? AND day = ?',
@@ -601,7 +605,7 @@ module.exports = {
   // coach usage
   getCoachUsage, incrementCoachUsage,
   // grocery lists
-  saveGroceryList, getGroceryListsForPlan, getGroceryListByDay,
+  saveGroceryList, getGroceryListsForPlan, getGroceryListByDay, deleteGroceryListForPlanDay,
   // health
   ping,
 };
