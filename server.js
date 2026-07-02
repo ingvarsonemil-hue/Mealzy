@@ -1797,16 +1797,26 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
     // Save to DB server-side before responding so the plan is persisted even if
     // the client navigates away while this fetch is in-flight.
+    const planDate = date || new Date().toISOString().split('T')[0];
+    const planId   = randomUUID();
     if (session) {
       try {
-        const planDate = date || new Date().toISOString().split('T')[0];
-        await db.savePlan(randomUUID(), session.userId, { date: planDate, plan: mealPlan, savedAt: new Date().toISOString() });
+        await db.savePlan(planId, session.userId, { date: planDate, plan: mealPlan, savedAt: new Date().toISOString() });
       } catch (saveErr) {
         console.error('[generate-meal] DB save error (non-fatal):', saveErr);
       }
     }
 
     res.json({ success: true, date, mealPlan });
+
+    // Auto-generate and persist this day's grocery list in the background —
+    // fire-and-forget so it never slows down or fails the plan response.
+    if (session && mealPlan.meals?.length) {
+      const day = getDayNameFromDate(planDate);
+      generateGroceryListForMeals({ meals: mealPlan.meals, profile, weekStart: planDate, day })
+        .then(groceryList => db.saveGroceryList(randomUUID(), session.userId, planId, day, groceryList))
+        .catch(err => console.error('[generate-meal] grocery auto-generate error (non-fatal):', err));
+    }
 
   } catch(error) {
     console.error('Error generating meal plan:', error);
@@ -1832,33 +1842,120 @@ function parseJsonResponse(text) {
 // GROCERY LIST
 // ════════════════════════════════════════════════════════════════════════════
 
+/** Derive the weekday name (Monday..Sunday) from a YYYY-MM-DD date string. */
+function getDayNameFromDate(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00`);
+  if (isNaN(d.getTime())) return 'Unspecified';
+  return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+}
+
+/**
+ * Calls the AI to build a categorized grocery list for the given meals.
+ * When `day` is passed, every item is tagged with that single day (used by the
+ * per-day auto-generation flow). Otherwise the AI is asked to infer each
+ * item's day from context (used by the multi-day manual fallback).
+ */
+async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
+  const { budget = 100, currency = 'USD', dietaryPrefs = [], allergies = [], language: groceryLang = 'en' } = profile || {};
+  const langNames = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };
+  const langName  = langNames[groceryLang] || 'English';
+
+  const mealList    = meals.map(m => `- ${m.name} (${m.type})`).join('\n');
+  const allergyInfo = allergies.length > 0 ? `ALLERGY WARNING — never include: ${allergies.join(', ')}.` : '';
+  const prefInfo    = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}. All items must comply.` : '';
+  const dayLine     = day
+    ? `All these meals are for ${day}. Tag every item's "day" field as "${day}".`
+    : `Tag each item's "day" field with the day of the week (Monday..Sunday) it is needed for, inferred from the meal list order. If it can't be determined, use "Unspecified".`;
+  const exampleDay  = day || 'Monday';
+
+  const prompt = `Generate a complete grocery list for the following meals:\n\n${mealList}\n\n${prefInfo}\n${allergyInfo}\n${dayLine}\nBudget: ${currency} ${budget}. Keep total cost at or under this amount.\nWrite all ingredient names in ${langName}. JSON keys stay in English.\nConsolidate duplicate ingredients. Group by category.\n\nRespond ONLY with valid JSON:\n{\n  "weekStart": "${weekStart || ''}",\n  "totalCost": 85.50,\n  "budgetAmount": ${budget},\n  "currency": "${currency}",\n  "categories": {\n    "produce": [{ "name": "Spinach", "amount": "200g", "cost": 2.50, "checked": false, "day": "${exampleDay}" }],\n    "protein": [],\n    "dairy": [],\n    "grains": [],\n    "pantry": [],\n    "frozen": [],\n    "beverages": [],\n    "other": []\n  }\n}`;
+
+  const completion = await anthropic.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 2000,
+    system: 'You are a professional nutritionist. Always respond with valid JSON only, no markdown.',
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  return parseJsonResponse(completion.content[0].text);
+}
+
+/** Splits a categorized grocery list into one grocery-list object per day, keyed by day name. */
+function splitGroceryListByDay(groceryList) {
+  const byDay = {};
+  const categories = groceryList.categories || {};
+  for (const [catName, items] of Object.entries(categories)) {
+    for (const item of items || []) {
+      const day = item.day || 'Unspecified';
+      if (!byDay[day]) {
+        byDay[day] = { weekStart: groceryList.weekStart, currency: groceryList.currency, totalCost: 0, categories: {} };
+      }
+      if (!byDay[day].categories[catName]) byDay[day].categories[catName] = [];
+      byDay[day].categories[catName].push(item);
+      byDay[day].totalCost += Number(item.cost) || 0;
+    }
+  }
+  return byDay;
+}
+
 app.post('/api/generate-grocery-list', async (req, res) => {
   try {
     const { profile, meals, weekStart } = req.body;
     if (!meals || meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
 
-    const { budget = 100, currency = 'USD', dietaryPrefs = [], allergies = [], language: groceryLang = 'en' } = profile || {};
-    const langNames   = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };
-    const langName    = langNames[groceryLang] || 'English';
+    const groceryList = await generateGroceryListForMeals({ meals, profile, weekStart });
 
-    const mealList    = meals.map(m => `- ${m.name} (${m.type})`).join('\n');
-    const allergyInfo = allergies.length > 0 ? `ALLERGY WARNING — never include: ${allergies.join(', ')}.` : '';
-    const prefInfo    = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}. All items must comply.` : '';
+    const session = getSessionFromReq(req);
+    let planId;
+    if (session) {
+      try {
+        planId = randomUUID();
+        const byDay = splitGroceryListByDay(groceryList);
+        await Promise.all(Object.entries(byDay).map(([day, dayList]) =>
+          db.saveGroceryList(randomUUID(), session.userId, planId, day, dayList)
+        ));
+      } catch (saveErr) {
+        console.error('[generate-grocery-list] DB save error (non-fatal):', saveErr);
+      }
+    }
 
-    const prompt = `Generate a complete grocery list for the following weekly meals:\n\n${mealList}\n\n${prefInfo}\n${allergyInfo}\nWeekly budget: ${currency} ${budget}. Keep total cost at or under this amount.\nWrite all ingredient names in ${langName}. JSON keys stay in English.\nConsolidate duplicate ingredients. Group by category.\n\nRespond ONLY with valid JSON:\n{\n  "weekStart": "${weekStart}",\n  "totalCost": 85.50,\n  "budgetAmount": ${budget},\n  "currency": "${currency}",\n  "categories": {\n    "produce": [{ "name": "Spinach", "amount": "200g", "cost": 2.50, "checked": false }],\n    "protein": [],\n    "dairy": [],\n    "grains": [],\n    "pantry": [],\n    "frozen": [],\n    "beverages": [],\n    "other": []\n  }\n}`;
-
-    const completion = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
-      system: 'You are a professional nutritionist. Always respond with valid JSON only, no markdown.',
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    const groceryList = parseJsonResponse(completion.content[0].text);
-    res.json({ success: true, groceryList });
+    res.json({ success: true, groceryList, ...(planId ? { planId } : {}) });
 
   } catch(error) {
     console.error('Error generating grocery list:', error);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// GET /api/grocery-list/:planId/days — available days for the day-switcher UI
+// (registered before the /:day route below — otherwise Express would match "days" as a day value)
+app.get('/api/grocery-list/:planId/days', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  try {
+    const lists = await db.getGroceryListsForPlan(req.params.planId);
+    if (lists.length > 0 && lists[0].userId !== session.userId) {
+      return res.status(404).json({ error: 'not_found' });
+    }
+    res.json({ success: true, days: lists.map(l => l.day) });
+  } catch(err) {
+    console.error('[grocery-list] days fetch error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// GET /api/grocery-list/:planId/:day
+app.get('/api/grocery-list/:planId/:day', async (req, res) => {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  try {
+    const groceryList = await db.getGroceryListByDay(req.params.planId, req.params.day);
+    if (!groceryList || groceryList.userId !== session.userId) {
+      return res.status(404).json({ error: 'not_found' });
+    }
+    res.json({ success: true, groceryList });
+  } catch(err) {
+    console.error('[grocery-list] fetch error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });

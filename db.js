@@ -101,6 +101,14 @@ async function _applySchema() {
       count    INTEGER NOT NULL DEFAULT 0,
       PRIMARY KEY (user_id, date)
     )`,
+    `CREATE TABLE IF NOT EXISTS grocery_lists (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      plan_id    TEXT NOT NULL,
+      day        TEXT NOT NULL,
+      data       TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`,
   ];
 
   for (const sql of tables) {
@@ -512,6 +520,46 @@ async function incrementCoachUsage(userId) {
   );
 }
 
+// ── Grocery lists ─────────────────────────────────────────────────────────────
+
+async function saveGroceryList(id, userId, planId, day, groceryListObj) {
+  await run(
+    `INSERT INTO grocery_lists (id, user_id, plan_id, day, data) VALUES (?, ?, ?, ?, ?)`,
+    [id, userId, planId, day, JSON.stringify(groceryListObj)]
+  );
+}
+
+async function getGroceryListsForPlan(planId) {
+  const rows = await all(
+    'SELECT id, user_id, day, data, created_at FROM grocery_lists WHERE plan_id = ? ORDER BY created_at ASC',
+    [planId]
+  );
+  return rows.map(r => ({
+    id:        r.id,
+    userId:    r.user_id,
+    day:       r.day,
+    createdAt: r.created_at,
+    ...(() => { try { return JSON.parse(r.data); } catch(e) { return {}; } })(),
+  }));
+}
+
+async function getGroceryListByDay(planId, day) {
+  const row = await get(
+    'SELECT id, user_id, day, data, created_at FROM grocery_lists WHERE plan_id = ? AND day = ?',
+    [planId, day]
+  );
+  if (!row) return null;
+  let parsed = {};
+  try { parsed = JSON.parse(row.data); } catch(e) {}
+  return {
+    id:        row.id,
+    userId:    row.user_id,
+    day:       row.day,
+    createdAt: row.created_at,
+    ...parsed,
+  };
+}
+
 // ── Health ────────────────────────────────────────────────────────────────────
 
 async function ping() {
@@ -552,6 +600,8 @@ module.exports = {
   saveRecipe, getRecipes,
   // coach usage
   getCoachUsage, incrementCoachUsage,
+  // grocery lists
+  saveGroceryList, getGroceryListsForPlan, getGroceryListByDay,
   // health
   ping,
 };
