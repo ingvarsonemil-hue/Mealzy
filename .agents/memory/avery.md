@@ -30,3 +30,10 @@ Running accuracy: no data yet
 - **200 plans/month identified as early-warning horizon** for cost monitoring — not close, but should be noted in the first report after any growth event (launch, Product Hunt, etc.).
 - **Two items still unresolved entering fourth week:** (1) Turso vs. sql.js stack confirmation with Morgan — affects database resilience assessment. (2) Keep-alive ping / cold start mitigation — unverified as active for third consecutive week. Both must be addressed in Monday's full weekly report — this is now overdue.
 - **No incidents, no deploys, no downtime this week.** Server health confirmed ok at 2026-06-26T10:26:13 UTC. Friday was clean.
+
+## 2026-07-03
+- **2026-07-03 (Friday):** Fourth consecutive weekly Anthropic cost review. Estimated weekly cost: $0.04–$0.18. Monthly trajectory <$1. No Quinn flag. Baseline remains stable with 1 active Pro user.
+- **TEAM.md data is stale** — last updated 2026-05-28. Plan count of "17" is five weeks old. Emil needs to update TEAM.md; until then, Anthropic cost estimates carry uncertainty. Flag this to Emil Monday.
+- **Four-week cost baseline now established:** flat, minimal, no anomalies across all four observations. 200 plans/month remains the early-warning horizon to call out after any growth event.
+- **Two items now entering critical status** — Turso vs. sql.js stack confirmation and keep-alive ping verification have both been deferred four consecutive Fridays. Both must be resolved in Monday's full weekly report, not noted as pending again. If Morgan cannot confirm the stack, escalate to Drew.
+- **First full weekly infrastructure report due Monday 2026-07-07** — will include uptime %, cold start status, PageSpeed score, Render metrics, and the first Reflexion Protocol evaluation score. Both open items must be resolved within that report.
