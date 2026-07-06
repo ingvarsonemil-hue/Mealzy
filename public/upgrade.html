@@ -1,147 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
-  <meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $8/month billed yearly ($96/year). Cancel anytime." />
-  <!-- Mealzy Design System -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
+<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $8/month billed yearly ($96/year). Cancel anytime.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3d2b">
+<meta property="og:title" content="Upgrade to Mealzy Pro">
+<meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $8/month billed yearly ($96/year). Cancel anytime.">
+<link rel="canonical" href="https://mealzy.org/upgrade.html">
+<meta property="og:url" content="https://mealzy.org/upgrade.html">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<script src="/stripe-config.js" defer></script>
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#1a3d2b">
-  <meta property="og:title" content="Upgrade to Mealzy Pro">
-  <meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $8/month billed yearly ($96/year). Cancel anytime.">
-  <link rel="canonical" href="https://mealzy.org/upgrade.html">
-  <meta property="og:url" content="https://mealzy.org/upgrade.html">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <script src="/stripe-config.js" defer></script>
-  <script>if(localStorage.getItem('mealzy_theme')==='dark')document.documentElement.setAttribute('data-theme','dark');</script>
-  <style>
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    body { background: var(--color-forest); }
-    .upgrade-wrap { max-width: 560px; margin: 0 auto; padding: 0 1.5rem 2rem; }
-    @media (prefers-reduced-motion: no-preference) {
-      .upgrade-hero  { animation: fadeInUp 0.32s ease both; animation-delay: 0.05s; }
-      .toggle-wrap   { animation: fadeInUp 0.32s ease both; animation-delay: 0.12s; }
-      .upgrade-card  { animation: fadeInUp 0.36s ease both; animation-delay: 0.20s; }
-    }
-    /* ── HERO ── */
-    .upgrade-hero-section {
-      background: var(--color-forest);
-      padding-top: 48px;
-      padding-bottom: 48px;
-      /* full-bleed breakout from the constrained container */
-      width: 100vw;
-      position: relative;
-      left: 50%;
-      margin-left: -50vw;
-      margin-right: -50vw;
-      padding-left: max(1.5rem, calc(50% - 280px));
-      padding-right: max(1.5rem, calc(50% - 280px));
-      box-sizing: border-box;
-    }
-    .upgrade-hero { text-align: center; margin-bottom: 2.5rem; }
-    .upgrade-hero h1 { font-family: var(--font-display); font-style: italic; font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.75rem; color: var(--clr-on-primary); }
-    .upgrade-hero p { font-size: 1rem; color: rgba(255,255,255,0.82); max-width: 440px; margin: 0 auto; line-height: 1.65; }
-    /* toggle labels white inside dark hero */
-    .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1.5rem; font-size: 0.88rem; }
-    .toggle-wrap .billing-label { color: rgba(255,255,255,0.65); cursor: pointer; transition: color 0.15s; }
-    .toggle-wrap .billing-label.active { color: white; font-weight: 700; }
-    .save-badge { background: rgba(74,222,128,0.18); color: var(--clr-brand-light, #4ade80); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 2rem; border: 1px solid rgba(74,222,128,0.35); }
-    /* ── PRICING CARD ── */
-    .upgrade-card { background: var(--clr-surface); color: var(--color-forest); border: 1px solid var(--clr-border); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-xl); }
-    .price-display { text-align: center; margin-bottom: 1.5rem; }
-    .price-amount { font-size: 3rem; font-weight: 900; color: var(--clr-foreground); line-height: 1; }
-    .price-period { font-size: 1rem; color: var(--clr-muted-fg); }
-    .price-annual { font-size: 0.85rem; color: var(--clr-muted-fg); margin-top: 0.25rem; }
-    .features-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
-    .features-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; }
-    .features-list .check { color: var(--color-green); font-weight: 900; flex-shrink: 0; margin-top: 0.1rem; }
-    .features-list .label { font-weight: 600; color: var(--clr-foreground); }
-    .features-list .desc { color: var(--clr-muted-fg); font-size: 0.83rem; margin-top: 0.1rem; }
-    .upgrade-cta-btn { display: block; width: 100%; background: var(--color-green); color: white; text-align: center; padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 1rem; text-decoration: none; border: none; cursor: pointer; box-shadow: var(--shadow-button); transition: transform 0.15s, box-shadow 0.15s; margin-bottom: 0.6rem; box-sizing: border-box; }
-    .upgrade-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px hsl(152,52%,36%,0.4); }
-    /* ── TRUST LINE ── */
-    .guarantee { font-size: 13px; color: var(--clr-muted-fg); text-align: center; margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
-    /* ── CARD HEADER ── */
-    .upgrade-card-header { background: var(--color-forest); padding: 16px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; text-align: center; color: var(--clr-on-primary); font-size: 11px; letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; margin: -2rem -2rem 1.5rem -2rem; }
-    /* ── OBJECTION LIST ── */
-    .objection-list { margin-top: 2rem; background: var(--color-forest); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 0.75rem; }
-    .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.6rem 0.75rem; background: var(--clr-surface-subtle); border-radius: 8px; color: rgba(255,255,255,0.8); }
-    .objection strong { color: white; }
-    .objection-icon { flex-shrink: 0; font-size: 1rem; }
-    /* ── COMPARE TABLE ── */
-    .compare-table tbody tr:nth-child(odd)  { background: transparent; }
-    .compare-table tbody tr:nth-child(even) { background: transparent; }
-    .compare-table thead tr { background: var(--color-forest) !important; }
-    .compare-table thead th { color: white !important; }
-    .compare-table thead th.pro-col { color: var(--clr-brand-light, #4ade80) !important; }
-    .compare-check { color: var(--color-green); font-weight: 700; }
-    .compare-x { color: rgba(255,255,255,0.5); font-size: 1.1rem; }
-    /* ── BACK LINK ── */
-    .back-link { text-align: center; margin-top: 2rem; font-size: 0.85rem; }
-    .back-link a { color: var(--clr-muted-fg); text-decoration: none; }
-    .back-link a:hover { color: var(--clr-foreground); }
-    /* ── SKIP LINK ── */
-    .skip-link { position:absolute; top:-40px; left:0; background:var(--color-green); color:#fff; padding:8px 16px; z-index:9999; border-radius:0 0 4px 0; }
-    .skip-link:focus { top:0; }
-    /* Dark mode toggle */
-    .theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); border-radius: 999px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.7); transition: all 0.15s; flex-shrink: 0; }
-    .theme-toggle:hover { border-color: white; color: white; }
-    [data-theme="light"] .icon-moon { display: none; }
-    [data-theme="dark"] .icon-sun { display: none; }
-    @media (prefers-reduced-motion: reduce) {
-      #abandonPopup, #abandonOffer, [id*="abandon"], [id*="popup"] { animation: none !important; }
-    }
-    .upgrade-nav { position: relative; background: var(--color-forest); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
-  </style>
-  <link rel="stylesheet" href="style.css">
-<script src="/js/theme-init.js"></script>
-  <link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/funnel.css">
+<style>
+  /* Upgrade page — forest drench with a single decision card */
+  body.upgrade-page { background: var(--color-forest); background-image: linear-gradient(175deg, var(--color-forest) 55%, var(--color-forest-deep) 100%); }
+  .upgrade-wrap { max-width: 580px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+  .upgrade-hero { text-align: center; padding: 2.5rem 0 2rem; color: var(--clr-on-forest-strong); }
+  .upgrade-hero h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.12; color: var(--clr-on-forest); margin-bottom: 0.75rem; }
+  .upgrade-hero p { font-size: 1rem; color: var(--clr-on-forest-body); max-width: 44ch; margin: 0 auto; }
+  .toggle-row { display: flex; justify-content: center; margin: 1.75rem 0; }
+  .save-badge { background: var(--clr-forest-raise); color: var(--color-green-light); font-size: 0.72rem; font-weight: 700; padding: 0.1rem 0.5rem; border-radius: var(--radius-full); margin-left: 0.3rem; }
+  .upgrade-card { background: var(--clr-surface); color: var(--color-foreground); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-modal); }
+  .price-display { text-align: center; margin-bottom: 1.5rem; }
+  .price-amount { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 3rem; line-height: 1; }
+  .price-period { font-size: 1rem; color: var(--color-muted-fg); }
+  .price-annual { font-size: 0.85rem; color: var(--color-muted-fg); margin-top: 0.35rem; min-height: 1.2em; }
+  .features-list { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.85rem; }
+  .features-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; }
+  .features-list svg { color: var(--color-green); flex-shrink: 0; margin-top: 0.1rem; }
+  .features-list .label { font-weight: 600; }
+  .features-list .desc { color: var(--color-muted-fg); font-size: 0.83rem; margin-top: 0.1rem; }
+  .guarantee-line { font-size: 0.8rem; color: var(--color-muted-fg); text-align: center; margin-top: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+  .objections { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.85rem 1rem; background: var(--clr-forest-raise); border: 1px solid var(--clr-forest-line); border-radius: var(--radius-md); color: var(--clr-on-forest-body); }
+  .objection svg { color: var(--color-green-light); flex-shrink: 0; margin-top: 0.15rem; }
+  .objection strong { color: var(--clr-on-forest); }
+  .upgrade-panel { background: var(--clr-surface); color: var(--color-foreground); border-radius: var(--radius-lg); padding: 1.5rem; margin-top: 2.5rem; }
+  .upgrade-panel h3 { font-size: 1.15rem; margin-bottom: 1rem; }
+  .offer-box { display: none; margin-top: 2rem; padding: 1.5rem; background: var(--clr-forest-raise); border: 1px solid var(--clr-forest-line); border-radius: var(--radius-lg); text-align: center; position: relative; color: var(--clr-on-forest-body); }
+  .offer-box .badge { background: var(--color-green); color: var(--clr-on-primary); margin-bottom: 0.6rem; }
+  .back-row { text-align: center; margin-top: 2.5rem; font-size: 0.85rem; color: var(--clr-on-forest-muted); }
+  .back-row a { color: var(--clr-on-forest-body); text-decoration: none; }
+  .back-row a:hover { color: var(--clr-on-forest); }
+  @media (prefers-reduced-motion: reduce) { .offer-box { animation: none !important; } }
+</style>
 </head>
-<body>
+<body class="upgrade-page">
 <a href="#main" class="skip-link">Skip to main content</a>
-<nav class="nav upgrade-nav" aria-label="Main navigation">
-  <a href="/" style="font-family:var(--font-display);font-size:20px;font-weight:900;font-style:italic;color:var(--clr-on-primary);text-decoration:none;">Mealzy</a>
-  <div style="display:flex;align-items:center;gap:1rem;">
-    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
-      <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
-    <a href="/dashboard.html" style="font-size:14px;color:rgba(255,255,255,0.7);">← Back to dashboard</a>
+
+<nav class="nav-fixed nav-solid on-forest" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo-text" aria-label="Mealzy home">Mealzy</a>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a href="/dashboard.html" class="btn btn-quiet btn-sm">Back to dashboard</a>
+    </div>
   </div>
 </nav>
-<main id="main" class="upgrade-wrap">
 
-  <!-- Hero -->
-  <div class="upgrade-hero-section">
-    <div class="upgrade-hero">
-      <h1>Unlock the full Mealzy experience</h1>
-      <p>You've seen how fast it works. Pro removes all limits — and adds features that make it genuinely better every week.</p>
+<main id="main" class="upgrade-wrap" style="padding-top:5.5rem;">
+
+  <div class="upgrade-hero on-forest">
+    <h1>Unlock the full Mealzy experience.</h1>
+    <p>You've seen how fast it works. Pro removes all limits — and adds features that make it genuinely better every week.</p>
+    <div class="toggle-row">
+      <div class="billing-toggle" id="billingToggleWrap" role="group" aria-label="Billing period">
+        <button type="button" id="lblMonthly" onclick="setMode('monthly')" aria-pressed="false">Monthly</button>
+        <button type="button" class="active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Yearly<span class="save-badge">Save 33%</span></button>
+      </div>
     </div>
-
-    <!-- Billing toggle -->
-    <div class="toggle-wrap" id="billingToggleWrap" role="group" aria-label="Billing period">
-    <button type="button" class="billing-label" id="lblMonthly" onclick="setMode('monthly')" aria-pressed="false">Monthly</button>
-    <button type="button" id="billingToggleBtn" aria-hidden="true" aria-label="Toggle billing period" style="position:relative;width:44px;height:24px;background:rgba(255,255,255,0.25);border-radius:2rem;cursor:pointer;flex-shrink:0;border:none;padding:0;" onclick="setMode(billingMode==='monthly'?'yearly':'monthly')">
-      <div id="toggleDot" style="position:absolute;top:3px;left:23px;width:18px;height:18px;background:white;border-radius:50%;transition:left 0.2s;"></div>
-    </button>
-    <button type="button" class="billing-label active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Yearly <span class="save-badge">Save 33%</span></button>
   </div>
 
-  </div><!-- /upgrade-hero-section -->
-
-  <!-- Upgrade card -->
   <div class="upgrade-card">
-    <div class="upgrade-card-header">Most Popular</div>
+    <div style="text-align:center;margin-bottom:1rem;"><span class="badge badge-green">Most popular</span></div>
     <div class="price-display">
       <div>
         <span class="price-amount" id="upgrPrice">$8</span>
@@ -151,156 +97,84 @@
     </div>
 
     <ul class="features-list">
-      <li>
-        <span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div>
-          <div class="label">Unlimited AI meal plans</div>
-          <div class="desc">Generate as many times as you want. Every week, every diet change, every goal shift.</div>
-        </div>
-      </li>
-      <li>
-        <span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div>
-          <div class="label">PDF export — download &amp; print</div>
-          <div class="desc">Export your full meal plan and grocery list as a clean PDF. Print it, share it, save it.</div>
-        </div>
-      </li>
-      <li>
-        <span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div>
-          <div class="label">Unlimited AI coaching with Mia</div>
-          <div class="desc">Ask anything, any time. Recipe help, macro questions, what to do with leftovers.</div>
-        </div>
-      </li>
-      <li>
-        <span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div>
-          <div class="label">Priority generation — 2× faster</div>
-          <div class="desc">Pro requests jump the queue. Your plan is ready in about 15 seconds.</div>
-        </div>
-      </li>
-      <li>
-        <span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div>
-          <div class="label">Advanced macros per meal</div>
-          <div class="desc">See protein, carbs, and fat broken down for every individual meal — not just daily totals.</div>
-        </div>
-      </li>
-      <li>
-        <span class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <div>
-          <div class="label">Cancel any time, instantly</div>
-          <div class="desc">One click in your billing portal. No emails, no questions. Pro access continues until period end.</div>
-        </div>
-      </li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Unlimited AI meal plans</div><div class="desc">Generate as many times as you want. Every week, every diet change, every goal shift.</div></div></li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">PDF export — download &amp; print</div><div class="desc">Export your full meal plan and grocery list as a clean PDF. Print it, share it, save it.</div></div></li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Unlimited AI coaching with Mia</div><div class="desc">Ask anything, any time. Recipe help, macro questions, what to do with leftovers.</div></div></li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Priority generation — 2x faster</div><div class="desc">Pro requests jump the queue. Your plan is ready in about 15 seconds.</div></div></li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Advanced macros per meal</div><div class="desc">See protein, carbs, and fat broken down for every individual meal — not just daily totals.</div></div></li>
+      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Cancel any time, instantly</div><div class="desc">One click in your billing portal. No emails, no questions. Pro access continues until period end.</div></div></li>
     </ul>
 
-    <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" class="upgrade-cta-btn" onclick="trackUpgrade()">
-      Start Pro Annual — 7 Days Free →
-    </a>
-    <p class="guarantee">
+    <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-full" onclick="trackUpgrade()">Start Pro Annual — 7 Days Free</a>
+    <p class="guarantee-line">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       7-day free trial. No charge for 7 days. Cancel before then and you owe nothing.
     </p>
   </div>
 
-  <!-- Objection handling -->
-  <div class="objection-list">
-    <div class="objection">
-      <span class="objection-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--clr-primary);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-      <div><strong>What if I don't like it?</strong> Cancel in one click from your billing portal. You keep Pro until your period ends. We've made it as easy to cancel as it is to sign up.</div>
-    </div>
-    <div class="objection">
-      <span class="objection-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--clr-primary);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-      <div><strong>Is my card safe?</strong> All payments go through Stripe — the same processor used by Amazon and Google. We never see your card number.</div>
-    </div>
-    <div class="objection">
-      <span class="objection-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--clr-primary);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-      <div><strong>Will the price go up?</strong> Not for you — current subscribers lock in today's price. We may raise prices for new users as we grow.</div>
-    </div>
+  <div class="objections on-forest">
+    <div class="objection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>What if I don't like it?</strong> Cancel in one click from your billing portal. You keep Pro until your period ends. We've made it as easy to cancel as it is to sign up.</div></div>
+    <div class="objection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Is my card safe?</strong> All payments go through Stripe — the same processor used by Amazon and Google. We never see your card number.</div></div>
+    <div class="objection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Will the price go up?</strong> Not for you — current subscribers lock in today's price. We may raise prices for new users as we grow.</div></div>
   </div>
 
-  <p style="text-align:center; color: var(--clr-muted-fg); font-size: 0.95rem; padding: 2rem 0;">
-    7-day free trial. No credit card required. Cancel any time.
-  </p>
-
-  <!-- Comparison table: Free vs Pro vs Family -->
-  <div style="margin-top:2.5rem;">
-    <h3 style="font-weight:800;margin-bottom:1rem;font-size:1rem;">Compare plans</h3>
-    <div style="overflow-x:auto;">
-      <table class="compare-table" style="width:100%;border-collapse:collapse;font-size:0.85rem;">
-        <thead>
-          <tr>
-            <th style="padding:0.7rem 0.85rem;text-align:left;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid rgba(255,255,255,0.15);">Feature</th>
-            <th style="padding:0.7rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.15);font-size:0.82rem;">Free</th>
-            <th class="pro-col" style="padding:0.7rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.15);font-size:0.82rem;">Pro</th>
-            <th style="padding:0.7rem;text-align:center;border-bottom:1px solid rgba(255,255,255,0.15);font-size:0.82rem;">Family</th>
-          </tr>
-        </thead>
+  <div class="upgrade-panel">
+    <h3>Compare plans</h3>
+    <div class="comp-scroll">
+      <table class="comp-table" aria-label="Feature comparison" style="min-width:480px;">
+        <thead><tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col" class="pro-col">Pro</th><th scope="col">Family</th></tr></thead>
         <tbody>
-          <tr><td style="padding:0.65rem 0.85rem;border-bottom:1px solid var(--clr-border);">Meal plans/month</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);">3</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;" class="compare-check">Unlimited</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;">Unlimited</td></tr>
-          <tr><td style="padding:0.65rem 0.85rem;border-bottom:1px solid var(--clr-border);">AI Coach messages/day</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);">10</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;" class="compare-check">Unlimited</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;">Unlimited</td></tr>
-          <tr><td style="padding:0.65rem 0.85rem;border-bottom:1px solid var(--clr-border);">PDF export</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);"><span style="color: var(--clr-muted-fg); font-size: 0.85rem;">✕</span></td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;" class="compare-check">✓</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;">✓</td></tr>
-          <tr><td style="padding:0.65rem 0.85rem;border-bottom:1px solid var(--clr-border);">Individual profiles</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);">1</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;" class="compare-check">1</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);font-weight:700;">Up to 4</td></tr>
-          <tr><td style="padding:0.65rem 0.85rem;border-bottom:1px solid var(--clr-border);">Combined grocery list</td><td style="text-align:center;border-bottom:1px solid var(--clr-border);"><span style="color: var(--clr-muted-fg); font-size: 0.85rem;">✕</span></td><td style="text-align:center;border-bottom:1px solid var(--clr-border);"><span style="color: var(--clr-muted-fg); font-size: 0.85rem;">✕</span></td><td style="text-align:center;border-bottom:1px solid var(--clr-border);color:var(--clr-primary);font-weight:700;">✓</td></tr>
-          <tr><td style="padding:0.65rem 0.85rem;">Priority support</td><td style="text-align:center;"><span style="color: var(--clr-muted-fg); font-size: 0.85rem;">✕</span></td><td style="text-align:center;">Email</td><td style="text-align:center;color:var(--clr-primary);font-weight:700;">Priority</td></tr>
+          <tr><td>Meal plans/month</td><td>3</td><td class="pro-val">Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>AI Coach messages/day</td><td>10</td><td class="pro-val">Unlimited</td><td>Unlimited</td></tr>
+          <tr><td>PDF export</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td class="pro-val"><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
+          <tr><td>Individual profiles</td><td>1</td><td class="pro-val">1</td><td>Up to 4</td></tr>
+          <tr><td>Combined grocery list</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td class="pro-val"><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
+          <tr><td>Priority support</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td>Email</td><td class="pro-val">Priority</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- FAQ -->
-  <div style="margin-top:2.5rem;">
-    <h3 style="font-weight:800;margin-bottom:1rem;font-size:1rem;">Common questions</h3>
-    <div style="display:flex;flex-direction:column;gap:0.75rem;">
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1rem 1.25rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.9rem;list-style:none;display:flex;justify-content:space-between;">
-          What happens to my data if I cancel? <span style="color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.6rem;font-size:0.85rem;color:var(--clr-muted-fg);line-height:1.65;">Your account stays. Your meal history stays. You just go back to 3 free plans per month. Nothing is deleted. You can re-upgrade any time.</p>
+  <div class="upgrade-panel">
+    <h3>Common questions</h3>
+    <div class="faq-details" style="margin-top:0;">
+      <details>
+        <summary>What happens to my data if I cancel?</summary>
+        <p>Your account stays. Your meal history stays. You just go back to 3 free plans per month. Nothing is deleted. You can re-upgrade any time.</p>
       </details>
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1rem 1.25rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.9rem;list-style:none;display:flex;justify-content:space-between;">
-          Is there a contract or minimum commitment? <span style="color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.6rem;font-size:0.85rem;color:var(--clr-muted-fg);line-height:1.65;">No. Cancel any time from your billing portal — one click, no questions asked. You keep Pro access until the end of your current billing period.</p>
+      <details>
+        <summary>Is there a contract or minimum commitment?</summary>
+        <p>No. Cancel any time from your billing portal — one click, no questions asked. You keep Pro access until the end of your current billing period.</p>
       </details>
-      <details style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:1rem 1.25rem;cursor:pointer;">
-        <summary style="font-weight:600;font-size:0.9rem;list-style:none;display:flex;justify-content:space-between;">
-          Do you store my payment details? <span style="color:var(--clr-primary);">+</span>
-        </summary>
-        <p style="margin-top:0.6rem;font-size:0.85rem;color:var(--clr-muted-fg);line-height:1.65;">No. Payments go through Stripe — the same processor used by Amazon and Google. We never see your card number, expiry date, or CVV.</p>
+      <details>
+        <summary>Do you store my payment details?</summary>
+        <p>No. Payments go through Stripe — the same processor used by Amazon and Google. We never see your card number, expiry date, or CVV.</p>
       </details>
     </div>
   </div>
 
   <!-- Abandonment offer (shown after 45s if user hasn't clicked CTA) -->
-  <div id="abandonOffer" role="dialog" aria-modal="true" aria-labelledby="abandonOfferId" aria-hidden="true" style="display:none;margin-top:2rem;padding:1.5rem;background:var(--color-forest);border-radius:0.75rem;text-align:center;position:relative;">
-    <button onclick="closeAbandonOffer()" aria-label="Close offer" style="position:absolute;top:0.6rem;right:0.75rem;background:none;border:none;cursor:pointer;font-size:1.1rem;color:rgba(255,255,255,0.6);line-height:1;">&times;</button>
-    <div style="font-size:0.72rem;font-weight:800;color:var(--clr-brand-light,#4ade80);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.35rem;">FIRST MONTH OFFER</div>
-    <div id="abandonOfferId" style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;color:var(--clr-on-primary);">Get your first month for $4</div>
-    <p style="font-size:0.84rem;color:rgba(255,255,255,0.8);margin-bottom:0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
-    <a id="discountOfferBtn" href="#" onclick="window.location.href=window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY;trackUpgrade('abandon_offer');return false;" style="display:inline-block;background:var(--clr-brand-light,#4ade80);color:var(--color-forest);padding:0.7rem 1.5rem;border-radius:0.5rem;font-weight:700;text-decoration:none;font-size:0.9rem;" onmouseover="this.style.background='#22c55e'" onmouseout="this.style.background='var(--clr-brand-light)'">
-      Get first month for $4 →
-    </a>
+  <div id="abandonOffer" class="offer-box on-forest" role="dialog" aria-modal="true" aria-labelledby="abandonOfferId" aria-hidden="true">
+    <button onclick="closeAbandonOffer()" aria-label="Close offer" style="position:absolute;top:0.6rem;right:0.75rem;background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--clr-on-forest-muted);line-height:1;">&times;</button>
+    <span class="badge badge-green">First month offer</span>
+    <div id="abandonOfferId" style="font-weight:700;font-size:1rem;margin:0.4rem 0;color:var(--clr-on-forest);">Get your first month for $4</div>
+    <p style="font-size:0.84rem;margin:0 auto 0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
+    <a id="discountOfferBtn" href="#" class="btn btn-primary" onclick="window.location.href=window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY;trackUpgrade('abandon_offer');return false;">Get first month for $4</a>
   </div>
 
-  <div class="back-link">
-    <a href="dashboard.html">← Stay on free plan</a>
-    <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--clr-muted-fg);">
-      Questions? <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a> — usually replied to within 24 hours.
-    </p>
+  <div class="back-row on-forest">
+    <a href="dashboard.html">Stay on free plan</a>
+    <p style="margin-top:0.75rem;font-size:0.82rem;">Questions? <a href="mailto:support@mealzy.org">support@mealzy.org</a> — usually replied to within 24 hours.</p>
   </div>
 
 </main>
 
 <script>
-  function toggleTheme() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('mealzy_theme', next);
-  }
+  document.getElementById('themeToggle').addEventListener('click', function () {
+    const next = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('mealzy_theme', next); } catch (e) {}
+  });
 
   if (window.amplitude && localStorage.getItem('mealzy_user') && localStorage.getItem('mealzy_pro') !== 'true') {
     amplitude.track('Upgrade Page Viewed', { page: 'upgrade' });
@@ -312,36 +186,33 @@
   // If no annual Stripe link is configured, hide the annual option entirely
   let billingMode = STRIPE_YEARLY ? 'yearly' : 'monthly';
   if (!STRIPE_YEARLY) {
-    document.querySelector('.toggle-wrap').style.display = 'none';
+    document.getElementById('billingToggleWrap').style.display = 'none';
     document.getElementById('upgrPrice').textContent = '$12';
     document.getElementById('upgrBilled').textContent = '';
     document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
-    document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
+    document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free';
   } else {
     document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
   }
 
   function setMode(mode) {
-    if (mode === 'yearly' && !STRIPE_YEARLY) return; // guard — should not be reachable
+    if (mode === 'yearly' && !STRIPE_YEARLY) return;
     billingMode = mode;
-    const dot = document.getElementById('toggleDot');
     document.getElementById('lblMonthly').classList.toggle('active', mode === 'monthly');
     document.getElementById('lblYearly').classList.toggle('active', mode === 'yearly');
+    document.getElementById('lblMonthly').setAttribute('aria-pressed', mode === 'monthly' ? 'true' : 'false');
+    document.getElementById('lblYearly').setAttribute('aria-pressed', mode === 'yearly' ? 'true' : 'false');
     if (mode === 'yearly') {
-      dot.style.left = '23px';
       document.getElementById('upgrPrice').textContent = '$8';
       document.getElementById('upgrBilled').textContent = 'Billed $96/year — saves $48';
       document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
-      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free →';
+      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free';
     } else {
-      dot.style.left = '3px';
       document.getElementById('upgrPrice').textContent = '$12';
       document.getElementById('upgrBilled').textContent = '';
       document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
-      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free →';
+      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free';
     }
-    document.getElementById('lblMonthly').setAttribute('aria-pressed', mode === 'monthly' ? 'true' : 'false');
-    document.getElementById('lblYearly').setAttribute('aria-pressed', mode === 'yearly' ? 'true' : 'false');
   }
 
   function trackUpgrade(source) {
