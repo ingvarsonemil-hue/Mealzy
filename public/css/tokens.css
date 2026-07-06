@@ -108,6 +108,19 @@
   --clr-info:          hsl(200,100%,50%); /* Carbs ring, info blue */
   --clr-accent:        hsl(260,60%,55%); /* Fat ring, purple accent */
 
+  /* On-forest palette — text and surfaces layered on --color-forest drench sections */
+  --clr-on-forest:        #ffffff;
+  --clr-on-forest-strong: rgba(255,255,255,0.93);
+  --clr-on-forest-body:   rgba(255,255,255,0.80);
+  --clr-on-forest-muted:  rgba(255,255,255,0.58);
+  --clr-on-forest-faint:  rgba(255,255,255,0.32);
+  --clr-forest-raise:     rgba(255,255,255,0.07);
+  --clr-forest-line:      rgba(255,255,255,0.15);
+  --color-forest-deep:    #12291d;
+  --clr-green-deep:       #2d6e4a;
+  --clr-green-glow:       rgba(74,222,128,0.45);
+  --clr-scrim:            rgba(10,20,14,0.6);
+
   /* Animation */
   --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
