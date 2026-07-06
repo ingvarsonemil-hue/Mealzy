@@ -40,6 +40,8 @@ jobs:
         with: { name: alex-tue, path: .agents/outputs/*alex* }
 
   avery:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Avery — PageSpeed
     runs-on: ubuntu-latest
     steps:
@@ -144,6 +146,8 @@ jobs:
         with: { name: taylor-tue, path: .agents/outputs/*taylor* }
 
   culinary-critic:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Culinary Critic — Description Audit
     runs-on: ubuntu-latest
     steps:

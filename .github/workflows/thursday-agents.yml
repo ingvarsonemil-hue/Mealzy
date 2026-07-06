@@ -83,6 +83,8 @@ jobs:
           file_pattern: ".agents/outputs/*harper* .agents/memory/harper.md"
 
   jordan:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Jordan — Email
     runs-on: ubuntu-latest
     steps:
@@ -125,6 +127,8 @@ jobs:
           file_pattern: ".agents/outputs/*maya* .agents/memory/maya.md"
 
   riley:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Riley — Funnel Report
     runs-on: ubuntu-latest
     steps:
@@ -145,6 +149,8 @@ jobs:
           file_pattern: ".agents/outputs/*riley* .agents/memory/riley.md"
 
   cs:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: CS — Retention Report
     runs-on: ubuntu-latest
     needs: [riley]

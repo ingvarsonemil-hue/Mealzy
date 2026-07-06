@@ -33,7 +33,8 @@ jobs:
 
   cs:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 15 * * 4'
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
