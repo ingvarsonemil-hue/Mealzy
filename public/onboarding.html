@@ -1,457 +1,217 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mealzy — Get Started</title>
-  <meta name="description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan." />
-  <meta property="og:title" content="Get Started — Mealzy" />
-  <meta property="og:description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan." />
-  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg" />
-  <!-- Mealzy Design System -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mealzy — Get Started</title>
+<meta name="description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan.">
+<meta property="og:title" content="Get Started — Mealzy">
+<meta property="og:description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan.">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#1a3d2b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Mealzy">
-  <style>
-    [data-theme="dark"] body,
-    html[data-theme="dark"] {
-      background: var(--clr-muted-bg) !important;
-    }
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/funnel.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3d2b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mealzy">
+<style>
+  /* Onboarding wizard — page-specific pieces on top of the card-page layer */
+  .page-card.ob { max-width: 580px; }
+  .ob-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  .ob-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.35rem; color: var(--color-foreground); text-decoration: none; }
+  .ob-stepper { display: flex; align-items: center; }
+  .ob-step {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    font-size: 0.78rem; font-weight: 700;
+    background: transparent; color: var(--color-muted-fg);
+    border: 2px solid var(--color-border);
+    transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
+  }
+  .ob-step.active { background: var(--color-green); color: var(--clr-on-primary); border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(var(--color-green-rgb), 0.25); }
+  .ob-step.done { background: var(--color-green-muted); color: var(--color-forest); border-color: var(--color-green-muted); }
+  .ob-step-line { width: 24px; height: 2px; background: var(--color-border); transition: background var(--duration-fast); }
+  .ob-step-line.done { background: var(--color-green); }
+  .ob-step-title { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.4rem; }
+  .ob-step-sub { color: var(--color-muted-fg); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.5rem; }
 
-    [data-theme="dark"] .onboarding-card {
-      background: var(--clr-muted-bg) !important;
-      border-color: var(--clr-sidebar-border) !important;
-      color: #f0f7f4 !important;
-    }
+  .goal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  @media (max-width: 440px) { .goal-grid { grid-template-columns: minmax(0, 1fr); } }
+  .goal-card {
+    position: relative; display: flex; align-items: center;
+    height: 60px; padding: 0 40px 0 18px; width: 100%;
+    background: var(--clr-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    cursor: pointer; transition: border-color var(--duration-fast), background var(--duration-fast);
+  }
+  .goal-card:hover { border-color: var(--color-green); }
+  .goal-card.selected { border: 2px solid var(--color-green); background: var(--color-parchment); }
+  .goal-label { font-weight: 600; font-size: 0.98rem; }
+  .goal-card.selected .goal-label { font-weight: 700; }
+  .goal-check {
+    position: absolute; top: 50%; right: 14px; transform: translateY(-50%) scale(0.5);
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--color-green); color: var(--clr-on-primary);
+    opacity: 0; transition: opacity var(--duration-fast), transform var(--duration-fast);
+  }
+  .goal-card.selected .goal-check { opacity: 1; transform: translateY(-50%) scale(1); }
+  .goal-radio-input { opacity: 0; position: absolute; width: 1px; height: 1px; pointer-events: none; }
+  .goal-card:focus-within { outline: 2px solid var(--color-green); outline-offset: 2px; }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .onboarding-card { animation: fadeInUp 0.42s cubic-bezier(0.16,1,0.3,1) both; }
-    }
+  .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .chip {
+    display: inline-flex; align-items: center; padding: 0.4rem 0.9rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius-full);
+    font-size: 0.82rem; font-weight: 500; cursor: pointer;
+    background: var(--clr-surface); color: var(--color-foreground);
+    transition: border-color var(--duration-fast), background var(--duration-fast), color var(--duration-fast);
+  }
+  .chip:hover { border-color: var(--color-green); color: var(--color-green); }
+  .chip.active { background: var(--color-green); border-color: var(--color-green); color: var(--clr-on-primary); }
 
-    /* ── Background — matches homepage hero ─────────────── */
-    .onboarding-wrap {
-      min-height: 100svh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 2rem 1.25rem;
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 100%, hsl(152,52%,88%) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 0%, hsl(46,60%,92%) 0%, transparent 50%),
-        var(--clr-background);
-    }
-    [data-theme="dark"] .onboarding-wrap {
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 100%, hsl(152,52%,10%) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 0%, hsl(46,30%,10%) 0%, transparent 50%),
-        var(--clr-muted-bg);
-    }
-
-    /* ── Card ───────────────────────────────────────────── */
-    .onboarding-card {
-      position: relative;
-      z-index: 1;
-      background: var(--clr-card);
-      border-radius: var(--radius-xl);
-      padding: 2.5rem;
-      width: 100%; max-width: 580px;
-      box-shadow: var(--shadow-xl);
-      border: 1px solid var(--clr-border);
-    }
-    /* Soft ambient halo — grounds the card in the gradient behind it */
-    .onboarding-card::before {
-      content: '';
-      position: absolute;
-      inset: -28px;
-      z-index: -1;
-      border-radius: inherit;
-      background: radial-gradient(closest-side, rgba(var(--color-green-rgb), 0.16), transparent 70%);
-      pointer-events: none;
-    }
-    [data-theme="dark"] .onboarding-card::before {
-      background: radial-gradient(closest-side, rgba(var(--color-green-rgb), 0.10), transparent 70%);
-    }
-    @media (max-width: 480px) { .onboarding-card { padding: 1.75rem 1.25rem; } }
-
-    /* ── Step stepper ───────────────────────────────────── */
-    .ob-top {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 2rem;
-    }
-    .ob-logo {
-      font-family: var(--font-display); font-weight: 700; font-size: 1.35rem;
-      color: var(--clr-primary); text-decoration: none; font-style: italic;
-      letter-spacing: -0.02em;
-    }
-    .ob-stepper { display: flex; align-items: center; gap: 0; }
-    .ob-step {
-      display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; border-radius: 50%;
-      font-size: 0.78rem; font-weight: 700;
-      background: rgba(255,255,255,0.35);
-      color: rgba(255,255,255,0.6);
-      border: 2px solid rgba(255,255,255,0.3);
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .ob-step.active {
-      background: var(--clr-primary); color: white; border-color: var(--clr-primary);
-      box-shadow: 0 0 0 3px rgba(61,139,94,0.3);
-    }
-    .ob-step.done {
-      background: hsl(152,52%,90%); color: var(--clr-primary); border-color: hsl(152,52%,70%);
-    }
-    .ob-step-line {
-      width: 24px; height: 2px; background: var(--clr-border);
-      transition: background 0.2s;
-    }
-    .ob-step-line.done { background: var(--clr-primary); }
-
-    /* ── Step titles ────────────────────────────────────── */
-    .ob-step-title {
-      font-family: var(--font-display); font-style: italic;
-      font-size: 1.5rem; font-weight: 700; letter-spacing: -0.03em;
-      line-height: 1.2; margin-bottom: 0.4rem; color: var(--clr-foreground);
-    }
-    .ob-step-sub {
-      color: var(--clr-muted-fg); font-size: 0.92rem; line-height: 1.6;
-      margin-bottom: 1.5rem;
-    }
-
-    /* ── Goal cards — soft depth, clear hover + selected states ──── */
-    .goal-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem;
-    }
-    .goal-card {
-      position: relative;
-      border: 1.5px solid var(--clr-border);
-      border-radius: 0.85rem;
-      height: 64px;
-      cursor: pointer;
-      display: flex; align-items: center;
-      padding: 0 40px 0 20px;
-      background: var(--clr-card);
-      box-shadow: var(--shadow-sm);
-      box-sizing: border-box;
-      width: 100%;
-      transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-    }
-    @media (prefers-reduced-motion: no-preference) {
-      .goal-card { transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease; }
-      .goal-card:hover { transform: translateY(-2px); }
-    }
-    .goal-card:hover {
-      border-color: var(--clr-primary);
-      background: var(--clr-muted-bg);
-      box-shadow: var(--shadow-md);
-    }
-    .goal-card.selected {
-      background: var(--clr-primary-light);
-      border: 2px solid var(--clr-primary);
-      box-shadow: var(--shadow-sm);
-    }
-    .goal-label {
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: 1rem;
-      color: var(--color-forest);
-    }
-    .goal-card.selected .goal-label { font-weight: 700; color: var(--color-forest); }
-    .goal-check {
-      position: absolute;
-      top: 50%; right: 14px;
-      transform: translate(0, -50%) scale(0.5);
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--clr-primary);
-      color: var(--clr-on-primary);
-      opacity: 0;
-      transition: opacity 0.15s ease, transform 0.15s ease;
-    }
-    .goal-card.selected .goal-check {
-      opacity: 1;
-      transform: translate(0, -50%) scale(1);
-    }
-    .goal-radio-input {
-      opacity: 0;
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      pointer-events: none;
-    }
-    .goal-card:focus-within {
-      outline: 2px solid var(--clr-primary);
-      outline-offset: 2px;
-    }
-
-    /* ── Dietary chips ───────────────────────────────────── */
-    .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-    .chip {
-      display: inline-flex; align-items: center;
-      padding: 0.4rem 0.9rem;
-      border: 1.5px solid var(--clr-border); border-radius: 999px;
-      font-size: 0.82rem; cursor: pointer;
-      background: var(--clr-card); color: var(--clr-foreground);
-      font-family: var(--font-body); font-weight: 500;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
-    }
-    .chip:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
-    .chip.active { background: var(--color-green); border: 2px solid var(--color-green-light); color: white; }
-
-    /* ── Summary box ────────────────────────────────────── */
-    .ob-summary {
-      background: var(--clr-primary-light);
-      border: 1px solid hsl(152,52%,78%);
-      border-radius: 0.85rem;
-      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
-    }
-    [data-theme="dark"] .ob-summary { background: hsl(152,25%,12%); border-color: hsl(152,25%,22%); }
-    .ob-summary-title { font-weight: 700; font-size: 0.88rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem; }
-
-    /* ── Dark mode ──────────────────────────────────────── */
-    [data-theme="dark"] .onboarding-card {
-      background: var(--clr-muted-bg);
-      border-color: #2d4a35;
-    }
-    [data-theme="dark"] .ob-step-title { color: #f0f7f4; }
-    [data-theme="dark"] .ob-step-sub { color: #9db8a8; }
-    [data-theme="dark"] .form-label { color: #9db8a8; }
-    [data-theme="dark"] .form-input {
-      background: var(--clr-muted-bg);
-      border-color: #2d4a35;
-      color: var(--clr-on-primary);
-    }
-    #selectCurrency {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 36px;
-    }
-    [data-theme="dark"] #selectCurrency {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    }
-    [data-theme="dark"] .form-select {
-      background-color: var(--clr-muted-bg);
-      border-color: #2d4a35;
-      color: var(--clr-on-primary);
-    }
-    [data-theme="dark"] .goal-card {
-      background: var(--color-forest);
-      border: 1.5px solid var(--color-border);
-      color: #f0f7f4;
-      box-shadow: none;
-    }
-    [data-theme="dark"] .goal-card .goal-label { color: #f0f7f4; }
-    [data-theme="dark"] .goal-card:hover {
-      border-color: var(--clr-primary);
-      background: #243d2e;
-      box-shadow: none;
-    }
-    [data-theme="dark"] .goal-card.selected {
-      border-color: var(--clr-primary);
-      background: var(--color-forest);
-      color: #f0f7f4;
-      box-shadow: none;
-    }
-    [data-theme="dark"] .goal-card.selected .goal-label { color: #f0f7f4; }
-    [data-theme="dark"] .chip {
-      background: var(--clr-muted-bg);
-      border-color: #2d4a35;
-      color: #f0f7f4;
-    }
-    [data-theme="dark"] .chip.active {
-      background: var(--color-green);
-      border-color: var(--color-green);
-      color: var(--clr-on-primary);
-    }
-    [data-theme="dark"] #btnBack {
-      background: transparent;
-      border-color: #2d4a35;
-      color: #9db8a8;
-    }
-    .hidden { display: none !important; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 440px) { .form-row { grid-template-columns: 1fr; } }
+  .btn-skip { background: none; border: none; color: var(--color-muted-fg); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0.25rem; }
+  .hidden { display: none !important; }
+  @media (prefers-reduced-motion: no-preference) {
+    .page-card.ob { animation: rise 0.45s var(--ease-out) both; }
+  }
 </style>
-  <link rel="stylesheet" href="/css/fonts.css">
 </head>
-<body>
+<body class="card-page">
 <a href="#main" class="skip-link">Skip to main content</a>
 
-<main id="main" class="onboarding-wrap">
-  <div class="onboarding-card">
-    <!-- Stepper -->
-    <div class="ob-top">
-      <a href="/" class="ob-logo">Mealzy</a>
-      <nav aria-label="Onboarding progress">
-        <div class="ob-stepper" role="progressbar" aria-label="Onboarding step 1 of 2" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="stepProgress">
-          <div class="ob-step active" id="obStep1" aria-label="Step 1 of 2">1</div>
-          <div class="ob-step-line" id="obLine1"></div>
-          <div class="ob-step" id="obStep2" aria-label="Step 2 of 2">2</div>
-        </div>
-      </nav>
-    </div>
+<main id="main" class="page-card ob">
+  <div class="ob-top">
+    <a href="/" class="ob-logo">Mealzy</a>
+    <nav aria-label="Onboarding progress">
+      <div class="ob-stepper" role="progressbar" aria-label="Onboarding step 1 of 2" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="stepProgress">
+        <div class="ob-step active" id="obStep1" aria-label="Step 1 of 2">1</div>
+        <div class="ob-step-line" id="obLine1"></div>
+        <div class="ob-step" id="obStep2" aria-label="Step 2 of 2">2</div>
+      </div>
+    </nav>
+  </div>
 
-    <!-- STEP 1: Name + Goal -->
-    <div class="step-content" id="step1">
-      <h1 class="ob-step-title" style="font-family: var(--font-display); font-style: italic; font-weight: 900;">Let's personalise your plan</h1>
-      <div class="ob-step-sub">Two quick questions and we'll generate your first meal plan — automatically.</div>
+  <!-- STEP 1: Name + Goal -->
+  <div class="step-content" id="step1">
+    <h1 class="ob-step-title">Let's personalise your plan</h1>
+    <div class="ob-step-sub">Two quick questions and we'll generate your first meal plan — automatically.</div>
+    <div class="form-group">
+      <label class="form-label" for="inputName">Your first name</label>
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name">
+    </div>
+    <div class="form-group" style="margin-top:1.25rem;">
+      <fieldset style="border:none;padding:0;margin:0;">
+        <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
+        <div class="goal-grid" role="radiogroup" aria-label="Select your goal">
+          <label class="goal-card" data-goal="build_muscle" tabindex="0">
+            <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Build Muscle</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="lose_weight" tabindex="0">
+            <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Lose Weight</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="maintain_weight" tabindex="0">
+            <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Maintain Weight</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="eat_healthier" tabindex="0">
+            <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Eat Healthier</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="gain_weight" tabindex="0">
+            <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Gain Weight</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="improve_energy" tabindex="0">
+            <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Improve Energy</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+
+  <!-- STEP 2: Budget + Dietary -->
+  <div class="step-content hidden" id="step2">
+    <div class="ob-step-title">Budget &amp; dietary needs</div>
+    <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
+    <div class="form-row">
       <div class="form-group">
-        <label class="form-label" for="inputName">Your first name</label>
-        <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name" style="font-size:1rem;" />
+        <label class="form-label" for="inputBudget">Weekly Food Budget</label>
+        <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100">
       </div>
-      <div class="form-group" style="margin-top:1.25rem;">
-        <fieldset style="border:none;padding:0;margin:0;">
-          <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
-          <div class="goal-grid" role="radiogroup" aria-label="Select your goal">
-            <label class="goal-card" data-goal="build_muscle" tabindex="0">
-              <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
-              <span class="goal-label">Build Muscle</span>
-              <span class="goal-check" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </label>
-            <label class="goal-card" data-goal="lose_weight" tabindex="0">
-              <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
-              <span class="goal-label">Lose Weight</span>
-              <span class="goal-check" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </label>
-            <label class="goal-card" data-goal="maintain_weight" tabindex="0">
-              <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
-              <span class="goal-label">Maintain Weight</span>
-              <span class="goal-check" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </label>
-            <label class="goal-card" data-goal="eat_healthier" tabindex="0">
-              <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
-              <span class="goal-label">Eat Healthier</span>
-              <span class="goal-check" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </label>
-            <label class="goal-card" data-goal="gain_weight" tabindex="0">
-              <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
-              <span class="goal-label">Gain Weight</span>
-              <span class="goal-check" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </label>
-            <label class="goal-card" data-goal="improve_energy" tabindex="0">
-              <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" role="radio" aria-checked="false" onchange="selectGoal(this.closest('label'))" />
-              <span class="goal-label">Improve Energy</span>
-              <span class="goal-check" aria-hidden="true">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </span>
-            </label>
-          </div>
-        </fieldset>
+      <div class="form-group">
+        <label class="form-label" for="selectCurrency">Currency</label>
+        <select class="form-select" id="selectCurrency">
+          <option value="USD">$ USD</option><option value="EUR">&euro; EUR</option><option value="GBP">&pound; GBP</option>
+          <option value="SEK">kr SEK</option><option value="NOK">kr NOK</option><option value="DKK">kr DKK</option>
+          <option value="CAD">$ CAD</option><option value="AUD">$ AUD</option><option value="NZD">$ NZD</option>
+          <option value="CHF">Fr CHF</option><option value="JPY">&yen; JPY</option><option value="CNY">&yen; CNY</option>
+          <option value="KRW">&#8361; KRW</option><option value="INR">&#8377; INR</option><option value="BRL">R$ BRL</option>
+          <option value="MXN">$ MXN</option><option value="ARS">$ ARS</option><option value="ZAR">R ZAR</option>
+          <option value="AED">&#1583;.&#1573; AED</option><option value="SAR">&#65020; SAR</option><option value="SGD">$ SGD</option>
+          <option value="HKD">$ HKD</option><option value="PLN">z&#322; PLN</option><option value="CZK">K&#269; CZK</option>
+          <option value="HUF">Ft HUF</option><option value="TRY">&#8378; TRY</option><option value="THB">&#3647; THB</option>
+          <option value="MYR">RM MYR</option><option value="IDR">Rp IDR</option><option value="PHP">&#8369; PHP</option>
+        </select>
       </div>
     </div>
-
-    <!-- STEP 2: Budget + Dietary -->
-    <div class="step-content hidden" id="step2">
-      <div class="ob-step-title">Budget &amp; dietary needs</div>
-      <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" for="inputBudget">Weekly Food Budget</label>
-          <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100" />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="selectCurrency">Currency</label>
-          <select class="form-select" id="selectCurrency">
-            <option value="USD">$ USD</option>
-            <option value="EUR">€ EUR</option>
-            <option value="GBP">£ GBP</option>
-            <option value="SEK">kr SEK</option>
-            <option value="NOK">kr NOK</option>
-            <option value="DKK">kr DKK</option>
-            <option value="CAD">$ CAD</option>
-            <option value="AUD">$ AUD</option>
-            <option value="NZD">$ NZD</option>
-            <option value="CHF">Fr CHF</option>
-            <option value="JPY">¥ JPY</option>
-            <option value="CNY">¥ CNY</option>
-            <option value="KRW">₩ KRW</option>
-            <option value="INR">₹ INR</option>
-            <option value="BRL">R$ BRL</option>
-            <option value="MXN">$ MXN</option>
-            <option value="ARS">$ ARS</option>
-            <option value="ZAR">R ZAR</option>
-            <option value="AED">د.إ AED</option>
-            <option value="SAR">﷼ SAR</option>
-            <option value="SGD">$ SGD</option>
-            <option value="HKD">$ HKD</option>
-            <option value="PLN">zł PLN</option>
-            <option value="CZK">Kč CZK</option>
-            <option value="HUF">Ft HUF</option>
-            <option value="TRY">₺ TRY</option>
-            <option value="THB">฿ THB</option>
-            <option value="MYR">RM MYR</option>
-            <option value="IDR">Rp IDR</option>
-            <option value="PHP">₱ PHP</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group" style="margin-top:0.75rem;">
-        <label class="form-label">Any dietary restrictions? <span style="font-weight:400;color:var(--clr-muted-fg);">(optional)</span></label>
-        <div class="chips-group" id="dietChips">
-          <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)" aria-pressed="false">Vegetarian</button>
-          <button class="chip" data-pref="vegan" onclick="toggleChip(this)" aria-pressed="false">Vegan</button>
-          <button class="chip" data-pref="keto" onclick="toggleChip(this)" aria-pressed="false">Keto</button>
-          <button class="chip" data-pref="paleo" onclick="toggleChip(this)" aria-pressed="false">Paleo</button>
-          <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)" aria-pressed="false">Mediterranean</button>
-          <button class="chip" data-pref="halal" onclick="toggleChip(this)" aria-pressed="false">Halal</button>
-          <button class="chip" data-pref="kosher" onclick="toggleChip(this)" aria-pressed="false">Kosher</button>
-          <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)" aria-pressed="false">Gluten-Free</button>
-          <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)" aria-pressed="false">Dairy-Free</button>
-          <button class="chip" data-pref="nut_free" onclick="toggleChip(this)" aria-pressed="false">Nut & Peanut-Free</button>
-          <button class="chip" data-pref="no_pork" onclick="toggleChip(this)" aria-pressed="false">No Pork</button>
-          <button class="chip" data-pref="fish_free" onclick="toggleChip(this)" aria-pressed="false">Fish-Free</button>
-        </div>
+    <div class="form-group" style="margin-top:0.75rem;">
+      <label class="form-label">Any dietary restrictions? <span style="font-weight:400;color:var(--color-muted-fg);">(optional)</span></label>
+      <div class="chips-group" id="dietChips">
+        <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)" aria-pressed="false">Vegetarian</button>
+        <button class="chip" data-pref="vegan" onclick="toggleChip(this)" aria-pressed="false">Vegan</button>
+        <button class="chip" data-pref="keto" onclick="toggleChip(this)" aria-pressed="false">Keto</button>
+        <button class="chip" data-pref="paleo" onclick="toggleChip(this)" aria-pressed="false">Paleo</button>
+        <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)" aria-pressed="false">Mediterranean</button>
+        <button class="chip" data-pref="halal" onclick="toggleChip(this)" aria-pressed="false">Halal</button>
+        <button class="chip" data-pref="kosher" onclick="toggleChip(this)" aria-pressed="false">Kosher</button>
+        <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)" aria-pressed="false">Gluten-Free</button>
+        <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)" aria-pressed="false">Dairy-Free</button>
+        <button class="chip" data-pref="nut_free" onclick="toggleChip(this)" aria-pressed="false">Nut &amp; Peanut-Free</button>
+        <button class="chip" data-pref="no_pork" onclick="toggleChip(this)" aria-pressed="false">No Pork</button>
+        <button class="chip" data-pref="fish_free" onclick="toggleChip(this)" aria-pressed="false">Fish-Free</button>
       </div>
     </div>
+  </div>
 
-    <!-- Step error message -->
-    <div id="stepError" style="display:none;background:hsl(0,72%,97%);border:1px solid hsl(0,72%,85%);color:var(--clr-destructive);border-radius:0.6rem;padding:0.65rem 1rem;font-size:0.875rem;margin-bottom:0.5rem;margin-top:0.75rem;" role="alert" aria-live="assertive"></div>
+  <div id="stepError" class="auth-msg" role="alert" aria-live="assertive" style="margin-top:0.75rem;"></div>
 
-    <!-- Navigation Buttons -->
-    <div class="onboarding-nav" style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;">
-      <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;display:flex;align-items:center;gap:0.35rem;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
-      </button>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;">
-          <button id="btnSkip" onclick="skipStep()" style="background:none;border:none;color:var(--clr-muted-fg);font-size:0.85rem;cursor:pointer;text-decoration:underline;padding:0.25rem;">Skip</button>
-          <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()" style="display:inline-flex;align-items:center;gap:0.4rem;">
-            Continue
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-        <p id="skipNote" style="font-size:0.75rem;color:var(--clr-muted-fg);margin:0;text-align:right;">We'll use estimated values — you can update these in Settings.</p>
+  <div style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+    <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button id="btnSkip" class="btn-skip" onclick="skipStep()">Skip</button>
+        <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()">
+          Continue
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
+      <p id="skipNote" style="font-size:0.75rem;color:var(--color-muted-fg);margin:0;text-align:right;">We'll use estimated values — you can update these in Settings.</p>
     </div>
   </div>
 </main>
 
 <script>
-  if (localStorage.getItem('mealzy_theme') === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }
-
   // Auth guard
   (async function checkAuth() {
     try {
@@ -479,11 +239,11 @@
   function showStepError(msg) {
     const el = document.getElementById('stepError');
     el.textContent = msg;
-    el.style.display = 'block';
+    el.classList.add('show');
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   function hideStepError() {
-    document.getElementById('stepError').style.display = 'none';
+    document.getElementById('stepError').classList.remove('show');
   }
 
   let currentStep = 1;
@@ -520,7 +280,7 @@
     if (skipNote) skipNote.style.display = step < totalSteps ? 'block' : 'none';
     const nextBtn = document.getElementById('btnNext');
     nextBtn.innerHTML = step === totalSteps
-      ? `Create My Plan →`
+      ? `Create My Plan`
       : `Continue <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
     // Update stepper visuals
     for (let s = 1; s <= totalSteps; s++) {
@@ -685,4 +445,3 @@
 </script>
 </body>
 </html>
-
