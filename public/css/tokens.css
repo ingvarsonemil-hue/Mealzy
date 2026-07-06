@@ -108,6 +108,19 @@
   --clr-info:          hsl(200,100%,50%); /* Carbs ring, info blue */
   --clr-accent:        hsl(260,60%,55%); /* Fat ring, purple accent */
 
+  /* Landing hero (forest drench) — light ink + surface alphas on --color-forest */
+  --color-hero-ink:       #eef4f0;
+  --color-hero-ink-soft:  rgba(238, 244, 240, 0.78);
+  --color-hero-ink-faint: rgba(238, 244, 240, 0.55);
+  --color-forest-deep:    #13291d;
+  --color-glow-green:     rgba(74, 222, 128, 0.12);
+  --color-white-a08:      rgba(255, 255, 255, 0.08);
+  --color-white-a15:      rgba(255, 255, 255, 0.15);
+  --color-white-a30:      rgba(255, 255, 255, 0.30);
+  --color-green-a12:      rgba(61, 139, 94, 0.12);
+  --color-nav-frost:      rgba(245, 251, 247, 0.88);
+  --color-nav-frost-dark: rgba(15, 25, 18, 0.9);
+
   /* Animation */
   --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);

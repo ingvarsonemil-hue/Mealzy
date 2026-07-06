@@ -1,12 +1,14 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Theme init must be the first script so dark mode applies before paint -->
+<script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mealzy — Free AI Meal Planner, No Sign Up | Full Week in 30 Seconds</title>
-<meta name="description" content="Free AI meal planner — no sign up, no credit card. Enter your calorie goal and grocery budget, get a full week of meals in 30 seconds with a shopping list. Used in 6 countries.">
+<meta name="description" content="Free AI meal planner — no sign up, no credit card. Enter your calorie goal and grocery budget, get a full week of meals in 30 seconds with a shopping list. Used in 10 countries.">
 <meta name="keywords" content="free AI meal planner, meal planning app, macro meal planner, grocery budget meal plan, AI meal planning">
 <meta property="og:title" content="Mealzy — Free AI Meal Planner, No Sign Up | Full Week in 30 Seconds">
 <meta property="og:description" content="Generate a full week of personalized meals in 30 seconds. Hits your macros, stays in budget, generates the grocery list. Free.">
@@ -79,7 +81,7 @@
       "name": "Does Mealzy work outside the US? Does it work in Sweden and Europe?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Mealzy works in 11 languages including Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese, and English. Grocery cost estimates are localised to your region. Mealzy is used in 6 countries."
+        "text": "Yes. Mealzy works in 11 languages including Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese, and English. Grocery cost estimates are localised to your region. Mealzy is used in 10 countries."
       }
     },
     {
@@ -124,6 +126,7 @@
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/styles.css">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/css/landing.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
@@ -133,63 +136,6 @@
 <link rel="dns-prefetch" href="/api">
 <noscript><style>.reveal{opacity:1!important;transform:none!important;}</style></noscript>
 <script src="/js/utils.js" defer></script>
-<style>
-  /* How it works — dot markers replacing 01/02/03 numerals */
-  .how-dot {
-    display: block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--clr-primary);
-    flex-shrink: 0;
-    margin-top: 0.35rem;
-  }
-  /* Section rhythm breaks replacing eyebrow labels */
-  .section-rhythm-break {
-    border: none;
-    border-top: 1px solid var(--clr-border);
-    margin: 0;
-    padding: 0;
-  }
-  .btn-ghost-dark {
-    color: rgba(255,255,255,0.85);
-    border-color: rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.08);
-  }
-  .btn-ghost-dark:hover {
-    background: rgba(255,255,255,0.15);
-    color: white;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .reveal, .fade-in, [class*="fade"], .hero-copy, .form-card {
-      opacity: 1 !important;
-      transform: none !important;
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-  /* Founder stats grid — 4-col desktop, 2-col mobile */
-  .founder-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-  }
-  @media (max-width: 600px) {
-    .founder-stats-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  .hide-on-mobile { display: inline-flex; }
-  @media (max-width: 600px) { .hide-on-mobile { display: none !important; } }
-</style>
-<script>
-// Inline theme init synchronously before content renders to avoid FOUC
-(function(){
-  var stored=localStorage.getItem('mealzy_theme');
-  if(stored==='dark'){document.documentElement.setAttribute('data-theme','dark');}
-  else if(!stored&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){
-    document.documentElement.setAttribute('data-theme','dark');
-  }
-})();
-</script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -237,21 +183,22 @@
 <!-- HERO -->
 <section class="hero-mktg" id="hero" aria-labelledby="hero-heading">
   <div class="hero-inner">
-    <div class="hero-copy reveal">
-      <span class="hero-eyebrow">Free AI meal planner — built by Emil, 16, Sweden</span>
-      <h1 id="hero-heading" class="hero-h1">Meal planning in 30 seconds.</h1>
-      <p class="hero-sub">I built Mealzy because meal planning was eating my Sundays. Tell it your goals and budget — it builds the week, hits your macros, and writes the grocery list.</p>
+    <div class="hero-copy">
+      <p class="hero-eyebrow">Free AI meal planner — built by Emil, 16, in Sweden</p>
+      <h1 id="hero-heading" class="hero-h1">Your week of meals, planned in 30 seconds.</h1>
+      <p class="hero-sub">Tell Mealzy your calorie goal, grocery budget, and what you like to eat. It builds the week, hits your macros, and writes the grocery list for you.</p>
       <div class="hero-actions">
         <a href="login.html?signup=1" class="btn btn-primary btn-lg">
-          Start Free — No Credit Card
+          Start Planning Free
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         </a>
         <a href="#demo" class="btn btn-outline btn-lg btn-ghost-dark">See a sample plan</a>
       </div>
+      <p class="hero-fine">No credit card. 3 free plans every month.</p>
     </div>
 
     <!-- Demo form — visible immediately, no scroll needed -->
-    <div class="form-card reveal" data-delay="0" aria-label="Generate a sample plan">
+    <div class="form-card" aria-label="Generate a sample plan">
       <span class="form-card-label">Try it — no account needed</span>
       <div class="hff">
         <label for="demoCals">Daily calorie goal</label>
@@ -420,7 +367,7 @@
     </div>
     <div class="grid-3" style="gap:1.5rem;">
       <article class="card reveal" data-delay="0">
-        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+        <div class="card-ico" aria-hidden="true">
           <!-- AI Meal Planning: calendar week-grid + sparkle accent -->
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/><path d="M17.5 7v1.5M17.5 10.5v-1.5M16 9h1.5M19 9h-1.5"/></svg>
         </div>
@@ -428,7 +375,7 @@
         <p class="text-muted" style="margin-top:.5rem;">Tell it your calories, your budget, and what you like. It builds the whole week — practical, home-cooked meals using ingredients from any regular supermarket.</p>
       </article>
       <article class="card reveal" data-delay="80">
-        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+        <div class="card-ico" aria-hidden="true">
           <!-- Automatic Grocery List: clipboard with one checkmark -->
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 12 2 2 4-4M9 17h4"/></svg>
         </div>
@@ -436,7 +383,7 @@
         <p class="text-muted" style="margin-top:.5rem;">Every ingredient from your week's plan, organised by category, with estimated costs. You only buy what you need. Nothing goes to waste.</p>
       </article>
       <article class="card reveal" data-delay="160">
-        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+        <div class="card-ico" aria-hidden="true">
           <!-- Budget That Holds: wallet -->
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z"/></svg>
         </div>
@@ -444,7 +391,7 @@
         <p class="text-muted" style="margin-top:.5rem;">Set your weekly grocery budget once. Mealzy builds every plan around it. The number doesn't move unless you change it.</p>
       </article>
       <article class="card reveal" data-delay="0">
-        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+        <div class="card-ico" aria-hidden="true">
           <!-- AI Nutrition Coach: chat bubble with small heart accent -->
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 10c.5-1.2 2.2-1.2 2.2.4 0 1.2-1.1 2-2.2 2.9-1.1-.9-2.2-1.7-2.2-2.9C9.8 8.8 11.5 8.8 12 10z"/></svg>
         </div>
@@ -452,7 +399,7 @@
         <p class="text-muted" style="margin-top:.5rem;">Ask Mia — your AI nutritionist — anything. Recipe ideas, macro questions, what to cook with what's in your fridge. Available any time.</p>
       </article>
       <article class="card reveal" data-delay="80">
-        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+        <div class="card-ico" aria-hidden="true">
           <!-- Calorie and Macro Tracking: bar chart -->
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
         </div>
@@ -460,7 +407,7 @@
         <p class="text-muted" style="margin-top:.5rem;">Every meal is already calculated. Log what you eat, see your weekly trends, and watch how your nutrition stacks up against your targets.</p>
       </article>
       <article class="card reveal" data-delay="160">
-        <div style="color:var(--color-green);margin-bottom:0.75rem;">
+        <div class="card-ico" aria-hidden="true">
           <!-- 11 Languages: globe -->
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         </div>
@@ -519,7 +466,6 @@
 <section class="faq-section" id="faq" aria-labelledby="faq-heading">
   <div class="container" style="max-width:720px;">
     <div class="section-header reveal">
-      <span class="section-label">FAQ</span>
       <h2 id="faq-heading" class="section-title">Common questions.</h2>
     </div>
     <div class="reveal" data-delay="80">
@@ -560,7 +506,7 @@
       <h2 id="cta-heading" class="section-title" style="text-align:left;max-width:none;color:white;">Stop planning meals by hand.</h2>
       <p class="cta-lede" style="color:rgba(255,255,255,0.75);">Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card.</p>
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Free — Takes 2 Minutes</a>
+        <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Planning Free</a>
         <a href="pricing.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.5);color:white;background:transparent;">See pricing</a>
       </div>
     </div>
@@ -642,7 +588,7 @@ document.getElementById('demoBtn')?.addEventListener('click', runDemo);
     if(loaded) return;
     loaded=true;
     var s=document.createElement('script');
-    s.src='/js/motion.js';
+    s.src='/motion.js';
     document.body.appendChild(s);
   },{once:true,passive:true});
 })();
