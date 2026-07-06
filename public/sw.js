@@ -1,10 +1,11 @@
-const CACHE = 'mealzy-v177';
+const CACHE = 'mealzy-v178';
 const PRECACHE = [
   '/',
   '/index.html',
   '/style.css',
   '/css/landing.css',
   '/css/funnel.css',
+  '/css/app-theme.css',
   '/js/landing.js',
   '/js/pricing.js',
   '/js/login.js',

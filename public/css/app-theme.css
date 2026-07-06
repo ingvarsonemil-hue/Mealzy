@@ -1,0 +1,60 @@
+/* ================================================================
+   MEALZY — App theme overlay (dashboard, meal-planner, grocery-list,
+   analytics, ai-coach, settings). Loads AFTER style.css and aligns
+   the app pages with the marketing design system (landing.css):
+   flat brand-green buttons, calmer cards, softer radii.
+   All values from tokens.css.
+   ================================================================ */
+
+/* Buttons — flat brand green, marketing radius, quiet hover */
+.btn { border-radius: var(--radius-md); }
+.btn-primary { background: var(--color-green); box-shadow: none; }
+.btn-primary:hover { background: var(--clr-green-deep); transform: translateY(-1px); box-shadow: var(--shadow-button); }
+.btn-primary:active { transform: scale(0.98); }
+.btn-accent { background: var(--color-green); box-shadow: none; }
+.btn-accent:hover { background: var(--clr-green-deep); transform: translateY(-1px); }
+.btn-outline { border-width: 1px; }
+.btn-danger:hover { opacity: 1; background: var(--color-brick); }
+
+/* Inputs */
+.form-input, .form-select, .form-textarea { border-radius: var(--radius-md); border-width: 1px; }
+.chat-input { border-width: 1px; }
+
+/* Cards and surfaces — calmer elevation, marketing radii */
+.card { border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.card:hover { transform: none; box-shadow: var(--shadow-md); }
+.stat-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.meal-card, .quick-action-card, .chart-card, .ring-card, .week-day-col, .testimonial-card { border-radius: var(--radius-lg); }
+.modal { border-radius: var(--radius-lg); }
+.toast { border-radius: var(--radius-md); }
+.toast.success { background: var(--color-green); }
+
+/* Page heading rhythm */
+.greeting { font-size: 1.8rem; letter-spacing: -0.02em; }
+.page-header h1 { letter-spacing: -0.02em; }
+
+/* Sidebar polish */
+.sidebar-nav a { border-radius: var(--radius-md); }
+.sidebar-logo { font-size: 1.35rem; }
+
+/* Chat — brand green user bubble */
+.chat-msg.user .chat-bubble { background: var(--color-green); }
+.chat-header-avatar { background: var(--color-green); }
+
+/* Email capture popup — align with landing forest treatment */
+.email-popup-card {
+  background: var(--color-forest-deep);
+  border: 1px solid var(--clr-forest-line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-modal);
+}
+.email-popup-input { border-radius: var(--radius-md); background: var(--clr-forest-raise); border: 1px solid var(--clr-forest-line); }
+.email-popup-input:focus { background: var(--clr-forest-raise); border-color: var(--clr-on-forest-muted); }
+.email-popup-btn { background: var(--color-green); color: var(--clr-on-primary); border-radius: var(--radius-md); }
+.email-popup-btn:hover { background: var(--clr-green-deep); opacity: 1; }
+
+/* Totals bar (meal planner) */
+.totals-bar { box-shadow: var(--shadow-lg); }
+
+/* Dark mode — hairline borders instead of heavy shadows */
+[data-theme="dark"] .card, [data-theme="dark"] .stat-card { box-shadow: none; }
