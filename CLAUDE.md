@@ -1,43 +1,30 @@
 # Mealzy — Claude Code Instructions
 
-## Project
-Free AI meal planner at mealzy.org. Generates a week of personalized meals in 30s hitting calorie/macro targets and grocery budget. Built by Emil (16yo solo founder).
+Tiered docs: this file holds project-wide context and hard rules. Frontend/design rules live in `public/CLAUDE.md`; agent system rules live in `.agents/skills/CLAUDE.md`. Rules are not repeated across tiers — read the tier for the folder you're working in.
 
-**Stack:** Node.js + Express (server.js), Turso SQLite (@libsql/client, db.js), JWT in httpOnly cookies, Stripe subscriptions + webhook, Anthropic claude-haiku-4-5-20251001 (meal gen + AI coach "Mia"), Render free tier, Vanilla HTML/CSS/JS (18 pages in /public/), Winston logger.
+## Project
+Free AI meal planner at mealzy.org. Generates a week of personalized meals in 30s hitting calorie/macro targets and grocery budget. Built by Emil (16yo solo founder). Local checkout: `C:\Users\emili\Documents\mealzy\`.
+
+**Stack:** Node.js + Express (server.js — all API routes), Turso SQLite (@libsql/client, db.js), JWT in httpOnly cookies, Stripe subscriptions + webhook, Anthropic claude-haiku-4-5-20251001 (meal generation + AI coach "Mia"), Render free tier, vanilla HTML/CSS/JS (18 pages in /public/), Winston logger.
 
 **Tiers:** Free (3 plans/month) · Pro $8/mo or $62/yr · Family $16/mo or $130/yr
 
 **Repo:** ingvarsonemil-hue/Mealzy
 
-## Rules
-- Do what has been asked; nothing more, nothing less
-- NEVER create files unless absolutely necessary — prefer editing existing files
-- NEVER create documentation files unless explicitly requested
-- ALWAYS read a file before editing it
-- NEVER commit secrets, credentials, or .env files
-- Keep files under 500 lines
-- Validate input at system boundaries
-- Always consider Render free-tier limits (cold starts, ephemeral storage)
-
-## Key Files
-- server.js — main Express app + all API routes
-- db.js — Turso/libsql database client
-- public/ — all 18 HTML pages (vanilla JS/CSS)
-- .github/scripts/run-agent.js — agent runner for GitHub Actions
+## Hard rules (do not violate)
+- Never commit secrets, credentials, or .env files.
+- Always read a file before editing it — never assume contents.
+- Keep files under 500 lines. server.js (~2,400 lines) is oversized and flagged for route-splitting; don't grow it further.
+- Render free tier: expect cold starts, and storage is ephemeral — nothing persisted to local disk survives a restart.
+- Never trust the JWT payload for Pro/subscription status — always re-query the DB.
+- Shell is PowerShell — no `&&` chaining; run commands individually.
+- Bump the service worker cache version (`mealzy-vN`, first line of public/sw.js) on every JS/CSS deploy, or fixes silently fail to appear for returning visitors.
+- CSS trap: `public/style.css` is the primary stylesheet and `public/styles.css` is orphaned legacy — but index.html and pricing.html still load BOTH. Confirm which file(s) a page actually links before editing any styling.
+- Screenshot verification in light AND dark mode is mandatory before considering any visual fix done — never trust a "success" report alone.
 
 ## Brand
-- Voice: warm, calm, direct — no emojis, no banned words (level up, game-changer, transform, clean eating)
-- Green: #3d8b5e
-- Font: Fraunces (headings)
-- CTA pattern: "Start Planning Free" / "Free at mealzy.org"
+Voice: warm, calm, direct. No emojis. Primary color #3d8b5e (forest green). Headings: Fraunces italic. Body: Inter.
 
-## Design System
-- Single source of truth: public/tokens.css
-- Dark mode: public/theme-init.js (must be first script in every page head)
-- Bump service worker cache version (mealzy-vN in sw.js) on every visual deploy
-- Skills: .claude/skills/mealzy-design.md, .claude/skills/impeccable/SKILL.md, .claude/skills/stop-slop/SKILL.md, .claude/skills/ui-ux-pro-max/SKILL.md
-
-## File Access
-All project files are at: C:\Users\emili\Documents\mealzy\
-Always read a file before editing using the full path.
-Never assume file contents — always read first.
+## Known open bugs
+- `getUsersForWeeklyDigest()` in db.js (~line 402) has no Pro filter — upgrade emails go to already-paid Pro users.
+- Dashboard streak badge (`id="streakBadge"`, dashboard.html ~line 218) is hardcoded "1 day streak" — disconnected from real data.
