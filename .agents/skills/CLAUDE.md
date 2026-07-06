@@ -4,20 +4,13 @@
 
 No agent is supposed to run on a schedule. Do not invoke `run-agent.js`, re-enable a workflow job, or trigger a `workflow_dispatch` unless Emil explicitly asks. **Every agent run calls the Anthropic API (claude-sonnet-4-6, up to 8192 output tokens) and spends real money.**
 
-### ⚠️ Pause is NOT yet enforced in the workflows (audited 2026-07-06)
+### Pause enforced in the workflows as of 2026-07-06
 
-The intent is "all paused", but these jobs still fire on cron in `.github/workflows/` until they are gated with `if: false`:
+An audit on 2026-07-06 found 9 jobs still firing on cron despite the pause policy — blake, avery, riley, jordan, cs, budget-guard, macro-specialist, culinary-critic, and the Monday digest (last evidence of runs: commits `f42bcf3` avery 2026-07-03, `7b0586e` cs 2026-07-02). All 9 were gated with `if: false` in the same commit that added this doc. The cron schedules remain in the files, but every job is gated, so nothing executes and nothing spends tokens.
 
-| Workflow | Cron (UTC) | Still-live jobs |
-|---|---|---|
-| monday-agents.yml | Mon 07:00 | blake, avery, riley, budget-guard, macro-specialist, culinary-critic, digest (`if: always()`) |
-| tuesday-agents.yml | Tue 07:00 | avery, culinary-critic |
-| wednesday-agents.yml | Wed 07:00 | jordan, budget-guard, macro-specialist, culinary-critic |
-| thursday-agents.yml | Thu 07:00 | jordan, riley, cs |
-| agents.yml | Thu 15:00 | cs (`if: github.event.schedule == '0 15 * * 4'`) |
-| friday-agents.yml | Fri 07:00 | avery |
+Caveat: GitHub runs scheduled workflows from the **default branch**. The gates take effect only once this branch is merged to main — until then, main's ungated workflows keep firing on schedule.
 
-Evidence they still run: commits `f42bcf3` (avery, 2026-07-03) and `7b0586e` (cs, 2026-07-02). Until every row above is gated, treat "paused" as intent, not fact.
+Status here can drift from the workflows — it has before. Re-verify with the script below rather than trusting this section.
 
 Not agents (do not pause as part of this): `keep-alive.yml` (pings mealzy.org every 9 min to reduce cold starts), `cron-day3-nudge.yml` and `cron-weekly-digest.yml` (product email crons hitting mealzy.org API endpoints — no Anthropic spend).
 
@@ -44,7 +37,7 @@ for f in sorted(glob.glob('.github/workflows/*agents*.yml') + ['.github/workflow
 EOF
 ```
 
-Every workflow must print `LIVE: none` (or only `digest`, if Emil chooses to keep the no-API-cost digest). Any other name in a LIVE list = that agent still burns tokens on its next cron.
+Every workflow must print `LIVE: none`. Any name in a LIVE list = that agent runs (and burns tokens) on its next cron after reaching main.
 
 ## Roster (19 employees — PAUSED, do not delete)
 

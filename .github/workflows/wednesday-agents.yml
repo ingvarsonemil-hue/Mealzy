@@ -38,6 +38,8 @@ jobs:
         with: { name: casey-wed, path: .agents/outputs/*casey* }
 
   jordan:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Jordan — Email Sequence
     runs-on: ubuntu-latest
     steps:
@@ -159,6 +161,8 @@ jobs:
         with: { name: taylor-wed, path: .agents/outputs/*taylor* }
 
   budget-guard:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Budget Guard — Prompt Fix
     runs-on: ubuntu-latest
     steps:
@@ -174,6 +178,8 @@ jobs:
         with: { name: budget-guard-wed, path: .agents/outputs/*budget-guard* }
 
   macro-specialist:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Macro Specialist — Prompt Fix
     runs-on: ubuntu-latest
     steps:
@@ -189,6 +195,8 @@ jobs:
         with: { name: macro-specialist-wed, path: .agents/outputs/*macro-specialist* }
 
   culinary-critic:
+    # PAUSED 2026-07-06 — all agents paused (see .agents/skills/CLAUDE.md)
+    if: false
     name: Culinary Critic — Prompt Fix
     runs-on: ubuntu-latest
     steps:
