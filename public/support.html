@@ -1,160 +1,154 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Help &amp; Support | Mealzy</title>
-  <meta name="description" content="Get help with Mealzy — FAQ, account questions, billing support, and how to contact us." />
-  <link rel="canonical" href="https://mealzy.org/support.html" />
-  <meta property="og:title" content="Help &amp; Support — Mealzy">
-  <meta property="og:description" content="Get help with Mealzy — FAQ, billing support, and how to contact us.">
-  <meta property="og:url" content="https://mealzy.org/support.html">
-  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
-  <!-- Mealzy Design System -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help &amp; Support | Mealzy</title>
+<meta name="description" content="Get help with Mealzy — FAQ, account questions, billing support, and how to contact us.">
+<link rel="canonical" href="https://mealzy.org/support.html">
+<meta property="og:title" content="Help &amp; Support — Mealzy">
+<meta property="og:description" content="Get help with Mealzy — FAQ, billing support, and how to contact us.">
+<meta property="og:url" content="https://mealzy.org/support.html">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<link rel="preload" href="/fonts/fraunces/fraunces-latin-900-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <meta name="theme-color" content="#1a3d2b">
-  <style>
-    .support-wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-    .support-wrap h1 { font-family: var(--font-display); font-style: italic; font-size: 2rem; margin-bottom: 0.25rem; }
-    .support-wrap .subtitle { color: var(--clr-muted-fg); font-size: 0.95rem; margin-bottom: 2.5rem; line-height: 1.6; }
-    .support-wrap h2 { font-family: var(--font-display); font-style: italic; font-size: var(--font-size-lg); font-weight: 700; margin: 2.5rem 0 1rem; color: var(--clr-foreground); border-bottom: 1px solid var(--clr-border); padding-bottom: 0.5rem; }
-    .faq-item { margin-bottom: 1.5rem; }
-    .faq-q { font-size: 0.9rem; font-weight: 600; color: var(--clr-foreground); margin-bottom: 0.35rem; }
-    .faq-a { font-size: 0.88rem; line-height: 1.7; color: var(--clr-muted-fg); }
-    .faq-a a { color: var(--clr-primary); text-decoration: none; }
-    .faq-a a:hover { text-decoration: underline; }
-    .contact-box { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: var(--radius-md); padding: 1.75rem; margin-top: 2.5rem; }
-    .contact-box h2 { border: none; margin-top: 0; padding-bottom: 0; }
-    .contact-box p { font-size: 0.9rem; color: var(--clr-muted-fg); line-height: 1.65; margin-bottom: 1rem; }
-    .contact-btn { display: inline-block; background: var(--clr-primary); color: white; padding: 0.8rem 1.5rem; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.9rem; text-decoration: none; }
-    .contact-btn:hover { opacity: 0.9; }
-    .response-note { font-size: 0.78rem; color: var(--clr-muted-fg); margin-top: 0.75rem; }
-    [data-theme="dark"] .contact-box { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); }
-    [data-theme="dark"] .faq-item { color: var(--clr-foreground); }
-    [data-theme="dark"] .support-section { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); }
-  </style>
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js"></script>
-  <link rel="stylesheet" href="/css/fonts.css">
-  <link rel="preload" href="/fonts/fraunces/fraunces-latin-900-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/funnel.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3d2b">
+<script src="/js/seo.js" defer></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
 
-<nav class="nav-fixed" aria-label="Main navigation">
-  <div class="container nav-inner">
-    <a href="/" class="nav-logo-text">Mealzy</a>
-    <ul class="nav-links" role="list">
-      <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
-      <li><a href="pricing.html" class="nav-link">Pricing</a></li>
-      <li><a href="settings.html" class="nav-link">Settings</a></li>
-      <li><button onclick="signOut()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.7rem;font-size:0.82rem;font-family:inherit;line-height:1;">Sign Out</button></li>
-      <li><button onclick="toggleTheme()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button></li>
-    </ul>
+<nav class="nav-fixed nav-solid on-forest" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo-text" aria-label="Mealzy home">Mealzy</a>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a href="dashboard.html" class="btn btn-quiet btn-sm hide-on-mobile">Dashboard</a>
+      <a href="settings.html" class="btn btn-quiet btn-sm hide-on-mobile">Settings</a>
+      <a href="login.html" class="btn btn-primary btn-sm">Sign in</a>
+    </div>
   </div>
 </nav>
 
-<main id="main" class="support-wrap">
-  <a href="/" class="back-link" style="display:inline-block;margin-bottom:1.5rem;color:var(--clr-primary);text-decoration:none;font-size:0.9rem;">← Back to Mealzy</a>
-  <h1>Help &amp; Support</h1>
-  <p class="subtitle">Find answers to common questions below. If you don't find what you need, email us — we reply within 24 hours.</p>
+<main id="main">
+
+<header class="page-head on-forest">
+  <div class="container">
+    <h1>Help &amp; Support</h1>
+    <p class="lede">Find answers to common questions below. If you don't find what you need, email us — we reply within 24 hours.</p>
+  </div>
+</header>
+
+<div class="article" style="padding-top:2.5rem;padding-bottom:4rem;">
   <search role="search" aria-label="Search support articles">
-  <input type="search" id="faqSearch" placeholder="Search help articles…" aria-label="Search FAQ" style="width:100%;padding:0.65rem 1rem;border:1.5px solid var(--clr-border);border-radius:0.6rem;font-size:0.9rem;font-family:inherit;background:var(--clr-card);color:var(--clr-foreground);margin-bottom:1.5rem;box-sizing:border-box;">
-  <noscript><p>Search requires JavaScript. Use Ctrl+F to search this page.</p></noscript>
+    <input type="search" id="faqSearch" class="form-input support-search" placeholder="Search help articles" aria-label="Search FAQ">
+    <noscript><p>Search requires JavaScript. Use Ctrl+F to search this page.</p></noscript>
   </search>
 
-  <!-- ── ACCOUNT ─────────────────────────────────────────────────────────── -->
-  <h2>Account</h2>
-
+  <h2 class="support-h2">Account</h2>
   <section role="region" aria-label="Account FAQs">
-  <dl style="margin-bottom:2rem;">
+  <dl>
     <dt class="faq-q">I forgot my password. How do I reset it?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">You can reset your password from the sign-in page — click Forgot password and we'll email you a reset link.</dd>
+    <dd class="faq-a">You can reset your password from the sign-in page — click Forgot password and we'll email you a reset link.</dd>
 
     <dt class="faq-q">How do I change my goal, diet, or calorie target?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Go to <a href="settings.html">Settings</a> and update your profile. Your next meal plan will use the new settings automatically.</dd>
+    <dd class="faq-a">Go to <a href="settings.html">Settings</a> and update your profile. Your next meal plan will use the new settings automatically.</dd>
 
     <dt class="faq-q">Can I try Mealzy without an account?</dt>
     <dd class="faq-a">Yes — the homepage has a free demo that generates a 5-day plan with no signup. You get 3 free plans per month. To save plans and generate more, create a free account at <a href="index.html">mealzy.org</a>.</dd>
   </dl>
   </section>
 
-  <!-- ── MEAL PLANS ──────────────────────────────────────────────────────── -->
-  <h2>Meal Plans</h2>
-
+  <h2 class="support-h2">Meal Plans</h2>
   <section role="region" aria-label="Meal Plan FAQs">
-  <dl style="margin-bottom:2rem;">
+  <dl>
     <dt class="faq-q">The calories in my plan don't match my target.</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Check your calorie target in <a href="settings.html">Settings</a>. Make sure it's set correctly, then regenerate your plan. If the plan is still off by more than 200 kcal, email us — that's a bug.</dd>
+    <dd class="faq-a">Check your calorie target in <a href="settings.html">Settings</a>. Make sure it's set correctly, then regenerate your plan. If the plan is still off by more than 200 kcal, email us — that's a bug.</dd>
 
     <dt class="faq-q">My plan includes foods I can't eat.</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Go to <a href="settings.html">Settings</a> and update your dietary preferences. Select all restrictions that apply (vegan, gluten-free, etc.). Then regenerate your plan. If a restricted ingredient keeps appearing, email us with your account email and the specific ingredient — that's a bug we'll fix.</dd>
+    <dd class="faq-a">Go to <a href="settings.html">Settings</a> and update your dietary preferences. Select all restrictions that apply (vegan, gluten-free, etc.). Then regenerate your plan. If a restricted ingredient keeps appearing, email us with your account email and the specific ingredient — that's a bug we'll fix.</dd>
 
     <dt class="faq-q">How do I swap a meal I don't like?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Click on any meal in your plan and select "Swap this meal." The AI will replace just that one meal with something different. You can swap as many meals as you like.</dd>
+    <dd class="faq-a">Click on any meal in your plan and select "Swap this meal." The AI will replace just that one meal with something different. You can swap as many meals as you like.</dd>
 
     <dt class="faq-q">My plan disappeared after I closed the app.</dt>
     <dd class="faq-a">Log in and check your <a href="dashboard.html">Dashboard</a> — your latest plan is saved automatically. If it's missing, email us with your account email and the date you generated the plan.</dd>
   </dl>
   </section>
 
-  <!-- ── PRO & BILLING ───────────────────────────────────────────────────── -->
-  <h2>Pro &amp; Billing</h2>
-
+  <h2 class="support-h2">Pro &amp; Billing</h2>
   <section role="region" aria-label="Billing FAQs">
-  <dl style="margin-bottom:2rem;">
+  <dl>
     <dt class="faq-q">What does Pro include?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Pro gives you unlimited meal plans, grocery list export, PDF download, Mia the AI nutrition coach, detailed macros per meal, and streak rewards. It's $8/month or $96/year. See the full comparison at <a href="pricing.html">pricing</a>.</dd>
+    <dd class="faq-a">Pro gives you unlimited meal plans, grocery list export, PDF download, Mia the AI nutrition coach, detailed macros per meal, and streak rewards. It's $8/month or $96/year. See the full comparison at <a href="pricing.html">pricing</a>.</dd>
 
     <dt class="faq-q">I paid but I'm still on the free plan.</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Pro usually activates within 60 seconds. If it hasn't after 5 minutes, email <a href="mailto:support@mealzy.org">Email our support team</a> with your payment confirmation email — we'll activate it manually within a few hours.</dd>
+    <dd class="faq-a">Pro usually activates within 60 seconds. If it hasn't after 5 minutes, <a href="mailto:support@mealzy.org">email our support team</a> with your payment confirmation email — we'll activate it manually within a few hours.</dd>
 
     <dt class="faq-q">How do I cancel my subscription?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Go to <a href="settings.html">Settings</a> and scroll to the Subscription section. You'll keep Pro access until the end of your current billing period. Your plans and data are never deleted.</dd>
+    <dd class="faq-a">Go to <a href="settings.html">Settings</a> and scroll to the Subscription section. You'll keep Pro access until the end of your current billing period. Your plans and data are never deleted.</dd>
 
     <dt class="faq-q">Can I get a refund?</dt>
-    <dd class="faq-a">Yes — we offer a full refund within 7 days of subscribing if you haven't found it useful. Email <a href="mailto:support@mealzy.org">Email our support team</a> with your request and payment confirmation.</dd>
+    <dd class="faq-a">Yes — we offer a full refund within 7 days of subscribing if you haven't found it useful. <a href="mailto:support@mealzy.org">Email our support team</a> with your request and payment confirmation.</dd>
   </dl>
   </section>
 
-  <!-- ── AI COACH (MIA) ──────────────────────────────────────────────────── -->
-  <h2>AI Coach (Mia)</h2>
-
+  <h2 class="support-h2">AI Coach (Mia)</h2>
   <section role="region" aria-label="AI Coach FAQs">
-  <dl style="margin-bottom:2rem;">
+  <dl>
     <dt class="faq-q">Where is the AI coach?</dt>
-    <dd class="faq-a" style="margin-bottom:1.5rem;">Mia is a Pro feature. Once you're on Pro, she appears in the <a href="ai-coach.html">AI Coach</a> section of your dashboard. She knows your profile and can answer nutrition questions, explain your meal plan, and help you stay on track.</dd>
+    <dd class="faq-a">Mia is a Pro feature. Once you're on Pro, she appears in the <a href="ai-coach.html">AI Coach</a> section of your dashboard. She knows your profile and can answer nutrition questions, explain your meal plan, and help you stay on track.</dd>
 
     <dt class="faq-q">Is Mia's advice medically accurate?</dt>
     <dd class="faq-a">Mia is an AI assistant providing general nutrition guidance — not a doctor or registered dietitian. For medical nutrition advice, always consult a qualified healthcare professional. If you spot a specific error in her advice, please report it to us.</dd>
   </dl>
   </section>
 
-  <!-- ── CONTACT ─────────────────────────────────────────────────────────── -->
   <div class="contact-box">
     <h2>Still need help?</h2>
     <p>Email us directly and we'll reply within 24 hours on weekdays.</p>
-    <a href="mailto:support@mealzy.org?subject=Mealzy Support" class="contact-btn">Email support@mealzy.org</a>
+    <a href="mailto:support@mealzy.org?subject=Mealzy Support" class="btn btn-primary">Email support@mealzy.org</a>
     <p class="response-note">When reporting a bug, include: your account email, what you were doing, and what happened instead.</p>
   </div>
+</div>
 
 </main>
+
+<footer class="footer-slim on-forest">
+  <div class="container inner">
+    <a href="/" class="logo">Mealzy</a>
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms.html">Terms</a>
+    </div>
+    <p>&copy; 2026 Mealzy. All rights reserved.</p>
+  </div>
+</footer>
 
 <script>
 document.getElementById('faqSearch').addEventListener('input', function() {
   const searchValue = this.value.toLowerCase();
-  const headers = document.querySelectorAll('.support-wrap h2');
+  const headers = document.querySelectorAll('.support-h2');
 
   headers.forEach(h2 => {
     let hasVisiblePairs = false;
     let nextElement = h2.nextElementSibling;
 
-    while (nextElement && nextElement.tagName !== 'H2' && nextElement.tagName !== 'FOOTER') {
+    while (nextElement && !nextElement.classList.contains('support-h2') && !nextElement.classList.contains('contact-box')) {
       if (nextElement.tagName === 'SECTION') {
         const dts = nextElement.querySelectorAll('dt.faq-q');
         dts.forEach(dt => {
@@ -176,4 +170,3 @@ document.getElementById('faqSearch').addEventListener('input', function() {
 </script>
 </body>
 </html>
-

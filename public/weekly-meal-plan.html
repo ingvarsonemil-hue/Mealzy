@@ -1,211 +1,139 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Weekly Meal Plan — 7 Days of Healthy Meals | Mealzy</title>
-  <meta name="description" content="Get a free 7-day weekly meal plan personalised to your calorie goal, budget, and dietary preferences. AI-generated in 30 seconds. Includes a complete grocery list." />
-  <link rel="canonical" href="https://mealzy.org/weekly-meal-plan.html" />
-  <meta property="og:title" content="Free Weekly Meal Plan — 7 Days of Healthy Meals | Mealzy" />
-  <meta property="og:description" content="Free personalised 7-day meal plan. Set your calories, budget, and diet. AI generates a full week of meals + grocery list in 30 seconds." />
-  <meta property="og:url" content="https://mealzy.org/weekly-meal-plan.html" />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <!-- Mealzy Design System -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Weekly Meal Plan — 7 Days of Healthy Meals | Mealzy</title>
+<meta name="description" content="Get a free 7-day weekly meal plan personalised to your calorie goal, budget, and dietary preferences. AI-generated in 30 seconds. Includes a complete grocery list.">
+<link rel="canonical" href="https://mealzy.org/weekly-meal-plan.html">
+<meta property="og:title" content="Free Weekly Meal Plan — 7 Days of Healthy Meals | Mealzy">
+<meta property="og:description" content="Free personalised 7-day meal plan. Set your calories, budget, and diet. AI generates a full week of meals + grocery list in 30 seconds.">
+<meta property="og:url" content="https://mealzy.org/weekly-meal-plan.html">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="preload" href="/fonts/fraunces/fraunces-latin-900-italic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <meta name="theme-color" content="#1a3d2b">
-<script src="/js/theme-init.js"></script>
-<script src="/js/utils.js" defer></script>
-<style>
-.hero-section {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-.hero-headline {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  margin-bottom: 1rem;
-}
-ul.feature-grid-list {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin: 3rem 0;
-  padding: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn, .feature-grid-list li { animation: none !important; transition: none !important; }
-}
-
-ul.feature-grid-list li {
-  background: var(--clr-card);
-  border: 1px solid var(--clr-border);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  text-align: center;
-}
-</style>
-  <link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/funnel.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3d2b">
+<script src="/js/seo.js" defer></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to main content</a>
 
-<nav class="nav-fixed" aria-label="Main navigation">
-  <div class="nav-inner container">
-    <a href="/" class="nav-logo-text">Mealzy</a>
+<nav class="nav-fixed nav-solid on-forest" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo-text" aria-label="Mealzy home">Mealzy</a>
     <div class="nav-actions">
-      <a href="login.html" class="btn btn-ghost btn-sm">Sign In</a>
-      <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start Free</a>
-      <button onclick="toggleTheme()" style="background:none;border:1px solid var(--clr-border);border-radius:8px;cursor:pointer;color:var(--clr-foreground);padding:0.35rem 0.55rem;line-height:1;" aria-label="Toggle dark mode"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">
+        <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a href="login.html" class="btn btn-quiet btn-sm hide-on-mobile">Sign in</a>
+      <a href="login.html?signup=1" class="btn btn-primary btn-sm">Start Planning Free</a>
     </div>
   </div>
 </nav>
 
-<main id="main" class="page-content">
+<main id="main">
 
-  <!-- Hero -->
-  <div class="hero-section">
-    <h1 class="hero-headline">Your free 7-day meal plan — built around your actual goals.</h1>
-    <p style="font-size:1.05rem;color:var(--clr-muted-fg);line-height:1.7;max-width:560px;margin:0 auto 1.75rem;">Stop reinventing your meals every week. Set your calorie goal, your budget, and your dietary preferences once. Mealzy generates a full 7-day plan with breakfast, lunch, dinner, and snacks — plus a sorted grocery list — in about 30 seconds. Free.</p>
-    <a href="login.html?signup=1" class="btn btn-primary btn-lg">Get My Free Weekly Plan →</a>
-    <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-top:0.75rem;">3 plans/month free. No credit card. No catch.</p>
+<header class="page-head on-forest">
+  <div class="container">
+    <h1>Your free 7-day meal plan — built around your actual goals.</h1>
+    <p class="lede">Stop reinventing your meals every week. Set your calorie goal, your budget, and your dietary preferences once. Mealzy generates a full 7-day plan with breakfast, lunch, dinner, and snacks — plus a sorted grocery list — in about 30 seconds. Free.</p>
+    <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Planning Free</a>
+    <p class="fine">3 plans/month free. No credit card. No catch.</p>
   </div>
+</header>
 
-  <!-- Above-the-fold 3-day sample grid -->
-  <div style="margin:0 0 2.5rem;">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;">
-      <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
-        <div style="background:var(--clr-primary);padding:0.5rem 0.85rem;color:var(--clr-on-primary);font-weight:700;font-size:0.8rem;">Monday</div>
-        <div style="padding:0.75rem 0.85rem;font-size:0.82rem;display:flex;flex-direction:column;gap:0.35rem;">
-          <div style="display:flex;justify-content:space-between;"><span>Porridge with blueberries</span><span style="color:var(--clr-muted-fg);">340 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Chicken wrap</span><span style="color:var(--clr-muted-fg);">490 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Salmon with roasted veg</span><span style="color:var(--clr-muted-fg);">580 kcal</span></div>
-        </div>
-      </div>
-      <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
-        <div style="background:var(--clr-primary);padding:0.5rem 0.85rem;color:var(--clr-on-primary);font-weight:700;font-size:0.8rem;">Tuesday</div>
-        <div style="padding:0.75rem 0.85rem;font-size:0.82rem;display:flex;flex-direction:column;gap:0.35rem;">
-          <div style="display:flex;justify-content:space-between;"><span>Scrambled eggs on toast</span><span style="color:var(--clr-muted-fg);">380 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Lentil soup with bread</span><span style="color:var(--clr-muted-fg);">460 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Pasta arrabiata</span><span style="color:var(--clr-muted-fg);">580 kcal</span></div>
-        </div>
-      </div>
-      <div style="background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;overflow:hidden;">
-        <div style="background:var(--clr-primary);padding:0.5rem 0.85rem;color:var(--clr-on-primary);font-weight:700;font-size:0.8rem;">Wednesday</div>
-        <div style="padding:0.75rem 0.85rem;font-size:0.82rem;display:flex;flex-direction:column;gap:0.35rem;">
-          <div style="display:flex;justify-content:space-between;"><span>Banana smoothie with oats</span><span style="color:var(--clr-muted-fg);">320 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Tuna pasta salad</span><span style="color:var(--clr-muted-fg);">440 kcal</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Chicken stir-fry with rice</span><span style="color:var(--clr-muted-fg);">590 kcal</span></div>
-        </div>
-      </div>
+<div class="container" style="margin-top:2.5rem;">
+  <div class="day-cards">
+    <div class="day-card">
+      <header>Monday</header>
+      <ul>
+        <li><span>Porridge with blueberries</span><span class="kcal">340 kcal</span></li>
+        <li><span>Chicken wrap</span><span class="kcal">490 kcal</span></li>
+        <li><span>Salmon with roasted veg</span><span class="kcal">580 kcal</span></li>
+      </ul>
     </div>
-    <p style="text-align:center;font-size:0.78rem;color:var(--clr-muted-fg);margin-top:0.75rem;">Sample from a real Mealzy plan · 2,000 kcal/day · $70/week</p>
+    <div class="day-card">
+      <header>Tuesday</header>
+      <ul>
+        <li><span>Scrambled eggs on toast</span><span class="kcal">380 kcal</span></li>
+        <li><span>Lentil soup with bread</span><span class="kcal">460 kcal</span></li>
+        <li><span>Pasta arrabiata</span><span class="kcal">580 kcal</span></li>
+      </ul>
+    </div>
+    <div class="day-card">
+      <header>Wednesday</header>
+      <ul>
+        <li><span>Banana smoothie with oats</span><span class="kcal">320 kcal</span></li>
+        <li><span>Tuna pasta salad</span><span class="kcal">440 kcal</span></li>
+        <li><span>Chicken stir-fry with rice</span><span class="kcal">590 kcal</span></li>
+      </ul>
+    </div>
   </div>
+  <p class="day-caption">Sample from a real Mealzy plan · 2,000 kcal/day · $70/week</p>
+</div>
 
-  <!-- What's in a week -->
-  <ul class="feature-grid-list" role="list">
-    <li>
-      <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.35rem;">7 Breakfasts</h3>
-      <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">Quick, nutritious starts. Matched to your morning calorie target.</p>
-    </li>
-    <li>
-      <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.35rem;">7 Lunches</h3>
-      <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">Practical, packable or quick-to-cook. Never boring.</p>
-    </li>
-    <li>
-      <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.35rem;">7 Dinners</h3>
-      <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">Balanced, satisfying meals. From 20 to 45 minutes to cook.</p>
-    </li>
-    <li>
-      <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.35rem;">1 Grocery List</h3>
-      <p style="font-size:0.8rem;color:var(--clr-muted-fg);margin:0;">All ingredients, sorted by category, with estimated costs.</p>
-    </li>
-  </ul>
+<div class="article">
+  <div class="fact-grid">
+    <div class="fact">
+      <h3>7 breakfasts</h3>
+      <p>Quick, nutritious starts. Matched to your morning calorie target.</p>
+    </div>
+    <div class="fact">
+      <h3>7 lunches</h3>
+      <p>Practical, packable or quick-to-cook. Never boring.</p>
+    </div>
+    <div class="fact">
+      <h3>7 dinners</h3>
+      <p>Balanced, satisfying meals. From 20 to 45 minutes to cook.</p>
+    </div>
+    <div class="fact">
+      <h3>1 grocery list</h3>
+      <p>All ingredients, sorted by category, with estimated costs.</p>
+    </div>
+  </div>
+</div>
 
-  <!-- Sample 3-day preview -->
-  <div style="margin:3rem 0;">
-    <h2 style="font-size:1.15rem;font-weight:800;margin-bottom:0.25rem;">Sample weekly plan preview</h2>
-    <p style="font-size:0.85rem;color:var(--clr-muted-fg);margin-bottom:1.5rem;">From a real Mealzy plan: 2,000 kcal/day · $70/week · no restrictions.</p>
-
-    <div style="overflow-x:auto;">
-      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;" aria-label="Sample weekly meal plan preview">
+<div class="container">
+  <div class="sample-panel">
+    <h2>Sample weekly plan preview</h2>
+    <p class="note">From a real Mealzy plan: 2,000 kcal/day · $70/week · no restrictions.</p>
+    <div class="meal-scroll">
+      <table class="sample-table" aria-label="Sample weekly meal plan preview">
         <caption>Sample 7-day meal plan: 2,000 kcal/day, $70/week, no dietary restrictions</caption>
-        <thead>
-          <tr style="background:var(--clr-primary);color:var(--clr-on-primary);">
-            <th scope="col" style="padding:0.65rem 1rem;text-align:left;font-weight:700;">Day</th>
-            <th scope="col" style="padding:0.65rem 1rem;text-align:left;font-weight:700;">Breakfast</th>
-            <th scope="col" style="padding:0.65rem 1rem;text-align:left;font-weight:700;">Lunch</th>
-            <th scope="col" style="padding:0.65rem 1rem;text-align:left;font-weight:700;">Dinner</th>
-          </tr>
-        </thead>
+        <thead><tr><th scope="col">Day</th><th scope="col">Breakfast</th><th scope="col">Lunch</th><th scope="col">Dinner</th></tr></thead>
         <tbody>
-          <tr style="background:var(--clr-card);border-bottom:1px solid var(--clr-border);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Monday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Porridge</strong> with blueberries and almond butter<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">340 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Chicken &amp; avocado wrap</strong><br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">490 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Salmon with roasted potatoes &amp; greens</strong><br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">580 kcal</span></td>
-          </tr>
-          <tr style="background:var(--clr-card);border-bottom:1px solid var(--clr-border);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Tuesday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Scrambled eggs</strong> on sourdough toast<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">380 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Lentil &amp; spinach soup</strong> with crusty bread<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">460 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Pasta arrabiata</strong> with parmesan<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">580 kcal</span></td>
-          </tr>
-          <tr style="background:var(--clr-card);border-bottom:1px solid var(--clr-border);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Wednesday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Banana smoothie</strong> with oats and protein powder<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">320 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Tuna pasta salad</strong> with cherry tomatoes<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">440 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Chicken stir-fry</strong> with rice and broccoli<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">590 kcal</span></td>
-          </tr>
-          <tr style="background:var(--clr-card);border-bottom:1px solid var(--clr-border);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Thursday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Greek yogurt</strong> with granola and honey<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">310 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Black bean &amp; sweet potato burrito bowl</strong><br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">500 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Baked cod with roasted veg &amp; quinoa</strong><br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">530 kcal</span></td>
-          </tr>
-          <tr style="background:var(--clr-card);border-bottom:1px solid var(--clr-border);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Friday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Overnight oats</strong> with berries and chia<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">350 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Egg &amp; avocado salad wrap</strong><br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">470 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Beef &amp; vegetable stir-fry</strong> with noodles<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">610 kcal</span></td>
-          </tr>
-          <tr style="background:var(--clr-card);border-bottom:1px solid var(--clr-border);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Saturday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Pancakes</strong> with fresh fruit and maple syrup<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">410 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Tomato soup</strong> with grilled cheese toast<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">450 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Roast chicken thighs</strong> with mashed potato &amp; greens<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">620 kcal</span></td>
-          </tr>
-          <tr style="background:var(--clr-card);">
-            <td style="padding:0.75rem 1rem;font-weight:700;white-space:nowrap;">Sunday</td>
-            <td style="padding:0.75rem 1rem;"><strong>Poached eggs</strong> on sourdough with spinach<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">360 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Chickpea &amp; roasted pepper salad</strong><br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">420 kcal</span></td>
-            <td style="padding:0.75rem 1rem;"><strong>Salmon &amp; vegetable traybake</strong> with couscous<br><span style="font-size:0.78rem;color:var(--clr-muted-fg);">590 kcal</span></td>
-          </tr>
+          <tr><td class="day-col">Mon</td><td><strong>Porridge</strong> with blueberries and almond butter<span class="sub">340 kcal</span></td><td><strong>Chicken &amp; avocado wrap</strong><span class="sub">490 kcal</span></td><td><strong>Salmon with roasted potatoes &amp; greens</strong><span class="sub">580 kcal</span></td></tr>
+          <tr><td class="day-col">Tue</td><td><strong>Scrambled eggs</strong> on sourdough toast<span class="sub">380 kcal</span></td><td><strong>Lentil &amp; spinach soup</strong> with crusty bread<span class="sub">460 kcal</span></td><td><strong>Pasta arrabiata</strong> with parmesan<span class="sub">580 kcal</span></td></tr>
+          <tr><td class="day-col">Wed</td><td><strong>Banana smoothie</strong> with oats and protein powder<span class="sub">320 kcal</span></td><td><strong>Tuna pasta salad</strong> with cherry tomatoes<span class="sub">440 kcal</span></td><td><strong>Chicken stir-fry</strong> with rice and broccoli<span class="sub">590 kcal</span></td></tr>
+          <tr><td class="day-col">Thu</td><td><strong>Greek yogurt</strong> with granola and honey<span class="sub">310 kcal</span></td><td><strong>Black bean &amp; sweet potato burrito bowl</strong><span class="sub">500 kcal</span></td><td><strong>Baked cod with roasted veg &amp; quinoa</strong><span class="sub">530 kcal</span></td></tr>
+          <tr><td class="day-col">Fri</td><td><strong>Overnight oats</strong> with berries and chia<span class="sub">350 kcal</span></td><td><strong>Egg &amp; avocado salad wrap</strong><span class="sub">470 kcal</span></td><td><strong>Beef &amp; vegetable stir-fry</strong> with noodles<span class="sub">610 kcal</span></td></tr>
+          <tr><td class="day-col">Sat</td><td><strong>Pancakes</strong> with fresh fruit and maple syrup<span class="sub">410 kcal</span></td><td><strong>Tomato soup</strong> with grilled cheese toast<span class="sub">450 kcal</span></td><td><strong>Roast chicken thighs</strong> with mashed potato &amp; greens<span class="sub">620 kcal</span></td></tr>
+          <tr><td class="day-col">Sun</td><td><strong>Poached eggs</strong> on sourdough with spinach<span class="sub">360 kcal</span></td><td><strong>Chickpea &amp; roasted pepper salad</strong><span class="sub">420 kcal</span></td><td><strong>Salmon &amp; vegetable traybake</strong> with couscous<span class="sub">590 kcal</span></td></tr>
         </tbody>
       </table>
     </div>
   </div>
+</div>
 
-  <!-- Prose content -->
-  <div style="font-size:0.92rem;line-height:1.75;color:var(--clr-muted-fg);max-width:640px;margin:0 auto;">
-
-    <h2 style="font-size:1.15rem;font-weight:800;color:var(--clr-foreground);margin:2rem 0 0.5rem;">Why weekly meal planning actually works</h2>
+<div class="article">
+  <div class="prose">
+    <h2>Why weekly meal planning actually works</h2>
     <p>Research consistently shows that people who plan their meals in advance consume fewer calories, spend less on food, and waste less grocery shopping. The mechanism is simple: when you don't plan, you make food decisions when you're hungry — which is the worst time to make decisions. When you've already decided what you're eating for the week, you shop with a list, cook with purpose, and don't stand in front of the fridge at 7pm wondering what to eat.</p>
     <p>The problem is that planning properly takes time. Most people spend 30–60 minutes per week figuring out meals, checking what's in the fridge, writing a grocery list, and making sure the numbers roughly add up. Mealzy compresses that into 30 seconds.</p>
 
-    <h2 style="font-size:1.15rem;font-weight:800;color:var(--clr-foreground);margin:2rem 0 0.5rem;">What makes a good weekly meal plan?</h2>
+    <h2>What makes a good weekly meal plan?</h2>
     <p>A well-designed weekly meal plan has five properties:</p>
     <ul>
       <li><strong>Calorie balance.</strong> It hits your daily calorie target consistently — not 1,200 one day and 2,800 the next.</li>
@@ -216,7 +144,7 @@ ul.feature-grid-list li {
     </ul>
     <p>Mealzy generates plans that satisfy all five properties. You can set your calorie target, budget, max cooking time, preferred cuisines, and dietary restrictions. The AI balances all of these simultaneously — which is why it works better than manually copying a plan from a website that wasn't designed for you.</p>
 
-    <h2 style="font-size:1.15rem;font-weight:800;color:var(--clr-foreground);margin:2rem 0 0.5rem;">How to get the most from your weekly plan</h2>
+    <h2>How to get the most from your weekly plan</h2>
     <ul>
       <li><strong>Generate on Sunday morning.</strong> Shop Sunday afternoon. You start the week with everything you need.</li>
       <li><strong>Batch cook the parts that save the most time.</strong> Rice, roasted vegetables, hard-boiled eggs, and cooked grains last 4–5 days in the fridge. Cook them once and use throughout the week.</li>
@@ -225,42 +153,38 @@ ul.feature-grid-list li {
     </ul>
   </div>
 
-  <!-- Related pages -->
-  <div style="margin:2.5rem 0;padding:1.5rem;background:var(--clr-muted-bg);border-radius:0.75rem;">
-    <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;color:var(--clr-muted-fg);text-transform:uppercase;letter-spacing:0.05em;">Related pages</h3>
-    <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-      <a href="meal-plan-generator.html" style="color:var(--clr-primary);font-size:0.88rem;text-decoration:none;font-weight:600;">→ AI Meal Plan Generator</a>
-      <a href="budget-meal-plan.html" style="color:var(--clr-primary);font-size:0.88rem;text-decoration:none;font-weight:600;">→ Budget Meal Plan ($50/week)</a>
-      <a href="pricing.html" style="color:var(--clr-primary);font-size:0.88rem;text-decoration:none;font-weight:600;">→ Pricing</a>
+  <div class="related">
+    <a href="meal-plan-generator.html">AI Meal Plan Generator</a>
+    <a href="budget-meal-plan.html">Budget Meal Plan ($50/week)</a>
+    <a href="pricing.html">Pricing</a>
+  </div>
+</div>
+
+<section class="section close-band on-forest" aria-labelledby="cta-heading" style="margin-top:3.5rem;">
+  <div class="container">
+    <h2 id="cta-heading" class="section-title">Get your free weekly meal plan.</h2>
+    <p class="close-lede">Enter your calorie goal, budget, and dietary preferences once. Mealzy builds the week in 30 seconds — balanced, practical, and grocery-list ready.</p>
+    <div class="close-actions">
+      <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Planning Free</a>
     </div>
   </div>
-
-  <!-- Final CTA -->
-  <div role="region" aria-label="Get started" style="text-align:center;margin-top:3rem;padding:2.5rem;background:var(--clr-primary);border-radius:1rem;color:var(--clr-on-primary);">
-    <h2 style="font-family:var(--font-display);font-style:italic;font-weight:900;font-size:1.5rem;margin-bottom:0.5rem;">Get your free weekly meal plan</h2>
-    <p style="opacity:0.88;font-size:0.9rem;margin-bottom:1.25rem;line-height:1.6;">Enter your calorie goal, budget, and dietary preferences once. Mealzy builds the week in 30 seconds — balanced, practical, and grocery-list ready.</p>
-    <a href="login.html?signup=1" style="display:inline-block;background:white;color:var(--clr-primary);font-weight:800;padding:0.9rem 1.75rem;border-radius:0.75rem;text-decoration:none;font-size:0.95rem;">Generate My Free Meal Plan →</a>
-    <p style="font-size:0.78rem;opacity:0.7;margin-top:0.75rem;margin-bottom:0;">Free. No credit card. 3 plans/month at zero cost.</p>
-  </div>
+</section>
 
 </main>
 
-<footer>
-  <div class="container">
-    <div class="footer-inner">
-      <a href="/" style="font-family:var(--font-display);font-weight:700;font-size:22px;font-style:italic;color:var(--clr-on-primary);text-decoration:none;">Mealzy</a>
-      <div class="footer-links">
-        <a href="meal-plan-generator.html">Plan Generator</a>
-        <a href="budget-meal-plan.html">Budget Plan</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="mailto:support@mealzy.org">Contact</a>
-      </div>
-      <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;">© 2026 Mealzy. All rights reserved.</p>
+<footer class="footer-slim on-forest">
+  <div class="container inner">
+    <a href="/" class="logo">Mealzy</a>
+    <div class="links">
+      <a href="meal-plan-generator.html">Plan Generator</a>
+      <a href="budget-meal-plan.html">Budget Plan</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="mailto:support@mealzy.org">Contact</a>
     </div>
+    <p>&copy; 2026 Mealzy. All rights reserved.</p>
   </div>
 </footer>
 
 </body>
 </html>
-

@@ -1,59 +1,44 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#1a3d2b">
-  <title>Welcome to Pro | Mealzy</title>
-  <meta name="description" content="Congratulations! You've unlocked Mealzy Pro — unlimited meal plans, grocery export, PDF downloads, and AI coaching." />
-  <meta property="og:title" content="Welcome to Pro — Mealzy">
-  <meta property="og:description" content="You've unlocked unlimited meal plans, PDF export, and AI coaching.">
-  <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
-  <meta property="og:type" content="website">
-  <!-- Mealzy Design System -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a3d2b">
+<title>Welcome to Pro | Mealzy</title>
+<meta name="description" content="Congratulations! You've unlocked Mealzy Pro — unlimited meal plans, grocery export, PDF downloads, and AI coaching.">
+<meta property="og:title" content="Welcome to Pro — Mealzy">
+<meta property="og:description" content="You've unlocked unlimited meal plans, PDF export, and AI coaching.">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <style>
-    body { background: var(--clr-background); display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; }
-    .pro-card { background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: var(--radius-xl); padding: 3rem 2.5rem; width: 100%; max-width: 680px; box-shadow: var(--shadow-xl); text-align: center; }
-    .pro-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--clr-primary); color: var(--color-forest); font-size: 0.85rem; font-weight: 700; padding: 0.35rem 0.9rem; border-radius: 2rem; letter-spacing: 0.04em; margin-bottom: 1.25rem; }
-    .pro-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--clr-primary); display: flex; justify-content: center; }
-    .feature-list { text-align: left; list-style: none; padding: 0; margin: 1.5rem 0 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .feature-list li { display: flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; }
-    .feature-list .chk { color: var(--clr-primary); font-weight: 700; display: flex; align-items: center; }
-    [data-theme="dark"] .pro-card { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); }
-    [data-theme="dark"] .pro-feature-item { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); }
-  </style>
-<script src="/js/theme-init.js"></script>
-  <link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/funnel.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
-<body>
+<body class="card-page">
 <a href="#main" class="skip-link">Skip to main content</a>
-<main id="main" class="pro-card">
-  <div class="pro-badge" id="proBadge">PRO ACTIVATED</div>
-  <div class="pro-icon" aria-hidden="true"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
-  <h1 id="proHeading" style="font-family:var(--font-display);font-style:italic;font-size:2rem;font-weight:900;margin-bottom:0.5rem;">You're on Pro!</h1>
-  <p style="color:var(--clr-muted-fg);font-size:0.95rem;line-height:1.6;margin-bottom:0.5rem;">
-    Your Pro features are active. Here's what you've unlocked:
-  </p>
+<main id="main" class="page-card wide" style="text-align:center;">
+  <span class="badge badge-green" id="proBadge">Pro activated</span>
+  <div aria-hidden="true" style="display:flex;justify-content:center;color:var(--color-green);margin:1.25rem 0 1rem;"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
+  <h1 id="proHeading" style="font-size:2rem;">You're on Pro!</h1>
+  <p class="h-sub" style="max-width:44ch;margin-inline:auto;">Your Pro features are active. Here's what you've unlocked:</p>
 
-  <ul class="feature-list" id="featureList">
-    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Generate as many meal plans as you want, any time</li>
-    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Chat with Mia, your AI coach, as much as you need</li>
-    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Faster replies from Mia, your AI nutrition coach</li>
-    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> PDF meal plan &amp; grocery list export</li>
-    <li><span class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Track macro splits per meal without manual logging</li>
+  <ul id="featureList" style="list-style:none;text-align:left;margin:1.5rem 0 2rem;padding:0;display:flex;flex-direction:column;gap:0.75rem;">
+    <li style="display:flex;align-items:center;gap:0.6rem;font-size:0.95rem;"><span style="color:var(--color-green);display:flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Generate as many meal plans as you want, any time</li>
+    <li style="display:flex;align-items:center;gap:0.6rem;font-size:0.95rem;"><span style="color:var(--color-green);display:flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Chat with Mia, your AI coach, as much as you need</li>
+    <li style="display:flex;align-items:center;gap:0.6rem;font-size:0.95rem;"><span style="color:var(--color-green);display:flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Faster replies from Mia, your AI nutrition coach</li>
+    <li style="display:flex;align-items:center;gap:0.6rem;font-size:0.95rem;"><span style="color:var(--color-green);display:flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> PDF meal plan &amp; grocery list export</li>
+    <li style="display:flex;align-items:center;gap:0.6rem;font-size:0.95rem;"><span style="color:var(--color-green);display:flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg></span> Track macro splits per meal without manual logging</li>
   </ul>
 
-  <a href="dashboard.html" class="btn btn-primary">
-    Go to My Dashboard →
-  </a>
-  <div id="activationStatus" aria-live="polite" style="margin-top:1rem;font-size:0.82rem;color:var(--clr-muted-fg);min-height:1.2em;text-align:center;"></div>
-  <p style="margin-top:0.5rem;font-size:0.78rem;color:var(--clr-muted-fg);">
-    Questions? Email <a href="mailto:support@mealzy.org" style="color:var(--clr-primary);">support@mealzy.org</a>
+  <a href="dashboard.html" class="btn btn-primary btn-lg">Go to My Dashboard</a>
+  <div id="activationStatus" aria-live="polite" style="margin-top:1rem;font-size:0.82rem;color:var(--color-muted-fg);min-height:1.2em;"></div>
+  <p style="margin:0.5rem auto 0;font-size:0.78rem;color:var(--color-muted-fg);">
+    Questions? Email <a href="mailto:support@mealzy.org" style="color:var(--color-green);">support@mealzy.org</a>
   </p>
 </main>
 
@@ -66,7 +51,7 @@
     const badge = document.getElementById('proBadge');
     const heading = document.getElementById('proHeading');
     const list = document.getElementById('featureList');
-    if (badge) badge.textContent = 'FAMILY ACTIVATED';
+    if (badge) badge.textContent = 'Family activated';
     if (heading) heading.textContent = "You're on Family!";
     if (list) list.innerHTML = [
       '<strong>Up to 4 individual profiles</strong> — each with their own goals',
@@ -76,7 +61,7 @@
       'PDF meal plan &amp; grocery list export',
       'Advanced macro splits per meal',
       'All future Family features — included',
-    ].map(f => `<li><span class="chk">${CHK}</span> ${f}</li>`).join('');
+    ].map(f => `<li style="display:flex;align-items:center;gap:0.6rem;font-size:0.95rem;"><span style="color:var(--color-green);display:flex;">${CHK}</span> ${f}</li>`).join('');
   }
 
   async function activatePro() {
@@ -94,7 +79,7 @@
       startCountdown();
     } catch(e) {
       if (status) {
-        status.innerHTML = 'Pro activation pending. <button onclick="activatePro()" style="background:none;border:none;color:var(--clr-primary);cursor:pointer;font-size:inherit;text-decoration:underline;padding:0;">Retry</button>';
+        status.innerHTML = 'Pro activation pending. <button onclick="activatePro()" style="background:none;border:none;color:var(--color-green);cursor:pointer;font-size:inherit;text-decoration:underline;padding:0;">Retry</button>';
       }
     }
   }
@@ -112,9 +97,9 @@
     const status = document.getElementById('activationStatus');
     let n = 5;
     if (status) status.innerHTML =
-      'Taking you to your dashboard in <span aria-live="polite" id="countNum">' + n + '</span>…' +
-      ' <a href="dashboard.html" style="color:var(--clr-primary);text-decoration:underline;margin-left:0.4rem;">Go to Dashboard now →</a>' +
-      ' <button onclick="cancelCountdown()" style="background:none;border:none;color:var(--clr-muted-fg);cursor:pointer;font-size:inherit;text-decoration:underline;padding:0;margin-left:0.4rem;">Cancel redirect</button>';
+      'Taking you to your dashboard in <span aria-live="polite" id="countNum">' + n + '</span>...' +
+      ' <a href="dashboard.html" style="color:var(--color-green);text-decoration:underline;margin-left:0.4rem;">Go to Dashboard now</a>' +
+      ' <button onclick="cancelCountdown()" style="background:none;border:none;color:var(--color-muted-fg);cursor:pointer;font-size:inherit;text-decoration:underline;padding:0;margin-left:0.4rem;">Cancel redirect</button>';
     _redirectTimer = setInterval(() => {
       n--;
       if (n <= 0) {
@@ -143,4 +128,3 @@
 </script>
 </body>
 </html>
-

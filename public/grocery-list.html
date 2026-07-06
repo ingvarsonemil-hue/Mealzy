@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/js/theme-init.js"></script>
 <!-- Cookie consent gate (must load before analytics) -->
 <script src="/js/consent.js"></script>
   <meta charset="UTF-8" />
@@ -13,6 +14,7 @@
   <!-- Mealzy Design System -->
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="/css/app-theme.css">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <script src="/translations.js" defer></script>
@@ -227,7 +229,6 @@
       outline-offset: 2px;
     }
   </style>
-<script src="/js/theme-init.js" defer></script>
 <script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
 </head>
@@ -350,7 +351,7 @@
     <div id="proNudgeBanner" style="display:none;margin-bottom:1.25rem;padding:0.85rem 1.25rem;border-radius:var(--radius-md);background:var(--clr-primary-light);border:1px solid var(--clr-border);color:var(--clr-primary-dark);font-size:0.85rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
       <span style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> &mdash;� share your list or print it in one tap.
+        <strong>Pro unlocks PDF export + unlimited grocery lists</strong> &mdash; share your list or print it in one tap.
       </span>
       <a href="upgrade.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
     </div>
