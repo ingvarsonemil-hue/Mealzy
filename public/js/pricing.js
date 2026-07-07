@@ -13,7 +13,7 @@
 
   var prices = { monthly: { free: '$0', premium: '$12', family: '$16' }, yearly: { free: '$0', premium: '$8', family: '$11' } };
   var billedTxt = {
-    monthly: { free: '', premium: '', family: '' },
+    monthly: { free: '', premium: 'or $8/month billed yearly — save $48', family: 'or $11/month billed yearly — save $62' },
     yearly: { free: '', premium: 'Billed $96/year — save $48 vs monthly', family: 'Billed $130/year — save $62 vs monthly' }
   };
 
@@ -75,9 +75,8 @@
       window.amplitude.track('Upgrade Page Viewed', { page: 'pricing' });
     }
 
-    document.getElementById('proCta').href = STRIPE_MONTHLY;
     document.getElementById('popupCta').href = STRIPE_MONTHLY;
-    document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
+    setBilling('monthly'); /* render prices, CTAs, and the annual-savings line on load */
 
     document.getElementById('btnMonthly').addEventListener('click', function () { setBilling('monthly'); });
     document.getElementById('btnYearly').addEventListener('click', function () { setBilling('yearly'); });

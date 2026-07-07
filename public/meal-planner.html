@@ -333,6 +333,15 @@
       background-repeat: no-repeat;
       background-position: center;
     }
+    .limit-modal-inner p.limit-price-line {
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--clr-foreground);
+      margin-bottom: 1.1rem;
+    }
+    .limit-modal-inner p.limit-fine {
+      font-size: 0.78rem; color: var(--clr-muted-fg);
+      margin: 0.6rem 0 0;
+    }
     .limit-modal-dismiss {
       background: none; border: none; cursor: pointer;
       font-size: 0.82rem; color: var(--clr-muted-fg);
@@ -484,15 +493,15 @@
       </button>
     </div>
 
-    <!-- STICKY "1 FREE PLAN LEFT" BANNER (shown when planCount >= 2 and not Pro) -->
-    <div id="planLimitBanner" style="display:none;margin-bottom:1rem;padding:0.75rem 1.25rem;border-radius:0.75rem;background:hsl(32,88%,96%);border:1px solid hsl(32,88%,75%);color:hsl(25,60%,30%);font-size:0.88rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+    <!-- USAGE WARNING BANNER (shown when server count >= 2 of 3 free plans and not Pro) -->
+    <div id="planLimitBanner" style="display:none;margin-bottom:1rem;padding:0.75rem 1.25rem;border-radius:0.75rem;background:var(--clr-warning-bg);border:1px solid var(--clr-warning-border);color:var(--clr-warning-fg);font-size:0.88rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
       <span style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <strong>1 free plan left this month</strong> — upgrade for unlimited plans &amp; the full grocery list.
+        <strong id="planLimitBannerText">2 of 3 free plans used this month</strong> — Pro is unlimited, from $8/month.
       </span>
       <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
         <a href="upgrade.html" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','plan_limit_banner')" style="background:var(--clr-primary);color:white;padding:0.35rem 0.9rem;border-radius:0.5rem;font-weight:700;font-size:0.82rem;text-decoration:none;">Upgrade to Pro &#8594;</a>
-        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:hsl(32,60%,40%);font-size:1rem;line-height:1;">&#x2715;</button>
+        <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--clr-warning-fg);font-size:1rem;line-height:1;">&#x2715;</button>
       </div>
     </div>
 
@@ -577,19 +586,21 @@
     <div class="limit-modal-icon">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
     </div>
-    <h2 id="limitModalTitle">You've used your free plans</h2>
-    <p>You've hit the 3 plan limit for this month. Upgrade to Pro for unlimited plans and everything below — or wait until next month.</p>
+    <h2 id="limitModalTitle">That's all 3 free plans this month</h2>
+    <p>Your free plans reset on <strong id="limitResetDate">the 1st</strong>. Pro removes the limit, so you can plan every week of the month and swap meals as often as you like.</p>
     <ul class="limit-features">
-      <li>Unlimited AI meal plans, every week</li>
-      <li>Full grocery list with one click</li>
-      <li>PDF export — print and take it shopping</li>
+      <li>Unlimited AI meal plans — no monthly cap</li>
       <li>Unlimited AI coaching with Mia</li>
-      <li>Advanced macros broken down per meal</li>
+      <li>PDF export — print your plan and grocery list</li>
+      <li>Macros broken down per meal, not just per day</li>
+      <li>Priority generation — ready in about 15 seconds</li>
     </ul>
+    <p class="limit-price-line">$8/month billed yearly, or $12 month-to-month.</p>
     <a href="upgrade.html" class="btn btn-primary" style="display:block;width:100%;text-align:center;font-size:1rem;padding:0.85rem;" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','limit_modal')">
       Start Pro — 7 Days Free
     </a>
-    <button class="limit-modal-dismiss" onclick="closeLimitModal()">Maybe next month</button>
+    <p class="limit-fine">No charge for 7 days. Cancel in one click.</p>
+    <button class="limit-modal-dismiss" onclick="closeLimitModal()">I'll wait for the reset</button>
   </div>
 </div>
 
@@ -902,6 +913,10 @@
   function showLimitModal() {
     _limitModalTrigger = document.activeElement;
     const modal = document.getElementById('limitModal');
+    const reset = new Date();
+    reset.setMonth(reset.getMonth() + 1, 1);
+    document.getElementById('limitResetDate').textContent =
+      reset.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
     modal.classList.add('open');
     const focusable = modal.querySelectorAll('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])');
     if (focusable[0]) focusable[0].focus();
@@ -993,12 +1008,21 @@
     if (banner) banner.style.display = 'none';
   }
 
-  function checkPlanLimitBanner() {
-    const isPro = localStorage.getItem('mealzy_pro') === 'true';
-    if (isPro) return;
-    const count = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0');
-    const banner = document.getElementById('planLimitBanner');
-    if (banner && count >= 2) banner.style.display = 'flex';
+  async function checkPlanLimitBanner() {
+    if (localStorage.getItem('mealzy_pro') === 'true') return;
+    // Server-side count — the localStorage counter never reset monthly and
+    // was only written by the dashboard, so it can't be trusted here.
+    try {
+      const res = await fetch('/api/analytics');
+      if (!res.ok) return;
+      const data = await res.json();
+      const used = Number(data.plans_this_month) || 0;
+      if (used < 2) return;
+      const textEl = document.getElementById('planLimitBannerText');
+      if (textEl) textEl.textContent = (used >= 3 ? 'All 3' : used + ' of 3') + ' free plans used this month';
+      const banner = document.getElementById('planLimitBanner');
+      if (banner) banner.style.display = 'flex';
+    } catch (e) { /* banner is best-effort */ }
   }
 
 
