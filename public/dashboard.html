@@ -138,6 +138,94 @@
       .main-content { margin-left: 220px; }
     }
     .sidebar-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; color: white; font-size: 1.25rem; text-decoration: none; }
+
+    /* ── Upgrade paywall modals (free-limit flow) ─────────── */
+    .paywall-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: var(--clr-scrim);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .paywall-card {
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-lg);
+      padding: 2.25rem 2rem;
+      max-width: 420px; width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-modal);
+      animation: slideUp 0.28s var(--ease-out) both;
+    }
+    @media (prefers-reduced-motion: reduce) { .paywall-card { animation: none; } }
+    .paywall-card-sm { max-width: 380px; }
+    .paywall-icon {
+      width: 56px; height: 56px;
+      background: rgba(var(--color-green-rgb), 0.14);
+      border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      color: var(--clr-primary);
+    }
+    .paywall-icon-offer {
+      background: color-mix(in srgb, var(--clr-destructive) 12%, transparent);
+      color: var(--clr-destructive);
+    }
+    .paywall-card h2 {
+      font-family: var(--font-display); font-style: italic;
+      font-size: 1.45rem; font-weight: var(--font-weight-black);
+      letter-spacing: -0.03em; line-height: 1.15;
+      margin-bottom: 0.6rem; color: var(--clr-foreground);
+    }
+    .paywall-card h3 {
+      font-size: var(--font-size-lg); font-weight: var(--font-weight-bold);
+      margin-bottom: 0.4rem; color: var(--clr-foreground);
+    }
+    .paywall-lede { font-size: 0.9rem; color: var(--clr-muted-fg); line-height: 1.65; margin-bottom: 1.25rem; }
+    .paywall-feats { list-style: none; padding: 0; margin: 0 0 1.25rem; text-align: left; }
+    .paywall-feats li {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-size: 0.88rem; color: var(--clr-foreground);
+      padding: 0.4rem 0; border-bottom: 1px solid var(--clr-border);
+    }
+    .paywall-feats li:last-child { border-bottom: none; }
+    .paywall-feats li::before {
+      content: '';
+      width: 18px; height: 18px; flex-shrink: 0;
+      background: var(--clr-primary);
+      border-radius: var(--radius-full);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: center;
+    }
+    .paywall-badge {
+      display: inline-block;
+      background: var(--clr-destructive); color: var(--clr-on-primary);
+      font-size: 0.72rem; font-weight: var(--font-weight-bold);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.2rem 0.7rem; border-radius: var(--radius-full);
+      margin-bottom: 0.6rem;
+    }
+    .paywall-input {
+      width: 100%; box-sizing: border-box;
+      background: var(--clr-input-bg); color: var(--clr-foreground);
+      border: 1px solid var(--clr-border); border-radius: var(--radius-sm);
+      padding: 0.65rem 0.75rem; font-size: 16px; /* 16px stops iOS auto-zoom */
+      margin-bottom: 0.75rem; font-family: inherit;
+    }
+    .paywall-input:focus {
+      outline: none; border-color: var(--clr-primary);
+      box-shadow: 0 0 0 3px rgba(var(--color-green-rgb), 0.1);
+    }
+    .paywall-input-error { border-color: var(--clr-destructive); }
+    .paywall-card .btn-full { padding: 0.85rem; font-size: 1rem; }
+    .paywall-links { display: flex; justify-content: center; gap: 1rem; margin-top: 0.75rem; }
+    .paywall-links a, .paywall-links button, .paywall-dismiss {
+      background: none; border: none; cursor: pointer; padding: 0;
+      font-family: inherit; font-size: 0.82rem; color: var(--clr-muted-fg);
+      text-decoration: underline; text-underline-offset: 2px;
+    }
+    .paywall-links a:hover, .paywall-links button:hover, .paywall-dismiss:hover { color: var(--clr-foreground); }
+    .paywall-dismiss { margin-top: 0.75rem; }
   </style>
 <script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
@@ -1033,38 +1121,43 @@
     const prefillEmail = (lsUser.email || '').replace(/"/g, '&quot;');
     const prompt = document.createElement('div');
     prompt.id = 'upgradePrompt';
-    prompt.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+    prompt.className = 'paywall-overlay';
+    prompt.setAttribute('role', 'dialog');
+    prompt.setAttribute('aria-modal', 'true');
+    prompt.setAttribute('aria-labelledby', 'paywallTitle');
     prompt.innerHTML = `
-      <div id="upgradeCard" style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(26,61,43,0.25);position:relative;">
+      <div id="upgradeCard" class="paywall-card">
         <!-- Primary offer -->
         <div id="upgradeStage1">
-          
-          <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;color:var(--clr-foreground);">You've hit your free limit</h2>
-          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$8/month</strong>. Your grocery list is waiting.</p>
-          <div style="background:var(--clr-surface);border-radius:0.75rem;padding:0.75rem;margin-bottom:1rem;font-size:0.82rem;color:var(--clr-brand);text-align:left;">
-            Unlimited AI meal plans<br>
-            Full recipes with steps & ingredients<br>
-            Advanced macros & nutrition tracking<br>
-            Priority AI coaching
-          </div>
-          <input type="email" id="upgradeEmail" value="${prefillEmail}" placeholder="Your email" style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" style="display:block;background:var(--clr-brand);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Upgrade to Pro — $8/month →</a>
-          <div style="display:flex;justify-content:center;gap:1rem;margin-top:0.25rem;">
-            <a href="upgrade.html" style="font-size:0.8rem;color:#666;text-decoration:underline;">See all Pro features</a>
-            <button onclick="showAbandonmentOffer()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">No thanks</button>
+          <div class="paywall-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <h2 id="paywallTitle">You've hit your free limit</h2>
+          <p class="paywall-lede">Upgrade to Pro for <strong>unlimited meal plans</strong>, full recipes, and AI coaching — all for just <strong>$8/month</strong>. Your grocery list is waiting.</p>
+          <ul class="paywall-feats">
+            <li>Unlimited AI meal plans</li>
+            <li>Full recipes with steps &amp; ingredients</li>
+            <li>Advanced macros &amp; nutrition tracking</li>
+            <li>Priority AI coaching</li>
+          </ul>
+          <input type="email" id="upgradeEmail" class="paywall-input" value="${prefillEmail}" placeholder="Your email" aria-label="Email address" />
+          <a href="${window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail()" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="paywallCta">Upgrade to Pro — $8/month →</a>
+          <div class="paywall-links">
+            <a href="upgrade.html">See all Pro features</a>
+            <button onclick="showAbandonmentOffer()">No thanks</button>
           </div>
         </div>
         <!-- Abandonment offer (shown after "No thanks") -->
         <div id="upgradeStage2" style="display:none;">
-          <div style="background:#fff7ed;border-radius:50%;width:52px;height:52px;display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4.5 13.5H12L11 22L19.5 10.5H12L13 2Z"/></svg></div>
-          <div style="background:var(--clr-destructive, #dc2626);color:#fff;font-size:0.72rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.7rem;border-radius:2rem;display:inline-block;margin-bottom:0.6rem;">LIMITED OFFER</div>
-          <h2 style="font-size:1.25rem;font-weight:900;margin-bottom:0.4rem;color:var(--clr-foreground);">Wait — 50% off, just for you</h2>
-          <p style="color:var(--clr-foreground);font-size:0.88rem;margin-bottom:1rem;line-height:1.6;">Get your <strong>first month of Pro for $4</strong>, then $8/month. Cancel any time.</p>
-          <a href="${window.STRIPE_DISCOUNT || window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" style="display:block;background:var(--clr-destructive, #dc2626);color:white;padding:0.9rem;border-radius:0.75rem;font-weight:700;text-decoration:none;margin-bottom:0.5rem;font-size:0.95rem;">Get Pro for $4 this month →</a>
-          <button onclick="closeUpgradeAndShowBanner()" style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">I'll stay on free</button>
+          <div class="paywall-icon paywall-icon-offer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div><span class="paywall-badge">Limited offer</span></div>
+          <h2>Wait — 50% off, just for you</h2>
+          <p class="paywall-lede">Get your <strong>first month of Pro for $4</strong>, then $8/month. Cancel any time.</p>
+          <a href="${window.STRIPE_DISCOUNT || window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'}" onclick="captureUpgradeEmail();trackEvent('abandonment_offer_click',{})" target="_blank" rel="noopener" class="btn btn-danger btn-full">Get Pro for $4 this month →</a>
+          <button class="paywall-dismiss" onclick="closeUpgradeAndShowBanner()">I'll stay on free</button>
         </div>
       </div>`;
     document.body.appendChild(prompt);
+    const cta = document.getElementById('paywallCta');
+    if (cta) cta.focus();
   }
 
   function showAbandonmentOffer() {
@@ -1100,22 +1193,23 @@
     }
     const overlay = document.createElement('div');
     overlay.id = 'abandonEmailOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,61,43,0.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
+    overlay.className = 'paywall-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'abandonEmailTitle');
     overlay.innerHTML = `
-      <div style="background:var(--clr-card);border-radius:1.25rem;padding:2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(26,61,43,0.25);">
-        <div style="font-size:2rem;margin-bottom:0.5rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg></div>
-        <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.4rem;color:#111;">One last thing</h3>
-        <p style="color:#555;font-size:0.85rem;margin-bottom:1rem;line-height:1.6;">
+      <div class="paywall-card paywall-card-sm">
+        <div class="paywall-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg></div>
+        <h3 id="abandonEmailTitle">One last thing</h3>
+        <p class="paywall-lede">
           Enter your email and we'll remind you when your free plans reset next month —
           and let you know about exclusive subscriber offers.
         </p>
-        <input type="email" id="abandonEmail" placeholder="your@email.com"
-          style="width:100%;box-sizing:border-box;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;margin-bottom:0.75rem;font-family:inherit;" />
-        <button onclick="submitAbandonEmail()" style="width:100%;background:#2e7d4f;color:white;border:none;padding:0.85rem;border-radius:0.75rem;font-weight:700;font-size:0.95rem;cursor:pointer;margin-bottom:0.5rem;">
+        <input type="email" id="abandonEmail" class="paywall-input" placeholder="your@email.com" aria-label="Email address" />
+        <button onclick="submitAbandonEmail()" class="btn btn-primary btn-full">
           Remind me when plans reset →
         </button>
-        <button onclick="document.getElementById('abandonEmailOverlay').remove();showZeroPlansBanner();"
-          style="background:none;border:none;color:#999;font-size:0.82rem;cursor:pointer;text-decoration:underline;">
+        <button class="paywall-dismiss" onclick="document.getElementById('abandonEmailOverlay').remove();showZeroPlansBanner();">
           No thanks
         </button>
       </div>`;
@@ -1126,7 +1220,7 @@
     const emailEl = document.getElementById('abandonEmail');
     const email = emailEl ? emailEl.value.trim() : '';
     if (!email || !email.includes('@')) {
-      emailEl.style.border = '1.5px solid #dc2626';
+      emailEl.classList.add('paywall-input-error');
       emailEl.focus();
       return;
     }
@@ -1141,9 +1235,8 @@
     const overlay = document.getElementById('abandonEmailOverlay');
     if (overlay) {
       overlay.querySelector('div').innerHTML = `
-
-        <h3 style="font-size:1.1rem;font-weight:800;color:#111;">You're on the list!</h3>
-        <p style="color:#555;font-size:0.85rem;margin-top:0.5rem;">We'll be in touch with exclusive offers. Your free plans reset in 30 days.</p>`;
+        <h3>You're on the list!</h3>
+        <p class="paywall-lede" style="margin-bottom:0;">We'll be in touch with exclusive offers. Your free plans reset in 30 days.</p>`;
       setTimeout(() => { overlay.remove(); showZeroPlansBanner(); }, 2500);
     }
   }
@@ -1153,8 +1246,8 @@
     if (existing) return;
     const banner = document.createElement('div');
     banner.id = 'zeroPlansBanner';
-    banner.style.cssText = 'position:sticky;top:0;z-index:200;background:#dc2626;color:#fff;text-align:center;padding:0.6rem 1rem;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.75rem;';
-    banner.innerHTML = `<span>You have 0 free plans left this month.</span><a href="upgrade.html" onclick="trackEvent('upgrade_click',{source:'zero_plans_banner'})" style="background:rgba(255,255,255,0.25);color:#fff;padding:0.2rem 0.75rem;border-radius:2rem;font-weight:700;text-decoration:none;white-space:nowrap;">See Pro — 7 days free →</a><button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:0.25rem;">✕</button>`;
+    banner.style.cssText = 'position:sticky;top:0;z-index:200;background:var(--color-brick);color:var(--clr-on-forest);text-align:center;padding:0.6rem 1rem;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:0.75rem;flex-wrap:wrap;';
+    banner.innerHTML = `<span>You have 0 free plans left this month.</span><a href="upgrade.html" onclick="trackEvent('upgrade_click',{source:'zero_plans_banner'})" style="background:var(--clr-forest-raise);border:1px solid var(--clr-forest-line);color:var(--clr-on-forest);padding:0.2rem 0.75rem;border-radius:var(--radius-full);font-weight:700;text-decoration:none;white-space:nowrap;">See Pro — 7 days free →</a><button onclick="this.parentElement.remove()" aria-label="Dismiss" style="background:none;border:none;color:var(--clr-on-forest-body);cursor:pointer;font-size:1.1rem;line-height:1;margin-left:0.25rem;">&times;</button>`;
     document.querySelector('.main-content').prepend(banner);
   }
 
