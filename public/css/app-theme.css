@@ -1,47 +1,97 @@
 /* ================================================================
-   MEALZY — App theme overlay (dashboard, meal-planner, grocery-list,
-   analytics, ai-coach, settings). Loads AFTER style.css and aligns
-   the app pages with the marketing design system (landing.css):
-   flat brand-green buttons, calmer cards, softer radii.
-   All values from tokens.css.
+   MEALZY — App theme (dashboard, meal-planner, grocery-list,
+   analytics, ai-coach, settings). Loads AFTER style.css and
+   restyles the app to match the marketing design system:
+   clean muted canvas, crisp white surfaces with hairline borders,
+   editorial Fraunces numerals, forest sidebar with brick active.
+   CSS only — markup and logic untouched. Values from tokens.css.
    ================================================================ */
 
-/* Buttons — flat brand green, marketing radius, quiet hover */
+/* ---------- Surface token: restore tokens.css values (style.css
+   re-points --clr-surface at the cream card color; both values
+   below are the ones defined in tokens.css) ---------- */
+:root { --clr-surface: #ffffff; }
+[data-theme="dark"] { --clr-surface: #1e2d24; }
+
+/* ---------- Canvas: flat warm neutral, no tinted gradients ---------- */
+.main-content { background: var(--color-muted-bg); }
+[data-theme="dark"] .main-content { background: var(--clr-page-dark); }
+.page-header { margin-bottom: 2.25rem; }
+
+/* ---------- Surfaces: white cards on the warm canvas ---------- */
+.card, .stat-card, .meal-card, .quick-action-card, .chart-card, .ring-card,
+.week-day-col, .testimonial-card, .day-tab, .modal,
+.chat-header, .chat-input-bar, .chat-msg.assistant .chat-bubble {
+  background: var(--clr-surface);
+}
+.card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 1.75rem !important; }
+.card:hover { transform: none; box-shadow: var(--shadow-md); }
+.stat-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
+.meal-card, .quick-action-card, .chart-card, .ring-card, .week-day-col, .testimonial-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); }
+.chart-card { box-shadow: var(--shadow-card); }
+.modal { border-radius: var(--radius-lg); }
+.toast { border-radius: var(--radius-md); }
+.toast.success { background: var(--color-green); }
+[data-theme="dark"] .card, [data-theme="dark"] .stat-card, [data-theme="dark"] .chart-card { box-shadow: none; }
+
+/* ---------- Type: editorial numerals and headers ---------- */
+.greeting, .dash-greeting { font-size: clamp(1.9rem, 3vw, 2.3rem); letter-spacing: -0.025em; }
+.greeting-sub, .dash-greeting-sub { font-size: 0.92rem; margin-top: 0.35rem; }
+.stat-value {
+  font-family: var(--font-display); font-style: italic; font-weight: 700;
+  font-size: 1.9rem; letter-spacing: -0.01em; line-height: 1.15;
+}
+.stats-grid .stat-num, .totals-bar .total-val { font-family: var(--font-display); font-style: italic; font-weight: 700; }
+.stat-card-icon { border-radius: var(--radius-md); }
+
+/* ---------- Buttons and inputs: marketing primitives ---------- */
 .btn { border-radius: var(--radius-md); }
 .btn-primary { background: var(--color-green); box-shadow: none; }
 .btn-primary:hover { background: var(--clr-green-deep); transform: translateY(-1px); box-shadow: var(--shadow-button); }
 .btn-primary:active { transform: scale(0.98); }
 .btn-accent { background: var(--color-green); box-shadow: none; }
 .btn-accent:hover { background: var(--clr-green-deep); transform: translateY(-1px); }
-.btn-outline { border-width: 1px; }
+.btn-outline { border-width: 1px; background: var(--clr-surface); }
 .btn-danger:hover { opacity: 1; background: var(--color-brick); }
-
-/* Inputs */
-.form-input, .form-select, .form-textarea { border-radius: var(--radius-md); border-width: 1px; }
+.form-input, .form-select, .form-textarea { border-radius: var(--radius-md); border-width: 1px; background: var(--clr-surface); }
 .chat-input { border-width: 1px; }
 
-/* Cards and surfaces — calmer elevation, marketing radii */
-.card { border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-.card:hover { transform: none; box-shadow: var(--shadow-md); }
-.stat-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-.meal-card, .quick-action-card, .chart-card, .ring-card, .week-day-col, .testimonial-card { border-radius: var(--radius-lg); }
-.modal { border-radius: var(--radius-lg); }
-.toast { border-radius: var(--radius-md); }
-.toast.success { background: var(--color-green); }
+/* ---------- Sidebar: forest, roomier, marketing logo scale ---------- */
+.sidebar-logo { font-size: 1.5rem; padding: 1.5rem; color: var(--clr-on-forest); }
+.sidebar-nav { padding: 1rem 0.85rem; gap: 0.25rem; }
+.sidebar-nav a { padding: 0.7rem 0.9rem; border-radius: var(--radius-md); font-size: 0.9rem; }
+.sidebar-footer { padding: 1.1rem 1.5rem; }
+.sidebar { border-right: 1px solid var(--clr-forest-line); }
 
-/* Page heading rhythm */
-.greeting { font-size: 1.8rem; letter-spacing: -0.02em; }
-.page-header h1 { letter-spacing: -0.02em; }
+/* ---------- Dashboard pieces ---------- */
+.quick-action-card:hover { box-shadow: var(--shadow-md); border-color: var(--color-green-muted); background: var(--clr-surface); }
+.meal-type-badge { border-radius: var(--radius-full); }
+.macro-pill { background: var(--color-parchment); }
+.week-day-col:hover { border-color: var(--color-green-muted); box-shadow: var(--shadow-card); }
+.week-day-col.today { border-color: var(--color-green); }
 
-/* Sidebar polish */
-.sidebar-nav a { border-radius: var(--radius-md); }
-.sidebar-logo { font-size: 1.35rem; }
+/* ---------- Grocery + planner ---------- */
+.day-tab { border-width: 1px; }
+.day-tab.active { background: var(--color-green); border-color: var(--color-green); }
+.totals-bar { background: var(--clr-surface); box-shadow: var(--shadow-lg); border-top: 1px solid var(--color-hairline); }
+[data-theme="dark"] .totals-bar { background: var(--clr-surface); }
+.category-header { border-bottom: 1px solid var(--color-border); font-family: var(--font-display); font-style: italic; font-size: 1rem; letter-spacing: -0.01em; }
+.grocery-item { border-radius: var(--radius-md); }
 
-/* Chat — brand green user bubble */
+/* ---------- Chat (Mia) ---------- */
 .chat-msg.user .chat-bubble { background: var(--color-green); }
 .chat-header-avatar { background: var(--color-green); }
+.chat-msg.assistant .chat-bubble { border: 1px solid var(--color-hairline); }
+.quick-prompts { background: var(--color-muted-bg); }
+[data-theme="dark"] .quick-prompts { background: var(--clr-page-dark); }
+.chip { border-radius: var(--radius-full); background: var(--clr-surface); }
+.chip.active { background: var(--color-green); border-color: var(--color-green); }
 
-/* Email capture popup — align with landing forest treatment */
+/* ---------- Settings ---------- */
+.settings-section-title { font-size: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.7rem; }
+.toggle-switch input:checked + .toggle-slider { background: var(--color-green); }
+
+/* ---------- Email popup: landing forest treatment ---------- */
 .email-popup-card {
   background: var(--color-forest-deep);
   border: 1px solid var(--clr-forest-line);
@@ -52,9 +102,3 @@
 .email-popup-input:focus { background: var(--clr-forest-raise); border-color: var(--clr-on-forest-muted); }
 .email-popup-btn { background: var(--color-green); color: var(--clr-on-primary); border-radius: var(--radius-md); }
 .email-popup-btn:hover { background: var(--clr-green-deep); opacity: 1; }
-
-/* Totals bar (meal planner) */
-.totals-bar { box-shadow: var(--shadow-lg); }
-
-/* Dark mode — hairline borders instead of heavy shadows */
-[data-theme="dark"] .card, [data-theme="dark"] .stat-card { box-shadow: none; }
