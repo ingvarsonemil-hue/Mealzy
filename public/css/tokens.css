@@ -105,6 +105,9 @@
   --color-green-rgb:   61, 139, 94;      /* For rgba() usage: rgba(var(--color-green-rgb), 0.1) */
   --clr-error:         #c0392b;
   --clr-warning:       hsl(32,88%,54%);  /* Protein ring, warm amber */
+  --clr-warning-bg:     hsl(32,88%,96%);  /* Soft amber surface — usage warnings */
+  --clr-warning-border: hsl(32,88%,75%);
+  --clr-warning-fg:     hsl(25,60%,30%);
   --clr-info:          hsl(200,100%,50%); /* Carbs ring, info blue */
   --clr-accent:        hsl(260,60%,55%); /* Fat ring, purple accent */
 
@@ -132,6 +135,9 @@
 
 [data-theme="dark"] {
   --clr-surface: #1e2d24;
+  --clr-warning-bg:     hsl(38,30%,10%);
+  --clr-warning-border: hsl(38,65%,40%);
+  --clr-warning-fg:     hsl(38,25%,65%);
   --color-foreground:  #f5f1ed;
   --color-muted-fg:    #a8a29e;
   --color-cream:       #1f2937;
