@@ -38,15 +38,15 @@ Run the check; if it fails, stop and fix or flag before continuing.
 ## Known active bugs — verify, then fix, then DELETE the entry
 Each entry has a check command. Run it first: if the bug is already gone, remove the entry in the same commit. Never assume this list is current.
 
-- (logged 2026-07-06) **Weekly digest emails ALL users**, despite the route comment saying "free users". `getUsersForWeeklyDigest()` in db.js has no pro filter.
-  Check: `grep -A5 "getUsersForWeeklyDigest" db.js` — fixed only when the WHERE clause filters on `pro`. Note: the caller (`/api/cron/weekly-digest` in server.js) passes `user.pro === 1` into the email template, so check whether the Pro variant still contains upgrade copy before judging severity.
-- (logged 2026-07-06) **Dashboard streak badge is hardcoded**, not wired to real streak data.
-  Check: `grep -n "streakBadge" public/dashboard.html` — fixed only when the badge text comes from data, not a literal "1 day streak".
+(No known active bugs. Add new entries here with a check command and log date.)
 
-## CSS cascade trap
-Two stylesheets exist at the public root (NOT in public/css/ — that folder holds only tokens.css and fonts.css):
-- public/style.css — the active stylesheet
-- public/styles.css — legacy, but NOT orphaned: index.html and pricing.html still link BOTH files.
+## CSS layout (post-redesign, 2026-07-06)
+- public/css/tokens.css — single source of truth for all values.
+- public/css/landing.css — marketing/funnel base (index, pricing, login, SEO pages, onboarding, upgrade, plan, reset-password, pro-welcome).
+- public/css/funnel.css — page-specific layers on top of landing.css for those same pages.
+- public/style.css — app pages (dashboard, meal-planner, grocery-list, analytics, ai-coach, settings).
+- public/css/app-theme.css — overlay loaded after style.css on app pages; aligns them with the marketing look.
+- public/styles.css — DELETED 2026-07-06 (was legacy/orphaned after the redesign; had circular custom-property aliases).
 
 Check before editing any styling: `grep -n "stylesheet" public/<page>.html` and confirm which file(s) the page actually loads. Never assume.
 

@@ -403,6 +403,7 @@ async function getUsersForWeeklyDigest() {
   return all(`
     SELECT id, name, email, pro FROM users
     WHERE email IS NOT NULL AND email != ''
+      AND pro = 0
     LIMIT 500
   `);
 }

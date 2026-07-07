@@ -599,6 +599,8 @@
     else if (hour < 17) greeting = 'Good afternoon';
 
     document.getElementById('greeting').textContent = `${greeting}, ${profile.name || 'there'}!`;
+    const streakBadge = document.getElementById('streakBadge');
+    if (streakBadge) streakBadge.textContent = `${profile.streak || 1} day streak`;
     const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     document.getElementById('greetingSub').textContent = dateStr;
     document.getElementById('macroDate').textContent = dateStr;
@@ -1994,6 +1996,9 @@
     document.querySelectorAll('.recipes-nav-item').forEach(el => el.classList.add('active'));
     loadRecipes();
   }
+
+  // Sidebar "Recipes" links on other app pages point here via #recipes
+  if (window.location.hash === '#recipes') setTimeout(() => showRecipesPanel(), 0);
 
   let _recipesCache = [];
 

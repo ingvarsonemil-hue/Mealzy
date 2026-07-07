@@ -325,6 +325,11 @@
     try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
     localStorage.clear(); window.location.href = 'login.html';
   }
+  function toggleTheme() {
+    const next = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('mealzy_theme', next); } catch(e) {}
+  }
   // ─────────────────────────
 
   let profile = null;

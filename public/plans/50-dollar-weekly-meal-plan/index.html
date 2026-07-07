@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="/js/theme-init.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>$50 Weekly Meal Plan for a Family of 4 — Mealzy</title>
 <meta name="description" content="Get a free AI-generated $50 weekly meal plan built for a family of 4. Mealzy enforces a strict budget ceiling — your grocery list will never exceed $50.">
@@ -34,11 +35,12 @@
 <link rel="stylesheet" href="/style.css">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
+<style>.logo-dark{display:none}[data-theme="dark"] .logo-light{display:none}[data-theme="dark"] .logo-dark{display:inline}</style>
 </head>
 <body>
 <header>
   <a href="/" aria-label="Mealzy home">
-    <img src="/logo-full.svg" alt="Mealzy" width="120" height="32">
+    <img src="/logo-full.svg" alt="Mealzy" width="120" height="32" class="logo-light"><img src="/logo-full-dark.svg" alt="" width="120" height="32" class="logo-dark" aria-hidden="true">
   </a>
 </header>
 
