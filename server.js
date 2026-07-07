@@ -1036,8 +1036,27 @@ app.post('/api/pro/activate', async (req, res) => {
     return res.json({ success: true, pro: true });
   }
 
-  // Stripe webhook is the primary path; this is just a backup
-  // Safe to activate any authenticated user regardless of stripe_customer_id
+  // Stripe webhook is the primary path; this is just a backup for the race where
+  // pro-welcome.html loads before the webhook lands. Never grant Pro here without
+  // confirming an active/trialing subscription against the Stripe API directly —
+  // the webhook may simply not have arrived yet, so absence of proof isn't grounds
+  // to grant it for free.
+  if (!user.stripe_customer_id || !process.env.STRIPE_SECRET_KEY) {
+    return res.status(400).json({ success: false, pro: false, error: 'activation_pending' });
+  }
+
+  try {
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const subscriptions = await stripe.subscriptions.list({ customer: user.stripe_customer_id, limit: 5 });
+    const hasActiveSub = subscriptions.data.some(s => s.status === 'active' || s.status === 'trialing');
+    if (!hasActiveSub) {
+      return res.status(400).json({ success: false, pro: false, error: 'activation_pending' });
+    }
+  } catch (e) {
+    logger.error('[pro/activate] Stripe verification error:', e.message);
+    return res.status(400).json({ success: false, pro: false, error: 'activation_pending' });
+  }
+
   await db.setUserPro(session.userId);
   await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome_verified' }, '');
   setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
