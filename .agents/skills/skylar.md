@@ -20,7 +20,7 @@ Every feature or campaign you design must answer one question: **"How does this 
 
 ### 1. Referral Loop Engineering
 - Design the "Share your plan" visuals. Ensure they are highly aesthetic (Instagram-worthy) and include a unique referral link.
-- Work with Riley to optimize the "Refer a friend, get a month of Pro" flow.
+- Work with Riley to optimize the "Refer a friend, get a bonus plan" flow.
 
 ### 2. Viral Trend Jacking
 - Monitor subreddits like r/Frugal, r/Biohacking, and r/MealPrepSunday for trending pains.

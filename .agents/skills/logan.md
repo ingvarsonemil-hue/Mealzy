@@ -139,20 +139,20 @@ Requirements: Multi-profile support — flag to Drew, not yet built
 
 ## REFERRAL PROGRAMME (Product-Led)
 
-Separate from the affiliate programme — this is for regular users:
+Separate from the affiliate programme — this is for regular users. Already built and live:
 
 ```
 User referral offer:
-  Referrer:  Gets 1 free month of Pro when referred friend upgrades
-  Referee:   Gets 14-day free trial (vs standard 3-plan free tier)
+  Referrer:  Gets 1 bonus plan added to their free-tier monthly limit when a referred friend signs up
+  Referee:   No separate reward — standard 3-plan free tier
 
-Requirements (flag to Morgan/Drew):
+Live features:
   - Unique referral link per user
   - In-app "Refer a friend" button (Settings page)
   - Referral count shown on user profile
 ```
 
-**Priority:** Medium. Build after affiliate tracking. Flag to Drew.
+**Status:** Built and live.
 
 ---
 
