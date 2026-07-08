@@ -460,9 +460,9 @@ function emailReferralReward(name, referredName) {
   const safeName = escapeHtml(name || 'there');
   const safeReferred = escapeHtml(referredName || 'someone you referred');
   return emailBase(`
-    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">🎉 You earned a free month of Pro!</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — ${safeReferred} just upgraded to Pro. As a thank you, we've added <strong>30 days of Pro</strong> to your account.</p>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Your Pro access is now active. Enjoy unlimited meal plans, PDF export, advanced macros, and unlimited AI coaching.</p>
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You earned a free plan!</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — ${safeReferred} just upgraded to Pro. As a thank you, we've added an extra plan to your account this month.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Keep referring friends to earn more free plans.</p>
     <a href="https://mealzy.org/dashboard.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Go to My Dashboard →</a>
   `);
 }
@@ -1185,30 +1185,6 @@ async function handleStripeWebhook(req, res) {
         if (customerId) try { await db.setStripeCustomerId(user.id, customerId); } catch(e) {}
         await db.logEvent('pro_activated', { email, source: 'stripe_webhook' }, '');
         logger.info(`[stripe] Pro activated — userId: ${user ? user.id : 'unknown'}`);
-
-        // Check if this user was referred — if so, credit the referrer
-        try {
-          const referral = await db.get(
-            `SELECT referrer_email FROM referrals WHERE referred_email = ? AND converted = 0 LIMIT 1`,
-            [email]
-          );
-          if (referral?.referrer_email) {
-            await db.markReferralConverted(referral.referrer_email, email);
-            await db.addBonusPlan(referral.referrer_email);
-            const referrer = await db.getUserByEmail(referral.referrer_email);
-            if (referrer) {
-              // Grant referrer 30 days of Pro
-              const proUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-              await db.setUserProUntil(referrer.id, proUntil);
-              sendEmail(
-                referrer.email,
-                '🎉 You earned a free month of Pro!',
-                emailReferralReward(referrer.name, user.name)
-              ).catch(() => {});
-              logger.info('[referral] Credited referrer with 30d Pro');
-            }
-          }
-        } catch(e) { console.error('[referral-reward] error:', e.message); }
 
       } else {
         console.warn(`[stripe] checkout.session.completed for unknown email: ${email}`);
