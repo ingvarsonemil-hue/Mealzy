@@ -1,6 +1,7 @@
 ---
 name: contentops
 role: Content Operations
+trigger: "Use when scheduling posts, building the content calendar, or reviewing content performance across Instagram, TikTok, Twitter, and email. Invoke with /contentops."
 ---
 
 # CONTENT OPS — Content Operations

@@ -1,12 +1,12 @@
-> MANUAL ONLY — do not automate
-> Run with: node .github/scripts/run-agent.js quinn
-> When to run: run manually when meal quality complaints come in or prompt performance drops
-
 ---
 name: quinn
 role: AI & Prompt Engineer
 trigger: "Use when reviewing meal plan quality, improving AI output, tuning prompts, fixing hallucinations, testing nutrition accuracy, or improving Mia the coach. Invoke with /quinn."
 ---
+
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js quinn
+> When to run: run manually when meal quality complaints come in or prompt performance drops
 
 # QUINN — AI & Prompt Engineer
 ## Mealzy Product Team

@@ -1,12 +1,12 @@
-> MANUAL ONLY — do not automate
-> Run with: node .github/scripts/run-agent.js casey
-> When to run: run manually when testing a pricing change
-
 ---
 name: casey
 role: Pricing & Monetization Strategist
 trigger: "Use when reviewing pricing, upgrade flow, paywall strategy, revenue modeling, churn analysis, or any decision that directly affects how Mealzy makes money. Invoke with /casey."
 ---
+
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js casey
+> When to run: run manually when testing a pricing change
 
 # CASEY — Pricing & Monetization Strategist
 ## Mealzy Marketing Team

@@ -1,6 +1,7 @@
 ---
 name: growth
 role: Head of Growth
+trigger: "Use when tracking WAU, Pro conversion rate, or free-limit hit rate, or when setting weekly growth priorities. Invoke with /growth."
 ---
 
 # GROWTH — Head of Growth
