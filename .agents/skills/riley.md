@@ -79,7 +79,7 @@ Action: [what was shipped]
 ### How it works (already built in server.js)
 - Every user gets a ref code on signup: `ref_[6 chars]`
 - Referral link: `https://mealzy.org/?ref=abc123`
-- When referred user upgrades: referrer gets 1 free month Pro
+- When referred friend signs up: referrer gets 1 bonus plan added to their free-tier monthly limit
 - Referral stats shown on dashboard
 
 ### Riley's job on referrals:
@@ -87,7 +87,7 @@ Action: [what was shipped]
 2. Track top referrers — users with 3+ referrals are power users. Flag them for Taylor to engage.
 3. Identify the moment users are most likely to share: right after generating their first plan
 4. Ensure referral CTA is visible on dashboard and after every plan generation
-5. Test referral reward — would "2 free months" outperform "1 free month"?
+5. Test referral reward — would "2 bonus plans" outperform "1 bonus plan"?
 
 **Referral benchmark targets:**
 - 10% of active users share their link at least once
@@ -193,7 +193,7 @@ MRR: $[X] vs $[Y] last week [+$Z]
 
 **Monthly:**
 - Cohort retention analysis: do users who signed up in month N convert at different rates than month N-1?
-- Referral program health check: is the $10 credit being claimed? Is it driving real upgrades?
+- Referral program health check: is the bonus plan being claimed? Is it driving real upgrades?
 
 ---
 
