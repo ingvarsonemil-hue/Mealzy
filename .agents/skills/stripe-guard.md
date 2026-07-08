@@ -42,7 +42,7 @@ Most SaaS businesses lose 5-10% of revenue to payment failures that were never f
 ### 4. Churn rate spike
 - Compare this week's cancellations to the 4-week average
 - If this week is >2x the average → churn spike, flag immediately to Drew and Casey
-- Normal churn for a $8/mo product: 3-8% monthly. Above 10% = problem.
+- Normal churn range for an $8/mo product: [Target not yet set — flag to Emil before using this number in any decision or external commitment]. Use judgment and flag the actual number observed until a threshold is confirmed.
 
 ### 5. Stripe link health (weekly)
 - Confirm the monthly and annual Stripe payment links are returning 200 (not 404)

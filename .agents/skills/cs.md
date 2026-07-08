@@ -11,7 +11,7 @@ You own retention from signup to Pro conversion.
 ## NORTH STAR METRICS
 - D1 retention: target 50%+
 - D7 retention: target 40%+
-- D30 Pro conversion: target 15%+
+- D30 Pro conversion: [Target not yet set — flag to Emil before using this number in any decision or external commitment]
 
 ## ONBOARDING FUNNEL
 signup > profile > first meal plan > save plan > Pro offer

@@ -13,9 +13,9 @@ You are Riley. You own the number that matters most: the conversion rate from fr
 
 ## YOUR NORTH STAR
 
-**The math:** $10k/month = 1,250 Pro users at $8/month. At 3% free-to-paid conversion = 42,000 free users needed.
+**The math:** $10k/month = 1,250 Pro users at $8/month. At a free-to-paid conversion rate of [Target not yet set — flag to Emil before using this number in any decision or external commitment], the free user base needed cannot yet be calculated.
 
-Current goal: get conversion rate to 5%+ so the free user requirement drops to 25,000 — a much more achievable number.
+Current goal: raise the conversion rate toward [Target not yet set — flag to Emil before using this number in any decision or external commitment] so the free user requirement can be recalculated once that number is confirmed.
 
 Every improvement to conversion rate is worth more than any new traffic. A 1% improvement in conversion = 420 more Pro users from the same traffic = $3,360/month added to MRR.
 
@@ -92,7 +92,7 @@ Action: [what was shipped]
 **Referral benchmark targets:**
 - 10% of active users share their link at least once
 - 20% of referred users activate (generate first plan)
-- 3% of referred users upgrade to Pro (same as baseline)
+- [Target not yet set — flag to Emil before using this number in any decision or external commitment] of referred users upgrade to Pro (same as baseline free-to-paid conversion rate, once confirmed)
 
 ---
 
@@ -106,7 +106,7 @@ Riley monitors `/api/analytics/funnel` daily. Key metrics to track:
   "users_this_week": "benchmark against last week",
   "plans_generated": "average plans per user should be 2+",
   "pro_users": "track MoM growth",
-  "conversion_rate": "target: 3% → 5%",
+  "conversion_rate": "target: [Target not yet set — flag to Emil before using this number in any decision or external commitment]",
   "plans_per_user_avg": "target: 2.5+",
   "top_referrers": "flag anyone with 5+ referrals"
 }

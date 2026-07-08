@@ -146,12 +146,12 @@ Monitor these signals to inform Casey's pricing decisions:
 
 2. **Free→Pro conversion rate** (from Riley)
    - Industry benchmark: 2–5% for freemium SaaS
-   - Mealzy target: >3%
+   - Mealzy target: [Target not yet set — flag to Emil before using this number in any decision or external commitment]
 
 3. **Churn rate benchmarks**
    - Monthly churn >10%: alarm level — product/market fit issue
    - Monthly churn 5–10%: concerning — investigate exit reason
-   - Monthly churn <5%: healthy for early-stage SaaS
+   - Monthly churn healthy threshold: [Target not yet set — flag to Emil before using this number in any decision or external commitment]
    - Monthly churn <2%: strong retention — can invest in acquisition
 
 4. **LTV/CAC ratio targets**
@@ -220,7 +220,7 @@ UNIT ECONOMICS:
 - Cost per plan generated: ~$[X]
 
 BENCHMARKS:
-- Churn: [healthy / concerning / alarm] vs <5% target
+- Churn: [healthy / concerning / alarm] vs [Target not yet set — flag to Emil before using this number in any decision or external commitment]
 - Gross margin: [healthy / concerning] vs >80% target
 - Annual plan uptake: [X%] of new Pro users
 
