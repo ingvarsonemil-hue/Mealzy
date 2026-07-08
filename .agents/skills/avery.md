@@ -25,18 +25,18 @@ Mealzy runs on Render's free tier. That means cold starts, limited RAM, and no u
 Hosting:      Render (free tier)
   - RAM:      512 MB
   - CPU:      Shared
-  - Disk:     Ephemeral (no persistent filesystem — db.js handles SQLite save/restore)
+  - Disk:     Ephemeral (no persistent filesystem — app code and static assets only; the database lives on Turso, not on this disk)
   - Region:   [check Render dashboard]
   - Spin-down: Spins down after 15 min of inactivity
-  - Cold start: ~8 seconds on first request after spin-down
+  - Cold start: 30–60+ seconds on first request after spin-down
 
 Domain:       mealzy.org (via Namecheap DNS)
   - DNS:      Namecheap nameservers
   - HTTPS:    Auto-managed by Render (Let's Encrypt)
 
-Database:     sql.js (SQLite) — loaded from file on startup, saved to file periodically
-  - Risk:     If Render restarts while a save is mid-write, data could corrupt
-  - Mitigation: Check if db.js has atomic write logic (write to temp file, then rename)
+Database:     Turso (@libsql/client) — hosted managed libSQL, region: AWS eu-west-1 (Ireland)
+  - Persistence: Fully hosted — not a local file, unaffected by Render's ephemeral disk, restarts, or redeploys
+  - Risk:     Network dependency (every query is a round trip to Turso) and TURSO_AUTH_TOKEN validity, not local file corruption
 
 Email:        [check server.js for email provider — likely Nodemailer/SMTP]
 CDN:          None (static files served directly from Render)
@@ -46,19 +46,19 @@ CDN:          None (static files served directly from Render)
 
 ## THE COLD START PROBLEM
 
-Render free tier spins the server down after 15 minutes of no traffic. The next visitor triggers a cold start — ~8 second wait before the first response.
+Render free tier spins the server down after 15 minutes of no traffic. The next visitor triggers a cold start — 30–60+ seconds before the first response.
 
 **Impact:**
-- New user lands on mealzy.org → blank page for 8 seconds → 60%+ will leave
+- New user lands on mealzy.org → long blank-page wait → most will leave
 - This is the single biggest infrastructure problem right now
 
 **Solutions (in order of effort):**
 
-1. **Keep-alive ping (easiest — build now)**
-   - Add a cron job or external service that pings `https://mealzy.org/api/health` every 10 minutes
-   - Cost: $0 using UptimeRobot free tier or Cron-job.org
-   - Result: server never spins down, cold start eliminated
-   - Morgan needs to add `/api/health` route if not present
+1. **Keep-alive ping (already built — check its status, don't rebuild it)**
+   - `.github/workflows/keep-alive.yml` already pings mealzy.org every 9 minutes
+   - Check the Actions tab → Keep Alive → confirm the last run succeeded
+   - It reduces but doesn't guarantee warmth — verify with a real cold-start check (hit the endpoint after 15+ min idle) before assuming the problem is solved
+   - If runs are failing or missing, flag to Morgan — don't stand up a second ping service
 
 2. **Upgrade to Render Starter ($7/month)**
    - No spin-down, guaranteed uptime, better CPU
@@ -90,7 +90,7 @@ Check UptimeRobot dashboard weekly and include in report.
 
 | Metric | Current (estimate) | Target |
 |--------|-------------------|--------|
-| First contentful paint (cold) | ~8s | <2s |
+| First contentful paint (cold) | 30–60+s | <2s |
 | First contentful paint (warm) | ~1s | <1s |
 | API response: /api/generate-meal | 5–15s (AI) | <15s (AI bound) |
 | API response: /api/me | <200ms | <200ms |
@@ -129,19 +129,18 @@ PORT (Render sets this automatically)
 
 ## DATABASE RESILIENCE
 
-Mealzy uses sql.js — SQLite that runs in Node.js memory, persisted to disk.
+Mealzy uses Turso — a hosted, managed libSQL (SQLite-compatible) database, region AWS eu-west-1 (Ireland). Render's ephemeral filesystem is not a data-durability concern: the database isn't a local file, so restarts and redeploys don't touch it.
 
 **Risks:**
-1. Render's filesystem is ephemeral — on redeploy, the disk resets. db.js must save to Render's persistent disk OR to an external store.
-2. If the server crashes mid-write, the database file could corrupt.
+1. Network dependency — every query is a round trip to Turso's hosted endpoint. A Turso-side outage or network blip affects every DB call, not just writes.
+2. Credential validity — TURSO_AUTH_TOKEN must stay current in Render env vars; a stale or revoked token breaks all database access even though the server itself is running fine.
+3. Usage limits — Turso plan caps (storage, row reads/writes) could be approached at scale; not a corruption risk, but a service-degradation risk if unmonitored.
 
 **Monthly check:**
-- [ ] Confirm db.js saves to a persistent location (not `/tmp`)
-- [ ] Confirm write is atomic (write to `.tmp` file, then `fs.rename`) — prevents partial writes
-- [ ] If neither of the above, flag to Morgan as critical infrastructure risk
-
-**Long-term recommendation (flag to Drew):**
-When Mealzy hits $500 MRR, migrate from sql.js to PostgreSQL (Render managed DB, $7/month). sql.js is fine for early stage but not production-grade at scale.
+- [ ] Confirm TURSO_DATABASE_URL and TURSO_AUTH_TOKEN are current and unexpired in Render env vars
+- [ ] Check the Turso dashboard for usage against plan limits (storage, reads/writes)
+- [ ] Confirm no elevated DB query latency or error rate in Render logs
+- [ ] If usage is approaching plan limits, flag to Morgan/Drew — may need a Turso plan upgrade
 
 ---
 
@@ -152,7 +151,7 @@ Monthly infrastructure cost target: as low as possible until $500 MRR, then inve
 | Service | Current cost | When to upgrade |
 |---------|-------------|----------------|
 | Render (web service) | $0 (free) | Upgrade to $7/month at $50+ MRR |
-| Render (PostgreSQL) | N/A | Migrate at $500+ MRR |
+| Turso (database) | Paid hosted plan — check Turso billing dashboard for current cost | Upgrade plan if storage/row-read/write limits are approached |
 | UptimeRobot | $0 (free) | Never — free tier sufficient |
 | Domain (Namecheap) | ~$12/year | Already paid |
 | Anthropic API | ~$0.01/plan | Monitor — flag if >$50/month |
@@ -204,8 +203,8 @@ COSTS THIS WEEK:
 - Total infra cost: $[X]
 
 DATABASE:
-- Last confirmed save: [date/time if logged]
-- Atomic write check: pass/fail/unknown
+- Turso connectivity/error rate: [normal/elevated]
+- Auth token and usage-limit check: pass/fail/unknown
 
 ALERTS & RECOMMENDATIONS:
 - [anything urgent — flag to Morgan/Drew]
@@ -237,7 +236,7 @@ UPGRADE READINESS:
 
 **Monthly:**
 - Full infrastructure review: cost vs revenue check, upgrade readiness decision
-- Database resilience check: confirm save/load cycle works correctly
+- Database resilience check: confirm Turso credentials are current and usage is within plan limits
 - Compare this month's uptime to last month's
 
 ---
@@ -263,14 +262,14 @@ Score each infrastructure report or infrastructure change 1–10 against:
 - Uptime: was mealzy.org available 99.5%+ this week? (3 pts)
 - Cold start: is the cold start problem resolved or actively being mitigated? (3 pts)
 - Cost control: is Anthropic API cost within expected range? (2 pts)
-- Database integrity: confirmed save/load cycle working correctly? (2 pts)
+- Database integrity: confirmed Turso connectivity and auth-token validity, not local file writes? (2 pts)
 
 ### Common Failure Patterns (Reflector seeds)
 - Noticed a cold start problem but didn't implement the keep-alive ping — same problem next week
 - Reported "uptime 99%" without checking what caused the 1% — root cause unknown
 - Anthropic cost spiked but no investigation into which route caused it
 - Render deploy succeeded but Avery didn't smoke-test — users found the bug
-- Database save cycle assumed to be working without actually verifying it
+- Turso connectivity/auth-token validity assumed to be fine without actually verifying it
 
 ### Reflection Trigger
 After every weekly infrastructure report. After any downtime event — mandatory root cause analysis reflection before next report. After every infrastructure upgrade (e.g. moving from free to paid Render tier), write a before/after performance comparison.

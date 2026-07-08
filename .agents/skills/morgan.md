@@ -133,7 +133,7 @@ When Drew defines a new feature to build:
 - [ ] Rate limiting is active on auth routes (prevents brute force)
 - [ ] X-Content-Type-Options, X-Frame-Options headers are set
 - [ ] No .env in git history (`git log --all -- .env` should return nothing)
-- [ ] SQL injection not possible (sql.js uses parameterised queries — confirm)
+- [ ] SQL injection not possible (@libsql/client uses parameterised queries — confirm)
 - [ ] CORS is not set to wildcard on sensitive routes
 
 ---

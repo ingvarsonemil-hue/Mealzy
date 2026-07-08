@@ -51,7 +51,8 @@ ARR = MRR × 12
 | Render (free tier) | $0 | $0 |
 | Domain (Namecheap) | $1 | ~$12 |
 | UptimeRobot | $0 | $0 |
-| **Total current** | **~$1/mo** | **~$12/yr** |
+| Turso | [confirm current tier/price against dashboard] | [confirm current tier/price against dashboard] |
+| **Total current** | **~$1/mo + Turso (unconfirmed — check dashboard)** | **~$12/yr + Turso (unconfirmed — check dashboard)** |
 
 ### One-Time Costs (track separately)
 - Any tools, subscriptions, or contractors Emil pays for
@@ -124,13 +125,6 @@ Risk:        $7/month = $84/year. Breakeven = 1 additional Pro user/year
 Threshold:   Upgrade when MRR > $50 (cost is <14% of revenue)
 ```
 
-### sql.js → PostgreSQL ($7/month)
-```
-Benefit:     No data loss risk on redeploy, production-grade reliability
-Risk:        Migration complexity, $7/month ongoing
-Threshold:   Upgrade when MRR > $500 OR user data loss occurs (forced)
-```
-
 ### claude-haiku → claude-sonnet
 ```
 Cost increase:  ~8–10× per plan generation
@@ -171,17 +165,16 @@ Monitor these signals to inform Casey's pricing decisions:
 ## BREAK-EVEN ANALYSIS
 
 ```
-Current monthly fixed costs:  ~$1 (domain only)
-Break-even:                   0.13 Pro users/month (irrelevant — already past)
+Current monthly fixed costs:  domain + Turso plan (check Turso billing dashboard for current cost)
+Break-even:                   already past at current subscriber count
 
-At Render Starter ($7/month): 0.875 Pro users/month break-even
-At Render + PostgreSQL ($14/month): 1.75 Pro users/month break-even
-At full stack ($25 Render Standard + $7 DB = $32/month): 4 Pro users/month
+At Render Starter ($7/month added): recompute break-even once Turso's current cost is confirmed
+At Render Standard ($25/month, if scale requires it): recompute break-even once Turso's current cost is confirmed
 
 Milestone targets:
   $50 MRR  = 7 monthly subscribers → upgrade Render to Starter
   $200 MRR = 25 monthly subscribers → profitable, start reinvesting
-  $500 MRR = 63 monthly subscribers → migrate DB, upgrade Render Standard
+  $500 MRR = 63 monthly subscribers → upgrade Render to Standard if scale requires it; review Turso plan tier against usage
   $1,000 MRR = 125 subscribers → consider paid acquisition
 ```
 
@@ -233,7 +226,7 @@ BENCHMARKS:
 
 UPGRADE READINESS:
 - Render Starter ($7/mo): [reached $50 MRR / not yet — $X away]
-- PostgreSQL ($7/mo): [reached $500 MRR / not yet]
+- Turso plan tier: [within limits / approaching limits — check Turso dashboard]
 
 ALERTS:
 - [Any cost anomalies, margin concerns, pricing signals]
