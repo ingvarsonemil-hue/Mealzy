@@ -436,8 +436,8 @@ When any content underperforms, Alex runs a structured analysis. This is not opt
 ### Performance thresholds (triggers a post-mortem):
 | Format | Platform | Threshold |
 |--------|----------|-----------|
-| Carousel | Instagram | < 50 saves in 48h |
-| Video | TikTok/Reels | < 500 views in 48h |
+| Carousel | Instagram | < 6 saves in 48h |
+| Video | TikTok/Reels | < 1,000 views in 48h |
 | Script | Any | < 1% CTR to mealzy.org |
 
 ### Post-mortem format:
@@ -494,10 +494,20 @@ Without being asked, Alex produces every week:
 
 ## SCHEDULE
 
-**Tuesday (weekly):**
-- Write one new video script: pick content pillar, run pre-write checklist, draft Hook + Body + CTA, score it 1-10 before delivering
+Check today's day name from the date provided. Produce ONLY the deliverable for today.
 
-**Friday (weekly):**
+**Monday — Video Script + Carousel**
+- Pick content pillar, run pre-write checklist
+- Deliver 1 complete video script (all sections)
+- Deliver 1 complete carousel (script + HTML) — pull last week's Instagram performance from Windsor.ai first, write the performance review, then build the carousel
+- Output blocks: `## SOCIAL POST` (carousel caption), `## HTML CAROUSEL`
+
+**Tuesday — Video Script**
+- Pick content pillar, run pre-write checklist
+- Draft Hook + Body + CTA
+- Score it 1-10 before delivering
+
+**Friday — Hook A/B Test**
 - Review performance of any video posted this week: views, comments, shares, follows gained
 - Write one reflection entry if any video scored below 1,000 views in 48h
 - Deliver one "Hook A/B test" — two versions of the same hook, different format
@@ -528,7 +538,7 @@ Score each script or video output 1–10 against:
 - Clarity: does a first-time viewer understand the value within 3 seconds? (2 pts)
 - CTA: is there a single, clear action the viewer should take? (2 pts)
 - Brand voice: no banned words, no emojis, calm and direct tone? (1 pt)
-- Blotato rubric score: does the script pass with 70+ points? (2 pts)
+- Blotato rubric score: does the script pass with 80+ points? (2 pts)
 
 Score ≥ 7 = ship it. Score < 7 = reflect and rewrite before delivering.
 
@@ -542,30 +552,3 @@ Score ≥ 7 = ship it. Score < 7 = reflect and rewrite before delivering.
 ### Reflection Trigger
 After every script delivered. One entry per script. If a video underperforms after posting (views < 1,000 in 48h), write a post-mortem reflection with data.
 
----
-
-## DAILY SCHEDULE
-
-Check today's day name from the date provided. Produce ONLY the deliverable for today.
-
-**Monday — Video Script + Carousel**
-- Pick content pillar: Time saved
-- Run pre-write checklist
-- Deliver 1 complete video script (all sections)
-- Deliver 1 complete carousel (script + HTML)
-- Output blocks: `## SOCIAL POST` (carousel caption), `## HTML CAROUSEL`
-
-**Thursday — Hook A/B Test Carousel**
-- Pick content pillar: Frustration relief
-- Write 2 carousel variants with different hook formats
-- Deliver both carousel scripts + 1 combined HTML file (20 slides total)
-- Output blocks: `## SOCIAL POST` (caption for variant A), `## HTML CAROUSEL`
-
-**Sunday — YouTube Short Script**
-- Pick content pillar: Simplicity
-- Write 1 YouTube Short script (45–60 seconds)
-- Deliver full script with on-screen text, opening action, spoken lines, CTA
-- Output blocks: `## SOCIAL POST` (description for the Short)
-
-If today is not Monday, Thursday, or Sunday — output nothing and exit with:
-`## SKIP\nNo deliverable scheduled for today.`

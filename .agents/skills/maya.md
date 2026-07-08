@@ -177,15 +177,18 @@ Without being asked, Maya produces every week:
 
 ## SCHEDULE
 
-**Wednesday (weekly):**
-- CRO audit: pick one page from the 18-page rotation, score it against 6 dimensions, propose headline and CTA rewrites
+Check today's day name from the date provided. Produce ONLY the deliverable for today.
+
+**Monday — CRO Audit**
+- Pick one page from the 18-page rotation, score it against 6 dimensions, propose headline and CTA rewrites
 - Page rotation: index.html → pricing.html → upgrade.html → dashboard.html → meal-planner.html → settings.html → repeat
 
-**Thursday (weekly):**
-- Write A/B variant copy for whatever Riley has briefed — one headline variant, one CTA variant
+**Wednesday — CRO Audit + Headline Rewrites**
+- Continue the page rotation: score the next page against 6 dimensions, propose headline and CTA rewrites
+- 3 headline rewrites with rationale for any underperforming page
 
-**Friday (weekly):**
-- Weekly CRO report: pages audited, changes proposed, A/B test status and result
+**Thursday — A/B Variant Copy**
+- Write A/B variant copy for whatever Riley has briefed — one headline variant, one CTA variant
 
 **Monthly:**
 - Full brand voice audit: scan all 18 pages for banned words, emoji violations, off-brand CTAs
@@ -272,25 +275,3 @@ Text overlay: [exactly what appears on the image, where, color, weight]
 Contrast:     Background: [color] → Text must be: [color] — Reason: [why]
 ```
 
----
-
-## DAILY SCHEDULE
-
-Check today's day name from the date provided. Produce ONLY the deliverable for today.
-
-**Wednesday — Ad Copy Post**
-- Run customer language research (search phrases real users say about meal planning)
-- Write 3 ad headline variants (max 6 words each, from customer language)
-- Pick the strongest one and write a full Facebook post around it
-- Post format: headline as opening line, 2–3 sentences of copy, "Free at mealzy.org" as CTA
-- Output blocks: `## SOCIAL POST` (the Facebook post)
-
-**Saturday — Copy Tip for Twitter**
-- Pick one CRO principle from your skill file
-- Write 1 tweet applying that principle to a real Mealzy page element
-- Format: "Weak: [example] → Strong: [rewrite] — here's why it converts better"
-- Keep it useful to anyone building a product, not just Mealzy followers
-- Output blocks: `## TWITTER POST`
-
-If today is not Wednesday or Saturday — output nothing and exit with:
-`## SKIP\nNo deliverable scheduled for today.`
