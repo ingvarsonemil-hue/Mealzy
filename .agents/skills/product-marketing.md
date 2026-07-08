@@ -83,11 +83,11 @@ Annual, Family, Discounted links: pending creation in Stripe Dashboard
 ## Tech Stack
 
 - Backend: Node.js + Express (server.js)
-- Database: sql.js SQLite (db.js) — serialized to ./data/mealzy.db on every write
+- Database: Turso/libSQL (db.js) — hosted cloud database, not a local file
 - Auth: JWT in httpOnly cookies
 - Payments: Stripe subscriptions + webhook
 - AI: Anthropic Claude claude-haiku-4-5-20251001 (meal generation + AI coach named Mia)
-- Hosting: Render free tier (ephemeral filesystem — db.js handles save/restore)
+- Hosting: Render free tier (cold starts after inactivity; database persistence is handled by Turso, unaffected by Render's ephemeral filesystem)
 - Frontend: Vanilla HTML/CSS/JS — 18 pages in /public/
 - Logger: Winston (structured JSON in production, pretty-print locally)
 
@@ -121,7 +121,6 @@ Current priority: increase conversion rate, not just traffic.
 | MRR | Action |
 |-----|--------|
 | $50 | Upgrade Render free → Starter ($7/month) — eliminates cold start |
-| $500 | Migrate sql.js → PostgreSQL + Render Standard |
 | $500 | claude-sonnet viable for complex dietary combos |
 | $1,000 | Consider paid acquisition channels |
 
