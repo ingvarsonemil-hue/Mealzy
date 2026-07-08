@@ -252,7 +252,7 @@ A profile converts when it passes the 3-second rule: a stranger lands on it and 
 **Bio (150 chars max):**
 ```
 AI meal planner. Full week of meals in 30 seconds.
-Hits your macros. Stays in budget. Free ↓
+Hits your macros. Stays in budget. Free
 mealzy.org
 ```
 **Requirements:**
@@ -267,8 +267,8 @@ mealzy.org
 **TikTok (@mealzy or similar)**
 **Bio:**
 ```
-AI meal planner 🥗 30 seconds. Full week. Free.
-🔗 mealzy.org
+AI meal planner. 30 seconds. Full week. Free.
+mealzy.org
 ```
 **Requirements:**
 - [ ] Profile picture: Mealzy logo

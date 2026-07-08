@@ -355,7 +355,7 @@ Use this exact structure — fill in slide content from the carousel script abov
 
   <!-- Slide 1 — Hook -->
   <div class="slide dark">
-    <div class="logo">🥗 Mealzy</div>
+    <div class="logo">Mealzy</div>
     <h1>[HOOK — 5–8 words]</h1>
   </div>
 
@@ -367,7 +367,7 @@ Use this exact structure — fill in slide content from the carousel script abov
 
   <!-- Slide 3 — Relatable Pain -->
   <div class="slide white">
-    <div class="logo">🥗 Mealzy</div>
+    <div class="logo">Mealzy</div>
     <h2>[Pain headline]</h2>
     <p>[1–2 lines — inside the experience]</p>
   </div>
@@ -386,7 +386,7 @@ Use this exact structure — fill in slide content from the carousel script abov
 
   <!-- Slide 6 — Insight 3 -->
   <div class="slide white">
-    <div class="logo">🥗 Mealzy</div>
+    <div class="logo">Mealzy</div>
     <h2>[Insight 3 headline]</h2>
     <p>[1–2 lines]</p>
   </div>
@@ -404,14 +404,14 @@ Use this exact structure — fill in slide content from the carousel script abov
 
   <!-- Slide 9 — Takeaway -->
   <div class="slide cream">
-    <div class="logo">🥗 Mealzy</div>
+    <div class="logo">Mealzy</div>
     <h2>[Takeaway headline]</h2>
     <p>[Clear practical action]</p>
   </div>
 
   <!-- Slide 10 — CTA -->
   <div class="slide dark">
-    <div class="logo">🥗 Mealzy</div>
+    <div class="logo">Mealzy</div>
     <div class="cta-box">[CTA — save / comment / follow]</div>
     <div class="url">Free at mealzy.org</div>
   </div>

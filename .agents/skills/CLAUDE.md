@@ -39,7 +39,7 @@ EOF
 
 Every workflow must print `LIVE: none`. Any name in a LIVE list = that agent runs (and burns tokens) on its next cron after reaching main.
 
-## Roster (19 employees — PAUSED, do not delete)
+## Roster (32 agent files — 20 named employees + 12 utility agents — PAUSED, do not delete; CLAUDE.md itself and the orphaned mealzy-design.md bring the directory to 34 files total)
 
 Full profiles in `.agents/TEAM-OVERVIEW.md`; per-agent skill files in this directory (`<name>.md`); schedules in `.agents/schedule.md`.
 

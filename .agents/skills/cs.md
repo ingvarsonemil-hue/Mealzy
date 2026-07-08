@@ -1,6 +1,7 @@
 ---
 name: cs
 role: Customer Success
+trigger: "Use when reviewing retention/conversion funnel metrics, diagnosing onboarding drop-off, or surfacing support ticket themes. Invoke with /cs."
 ---
 
 # CS — Customer Success

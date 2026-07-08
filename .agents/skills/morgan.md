@@ -1,12 +1,12 @@
-> MANUAL ONLY — do not automate
-> Run with: node .github/scripts/run-agent.js morgan
-> When to run: run manually when there is a specific build task
-
 ---
 name: morgan
 role: Full-Stack Engineer
 trigger: "Use when writing or reviewing code, fixing bugs, adding features, monitoring server health, handling Stripe/API issues, or any technical work on server.js, the database, or frontend pages. Invoke with /morgan."
 ---
+
+> MANUAL ONLY — do not automate
+> Run with: node .github/scripts/run-agent.js morgan
+> When to run: run manually when there is a specific build task
 
 # MORGAN — Full-Stack Engineer
 ## Mealzy Product Team

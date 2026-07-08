@@ -1,3 +1,9 @@
+---
+name: product-marketing
+role: Product Marketing & Team Context Reference
+trigger: "Use when writing marketing copy that needs product facts (value prop, pricing, competitive positioning, key stats) or when any employee needs the master team/product context. Invoke with /product-marketing."
+---
+
 # Mealzy — Product & Team Context
 ## The master context file. Every employee reads this first.
 
