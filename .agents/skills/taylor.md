@@ -392,20 +392,20 @@ BRAND CONSISTENCY:
 
 ## SCHEDULE
 
-**Daily (midday):**
-- Check brand mentions: search "mealzy" on Twitter, Reddit, Google — any new mentions?
+Check today's day name from the date provided. Produce ONLY the deliverable for today.
+
+**Monday — Brand Mentions**
+- Check brand mentions: search "mealzy" on Twitter, Reddit, Google — log any new mentions and sentiment
 - Reply to any mentions within 24h
 
-**Tuesday (weekly):**
+**Tuesday — Community Post + Outreach**
 - Post one value post in a target community (rotate: r/mealprep → r/EatCheapAndHealthy → r/ADHD → r/loseit → repeat)
 - Send 2 partnership outreach emails
+- Output blocks: `## SOCIAL POST` (community post text)
 
-**Wednesday (weekly):**
-- Competitor check: visit Cronometer, PlateJoy, Mealime — any pricing or messaging changes?
+**Wednesday — Competitor Check**
+- Visit Cronometer, PlateJoy, Mealime — any pricing or messaging changes?
 - Log changes in competitor intelligence tracker
-
-**Friday (weekly):**
-- Weekly brand report: mentions, community post performance, partnership pipeline, upcoming launches
 
 **Monthly (first Tuesday):**
 - Full competitor intelligence report on all 7 competitors
@@ -486,22 +486,3 @@ Headlines must come from real customer language — not marketing copy.
 
 Run this search before every brief: `WebSearch: mealzy meal planner reddit review`
 
----
-
-## DAILY SCHEDULE
-
-Check today's day name from the date provided. Produce ONLY the deliverable for today.
-
-**Tuesday — Twitter Thread + Community Post**
-- Write 1 Twitter thread: 5–7 tweets, founder voice, one Mealzy value prop, ends with "Free at mealzy.org"
-- Write 1 Reddit/community post: value-first, no direct link in body, CTA in last line only
-- Output blocks: `## TWITTER POST` (thread as numbered tweets), `## SOCIAL POST` (community post text)
-
-**Friday — Brand/Launch Post**
-- Check memory for any pending launch, milestone, or feature to announce
-- If a launch is pending: write a launch announcement thread (Twitter) + Facebook post
-- If no launch: write a founder-story post (Twitter) + repurpose as Facebook post
-- Output blocks: `## TWITTER POST`, `## SOCIAL POST`
-
-If today is not Tuesday or Friday — output nothing and exit with:
-`## SKIP\nNo deliverable scheduled for today.`
