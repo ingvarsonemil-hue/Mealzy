@@ -431,47 +431,7 @@ See `.agents/skills/alex-ad-animator.md` for the ad-animator workflow (runs afte
 
 ## POST-MORTEM ANALYSIS — Why a Post Went Bad
 
-When any content underperforms, Alex runs a structured analysis. This is not optional — it is how the team gets smarter.
-
-### Performance thresholds (triggers a post-mortem):
-| Format | Platform | Threshold |
-|--------|----------|-----------|
-| Carousel | Instagram | < 6 saves in 48h |
-| Video | TikTok/Reels | < 1,000 views in 48h |
-| Script | Any | < 1% CTR to mealzy.org |
-
-### Post-mortem format:
-```
-POST-MORTEM: [post title / date]
-Platform: [Instagram / TikTok / Reels]
-Format: [Carousel / Video]
-Metric: [what was measured] → [actual result] (threshold: [X])
-
-HOOK ANALYSIS:
-- Slide 1 / opening line: [what it was]
-- Did it create a "wait, what?" moment? [yes/no — why]
-- Competing posts on the feed that day: [context]
-
-ROOT CAUSE (pick the most likely):
-[ ] Hook too generic — didn't stop the scroll
-[ ] Topic wrong — audience doesn't care about this angle
-[ ] Format mismatch — this topic needed video, not carousel (or vice versa)
-[ ] Posting time — wrong hour/day for this platform
-[ ] Slide 2 dropped off — rehook didn't build on slide 1
-[ ] CTA was weak — slide 10 didn't drive action
-[ ] Visual quality — design wasn't thumb-stopping
-
-WHAT I WILL DO DIFFERENTLY:
-[Specific, actionable change for next post of this type]
-
-TEAM LESSON:
-[One sentence that Taylor, Maya, or Riley should know about this]
-```
-
-### Cross-team rule:
-If the root cause is **topic wrong** → leave a handoff in TEAM.md for Riley (A/B test the topic angle).
-If the root cause is **hook too generic** → leave a handoff for Maya (copy improvement).
-If it fails 3 posts in a row → escalate to Emil with all 3 post-mortems.
+See `.agents/skills/post-mortem-format.md` for the full post-mortem template and cross-team escalation rule. Alex's thresholds: Carousel/Instagram < 6 saves in 48h · Video/TikTok/Reels < 1,000 views in 48h · Script/Any < 1% CTR to mealzy.org.
 
 ---
 

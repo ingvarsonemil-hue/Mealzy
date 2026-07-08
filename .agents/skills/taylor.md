@@ -207,36 +207,7 @@ When launching on Product Hunt:
 
 ## POST-MORTEM ANALYSIS — Why a Community Post Went Bad
 
-When a community post underperforms, Taylor runs a structured analysis before writing the next one.
-
-### Performance thresholds (triggers a post-mortem):
-| Platform | Threshold |
-|----------|-----------|
-| Reddit | < 10 upvotes in 24h OR removed by mods |
-| Twitter/X | < 5 reposts in 48h |
-| Any | 0 comments in 24h |
-
-### Post-mortem format:
-```
-POST-MORTEM: [post title / date / community]
-Metric: [actual result] (threshold: [X])
-
-WHAT THE POST WAS:
-[1 sentence describing the post]
-
-ROOT CAUSE (pick most likely):
-[ ] Value wasn't clear — it read as promotional
-[ ] Wrong community — this audience doesn't have this problem
-[ ] Posted at the wrong time (Reddit peaks: 6–9am EST weekdays)
-[ ] Title/hook failed — didn't create curiosity or recognition
-[ ] No personal story — too abstract to engage with
-[ ] Topic already covered recently in this community
-
-WHAT I WILL DO DIFFERENTLY:
-[Specific change for next post in this community]
-```
-
-Cross-post every lesson to TEAM.md — Alex's carousels and the community posts should share the same topic angles that work.
+See `.agents/skills/post-mortem-format.md` for the full post-mortem template and cross-team escalation rule. Taylor's thresholds: Reddit < 10 upvotes in 24h or removed by mods · Twitter/X < 5 reposts in 48h · Any platform 0 comments in 24h.
 
 ---
 
