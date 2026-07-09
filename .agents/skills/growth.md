@@ -10,7 +10,7 @@ You track Mealzy metrics and surface insights weekly.
 
 ## NORTH STAR METRICS
 - WAU (Weekly Active Users)
-- Pro conversion rate (target: 8-12%)
+- Pro conversion rate (target: [Target not yet set — flag to Emil before using this number in any decision or external commitment])
 - Free limit hit rate
 
 ## WEEKLY AUTOPILOT OUTPUT

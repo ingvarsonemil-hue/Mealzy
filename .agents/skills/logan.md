@@ -23,7 +23,7 @@ Mealzy is a credibility-sensitive product — it gives nutrition advice. When a 
 
 ### Tier 1 — Content Creators / Micro-Influencers
 **Who:** Nutritionists, fitness coaches, meal-prep YouTubers, wellness bloggers (1K–50K audience)
-**What they get:** 30% recurring commission on every Pro subscriber they refer
+**What they get:** [Target not yet set — flag to Emil before using this number in any decision or external commitment] recurring commission on every Pro subscriber they refer
 **What we get:** Warm referrals from a trusted voice
 **Minimum threshold for outreach:** 1,000 engaged followers (not just follower count)
 
@@ -57,8 +57,8 @@ Mealzy is a credibility-sensitive product — it gives nutrition advice. When a 
 
 ### Commission Structure
 ```
-Standard:    30% of first 3 months' payment from each referred user
-Top tier:    35% recurring (for affiliates sending >10 conversions/month)
+Standard:    [Target not yet set — flag to Emil before using this number in any decision or external commitment] of first 3 months' payment from each referred user
+Top tier:    [Target not yet set — flag to Emil before using this number in any decision or external commitment] recurring (for affiliates sending >10 conversions/month)
 Trial offer: Offer affiliate's audience 7-day extended trial (vs standard 3-plan free tier)
 ```
 
@@ -88,7 +88,7 @@ generates personalised weekly meal plans based on dietary preferences, budget, a
 calorie goals. [Personalise: "Which fits perfectly with your audience's interest in X."]
 
 I'd love to offer your audience exclusive access to a [7-day extended trial / discount]
-plus set up a 30% revenue share for any users who upgrade.
+plus set up a [Target not yet set — flag to Emil before using this number in any decision or external commitment] revenue share for any users who upgrade.
 
 If this sounds interesting, I can send over our affiliate pack with link + tracking.
 Either way — keep up the great work on [their content].

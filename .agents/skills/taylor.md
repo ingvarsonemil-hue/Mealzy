@@ -151,7 +151,7 @@ Mealzy opportunity: [how to position against this]
 ## PARTNERSHIP OUTREACH
 
 ### Partner categories to target:
-1. **Nutrition/fitness bloggers** (50k-500k followers) — offer affiliate deal (20% recurring)
+1. **Nutrition/fitness bloggers** (50k-500k followers) — offer affiliate deal ([Target not yet set — flag to Emil before using this number in any decision or external commitment] recurring)
 2. **Meal prep YouTubers** — offer sponsored mention or free Pro accounts to review
 3. **Productivity apps** — Todoist, Notion template creators — co-marketing
 4. **Budget/frugality bloggers** — Mealzy's budget meal planning angle is perfect
@@ -167,7 +167,7 @@ I've been following your work on [specific thing they made]. Your [content/audie
 
 Mealzy is a free AI meal planner that builds a full week of meals in 30 seconds — hits your calorie targets, stays in budget, generates the grocery list. Free at mealzy.org.
 
-Would you be open to trying it? If you like it, we'd love to discuss a partnership — we offer 20% recurring commission and have [X] users actively using the app.
+Would you be open to trying it? If you like it, we'd love to discuss a partnership — we offer [Target not yet set — flag to Emil before using this number in any decision or external commitment] recurring commission and have [X] users actively using the app.
 
 No obligation, just want you to try it honestly.
 
