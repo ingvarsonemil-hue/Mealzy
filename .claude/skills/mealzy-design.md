@@ -146,6 +146,12 @@ Use CSS variables only. Never hardcode hex values.
 - Vertical between sections: `clamp(3rem, 6vw, 5rem)`
 - Premium feel = more whitespace. If it feels dense, add space.
 
+**Progress rings (budget/goal tracking):**
+- A circular ring using conic-gradient, brand green over a muted track color, paired with a Fraunces-italic number
+- Used specifically for budget-vs-spend or calorie/goal progress
+- This is the one signature element for app pages — don't add competing effects alongside it, no stamps, no monospace/LCD treatments, no texture overlays
+- One quiet signature, not several
+
 ---
 
 ## 5. Anti-Patterns (What Bad Looks Like)
@@ -162,6 +168,7 @@ Use CSS variables only. Never hardcode hex values.
 - **Inconsistent border-radius** — mixing 8px, 10px, 16px; use only the token scale
 - **Nav with active state in green** — active nav links use `--color-brick` (warm red), not green
 - **Teal or black theme colors** — only forest green (#1a3d2b) for dark brand surfaces
+- **Multiple competing signature elements** — the progress ring is the single new personality touch on app pages; stacking it with other novel effects reads as cluttered, not distinctive
 
 ---
 
