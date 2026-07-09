@@ -78,6 +78,7 @@ Use CSS variables only. Never hardcode hex values.
 **Mobile** (max-width: 640px): H1 → 40px, H2 → 28px, H3 → 22px, body → 16px.
 
 **Rules:**
+- Fraunces weight 700 for most headings, 900 reserved for hero/display text (`.hero-h1` only). Always set `font-weight` explicitly — never rely on browser default-bold.
 - H1 and H2 Fraunces headings are always italic — this is the brand warmth signal
 - H3+ can be non-italic
 - Body text: min 400 weight, min 1.6 line-height
