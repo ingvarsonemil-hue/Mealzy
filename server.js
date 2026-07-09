@@ -190,6 +190,16 @@ const demoLimiter = rateLimit({
   message: { error: 'demo_limit', message: "You've used today's 3 free demos. Create a free account — it only takes 30 seconds." }
 });
 
+// AI coach / grocery list limiter — both call Anthropic and require a session,
+// so this only bounds how fast a logged-in user can spend API budget.
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "You're sending requests too fast — wait 60 seconds and try again." }
+});
+
 // ── Cookie helpers ─────────────────────────────────────────────────────────
 function parseCookies(req) {
   const cookies = {};
@@ -1898,41 +1908,41 @@ function splitGroceryListByDay(groceryList) {
   return byDay;
 }
 
-app.post('/api/generate-grocery-list', async (req, res) => {
+app.post('/api/generate-grocery-list', aiLimiter, async (req, res) => {
   try {
+    const session = getSessionFromReq(req);
+    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
     const { profile, meals, weekStart, day, planId: requestedPlanId } = req.body;
     if (!meals || meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
 
     const groceryList = await generateGroceryListForMeals({ meals, profile, weekStart, day });
 
-    const session = getSessionFromReq(req);
     let planId;
-    if (session) {
-      try {
-        if (day) {
-          // Single-day generate/refresh — reuse the caller's planId only if it
-          // already belongs to them, so a spoofed id can't delete/overwrite
-          // another user's saved days.
-          planId = requestedPlanId || null;
-          if (planId) {
-            const existingRows = await db.getGroceryListsForPlan(planId);
-            if (existingRows.length > 0 && existingRows[0].userId !== session.userId) {
-              planId = null;
-            }
+    try {
+      if (day) {
+        // Single-day generate/refresh — reuse the caller's planId only if it
+        // already belongs to them, so a spoofed id can't delete/overwrite
+        // another user's saved days.
+        planId = requestedPlanId || null;
+        if (planId) {
+          const existingRows = await db.getGroceryListsForPlan(planId);
+          if (existingRows.length > 0 && existingRows[0].userId !== session.userId) {
+            planId = null;
           }
-          if (!planId) planId = randomUUID();
-          await db.deleteGroceryListForPlanDay(planId, day);
-          await db.saveGroceryList(randomUUID(), session.userId, planId, day, groceryList);
-        } else {
-          planId = randomUUID();
-          const byDay = splitGroceryListByDay(groceryList);
-          await Promise.all(Object.entries(byDay).map(([d, dayList]) =>
-            db.saveGroceryList(randomUUID(), session.userId, planId, d, dayList)
-          ));
         }
-      } catch (saveErr) {
-        console.error('[generate-grocery-list] DB save error (non-fatal):', saveErr);
+        if (!planId) planId = randomUUID();
+        await db.deleteGroceryListForPlanDay(planId, day);
+        await db.saveGroceryList(randomUUID(), session.userId, planId, day, groceryList);
+      } else {
+        planId = randomUUID();
+        const byDay = splitGroceryListByDay(groceryList);
+        await Promise.all(Object.entries(byDay).map(([d, dayList]) =>
+          db.saveGroceryList(randomUUID(), session.userId, planId, d, dayList)
+        ));
       }
+    } catch (saveErr) {
+      console.error('[generate-grocery-list] DB save error (non-fatal):', saveErr);
     }
 
     res.json({ success: true, groceryList, ...(planId ? { planId } : {}) });
@@ -1982,28 +1992,26 @@ app.get('/api/grocery-list/:planId/:day', async (req, res) => {
 
 const FREE_COACH_LIMIT = 10;
 
-app.post('/api/ai-coach', async (req, res) => {
+app.post('/api/ai-coach', aiLimiter, async (req, res) => {
   try {
+    const session = getSessionFromReq(req);
+    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+
     const { messages, profile } = req.body;
-    const session   = getSessionFromReq(req);
-    let isCoachPro  = false;
-    if (session) {
-      const dbUser = await db.getUserById(session.userId);
-      if (dbUser?.pro === 1) isCoachPro = true;
-    }
+    let isCoachPro = false;
+    const dbUser = await db.getUserById(session.userId);
+    if (dbUser?.pro === 1) isCoachPro = true;
 
     if (!messages || messages.length === 0) return res.status(400).json({ error: 'Messages array is required' });
 
     // Daily message limit for free users (persisted in SQLite — survives restarts)
-    if (!isCoachPro && session) {
+    if (!isCoachPro) {
       const count = await db.getCoachUsage(session.userId);
       log.info(`[coach] userId=${session.userId} count=${count} limit=${FREE_COACH_LIMIT} isPro=${isCoachPro}`);
       if (count >= FREE_COACH_LIMIT) {
         return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: count, limit: FREE_COACH_LIMIT });
       }
       await db.incrementCoachUsage(session.userId);
-    } else {
-      log.info(`[coach] userId=${session?.userId ?? 'anon'} count=- limit=- isPro=${isCoachPro}`);
     }
 
     const { name = 'User', goal = 'eat healthier', dailyCalories = 2000, macros = { protein: 150, carbs: 200, fat: 67 }, dietaryPrefs = [], allergies = [], weight = 70, height = 170, age = 30, currency = 'USD', preferred_cuisine = '', language: coachLang = 'en' } = profile || {};
