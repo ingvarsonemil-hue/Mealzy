@@ -49,6 +49,8 @@ Use CSS variables only. Never hardcode hex values.
 - `--color-border` → all 1px dividers (never use #999 or hardcoded grays)
 - `--color-brick` → secondary CTAs, required field markers
 
+**App-page tokens** — dashboard.html, meal-planner.html, grocery-list.html, analytics.html, ai-coach.html, and settings.html use a separate `--clr-*` family defined in `style.css`, not the `--color-*` family above (that one is for marketing/funnel pages only). The app-page tokens are: `--clr-brand` (`#3d8b5e` light mode, buttons/ring/accent text), `--clr-brand-dark` (`#4a9d6c` dark mode, same role), `--clr-background` (`#FAF7F1` light mode page bg), `--clr-page-dark` (`#1a2e22` dark mode page bg), and `--clr-border` (`#EAE4D8` light mode, `#2A3A30` dark mode). Before editing any app page, confirm which family it actually loads by checking its `<link>` tags for `style.css` vs. `tokens.css`/`landing.css`.
+
 ---
 
 ## 2. Typography
