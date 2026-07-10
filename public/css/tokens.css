@@ -28,19 +28,6 @@
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--color-green) 0%, var(--color-forest) 100%);
 
-  /* Semantic Roles (intent-based) */
-  --color-surface:           var(--color-cream);
-  --color-surface-secondary: var(--color-muted-bg);
-  --color-text-primary:      var(--color-foreground);
-  --color-text-secondary:    var(--color-muted-fg);
-  --color-text-muted:        #9ca3af;
-  --color-text-disabled:     #d1d5db;
-  --color-interactive-primary:   var(--color-green);
-  --color-interactive-secondary: var(--color-forest);
-  --color-status-success:    var(--color-success);
-  --color-status-warning:    var(--color-warning);
-  --color-status-error:      var(--color-error);
-
   /* Typography Scale (modular scale 1.125x) */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body:    'Inter', system-ui, sans-serif;
@@ -139,15 +126,6 @@
   --color-muted-bg:    #0f1419;
   --color-border:      #2d3748;
   --color-hairline:    #2d3748;
-  --clr-card:          rgba(255,255,255,0.06);
-  --clr-border:        rgba(255,255,255,0.10);
-  /* Dark mode semantic roles */
-  --color-surface:           var(--color-cream);
-  --color-surface-secondary: var(--color-muted-bg);
-  --color-text-primary:      #f5f1ed;
-  --color-text-secondary:    #a8a29e;
-  --color-text-muted:        #6b7280;
-  --color-text-disabled:     #4b5563;
 }
 
 .skip-link {

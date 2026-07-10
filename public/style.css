@@ -6,13 +6,14 @@
   --clr-primary-dark: var(--color-forest);
   --clr-primary-light: var(--color-green-muted);
   --clr-accent-light: #F5E8E3;
-  --clr-background: var(--color-cream);
-  --clr-foreground: var(--color-foreground);
-  --clr-card: #f8f5f0;
-  --clr-muted-bg: var(--color-muted-bg);
-  --clr-border: var(--color-border);
-  --clr-input-bg: var(--color-parchment);
-  --clr-muted-fg: var(--color-muted-fg);
+  --clr-background: #FAF7F1;
+  --clr-foreground: #1a2e22;
+  --clr-card: #ffffff;
+  --clr-muted-bg: #F2EDE2;
+  --clr-border: #EAE4D8;
+  --clr-input-bg: #ffffff;
+  --clr-muted-fg: #5c6b62;
+  --clr-brand: var(--color-green);
   --clr-destructive: var(--color-error);
   --clr-error: var(--color-error);
   --clr-success: var(--color-success);
@@ -532,13 +533,14 @@ footer { background: var(--color-forest); color: white; padding: 2.5rem 0; }
 
 /* === DARK MODE === */
 [data-theme="dark"] {
-  --clr-background: hsl(150, 15%, 8%);
-  --clr-foreground: hsl(150, 20%, 92%);
-  --clr-card: var(--clr-page-dark);
-  --clr-border: hsl(150, 10%, 20%);
-  --clr-input-bg: hsl(150, 12%, 14%);
-  --clr-muted-bg: hsl(150, 12%, 10%);
-  --clr-muted-fg: hsl(150, 10%, 60%);
+  --clr-background: #1a2e22;
+  --clr-foreground: #F2EFE9;
+  --clr-card: #1f2f26;
+  --clr-border: #2a3a30;
+  --clr-input-bg: #1f2f26;
+  --clr-muted-bg: #17251d;
+  --clr-muted-fg: #8fa08f;
+  --clr-brand: #4a9d6c;
   /* Sidebar slightly darker in dark mode */
   --clr-sidebar: hsl(152, 42%, 12%);
   --clr-sidebar-hover: hsl(152, 42%, 18%);
