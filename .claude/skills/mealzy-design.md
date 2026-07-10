@@ -49,6 +49,8 @@ Use CSS variables only. Never hardcode hex values.
 - `--color-border` → all 1px dividers (never use #999 or hardcoded grays)
 - `--color-brick` → secondary CTAs, required field markers
 
+**App-page tokens** — dashboard.html, meal-planner.html, grocery-list.html, analytics.html, ai-coach.html, and settings.html use a separate `--clr-*` family defined in `style.css`, not the `--color-*` family above (that one is for marketing/funnel pages only). The app-page tokens are: `--clr-brand` (`#3d8b5e` light mode, buttons/ring/accent text), `--clr-brand-dark` (`#4a9d6c` dark mode, same role), `--clr-background` (`#FAF7F1` light mode page bg), `--clr-page-dark` (`#1a2e22` dark mode page bg), and `--clr-border` (`#EAE4D8` light mode, `#2A3A30` dark mode). Before editing any app page, confirm which family it actually loads by checking its `<link>` tags for `style.css` vs. `tokens.css`/`landing.css`.
+
 ---
 
 ## 2. Typography
@@ -78,6 +80,7 @@ Use CSS variables only. Never hardcode hex values.
 **Mobile** (max-width: 640px): H1 → 40px, H2 → 28px, H3 → 22px, body → 16px.
 
 **Rules:**
+- Fraunces weight 700 for most headings, 900 reserved for hero/display text (`.hero-h1` only). Always set `font-weight` explicitly — never rely on browser default-bold.
 - H1 and H2 Fraunces headings are always italic — this is the brand warmth signal
 - H3+ can be non-italic
 - Body text: min 400 weight, min 1.6 line-height
@@ -146,6 +149,12 @@ Use CSS variables only. Never hardcode hex values.
 - Vertical between sections: `clamp(3rem, 6vw, 5rem)`
 - Premium feel = more whitespace. If it feels dense, add space.
 
+**Progress rings (budget/goal tracking):**
+- A circular ring using conic-gradient, brand green over a muted track color, paired with a Fraunces-italic number
+- Used specifically for budget-vs-spend or calorie/goal progress
+- This is the one signature element for app pages — don't add competing effects alongside it, no stamps, no monospace/LCD treatments, no texture overlays
+- One quiet signature, not several
+
 ---
 
 ## 5. Anti-Patterns (What Bad Looks Like)
@@ -162,6 +171,7 @@ Use CSS variables only. Never hardcode hex values.
 - **Inconsistent border-radius** — mixing 8px, 10px, 16px; use only the token scale
 - **Nav with active state in green** — active nav links use `--color-brick` (warm red), not green
 - **Teal or black theme colors** — only forest green (#1a3d2b) for dark brand surfaces
+- **Multiple competing signature elements** — the progress ring is the single new personality touch on app pages; stacking it with other novel effects reads as cluttered, not distinctive
 
 ---
 
