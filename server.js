@@ -1184,6 +1184,14 @@ async function handleStripeWebhook(req, res) {
     return res.status(400).json({ error: 'Webhook signature verification failed' });
   }
 
+  try {
+    if (await db.isWebhookEventProcessed(event.id)) {
+      return res.status(200).json({ received: true, note: 'Already processed' });
+    }
+  } catch(e) {
+    console.error('[stripe] idempotency check error:', e.message);
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session  = event.data.object;
     const email    = session.customer_details?.email?.toLowerCase().trim();
@@ -1224,6 +1232,8 @@ async function handleStripeWebhook(req, res) {
       } catch(e) { console.error('[stripe] subscription.deleted error:', e.message); }
     }
   }
+
+  try { await db.markWebhookEventProcessed(event.id); } catch(e) { console.error('[stripe] mark processed error:', e.message); }
 
   res.json({ received: true });
 }

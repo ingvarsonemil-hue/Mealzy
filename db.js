@@ -109,6 +109,10 @@ async function _applySchema() {
       data       TEXT NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS processed_webhook_events (
+      event_id     TEXT PRIMARY KEY,
+      processed_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`,
   ];
 
   for (const sql of tables) {
@@ -290,6 +294,20 @@ async function getAnalytics() {
     ip_tail: r.ip_tail,
     ts:      r.created_at,
   }));
+}
+
+// ── Webhook idempotency ───────────────────────────────────────────────────────
+
+async function isWebhookEventProcessed(eventId) {
+  const row = await get('SELECT event_id FROM processed_webhook_events WHERE event_id = ?', [eventId]);
+  return !!row;
+}
+
+async function markWebhookEventProcessed(eventId) {
+  await run(
+    'INSERT OR IGNORE INTO processed_webhook_events (event_id) VALUES (?)',
+    [eventId]
+  );
 }
 
 // ── Family Profiles ───────────────────────────────────────────────────────────
@@ -609,4 +627,6 @@ module.exports = {
   saveGroceryList, getGroceryListsForPlan, getGroceryListByDay, deleteGroceryListForPlanDay,
   // health
   ping,
+  // webhook idempotency
+  isWebhookEventProcessed, markWebhookEventProcessed,
 };
