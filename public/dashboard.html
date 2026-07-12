@@ -216,7 +216,7 @@
         <div class="dash-greeting-sub" id="greetingSub">Loading your plan...</div>
       </div>
       <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-        <span class="badge badge-accent" id="streakBadge" style="font-size:0.78rem;">1 day streak</span>
+        <span class="badge badge-accent" id="streakBadge" style="font-size:0.78rem;display:none;"></span>
         <span id="proBadge" style="display:none;background:var(--clr-primary);color:var(--clr-on-primary);font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Print your meal plan" style="display:inline-flex;align-items:center;gap:0.35rem;"><span data-i18n="btn_download_pdf">Print Plan</span></button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><span data-i18n="btn_share_card">Share Card</span></button>
@@ -590,6 +590,21 @@
     document.getElementById('mobileUserAvatar').textContent = initial;
     document.getElementById('userName').textContent = displayName;
     document.getElementById('mobileUserName').textContent = displayName;
+    updateStreakBadge();
+  }
+
+  // profile.streak is the real daily streak (consecutive days generating a plan,
+  // tracked server-side in /api/xp/award) — distinct from the unused profile.weekStreak field.
+  function updateStreakBadge() {
+    const badge = document.getElementById('streakBadge');
+    if (!badge) return;
+    const streak = profile?.streak || 0;
+    if (streak > 0) {
+      badge.textContent = `${streak} day${streak === 1 ? '' : 's'} streak`;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
   }
 
   function updateGreeting() {
@@ -990,6 +1005,18 @@
       plans[today] = { meals: todayMeals, generatedAt: new Date().toISOString() };
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
       trackEvent('generate_plan', {});
+
+      try {
+        const xpRes = await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
+        if (xpRes.ok) {
+          const xpData = await xpRes.json();
+          if (typeof xpData.streak === 'number') {
+            profile.streak = xpData.streak;
+            localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+            updateStreakBadge();
+          }
+        }
+      } catch(e) { /* fail silently — badge just won't update reactively this time */ }
 
       // Track plan count for soft upgrade banner
       const planCount = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0') + 1;

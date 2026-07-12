@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 const CACHE = 'mealzy-v183';
+=======
+const CACHE = 'mealzy-v173';
+>>>>>>> Stashed changes
 const PRECACHE = [
   '/',
   '/index.html',
