@@ -87,7 +87,6 @@
       if (!res.ok) { showError(data.error === 'account_exists' ? 'An account with this email already exists. Sign in instead.' : (data.message || 'Sign up failed. Please try again.')); setLoading('btnSignUp', false); return; }
       localStorage.setItem('mealzy_user', JSON.stringify({ name: data.user.name, email: data.user.email }));
       if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
-      if (window.amplitude) window.amplitude.track('Sign Up');
       try { fetch('/api/email-leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, name: name, source: 'signup' }) }); } catch (err) {}
       var pendingRef = localStorage.getItem('mealzy_pending_ref');
       if (pendingRef && pendingRef !== email) {

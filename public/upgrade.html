@@ -176,10 +176,6 @@
     try { localStorage.setItem('mealzy_theme', next); } catch (e) {}
   });
 
-  if (window.amplitude && localStorage.getItem('mealzy_user') && localStorage.getItem('mealzy_pro') !== 'true') {
-    amplitude.track('Upgrade Page Viewed', { page: 'upgrade' });
-  }
-
   const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
   const STRIPE_YEARLY  = window.STRIPE_ANNUAL || null;
 
@@ -216,7 +212,6 @@
   }
 
   function trackUpgrade(source) {
-    if (window.amplitude) amplitude.track('Checkout Started', { plan: 'pro', billing: billingMode, source: source || 'upgrade_page' });
     fetch('/api/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -303,7 +303,6 @@
   function nextStep() {
     if (!validateStep(currentStep)) return;
     if (currentStep < totalSteps) {
-      if (currentStep === 1 && window.amplitude) amplitude.track('Onboarding Step 1 Completed', { goal: userData.goal });
       currentStep++;
       showStep(currentStep);
     } else {
@@ -436,8 +435,6 @@
         body: JSON.stringify({ action: 'onboarding' })
       });
     } catch(e) {}
-
-    if (window.amplitude) amplitude.track('Onboarding Step 2 Completed', { goal: userData.goal, budget: userData.budget });
 
     // Redirect to dashboard with autoGenerate flag
     window.location.href = 'dashboard.html?autoGenerate=1';

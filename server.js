@@ -104,7 +104,7 @@ app.use((req, res, next) => {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
     "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
     "img-src 'self' data: https:; " +
-    "connect-src 'self' https://api.stripe.com https://accounts.google.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://api2.amplitude.com https://api.amplitude.com https://sr-client-cfg.amplitude.com https://cdn.amplitude.com; " +
+    "connect-src 'self' https://api.stripe.com https://accounts.google.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net; " +
     "frame-src https://js.stripe.com;"
   );
   next();

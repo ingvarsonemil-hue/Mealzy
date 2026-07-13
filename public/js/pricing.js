@@ -19,7 +19,6 @@
 
   function trackUpgradeClick(plan) {
     fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'upgrade_click', data: { source: 'pricing_page', plan: plan || 'pro' } }) }).catch(function () {});
-    if (window.amplitude) window.amplitude.track('Checkout Started', { plan: plan || 'pro', billing: billingMode, source: 'pricing_page' });
   }
 
   function setBilling(mode) {
@@ -70,10 +69,6 @@
       document.documentElement.setAttribute('data-theme', next);
       try { localStorage.setItem('mealzy_theme', next); } catch (e) {}
     });
-
-    if (window.amplitude && localStorage.getItem('mealzy_user') && localStorage.getItem('mealzy_pro') !== 'true') {
-      window.amplitude.track('Upgrade Page Viewed', { page: 'pricing' });
-    }
 
     document.getElementById('proCta').href = STRIPE_MONTHLY;
     document.getElementById('popupCta').href = STRIPE_MONTHLY;

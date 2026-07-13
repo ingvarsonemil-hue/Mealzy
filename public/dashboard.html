@@ -1441,9 +1441,6 @@
 
   // === TRACK EVENT ===
   function trackEvent(event, data) {
-    if (event === 'upgrade_click' && window.amplitude) {
-      amplitude.track('Checkout Started', { plan: 'pro', billing: 'monthly', source: (data && data.source) || 'dashboard' });
-    }
     fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event, data }) }).catch(()=>{});
   }
 

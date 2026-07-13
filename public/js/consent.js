@@ -3,17 +3,7 @@
   'use strict';
 
   var CONSENT_KEY = 'mealzy_consent';
-  var AMPLITUDE_KEY = '7d13e8b48558147de585423d7956f05d';
   var GA4_ID = 'G-27FWEVV6VD';
-
-  function loadAmplitude() {
-    var s = document.createElement('script');
-    s.src = 'https://cdn.amplitude.com/script/' + AMPLITUDE_KEY + '.js';
-    s.onload = function () {
-      window.amplitude.init(AMPLITUDE_KEY, { fetchRemoteConfig: true, autocapture: true, sessionReplay: { sampleRate: 1 } });
-    };
-    document.head.appendChild(s);
-  }
 
   function loadGA4() {
     window.dataLayer = window.dataLayer || [];
@@ -28,7 +18,6 @@
   }
 
   function loadAnalytics() {
-    loadAmplitude();
     loadGA4();
   }
 
