@@ -1,4 +1,4 @@
-/* Mealzy cookie/analytics consent gate — must load before any Amplitude/GA4 tags. */
+/* Mealzy cookie/analytics consent gate — must load before any GA4 tags. */
 (function () {
   'use strict';
 
