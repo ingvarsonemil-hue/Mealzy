@@ -2,7 +2,9 @@ services:
   - type: web
     name: mealzy
     runtime: node
-    buildCommand: npm install
+    # --include=dev: NODE_ENV=production would otherwise skip vite/tailwind,
+    # which live in devDependencies, and the build would fail
+    buildCommand: npm install --include=dev && npm run build
     startCommand: node server.js
     envVars:
       - key: ANTHROPIC_API_KEY

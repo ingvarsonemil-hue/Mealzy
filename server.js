@@ -153,6 +153,23 @@ app.get('/privacy.html', (req, res) => {
   res.redirect(301, '/privacy-policy.html');
 });
 
+// ── Homepage React build (Phase 1 redesign) ───────────────────────────────
+// vite build outputs dist/ (index.html + hashed assets). When present it wins
+// for "/" and "/index.html"; every other page still comes from public/.
+// Without a build (local dev before `npm run build`) we fall back to public/.
+const distDir = path.join(__dirname, 'dist');
+const hasDistBuild = fs.existsSync(path.join(distDir, 'index.html'));
+if (hasDistBuild) {
+  app.use(express.static(distDir, {
+    setHeaders: (res, filePath) => {
+      // Vite assets are content-hashed — safe to cache forever
+      if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  }));
+}
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // TikTok domain verification
@@ -2357,6 +2374,9 @@ app.use('/blog', express.static(path.join(__dirname, 'public', 'blog')));
 
 // ── Catch-all: serve index.html ────────────────────────────────────────────
 app.get('*', async (req, res) => {
+  if (hasDistBuild) {
+    return res.sendFile(path.join(distDir, 'index.html'));
+  }
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
