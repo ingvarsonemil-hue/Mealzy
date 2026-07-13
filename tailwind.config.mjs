@@ -1,7 +1,7 @@
 /** Tailwind theme mapped 1:1 onto the Mealzy design tokens (tokens.css /
  * mealzy-design skill). Components must use these names, never raw hex. */
 export default {
-  content: ['./client/index.html', './client/src/**/*.{js,jsx}'],
+  content: ['./client/index.html', './client/src/**/*.{js,jsx}', './public/js/consent.js'],
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {

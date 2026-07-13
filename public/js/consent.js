@@ -49,7 +49,7 @@
     banner.setAttribute('aria-label', 'Cookie consent');
     banner.innerHTML =
       '<div class="cookie-consent-inner">' +
-        '<p class="cookie-consent-text">We use cookies and analytics (including session recording) to improve Mealzy. See our <a href="/privacy-policy.html">Privacy Policy</a>.</p>' +
+        '<p class="cookie-consent-text">We use cookies and analytics to improve Mealzy. See our <a href="/privacy-policy.html">Privacy Policy</a>.</p>' +
         '<div class="cookie-consent-actions">' +
           '<button type="button" class="btn btn-outline btn-sm" id="cookieDeclineBtn">Necessary only</button>' +
           '<button type="button" class="btn btn-primary btn-sm" id="cookieAcceptBtn">Accept</button>' +
