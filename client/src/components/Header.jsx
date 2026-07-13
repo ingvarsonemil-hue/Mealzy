@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { href: '#faq', label: 'FAQ' }
 ];
 
-function useTheme() {
+export function useTheme() {
   const [theme, setTheme] = React.useState(
     () => document.documentElement.getAttribute('data-theme') || 'light'
   );
@@ -24,7 +24,7 @@ function useTheme() {
   return [theme, toggle];
 }
 
-export default function Header() {
+export default function Header({ links = NAV_LINKS, activeHref }) {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [theme, toggleTheme] = useTheme();
@@ -79,12 +79,16 @@ export default function Header() {
         </a>
 
         <ul className="hidden items-center gap-8 md:flex" role="list">
-          {NAV_LINKS.map((l) => (
+          {links.map((l) => (
             <li key={l.href}>
               <a
                 href={l.href}
                 onClick={(e) => onAnchorClick(e, l.href)}
-                className="text-[15px] font-medium text-on-forest-body no-underline transition-colors duration-200 hover:text-on-forest"
+                aria-current={l.href === activeHref ? 'page' : undefined}
+                className={cn(
+                  'text-[15px] font-medium no-underline transition-colors duration-200 hover:text-on-forest',
+                  l.href === activeHref ? 'text-on-forest' : 'text-on-forest-body'
+                )}
               >
                 {l.label}
               </a>
@@ -138,7 +142,7 @@ export default function Header() {
                   </Dialog.Close>
                 </div>
                 <ul className="mt-8 flex flex-col gap-1" role="list">
-                  {NAV_LINKS.map((l) => (
+                  {links.map((l) => (
                     <li key={l.href}>
                       <a
                         href={l.href}

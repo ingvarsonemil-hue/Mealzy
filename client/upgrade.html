@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/theme-init.js"></script>
+<!-- Cookie consent gate (must load before analytics) -->
+<script src="/js/consent.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
+<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $8/month billed yearly ($96/year). Cancel anytime.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3d2b">
+<meta property="og:title" content="Upgrade to Mealzy Pro">
+<meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $8/month billed yearly ($96/year). Cancel anytime.">
+<link rel="canonical" href="https://mealzy.org/upgrade.html">
+<meta property="og:url" content="https://mealzy.org/upgrade.html">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<!-- Stripe payment-link URLs from server env. Intentionally NOT deferred:
+     this page has a monthly/annual toggle, and the old defer here caused the
+     annual URL to be invisible at init (silent wrong-URL checkout routing).
+     Keep it blocking. -->
+<script src="/stripe-config.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/upgrade/main.jsx"></script>
+</body>
+</html>
