@@ -488,7 +488,7 @@
   async function cloudSave() {
     const plan = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     try {
-      const res = await fetch('/api/plan/save', {
+      const res = await fetch('/api/plans/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ plan })
