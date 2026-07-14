@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Marketing-page React build (Phase 1: homepage; Phase 2A: pricing, upgrade,
-// login, reset-password). Source lives in client/, output goes to dist/ at the
+// login, reset-password; Phase 2B: privacy-policy, terms). Source lives in
+// client/, output goes to dist/ at the
 // repo root; express.static(dist) is mounted before public/, so any page built
 // here wins over its legacy public/*.html counterpart automatically.
 export default defineConfig({
@@ -25,7 +26,9 @@ export default defineConfig({
         pricing: path.resolve(__dirname, 'client/pricing.html'),
         upgrade: path.resolve(__dirname, 'client/upgrade.html'),
         login: path.resolve(__dirname, 'client/login.html'),
-        'reset-password': path.resolve(__dirname, 'client/reset-password.html')
+        'reset-password': path.resolve(__dirname, 'client/reset-password.html'),
+        'privacy-policy': path.resolve(__dirname, 'client/privacy-policy.html'),
+        terms: path.resolve(__dirname, 'client/terms.html')
       }
     }
   },
