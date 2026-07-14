@@ -99,7 +99,7 @@ export default function UpgradePage() {
                   <>
                     Yearly
                     <span className="rounded-full bg-green px-2 py-0.5 text-xs font-bold text-white">
-                      Save 33%
+                      Save 57%
                     </span>
                   </>
                 }
@@ -114,11 +114,11 @@ export default function UpgradePage() {
             <span className="rounded-full bg-green px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white">Most popular</span>
           </p>
           <p className="mt-4 text-center">
-            <span className="font-display text-5xl font-bold italic leading-none tracking-[-0.02em]">{yearly ? '$8' : '$12'}</span>
+            <span className="font-display text-5xl font-bold italic leading-none tracking-[-0.02em]">{yearly ? '$5.17' : '$12'}</span>
             <span className="text-base text-muted-fg">/month</span>
           </p>
           <p className="mt-1.5 min-h-[1.3em] text-center text-sm text-muted-fg" aria-live="polite">
-            {yearly ? 'Billed $96/year — saves $48' : ''}
+            {yearly ? 'Billed $62/year — saves $82' : ''}
           </p>
 
           <ul role="list" className="mt-6 flex flex-col gap-4">
