@@ -3,7 +3,7 @@ import PasswordField from '@/components/PasswordField';
 import { Button } from '@/components/ui/button';
 import { Label, Input } from '@/components/ui/field';
 import { Check, GoogleLogo } from '@/components/icons';
-import { signIn, signUp, requestPasswordReset, fetchSession, fetchProfile } from '@/lib/auth';
+import { signIn, signUp, requestPasswordReset, fetchSession, fetchProfile, recordEmailLead, recordReferral } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
 const OAUTH_ERRORS = {
@@ -48,7 +48,7 @@ export default function LoginPage() {
   });
   const [busy, setBusy] = React.useState(false);
   const [si, setSi] = React.useState({ email: '', password: '' });
-  const [su, setSu] = React.useState({ name: '', email: qs.get('email') ? decodeURIComponent(qs.get('email')) : '', password: '' });
+  const [su, setSu] = React.useState({ name: '', email: qs.get('email') || '', password: '' });
   const [resetEmail, setResetEmail] = React.useState('');
   const [resetSent, setResetSent] = React.useState(false);
 
@@ -138,10 +138,10 @@ export default function LoginPage() {
       }
       storeUser(data.user);
       if (data.user.pro) ls('set', 'mealzy_pro', 'true');
-      try { fetch('/api/email-leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, name, source: 'signup' }) }); } catch (err) { /* non-blocking */ }
+      recordEmailLead(email, name);
       const pendingRef = ls('get', 'mealzy_pending_ref');
       if (pendingRef && pendingRef !== email) {
-        try { fetch('/api/referral', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referrer_email: pendingRef, new_user_email: email }) }); } catch (err) { /* non-blocking */ }
+        recordReferral(pendingRef, email);
         ls('remove', 'mealzy_pending_ref');
       }
       ls('set', 'mealzy_is_new_user', '1');

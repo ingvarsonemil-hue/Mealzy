@@ -7,6 +7,7 @@ import PlanCards from './PlanCards';
 import DecidingPopup from './DecidingPopup';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import CompareCell from '@/components/CompareCell';
 import { stripeUrls } from '@/lib/stripe';
 import { cn } from '@/lib/utils';
 
@@ -44,13 +45,6 @@ const FAQS = [
     a: "Your meal plans and profile preferences are stored securely on our servers, tied to your account. You can access them from any device as long as you're signed in. We do not sell your data."
   }
 ];
-
-function CompCell({ value, pro }) {
-  const cls = cn('px-4 py-3.5 text-center text-[15px]', pro && 'bg-green/5 font-semibold');
-  if (value === true) return <td className={cls}><span aria-hidden="true" className="text-green">&#10003;</span><span className="sr-only">Yes</span></td>;
-  if (value === false) return <td className={cls}><span aria-hidden="true" className="text-muted-fg">&#10005;</span><span className="sr-only">No</span></td>;
-  return <td className={cls}>{value}</td>;
-}
 
 export default function PricingPage() {
   const [mode, setMode] = React.useState('monthly');
@@ -116,9 +110,9 @@ export default function PricingPage() {
                   {COMPARISON.map(([feature, free, pro, family], i) => (
                     <tr key={feature} className={cn(i < COMPARISON.length - 1 && 'border-b border-hairline')}>
                       <td className="px-4 py-3.5 text-[15px] font-medium">{feature}</td>
-                      <CompCell value={free} />
-                      <CompCell value={pro} pro />
-                      <CompCell value={family} />
+                      <CompareCell value={free} className="px-4 py-3.5" />
+                      <CompareCell value={pro} pro className="px-4 py-3.5" />
+                      <CompareCell value={family} className="px-4 py-3.5" />
                     </tr>
                   ))}
                 </tbody>

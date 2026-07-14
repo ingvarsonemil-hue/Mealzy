@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
           setInvalidMsg(data.message || "This link doesn't work anymore");
           setView('invalid');
         } else {
-          setError(data.error || 'Something went wrong. Please try again.');
+          setError(data.message || 'Something went wrong. Please try again.');
           setBusy(false);
         }
         return;

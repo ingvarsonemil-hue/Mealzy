@@ -62,11 +62,7 @@ export default function AbandonOffer({ clickedRef, onCheckout }) {
         href={stripeUrls.discount}
         data-testid="abandon-offer-cta"
         className={cn(buttonVariants({ variant: 'primary', size: 'md' }))}
-        onClick={(e) => {
-          e.preventDefault();
-          onCheckout();
-          window.location.href = stripeUrls.discount;
-        }}
+        onClick={onCheckout}
       >
         Get first month for $4
       </a>

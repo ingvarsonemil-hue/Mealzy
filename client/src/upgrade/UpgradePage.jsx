@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/Header';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Sun, Moon, CircleCheck, HelpCircle, Lock } from '@/components/icons';
+import CompareCell from '@/components/CompareCell';
 import { stripeUrls } from '@/lib/stripe';
 import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -38,13 +39,6 @@ const FAQS = [
   { q: 'Is there a contract or minimum commitment?', a: 'No. Cancel any time from your billing portal — one click, no questions asked. You keep Pro access until the end of your current billing period.' },
   { q: 'Do you store my payment details?', a: 'No. Payments go through Stripe — the same processor used by Amazon and Google. We never see your card number, expiry date, or CVV.' }
 ];
-
-function Cell({ value, pro }) {
-  const cls = cn('px-3 py-3 text-center text-[15px]', pro && 'bg-green/5 font-semibold');
-  if (value === true) return <td className={cls}><span aria-hidden="true" className="text-green">&#10003;</span><span className="sr-only">Yes</span></td>;
-  if (value === false) return <td className={cls}><span aria-hidden="true" className="text-muted-fg">&#10005;</span><span className="sr-only">No</span></td>;
-  return <td className={cls}>{value}</td>;
-}
 
 /* Cream panel sitting on the forest-drenched page. */
 function Panel({ children, className }) {
@@ -184,9 +178,9 @@ export default function UpgradePage() {
                 {COMPARISON.map(([feature, free, pro, family], i) => (
                   <tr key={feature} className={cn(i < COMPARISON.length - 1 && 'border-b border-hairline')}>
                     <td className="px-3 py-3 text-[15px] font-medium">{feature}</td>
-                    <Cell value={free} />
-                    <Cell value={pro} pro />
-                    <Cell value={family} />
+                    <CompareCell value={free} />
+                    <CompareCell value={pro} pro />
+                    <CompareCell value={family} />
                   </tr>
                 ))}
               </tbody>
