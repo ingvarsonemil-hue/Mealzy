@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { submitEmailLead } from '@/lib/api';
+import { isValidEmail } from '@/lib/utils';
 
 /* Lead capture modal — same triggers as the original landing.js:
  * one per session; 45 s timer, or exit intent (mouseleave at top) on desktop /
@@ -39,7 +40,7 @@ export default function EmailPopup() {
 
   const submit = () => {
     const value = email.trim();
-    if (!value || value.indexOf('@') === -1) {
+    if (!isValidEmail(value)) {
       setError(true);
       inputRef.current?.focus();
       return;

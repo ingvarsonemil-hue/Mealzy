@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label, Input } from '@/components/ui/field';
 import { Check, GoogleLogo } from '@/components/icons';
 import { signIn, signUp, requestPasswordReset, fetchSession, fetchProfile, recordEmailLead, recordReferral } from '@/lib/auth';
-import { cn } from '@/lib/utils';
+import { cn, isValidEmail } from '@/lib/utils';
 
 const OAUTH_ERRORS = {
   google_failed: 'Google sign-in failed. Please try again or use email.',
@@ -124,6 +124,10 @@ export default function LoginPage() {
       showError('Please fill in all fields.');
       return;
     }
+    if (!isValidEmail(email)) {
+      showError('Please enter a valid email address.');
+      return;
+    }
     setBusy(true);
     try {
       const { ok, data } = await signUp({ name, email, password: su.password });
@@ -156,8 +160,8 @@ export default function LoginPage() {
     e.preventDefault();
     clearMsg();
     const email = resetEmail.trim().toLowerCase();
-    if (!email) {
-      showError('Enter your email address.');
+    if (!isValidEmail(email)) {
+      showError('Enter a valid email address.');
       return;
     }
     setBusy(true);

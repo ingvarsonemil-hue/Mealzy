@@ -16,3 +16,8 @@ export function scrollToHash(e, href) {
   e.preventDefault();
   target.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
 }
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export function isValidEmail(email) {
+  return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email);
+}

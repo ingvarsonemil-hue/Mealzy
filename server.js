@@ -265,6 +265,12 @@ function sanitise(val, maxLen = 500) {
   return val.trim().slice(0, maxLen);
 }
 
+// ── Email format validation (RFC-5322-ish, deliberately conservative) ──────
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function isValidEmail(email) {
+  return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email);
+}
+
 // ── HTML escape for email and HTML context ─────────────────────────────────
 function escapeHtml(str) {
   if (typeof str !== 'string') return '';
@@ -566,7 +572,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'missing_fields', message: 'name, email, and password are required.' });
     }
-    if (!email.includes('@')) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'invalid_email', message: 'Please enter a valid email address.' });
     }
     const passwordCheck = validatePasswordStrength(password);
@@ -700,7 +706,7 @@ app.post('/api/auth/reset-request', authLimiter, async (req, res) => {
     await db.purgeExpiredTokens(); // housekeeping
 
     const email = sanitise(req.body.email, 254).toLowerCase();
-    if (!email) return res.status(400).json({ error: 'email_required' });
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'email_required' });
 
     // Always return the same response regardless of whether email exists (prevent enumeration)
     const user = await db.getUserByEmail(email);
@@ -852,8 +858,11 @@ app.post('/api/profile', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
   const { profile } = req.body;
-  if (!profile || typeof profile !== 'object') {
+  if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
     return res.status(400).json({ error: 'profile object required' });
+  }
+  if (JSON.stringify(profile).length > 20000) {
+    return res.status(400).json({ error: 'profile_too_large', message: 'Profile data is too large.' });
   }
   await db.saveProfile(session.userId, profile);
   res.json({ success: true });
@@ -910,9 +919,11 @@ app.post('/api/family-profiles', async (req, res) => {
 
   const id = profileId || randomUUID();
   const data = {
-    calorieGoal: parseInt(calorieGoal) || 2000,
-    budget: parseFloat(budget) || 100,
-    dietaryRestrictions: Array.isArray(dietaryRestrictions) ? dietaryRestrictions : [],
+    calorieGoal: Math.min(Math.max(parseInt(calorieGoal) || 2000, 1200), 4000),
+    budget: Math.min(Math.max(parseFloat(budget) || 100, 20), 2000),
+    dietaryRestrictions: Array.isArray(dietaryRestrictions)
+      ? dietaryRestrictions.filter(d => typeof d === 'string').slice(0, 20).map(d => sanitise(d, 50))
+      : [],
     avatar: sanitise(avatar || '', 4)
   };
 
@@ -1374,7 +1385,7 @@ app.post('/api/referral', authLimiter, async (req, res) => {
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
   const { referrer_email, new_user_email } = req.body;
-  if (!referrer_email) return res.status(400).json({ error: 'referrer_email required' });
+  if (!isValidEmail(referrer_email)) return res.status(400).json({ error: 'referrer_email required' });
 
   // The authenticated user must be the one being referred
   if (session.email !== (new_user_email || '').toLowerCase()) {
@@ -1413,7 +1424,7 @@ app.post('/api/referral', authLimiter, async (req, res) => {
 // Stores the referral intent so it can be credited when they sign up
 app.get('/api/referral-capture', async (req, res) => {
   const { ref, ip: clientIp } = req.query;
-  if (!ref || !ref.includes('@')) return res.json({ ok: false });
+  if (!isValidEmail(ref)) return res.json({ ok: false });
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || clientIp || '';
   try {
     const { randomUUID } = require('crypto');
@@ -1425,7 +1436,7 @@ app.get('/api/referral-capture', async (req, res) => {
 
 app.get('/api/referral-status', async (req, res) => {
   const { email } = req.query;
-  if (!email) return res.status(400).json({ error: 'email required' });
+  if (!isValidEmail(email)) return res.status(400).json({ error: 'email required' });
   const session = getSessionFromReq(req);
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   const usage         = getUsage(ip);
@@ -1451,7 +1462,7 @@ app.post('/api/email-leads', async (req, res) => {
     const source   = sanitise(req.body.source, 100) || 'unknown';
     const name     = sanitise(req.body.name,   100);
     const discount = req.body.discount ? 1 : 0; // abandonment flow — mark for 50% off code
-    if (!email || !email.includes('@')) {
+    if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'Valid email required' });
     }
     await db.saveLead(randomUUID(), email, source, name);
