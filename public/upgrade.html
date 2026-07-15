@@ -7,11 +7,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
-<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $8/month billed yearly ($96/year). Cancel anytime.">
+<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $62/year (about $5.17/month). Cancel anytime.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
 <meta property="og:title" content="Upgrade to Mealzy Pro">
-<meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $8/month billed yearly ($96/year). Cancel anytime.">
+<meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $62/year (about $5.17/month). Cancel anytime.">
 <link rel="canonical" href="https://mealzy.org/upgrade.html">
 <meta property="og:url" content="https://mealzy.org/upgrade.html">
 <meta property="og:type" content="website">
@@ -81,7 +81,7 @@
     <div class="toggle-row">
       <div class="billing-toggle" id="billingToggleWrap" role="group" aria-label="Billing period">
         <button type="button" id="lblMonthly" onclick="setMode('monthly')" aria-pressed="false">Monthly</button>
-        <button type="button" class="active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Yearly<span class="save-badge">Save 33%</span></button>
+        <button type="button" class="active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Yearly<span class="save-badge">Save <span id="yearlySavePct">57</span>%</span></button>
       </div>
     </div>
   </div>
@@ -90,10 +90,10 @@
     <div style="text-align:center;margin-bottom:1rem;"><span class="badge badge-green">Most popular</span></div>
     <div class="price-display">
       <div>
-        <span class="price-amount" id="upgrPrice">$8</span>
+        <span class="price-amount" id="upgrPrice">$5.17</span>
         <span class="price-period">/month</span>
       </div>
-      <div class="price-annual" id="upgrBilled">Billed $96/year — saves $48</div>
+      <div class="price-annual" id="upgrBilled">Billed $62/year — saves $82</div>
     </div>
 
     <ul class="features-list">
@@ -179,11 +179,20 @@
   const STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
   const STRIPE_YEARLY  = window.STRIPE_ANNUAL || null;
 
+  // Source of truth for the Pro price — everything shown (yearly $/month,
+  // savings text, "Save X%" badge) is derived from these two numbers.
+  const MONTHLY_PRICE = 12;
+  const ANNUAL_TOTAL = 62;
+  const ANNUAL_PER_MONTH = '$' + (ANNUAL_TOTAL / 12).toFixed(2);
+  const ANNUAL_SAVE_PCT = Math.round((1 - ANNUAL_TOTAL / (MONTHLY_PRICE * 12)) * 100);
+  const ANNUAL_SAVE_AMOUNT = MONTHLY_PRICE * 12 - ANNUAL_TOTAL;
+  document.getElementById('yearlySavePct').textContent = String(ANNUAL_SAVE_PCT);
+
   // If no annual Stripe link is configured, hide the annual option entirely
   let billingMode = STRIPE_YEARLY ? 'yearly' : 'monthly';
   if (!STRIPE_YEARLY) {
     document.getElementById('billingToggleWrap').style.display = 'none';
-    document.getElementById('upgrPrice').textContent = '$12';
+    document.getElementById('upgrPrice').textContent = '$' + MONTHLY_PRICE;
     document.getElementById('upgrBilled').textContent = '';
     document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
     document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free';
@@ -199,12 +208,12 @@
     document.getElementById('lblMonthly').setAttribute('aria-pressed', mode === 'monthly' ? 'true' : 'false');
     document.getElementById('lblYearly').setAttribute('aria-pressed', mode === 'yearly' ? 'true' : 'false');
     if (mode === 'yearly') {
-      document.getElementById('upgrPrice').textContent = '$8';
-      document.getElementById('upgrBilled').textContent = 'Billed $96/year — saves $48';
+      document.getElementById('upgrPrice').textContent = ANNUAL_PER_MONTH;
+      document.getElementById('upgrBilled').textContent = 'Billed $' + ANNUAL_TOTAL + '/year — saves $' + ANNUAL_SAVE_AMOUNT;
       document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free';
     } else {
-      document.getElementById('upgrPrice').textContent = '$12';
+      document.getElementById('upgrPrice').textContent = '$' + MONTHLY_PRICE;
       document.getElementById('upgrBilled').textContent = '';
       document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
       document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free';

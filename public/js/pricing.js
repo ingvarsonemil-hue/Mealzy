@@ -11,10 +11,30 @@
   var STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
   var STRIPE_FAMILY_YEARLY = window.STRIPE_FAMILY_ANNUAL || STRIPE_MONTHLY;
 
-  var prices = { monthly: { free: '$0', premium: '$12', family: '$16' }, yearly: { free: '$0', premium: '$8', family: '$11' } };
+  /* Source of truth: monthly price and total annual price, in dollars.
+   * Everything else (yearly/month figure, savings text, "Save X%" badge)
+   * is derived from these two numbers so a price change can't leave a
+   * stale percentage behind. */
+  var MONTHLY_PRICE = { premium: 12, family: 16 };
+  var ANNUAL_TOTAL = { premium: 62, family: 130 };
+
+  function money(n) { return '$' + (Number.isInteger(n) ? n : n.toFixed(2)); }
+  function savePct(monthly, annualTotal) { return Math.round((1 - annualTotal / (monthly * 12)) * 100); }
+  function saveAmount(monthly, annualTotal) { return monthly * 12 - annualTotal; }
+
+  var premiumSavePct = savePct(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium);
+
+  var prices = {
+    monthly: { free: '$0', premium: money(MONTHLY_PRICE.premium), family: money(MONTHLY_PRICE.family) },
+    yearly: { free: '$0', premium: money(ANNUAL_TOTAL.premium / 12), family: money(Math.round(ANNUAL_TOTAL.family / 12)) }
+  };
   var billedTxt = {
     monthly: { free: '', premium: '', family: '' },
-    yearly: { free: '', premium: 'Billed $96/year — save $48 vs monthly', family: 'Billed $130/year — save $62 vs monthly' }
+    yearly: {
+      free: '',
+      premium: 'Billed ' + money(ANNUAL_TOTAL.premium) + '/year — save ' + money(saveAmount(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium)) + ' vs monthly',
+      family: 'Billed ' + money(ANNUAL_TOTAL.family) + '/year — save ' + money(saveAmount(MONTHLY_PRICE.family, ANNUAL_TOTAL.family)) + ' vs monthly'
+    }
   };
 
   function trackUpgradeClick(plan) {
@@ -38,7 +58,7 @@
     var ctaNote = document.getElementById('proCtaNote');
     if (mode === 'yearly') {
       cta.href = STRIPE_YEARLY; cta.textContent = 'Start Pro Annual — 7 Days Free';
-      ctaNote.textContent = 'Best value — $96/year saves you $48 vs monthly.';
+      ctaNote.textContent = 'Best value — ' + money(ANNUAL_TOTAL.premium) + '/year saves you ' + money(saveAmount(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium)) + ' vs monthly.';
     } else {
       cta.href = STRIPE_MONTHLY; cta.textContent = 'Start Pro — 7 Days Free';
       ctaNote.textContent = '$12/mo — cancel any time.';
@@ -73,6 +93,7 @@
     document.getElementById('proCta').href = STRIPE_MONTHLY;
     document.getElementById('popupCta').href = STRIPE_MONTHLY;
     document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
+    document.getElementById('yearlySavePct').textContent = String(premiumSavePct);
 
     document.getElementById('btnMonthly').addEventListener('click', function () { setBilling('monthly'); });
     document.getElementById('btnYearly').addEventListener('click', function () { setBilling('yearly'); });
