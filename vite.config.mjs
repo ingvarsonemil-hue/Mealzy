@@ -28,7 +28,21 @@ export default defineConfig({
         login: path.resolve(__dirname, 'client/login.html'),
         'reset-password': path.resolve(__dirname, 'client/reset-password.html'),
         'privacy-policy': path.resolve(__dirname, 'client/privacy-policy.html'),
-        terms: path.resolve(__dirname, 'client/terms.html')
+        terms: path.resolve(__dirname, 'client/terms.html'),
+        'meal-plan-generator': path.resolve(__dirname, 'client/meal-plan-generator.html'),
+        plan: path.resolve(__dirname, 'client/plan.html'),
+        'budget-meal-plan': path.resolve(__dirname, 'client/budget-meal-plan.html'),
+        'weekly-meal-plan': path.resolve(__dirname, 'client/weekly-meal-plan.html'),
+        'sunday-tax': path.resolve(__dirname, 'client/sunday-tax.html'),
+        support: path.resolve(__dirname, 'client/support.html'),
+        'blog/index': path.resolve(__dirname, 'client/blog/index.html'),
+        'blog/free-gluten-free-meal-plan-week': path.resolve(__dirname, 'client/blog/free-gluten-free-meal-plan-week.html'),
+        'blog/free-keto-meal-plan-week': path.resolve(__dirname, 'client/blog/free-keto-meal-plan-week.html'),
+        'blog/free-vegan-meal-plan-week': path.resolve(__dirname, 'client/blog/free-vegan-meal-plan-week.html'),
+        'blog/meal-plan-50-dollars-a-week': path.resolve(__dirname, 'client/blog/meal-plan-50-dollars-a-week.html'),
+        'blog/free-ai-meal-planner-grocery-list': path.resolve(__dirname, 'client/blog/free-ai-meal-planner-grocery-list.html'),
+        'solutions/zero-waste-meal-planning/index': path.resolve(__dirname, 'client/solutions/zero-waste-meal-planning/index.html'),
+        'plans/50-dollar-weekly-meal-plan/index': path.resolve(__dirname, 'client/plans/50-dollar-weekly-meal-plan/index.html')
       }
     }
   },

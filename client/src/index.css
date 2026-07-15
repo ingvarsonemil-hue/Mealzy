@@ -183,6 +183,37 @@
   }
   .legal-prose a:hover { text-decoration-color: currentColor; }
 
+  /* SEO/blog long-form content (budget/weekly plan pages, blog posts,
+   * solutions/plans pages). Lighter body treatment than .legal-prose —
+   * mirrors the legacy public/css/funnel.css .prose rules. */
+  .article-prose {
+    color: var(--color-muted-fg);
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+  .article-prose h2 {
+    @apply font-display font-bold italic text-foreground;
+    font-size: 1.35rem;
+    margin: 2.4rem 0 0.7rem;
+  }
+  .article-prose p { margin-bottom: 1rem; }
+  .article-prose ul {
+    padding-left: 1.35rem;
+    margin: 0.6rem 0 1.1rem;
+    display: grid;
+    gap: 0.45rem;
+    list-style-type: disc;
+  }
+  .article-prose strong { @apply text-foreground font-semibold; }
+  .article-prose a { color: var(--clr-green-deep); }
+  [data-theme="dark"] .article-prose a { color: var(--color-green-light); }
+
+  /* Blog posts: same prose treatment, but H2s carry the legacy underline rule. */
+  .blog-prose h2 {
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-green);
+  }
+
   .btn {
     @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md font-body font-semibold leading-tight no-underline transition-[background-color,box-shadow,color,border-color] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green active:scale-[0.98];
     font-size: 15px;

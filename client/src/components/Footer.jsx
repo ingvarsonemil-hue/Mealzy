@@ -6,23 +6,23 @@ const COLUMNS = [
     heading: 'Product',
     links: [
       { href: '#how-it-works', label: 'How it works' },
-      { href: 'pricing.html', label: 'Pricing' },
+      { href: '/pricing.html', label: 'Pricing' },
       { href: '/dashboard.html', label: 'My plans' }
     ]
   },
   {
     heading: 'Account',
     links: [
-      { href: 'login.html', label: 'Sign in' },
-      { href: 'login.html?signup=1', label: 'Start Planning Free' },
-      { href: 'reset-password.html', label: 'Reset password' }
+      { href: '/login.html', label: 'Sign in' },
+      { href: '/login.html?signup=1', label: 'Start Planning Free' },
+      { href: '/reset-password.html', label: 'Reset password' }
     ]
   },
   {
     heading: 'Legal',
     links: [
-      { href: 'privacy-policy.html', label: 'Privacy Policy' },
-      { href: 'terms.html', label: 'Terms' },
+      { href: '/privacy-policy.html', label: 'Privacy Policy' },
+      { href: '/terms.html', label: 'Terms' },
       { href: 'mailto:support@mealzy.org', label: 'Contact' }
     ]
   }

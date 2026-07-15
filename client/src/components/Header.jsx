@@ -7,7 +7,7 @@ import { cn, scrollToHash, prefersReducedMotion } from '@/lib/utils';
 const NAV_LINKS = [
   { href: '#how-it-works', label: 'How it works' },
   { href: '#our-story', label: 'Our story' },
-  { href: 'pricing.html', label: 'Pricing' },
+  { href: '/pricing.html', label: 'Pricing' },
   { href: '#faq', label: 'FAQ' }
 ];
 
@@ -104,10 +104,10 @@ export default function Header({ links = NAV_LINKS, activeHref }) {
           >
             {theme === 'dark' ? <Sun /> : <Moon />}
           </button>
-          <Button href="login.html" variant="quiet" size="sm" className="hidden text-on-forest-body hover:text-on-forest md:inline-flex">
+          <Button href="/login.html" variant="quiet" size="sm" className="hidden text-on-forest-body hover:text-on-forest md:inline-flex">
             Sign in
           </Button>
-          <Button href="login.html?signup=1" size="sm" className="hidden md:inline-flex">
+          <Button href="/login.html?signup=1" size="sm" className="hidden md:inline-flex">
             Start Planning Free
           </Button>
 
@@ -154,12 +154,12 @@ export default function Header({ links = NAV_LINKS, activeHref }) {
                     </li>
                   ))}
                   <li>
-                    <a href="login.html" className="block rounded-md px-3 py-3 text-lg font-medium text-on-forest-strong no-underline hover:bg-forest-raise">
+                    <a href="/login.html" className="block rounded-md px-3 py-3 text-lg font-medium text-on-forest-strong no-underline hover:bg-forest-raise">
                       Sign in
                     </a>
                   </li>
                   <li className="mt-4">
-                    <Button href="login.html?signup=1" full>Start Planning Free</Button>
+                    <Button href="/login.html?signup=1" full>Start Planning Free</Button>
                   </li>
                 </ul>
               </Dialog.Content>
