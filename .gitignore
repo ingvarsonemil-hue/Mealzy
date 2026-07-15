@@ -10,3 +10,4 @@ mealzy.db
 logs/*.log
 .bun/
 dist/
+Mealzy agents second brain/
