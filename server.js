@@ -136,7 +136,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'x-admin-token', 'x-pro-token', 'x-cron-secret']
 }));
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 // ── Page view tracking (fires before static files are served) ──
 app.use((req, res, next) => {
