@@ -217,6 +217,22 @@ const aiLimiter = rateLimit({
   message: { error: "You're sending requests too fast — wait 60 seconds and try again." }
 });
 
+const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
+});
+
+const leadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
+});
+
 // ── Cookie helpers ─────────────────────────────────────────────────────────
 function parseCookies(req) {
   const cookies = {};
@@ -1314,9 +1330,13 @@ app.get('/api/admin/export', requireAdmin, async (req, res) => {
 // ANALYTICS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/track', async (req, res) => {
+app.post('/api/track', trackLimiter, async (req, res) => {
   const { event, data } = req.body;
   if (!event) return res.status(400).json({ error: 'event required' });
+  const dataStr = JSON.stringify(data || {});
+  if (dataStr.length > 5000) {
+    return res.status(400).json({ error: 'payload_too_large' });
+  }
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   await db.logEvent(event, data || {}, ip.slice(-8));
   res.json({ ok: true });
@@ -1456,7 +1476,7 @@ app.get('/api/referral-status', async (req, res) => {
 // EMAIL LEADS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/email-leads', async (req, res) => {
+app.post('/api/email-leads', leadLimiter, async (req, res) => {
   try {
     const email    = sanitise(req.body.email, 254).toLowerCase();
     const source   = sanitise(req.body.source, 100) || 'unknown';
