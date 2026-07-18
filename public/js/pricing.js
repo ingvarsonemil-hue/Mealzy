@@ -38,7 +38,7 @@
   };
 
   function trackUpgradeClick(plan) {
-    fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'upgrade_click', data: { source: 'pricing_page', plan: plan || 'pro' } }) }).catch(function () {});
+    mealzyTrack('upgrade_click', { source: 'pricing_page', plan: plan || 'pro' });
   }
 
   function setBilling(mode) {

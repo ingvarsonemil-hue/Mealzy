@@ -221,11 +221,7 @@
   }
 
   function trackUpgrade(source) {
-    fetch('/api/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event: 'upgrade_click', data: { source: source || 'upgrade_page', billing: billingMode } })
-    }).catch(() => {});
+    mealzyTrack('upgrade_click', { source: source || 'upgrade_page', billing: billingMode });
   }
 
   function closeAbandonOffer() {

@@ -8,11 +8,9 @@
  */
 
 export function track(event, data) {
-  fetch('/api/track', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ event, data: data || {} })
-  }).catch(() => {});
+  if (typeof window !== 'undefined' && typeof window.mealzyTrack === 'function') {
+    window.mealzyTrack(event, data || {});
+  }
 }
 
 export async function generateDemoMeal({ calorieGoal, budget, dietary }) {

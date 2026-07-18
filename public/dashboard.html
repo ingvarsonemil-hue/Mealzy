@@ -1441,7 +1441,7 @@
 
   // === TRACK EVENT ===
   function trackEvent(event, data) {
-    fetch('/api/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event, data }) }).catch(()=>{});
+    mealzyTrack(event, data);
   }
 
   function generateAchievementCard() {

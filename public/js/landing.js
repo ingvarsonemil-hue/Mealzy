@@ -76,7 +76,7 @@
       if (!data.success || !data.plan || !data.plan.meals) throw new Error(data.error || 'Generation failed');
       renderDemoPlan(data.plan, cals, budget);
       result.style.display = 'block';
-      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'demo_generated', data: { cals: cals, budget: budget, diet: diet } }) }).catch(function () {});
+      mealzyTrack('demo_generated', { cals: cals, budget: budget, diet: diet });
       requestAnimationFrame(function () { document.getElementById('demo').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     } catch (err) {
       errorEl.textContent = err.message || 'Something went wrong. Please try again.';
@@ -106,7 +106,7 @@
   }
 
   function trackDemoToSignup() {
-    fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'demo_to_signup_click', data: {} }) }).catch(function () {});
+    mealzyTrack('demo_to_signup_click', {});
   }
 
   /* ---- Init ---- */
