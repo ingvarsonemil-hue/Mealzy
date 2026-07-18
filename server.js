@@ -56,6 +56,7 @@ const PORT = process.env.PORT || 3000;
 
 // Trust Render's proxy so express-rate-limit can read the real client IP
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
 
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
@@ -96,8 +97,10 @@ const OutputShapes = {
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' https://js.stripe.com https://accounts.google.com https://cdn.jsdelivr.net https://www.googletagmanager.com; " +
