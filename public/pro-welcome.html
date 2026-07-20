@@ -118,11 +118,7 @@
   if (!sessionStorage.getItem('pro_activated_tracked')) {
     sessionStorage.setItem('pro_activated_tracked', '1');
     try {
-      fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event: 'pro_activated', data: { source: 'pro_welcome' } })
-      }).catch(() => {});
+      mealzyTrack('pro_activated', { source: 'pro_welcome' });
     } catch(e) {}
   }
 </script>

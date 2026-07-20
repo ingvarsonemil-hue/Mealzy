@@ -353,7 +353,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         <strong>Pro unlocks PDF export + unlimited grocery lists</strong> &mdash; share your list or print it in one tap.
       </span>
-      <a href="upgrade.html" onclick="fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'upgrade_click',data:{source:'grocery_banner'}})}).catch(()=>{})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
+      <a href="upgrade.html" onclick="mealzyTrack('upgrade_click',{source:'grocery_banner'})" style="background:var(--clr-primary);color:white;padding:0.35rem 1rem;border-radius:0.5rem;font-weight:700;font-size:0.8rem;text-decoration:none;white-space:nowrap;">Upgrade to Pro &#8594;</a>
     </div>
 
     <div class="day-switcher" id="daySwitcher" role="tablist" aria-label="Select a day"></div>
@@ -974,7 +974,7 @@
   function printGroceryList() {
     const isPro = localStorage.getItem('mealzy_pro') === 'true';
     if (!isPro) {
-      fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'upgrade_click', data: { source: 'grocery_pdf_btn' } }) }).catch(() => {});
+      mealzyTrack('upgrade_click', { source: 'grocery_pdf_btn' });
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1.5rem;';
       overlay.innerHTML = `
@@ -992,7 +992,7 @@
       overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
       return;
     }
-    fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: 'pdf_export', data: { source: 'grocery_list' } }) }).catch(() => {});
+    mealzyTrack('pdf_export', { source: 'grocery_list' });
     window.print();
   }
 

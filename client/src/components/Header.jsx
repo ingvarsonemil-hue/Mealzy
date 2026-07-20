@@ -12,8 +12,10 @@ const NAV_LINKS = [
 ];
 
 export function useTheme() {
-  const [theme, setTheme] = React.useState(
-    () => document.documentElement.getAttribute('data-theme') || 'light'
+  const [theme, setTheme] = React.useState(() =>
+    typeof document !== 'undefined'
+      ? document.documentElement.getAttribute('data-theme') || 'light'
+      : 'light'
   );
   const toggle = () => {
     const next = theme === 'dark' ? 'light' : 'dark';

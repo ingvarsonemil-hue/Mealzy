@@ -62,6 +62,22 @@
     });
   }
 
+  function mealzyTrack(event, data) {
+    var consent;
+    try {
+      consent = localStorage.getItem(CONSENT_KEY);
+    } catch (e) {
+      return;
+    }
+    if (consent !== 'accepted') return;
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event: event, data: data })
+    }).catch(function () {});
+  }
+  window.mealzyTrack = mealzyTrack;
+
   var consent = null;
   try {
     consent = localStorage.getItem(CONSENT_KEY);

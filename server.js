@@ -56,6 +56,7 @@ const PORT = process.env.PORT || 3000;
 
 // Trust Render's proxy so express-rate-limit can read the real client IP
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
 
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
@@ -96,8 +97,10 @@ const OutputShapes = {
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' https://js.stripe.com https://accounts.google.com https://cdn.jsdelivr.net https://www.googletagmanager.com; " +
@@ -136,7 +139,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'x-admin-token', 'x-pro-token', 'x-cron-secret']
 }));
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 // ── Page view tracking (fires before static files are served) ──
 app.use((req, res, next) => {
@@ -215,6 +218,22 @@ const aiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "You're sending requests too fast — wait 60 seconds and try again." }
+});
+
+const trackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
+});
+
+const leadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
 });
 
 // ── Cookie helpers ─────────────────────────────────────────────────────────
@@ -1317,9 +1336,13 @@ app.get('/api/admin/export', requireAdmin, async (req, res) => {
 // ANALYTICS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/track', async (req, res) => {
+app.post('/api/track', trackLimiter, async (req, res) => {
   const { event, data } = req.body;
   if (!event) return res.status(400).json({ error: 'event required' });
+  const dataStr = JSON.stringify(data || {});
+  if (dataStr.length > 5000) {
+    return res.status(400).json({ error: 'payload_too_large' });
+  }
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
   await db.logEvent(event, data || {}, ip.slice(-8));
   res.json({ ok: true });
@@ -1459,7 +1482,7 @@ app.get('/api/referral-status', async (req, res) => {
 // EMAIL LEADS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/email-leads', async (req, res) => {
+app.post('/api/email-leads', leadLimiter, async (req, res) => {
   try {
     const email    = sanitise(req.body.email, 254).toLowerCase();
     const source   = sanitise(req.body.source, 100) || 'unknown';
