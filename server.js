@@ -932,6 +932,9 @@ app.post('/api/family-profiles', async (req, res) => {
   // Limit to 4 profiles per user
   const existing = await db.getFamilyProfiles(session.userId);
   const isUpdate = profileId && existing.find(p => p.id === profileId);
+  if (profileId && !isUpdate) {
+    return res.status(403).json({ error: 'not_your_profile' });
+  }
   if (!isUpdate && existing.length >= 4) {
     return res.status(400).json({ error: 'max_profiles', message: 'Family plan supports up to 4 profiles.' });
   }
