@@ -652,24 +652,19 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
-    let valid = false;
     const storedHash = user.hashed_password || '';
 
-    if (storedHash.startsWith('$2')) {
-      // bcrypt hash — normal path
-      valid = await bcrypt.compare(password, storedHash);
-    } else {
-      // Legacy: client sent SHA-256 hex; compare with constant-time comparison then rehash with bcrypt
-      try {
-        valid = timingSafeCompare(storedHash, password);
-      } catch (e) {
-        valid = false;
-      }
-      if (valid) {
-        const newHash = await bcrypt.hash(password, 12);
-        await db.updatePassword(user.id, newHash);
-      }
+    if (!/^\$2[aby]\$/.test(storedHash)) {
+      // Pre-migration account — no bcrypt hash to compare against. Reject up front
+      // rather than falling through to a comparison that can never succeed.
+      logger.warn('[auth] Legacy pre-bcrypt account attempted login', { email });
+      return res.status(403).json({
+        error: 'password_reset_required',
+        message: "We've upgraded account security. Please reset your password to continue."
+      });
     }
+
+    const valid = await bcrypt.compare(password, storedHash);
 
     if (!valid) {
       recordFailedLogin(email);
