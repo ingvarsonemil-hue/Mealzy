@@ -108,11 +108,11 @@ export default function PlanCards({ mode }) {
       <PlanCard
         name="Pro"
         tag="For people who plan every week."
-        price={yearly ? '$5.17' : '$12'}
-        billed={yearly ? 'Billed $62/year — save $82 vs monthly' : ''}
+        price={yearly ? '$5.17' : '$8'}
+        billed={yearly ? 'Billed $62/year — save $34 vs monthly' : ''}
         popular
         features={PRO_FEATURES}
-        note={yearly ? 'Best value — $62/year saves you $82 vs monthly.' : '$12/mo — cancel any time.'}
+        note={yearly ? 'Best value — $62/year saves you $34 vs monthly.' : '$8/mo — cancel any time.'}
         cta={
           <Button
             href={yearly ? stripeUrls.annual : stripeUrls.monthly}
