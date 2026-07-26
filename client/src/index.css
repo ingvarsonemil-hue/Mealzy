@@ -41,6 +41,17 @@
   --color-forest-deep:    #12291d;
   --clr-green-deep:       #2d6e4a;
 
+  /* App-shell tokens (dashboard/meal-planner/grocery-list) — per
+   * .claude/skills/mealzy-design.md §1: authenticated app pages use this
+   * --clr-* family for canvas/surface/border, not --color-cream/parchment
+   * (marketing-only). Values mirror public/css/tokens.css + app-theme.css. */
+  --clr-brand:      var(--color-green);
+  --clr-background: #FAF7F1;
+  --clr-page-dark:  #1a2e22;
+  --clr-canvas:     var(--clr-background);
+  --clr-border:     #EAE4D8;
+  --clr-surface:    #ffffff;
+
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* RGB triplets for Tailwind alpha composition (theme-constant colors only) */
@@ -59,6 +70,11 @@
   --color-muted-bg:    #0f1419;
   --color-border:      #2d3748;
   --color-hairline:    #2d3748;
+
+  --clr-brand:      #4a9d6c;
+  --clr-canvas:     var(--clr-page-dark);
+  --clr-border:     #2A3A30;
+  --clr-surface:    #1e2d24;
 
   /* Dark surfaces rely on borders, not shadows */
   --shadow-sm:     0 2px 8px rgba(0, 0, 0, 0);

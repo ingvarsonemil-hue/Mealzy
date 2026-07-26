@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/theme-init.js"></script>
+<!-- Cookie consent gate (must load before analytics) -->
+<script src="/js/consent.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mealzy — Dashboard</title>
+<meta name="description" content="Your Mealzy dashboard — track your meal plan, nutrition targets, and grocery budget for the week.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1a3d2b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mealzy">
+<!-- Stripe payment-link URLs from server env, blocking (see upgrade.html
+     for why defer is unsafe here — same reasoning applies to the upgrade
+     modal this page renders). -->
+<script src="/stripe-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/dashboard/main.jsx"></script>
+</body>
+</html>

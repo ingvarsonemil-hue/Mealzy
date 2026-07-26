@@ -30,7 +30,12 @@ export default {
         'on-forest-muted': 'var(--clr-on-forest-muted)',
         'on-forest-faint': 'var(--clr-on-forest-faint)',
         'forest-raise': 'var(--clr-forest-raise)',
-        'forest-line': 'var(--clr-forest-line)'
+        'forest-line': 'var(--clr-forest-line)',
+        /* App-shell tokens (dashboard/meal-planner/grocery-list only). */
+        'clr-brand': 'var(--clr-brand)',
+        'clr-canvas': 'var(--clr-canvas)',
+        'clr-border': 'var(--clr-border)',
+        'clr-surface': 'var(--clr-surface)'
       },
       fontFamily: {
         display: ['Fraunces', 'Georgia', 'serif'],
