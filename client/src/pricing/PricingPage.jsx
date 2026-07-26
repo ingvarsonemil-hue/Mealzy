@@ -67,7 +67,7 @@ export default function PricingPage() {
               3 meal plans a month, free forever. No credit card required.
             </p>
             {annualAvailable && (
-              <BillingToggle mode={mode} onChange={setMode} annualLabel="Annual — Save 57%" className="mt-8" />
+              <BillingToggle mode={mode} onChange={setMode} annualLabel="Annual — Save 35%" className="mt-8" />
             )}
           </div>
         </header>
