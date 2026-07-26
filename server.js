@@ -2404,6 +2404,20 @@ app.get('/blog', (req, res) => {
 });
 app.use('/blog', express.static(path.join(__dirname, 'public', 'blog')));
 
+// ── React build pages: serve the matching dist/*.html instead of index.html ──
+if (hasDistBuild) {
+  const distPages = [
+    'pricing', 'upgrade', 'login', 'reset-password', 'privacy-policy', 'terms',
+    'meal-plan-generator', 'plan', 'budget-meal-plan', 'weekly-meal-plan',
+    'sunday-tax', 'support'
+  ];
+  for (const page of distPages) {
+    app.get(`/${page}`, (req, res) => {
+      res.sendFile(path.join(distDir, `${page}.html`));
+    });
+  }
+}
+
 // ── Catch-all: serve index.html ────────────────────────────────────────────
 app.get('*', async (req, res) => {
   if (hasDistBuild) {
