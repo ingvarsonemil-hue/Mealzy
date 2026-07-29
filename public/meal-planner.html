@@ -631,6 +631,24 @@
   // ─────────────────────────
 
   let profile = null;
+
+  // Always pulls the server's copy of the profile before meal generation so a
+  // stale localStorage "mealzy_profile" (e.g. old allergy settings) can never
+  // cause a false allergy_violation. Falls back to the cached profile if the
+  // request fails (offline, etc).
+  async function refreshProfileFromServer() {
+    try {
+      const res = await fetch('/api/profile');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) {
+          profile = data.profile;
+          localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+        }
+      }
+    } catch (e) { /* offline — fall back to cached profile */ }
+  }
+
   let currentDate = new Date();
   let currentDateStr = '';
   let currentMeals = [];
@@ -806,6 +824,7 @@
 
   async function generateMealPlan(isRegenerate) {
     if (!profile) return;
+    await refreshProfileFromServer();
 
     // Show skeleton cards while generating
     const container = document.getElementById('mealsContainer');
@@ -1210,6 +1229,7 @@
   async function swapMeal(index, type) {
     const btn = document.getElementById('swapBtn' + index);
     if (btn) { btn.disabled = true; btn.textContent = 'Swapping...'; }
+    await refreshProfileFromServer();
 
     try {
       const res = await fetch('/api/generate-meal', {
