@@ -1843,7 +1843,21 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           meal.description || '',
           ...(meal.ingredients || []).map(i => i.name || '')
         ].join(' ').toLowerCase();
-        const match = lowerAllergies.find(a => haystack.includes(a));
+        // Whole-word/phrase match so "nut" doesn't false-positive on ingredients
+        // that merely contain "nut" as a substring. Examples:
+        //   allergy "nut"       + haystack "coconut curry"        -> no match
+        //   allergy "nut"       + haystack "walnut brownies"      -> no match
+        //   allergy "nut"       + haystack "pumpkin nutmeg soup"  -> no match
+        //   allergy "nut"       + haystack "glazed doughnut"      -> no match
+        //   allergy "nut"       + haystack "mixed nuts"           -> match ("nuts")
+        //   allergy "nut"       + haystack "roasted nut medley"   -> match
+        //   allergy "tree nut"  + haystack "tree nut butter"      -> match
+        //   allergy "shellfish" + haystack "shellfish stock"      -> match
+        const match = lowerAllergies.find(a => {
+          const escaped = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const pattern = new RegExp(`\\b${escaped}s?\\b`);
+          return pattern.test(haystack);
+        });
         if (match) {
           await db.logEvent('allergy_violation_detected', { allergen: match, meal: meal.name, userId: session?.userId || 'anon' }, '');
           logger.warn(`[allergy] Violation detected: "${match}" in "${meal.name}"`);
