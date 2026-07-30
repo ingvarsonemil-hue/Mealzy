@@ -147,28 +147,22 @@
 
 <script>
   // Auth gate
+  let _proToken = null;
+
   function checkToken() {
     const input = document.getElementById('authPass').value.trim();
-    const stored = sessionStorage.getItem('mealzy_pro_token') || '';
-    if (input === stored && input) {
-      unlock();
-    } else {
-      // Try to verify against server
-      fetch('/api/analytics', { headers: { 'x-pro-token': input } })
-        .then(r => {
-          if (r.ok) {
-            sessionStorage.setItem('mealzy_pro_token', input);
-            unlock();
-          } else {
-            document.getElementById('tokenError').style.display = 'block';
-          }
-        })
-        .catch(() => {
-          // Offline: accept if it matches stored
-          if (stored && input === stored) { unlock(); }
-          else { document.getElementById('tokenError').style.display = 'block'; }
-        });
-    }
+    fetch('/api/analytics', { headers: { 'x-pro-token': input } })
+      .then(r => {
+        if (r.ok) {
+          _proToken = input;
+          unlock();
+        } else {
+          document.getElementById('tokenError').style.display = 'block';
+        }
+      })
+      .catch(() => {
+        document.getElementById('tokenError').style.display = 'block';
+      });
   }
 
   function unlock() {
@@ -179,16 +173,7 @@
     if (h1) h1.focus();
   }
 
-  // Check if already authenticated
-  const _stored = sessionStorage.getItem('mealzy_pro_token');
-  if (!_stored) { document.getElementById('authPass').focus(); }
-  if (_stored) {
-    document.getElementById('authPass').value = _stored;
-    // Try server check in background
-    fetch('/api/analytics', { headers: { 'x-pro-token': _stored } })
-      .then(r => { if (r.ok) unlock(); })
-      .catch(() => unlock()); // allow offline
-  }
+  document.getElementById('authPass').focus();
 
   function fmt(n) {
     if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
@@ -282,7 +267,7 @@
   calc();
 </script>
 <div style="text-align:center;padding:1.5rem 0 0.5rem;">
-  <button onclick="localStorage.removeItem('mealzy_pro_token');location.reload();" style="background:none;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.5rem 1rem;font-size:0.82rem;color:var(--clr-muted-fg);cursor:pointer;font-family:inherit;">Clear access / Log out</button>
+  <button onclick="_proToken = null; location.reload();" style="background:none;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.5rem 1rem;font-size:0.82rem;color:var(--clr-muted-fg);cursor:pointer;font-family:inherit;">Clear access / Log out</button>
 </div>
 </body>
 </html>
