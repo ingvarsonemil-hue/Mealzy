@@ -11,3 +11,7 @@ logs/*.log
 .bun/
 dist/
 Mealzy agents second brain/
+cookies.txt
+server_err.txt
+server_out.txt
+*.txt.bak
