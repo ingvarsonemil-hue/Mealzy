@@ -335,7 +335,14 @@
   let profile = null;
   let logs = {};
 
+  let proToken = null;
+  function getProToken() {
+    if (proToken === null) proToken = window.prompt('Enter admin/pro token') || '';
+    return proToken;
+  }
+
   async function init() {
+    localStorage.removeItem('mealzy_pro_token');
     try {
       const meRes = await fetch('/api/auth/me');
       if (meRes.ok) {
@@ -367,9 +374,7 @@
 
   async function loadFunnelStats() {
     const statusEl = document.getElementById('funnelStatus');
-    const urlToken = new URLSearchParams(window.location.search).get('token') || '';
-    const storedToken = localStorage.getItem('mealzy_pro_token') || '';
-    const token = urlToken || storedToken;
+    const token = getProToken();
     if (!token) return;
     try {
       const res = await fetch('/api/analytics/funnel', { headers: { 'x-pro-token': token } });
@@ -402,10 +407,7 @@
 
   async function loadSiteAnalytics() {
     const statusEl = document.getElementById('siteAnalyticsStatus');
-    const urlToken = new URLSearchParams(window.location.search).get('token') || '';
-    const storedToken = localStorage.getItem('mealzy_pro_token') || '';
-    const token = urlToken || storedToken;
-    if (urlToken) localStorage.setItem('mealzy_pro_token', urlToken);
+    const token = getProToken();
     if (!token) return;
     try {
       const res = await fetch('/api/analytics', { headers: { 'x-pro-token': token } });
