@@ -1508,7 +1508,12 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
 
     // ── Freemium gate: server-side pro check is authoritative ─────────────
     const session = getSessionFromReq(req);
-    let isPro = plan_token === process.env.PLAN_BYPASS_TOKEN; // plan bypass
+    const PRO_TOKEN = process.env.PRO_TOKEN || '';
+    let isPro = !!(
+      PRO_TOKEN.length >= 32 &&
+      typeof plan_token === 'string' &&
+      timingSafeCompare(plan_token, PRO_TOKEN)
+    ); // plan bypass — fails closed if PRO_TOKEN unset/short/mismatched
 
     if (!isPro && session) {
       // Re-query DB — the JWT payload may be stale if Pro was just activated
@@ -2475,7 +2480,7 @@ db.initDb().then(async () => {
       { name: 'GOOGLE_CLIENT_SECRET',    ok: !!process.env.GOOGLE_CLIENT_SECRET },
       { name: 'RESEND_API_KEY',          ok: !!process.env.RESEND_API_KEY },
       { name: 'ADMIN_TOKEN',             ok: !!process.env.ADMIN_TOKEN },
-      { name: 'PLAN_BYPASS_TOKEN',       ok: !!process.env.PLAN_BYPASS_TOKEN },
+      { name: 'PRO_TOKEN',               ok: !!process.env.PRO_TOKEN },
       { name: 'CRON_SECRET',             ok: !!process.env.CRON_SECRET },
       { name: 'TURSO_DATABASE_URL',      ok: !!process.env.TURSO_DATABASE_URL },
       { name: 'TURSO_AUTH_TOKEN',        ok: !!process.env.TURSO_AUTH_TOKEN },
