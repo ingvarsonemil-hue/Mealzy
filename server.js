@@ -115,8 +115,9 @@ res.setHeader('X-XSS-Protection', '1; mode=block');
 
 // ── Admin middleware ────────────────────────────────────────────────────────
 function requireAdmin(req, res, next) {
-  const token = req.headers['x-admin-token'] || req.query.admin_token;
-  if (!token || token !== process.env.ADMIN_TOKEN) {
+  const token = req.headers['x-admin-token'];
+  const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
+  if (!token || ADMIN_TOKEN.length < 32 || !timingSafeCompare(token, ADMIN_TOKEN)) {
     logger.warn('[admin] Unauthorized attempt', { ip: req.ip, path: req.path });
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -1310,8 +1311,7 @@ app.post('/api/admin/grant-pro', requireAdmin, async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 app.get('/api/admin/export', requireAdmin, async (req, res) => {
-  const token = req.headers['x-admin-token'] || req.query.admin_token;
-  console.log('[export] token received:', token, '| expected:', process.env.PRO_TOKEN);
+  logger.info('[admin] export requested', { ip: req.ip });
   try {
     const users    = await db.getAllUsers();
     const leads    = await db.countLeads();
