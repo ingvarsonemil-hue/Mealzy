@@ -146,7 +146,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use((req, res, next) => {
   if (req.method === 'GET' && (req.path.endsWith('.html') || req.path === '/')) {
     const page = req.path === '/' ? '/index.html' : req.path;
-    const ip   = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+    const ip   = clientIp(req);
     db.logEvent('page_view', { page }, ip.slice(-8)).catch(() => {});
   }
   next();
@@ -414,6 +414,10 @@ function recordFailedLogin(email) {
 
 function clearFailedLogins(email) {
   failedLoginAttempts.delete(email);
+}
+
+function clientIp(req) {
+  return req.ip || req.socket.remoteAddress || 'unknown';
 }
 
 function getUsage(ip) {
@@ -996,7 +1000,7 @@ app.delete('/api/family-profiles/:id', async (req, res) => {
 
 app.post('/api/demo-meal', demoLimiter, async (req, res) => {
   try {
-    const ip           = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const ip           = clientIp(req);
     const calorieGoal  = Math.min(Math.max(parseInt(req.body.calorieGoal) || 2000, 1200), 4000);
     const budget       = Math.min(Math.max(parseFloat(req.body.budget) || 60, 20), 500);
     const dietary      = sanitise(req.body.dietary || 'none', 100);
@@ -1370,7 +1374,7 @@ app.post('/api/track', trackLimiter, async (req, res) => {
   if (dataStr.length > 5000) {
     return res.status(400).json({ error: 'payload_too_large' });
   }
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+  const ip = clientIp(req);
   await db.logEvent(event, data || {}, ip.slice(-8));
   res.json({ ok: true });
 });
@@ -1458,7 +1462,7 @@ app.post('/api/referral', authLimiter, async (req, res) => {
     if (alreadyCredited) return res.status(409).json({ error: 'already_credited' });
   } catch(e) { /* non-fatal — proceed */ }
 
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+  const ip = clientIp(req);
   try {
     const { randomUUID } = require('crypto');
     await db.saveReferral(randomUUID(), referrer_email, ip, session.email);
@@ -1476,9 +1480,9 @@ app.post('/api/referral', authLimiter, async (req, res) => {
 // GET /api/referral-capture — called when visitor lands with ?ref=EMAIL
 // Stores the referral intent so it can be credited when they sign up
 app.get('/api/referral-capture', async (req, res) => {
-  const { ref, ip: clientIp } = req.query;
+  const { ref, ip: queryIp } = req.query;
   if (!isValidEmail(ref)) return res.json({ ok: false });
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || clientIp || '';
+  const ip = clientIp(req) || queryIp || '';
   try {
     const { randomUUID } = require('crypto');
     await db.saveReferral(randomUUID(), ref, ip.slice(-16), '');
@@ -1491,7 +1495,7 @@ app.get('/api/referral-status', async (req, res) => {
   const { email } = req.query;
   if (!isValidEmail(email)) return res.status(400).json({ error: 'email required' });
   const session = getSessionFromReq(req);
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
+  const ip = clientIp(req);
   const usage         = getUsage(ip);
   const effectiveLimit = await getEffectiveLimit(email);
 
@@ -1553,7 +1557,7 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
       isPro = dbUser?.pro === 1;
     }
     if (!swap_meal_type && !isPro) {
-      const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+      const ip = clientIp(req);
       const effectiveLimit = await getEffectiveLimit(session?.email || user_email || '');
 
       if (session) {
