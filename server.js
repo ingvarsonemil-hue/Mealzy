@@ -237,6 +237,46 @@ const leadLimiter = rateLimit({
   message: { error: 'Too many requests, please slow down.' }
 });
 
+// Stripe-touching routes — bound how fast a session can hit the Stripe API
+const stripeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
+});
+
+// Admin routes — defense in depth on top of the token check itself
+const adminLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
+});
+
+// Cron routes — guarded by CRON_SECRET, but bound retry/brute-force speed too
+const cronLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' }
+});
+
+// Catch-all safety net for every other /api/* route not covered by a
+// purpose-specific limiter above. /api/health is exempt — keep-alive.yml
+// pings it every 9 minutes and it does no paid or expensive work.
+const generalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' },
+  skip: (req) => req.originalUrl.split('?')[0] === '/api/health'
+});
+app.use('/api/', generalApiLimiter);
+
 // ── Cookie helpers ─────────────────────────────────────────────────────────
 function parseCookies(req) {
   const cookies = {};
@@ -549,14 +589,6 @@ app.get('/api/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     version: '3.0.0'
   });
-});
-
-// ── Supabase config shim (kept for HTML pages that still load it) ──────────
-app.get('/supabase-config.js', async (req, res) => {
-  res.type('js').send(
-    `window.SUPABASE_URL=${JSON.stringify(process.env.SUPABASE_URL || '')};` +
-    `window.SUPABASE_KEY=${JSON.stringify(process.env.SUPABASE_ANON_KEY || '')};`
-  );
 });
 
 // ── Stripe payment links — served from env vars so links update without code deploys ──
@@ -1079,7 +1111,7 @@ app.get('/api/plans', async (req, res) => {
 
 // POST /api/pro/activate — called from pro-welcome.html as a belt-and-suspenders
 // backup to the Stripe webhook. Both paths set pro = 1 in the DB.
-app.post('/api/pro/activate', async (req, res) => {
+app.post('/api/pro/activate', stripeLimiter, async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
@@ -1121,7 +1153,7 @@ app.post('/api/pro/activate', async (req, res) => {
 
 // ── POST /api/cancel-subscription ─────────────────────────────────────────
 // Cancels the user's Stripe subscription at period end and logs survey reason.
-app.post('/api/cancel-subscription', async (req, res) => {
+app.post('/api/cancel-subscription', stripeLimiter, async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated', message: 'Please log in to cancel your subscription.' });
 
@@ -1288,7 +1320,7 @@ async function handleStripeWebhook(req, res) {
 // ADMIN — GRANT PRO
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/admin/grant-pro', requireAdmin, async (req, res) => {
+app.post('/api/admin/grant-pro', adminLimiter, requireAdmin, async (req, res) => {
   const { email } = req.body;
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: 'email required' });
@@ -1310,7 +1342,7 @@ app.post('/api/admin/grant-pro', requireAdmin, async (req, res) => {
 // ADMIN EXPORT
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/admin/export', requireAdmin, async (req, res) => {
+app.get('/api/admin/export', adminLimiter, requireAdmin, async (req, res) => {
   logger.info('[admin] export requested', { ip: req.ip });
   try {
     const users    = await db.getAllUsers();
@@ -2366,7 +2398,7 @@ function cronAuth(req, res) {
 }
 
 // POST /api/cron/day3-nudge — send day-3 nudge emails to unconverted users
-app.post('/api/cron/day3-nudge', async (req, res) => {
+app.post('/api/cron/day3-nudge', cronLimiter, async (req, res) => {
   if (!cronAuth(req, res)) return;
   try {
     const users = await db.getUsersNeedingNudge();
@@ -2392,7 +2424,7 @@ app.post('/api/cron/day3-nudge', async (req, res) => {
 });
 
 // POST /api/cron/weekly-digest — send weekly reminder to all active free users
-app.post('/api/cron/weekly-digest', async (req, res) => {
+app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
   if (!cronAuth(req, res)) return;
   try {
     const users = await db.getUsersForWeeklyDigest();
