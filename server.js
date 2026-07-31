@@ -325,6 +325,13 @@ function sanitise(val, maxLen = 500) {
   return val.trim().slice(0, maxLen);
 }
 
+function capList(arr, maxItems, maxLen) {
+  if (!Array.isArray(arr)) return [];
+  return arr.slice(0, maxItems)
+    .filter(x => typeof x === 'string')
+    .map(x => sanitise(x, maxLen));
+}
+
 // ── Email format validation (RFC-5322-ish, deliberately conservative) ──────
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function isValidEmail(email) {
@@ -1608,7 +1615,7 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
     const name               = sanitise(profile.name || 'User', 100);
     const goal               = sanitise(profile.fitness_goal || profile.goal || 'eat healthier', 200);
     const dietaryPrefs       = Array.isArray(profile.dietary_preferences || profile.dietaryPrefs) ? (profile.dietary_preferences || profile.dietaryPrefs) : [];
-    const allergies          = Array.isArray(profile.allergies) ? profile.allergies : [];
+    const allergies          = capList(profile.allergies, 20, 40);
     const cookingSkill       = sanitise(profile.cooking_skill || profile.cookingSkill || 'intermediate', 50);
     const dailyCalories      = Number(profile.daily_calories || profile.dailyCalories || 2000);
     const dailyProtein       = Number(profile.daily_protein  || (profile.macros?.protein) || 150);
@@ -1650,8 +1657,9 @@ app.post('/api/generate-meal', generateLimiter, async (req, res) => {
     const allergyBlock = allergies.length > 0
       ? `\n⚠️ ALLERGY WARNING — NEVER include these ingredients in any form: ${allergies.join(', ')}.\n`
       : '';
-    const avoidBlock = avoid_meals?.length > 0
-      ? `Do NOT suggest these previously disliked meals: ${avoid_meals.join(', ')}.`
+    const avoidList = capList(avoid_meals, 30, 80);
+    const avoidBlock = avoidList.length > 0
+      ? `Do NOT suggest these previously disliked meals: ${avoidList.join(', ')}.`
       : '';
 
     const cuisineGroups = {
