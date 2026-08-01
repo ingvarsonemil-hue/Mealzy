@@ -2112,28 +2112,59 @@ app.get('/api/grocery-list/:planId/:day', async (req, res) => {
 // AI COACH
 // ════════════════════════════════════════════════════════════════════════════
 
-const FREE_COACH_LIMIT = 10;
+const coachLimiterFree = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "You're sending messages too fast — wait 60 seconds and try again." },
+  keyGenerator: (req) => req.coachSession.userId,
+});
 
-app.post('/api/ai-coach', aiLimiter, async (req, res) => {
+const coachLimiterPro = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "You're sending messages too fast — wait 60 seconds and try again." },
+  keyGenerator: (req) => req.coachSession.userId,
+});
+
+function requireCoachAuth(req, res, next) {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  req.coachSession = session;
+  next();
+}
+
+async function routeCoachLimiter(req, res, next) {
   try {
-    const session = getSessionFromReq(req);
-    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+    const dbUser = await db.getUserById(req.coachSession.userId);
+    req.coachIsPro = dbUser?.pro === 1;
+  } catch (err) {
+    log.error('[coach] user lookup error:', { message: err.message });
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+  return (req.coachIsPro ? coachLimiterPro : coachLimiterFree)(req, res, next);
+}
+
+app.post('/api/ai-coach', requireCoachAuth, routeCoachLimiter, async (req, res) => {
+  try {
+    const session = req.coachSession;
+    const isCoachPro = req.coachIsPro;
 
     const { messages, profile } = req.body;
-    let isCoachPro = false;
-    const dbUser = await db.getUserById(session.userId);
-    if (dbUser?.pro === 1) isCoachPro = true;
 
-    if (!messages || messages.length === 0) return res.status(400).json({ error: 'Messages array is required' });
-
-    // Daily message limit for free users (persisted in SQLite — survives restarts)
-    if (!isCoachPro) {
-      const count = await db.getCoachUsage(session.userId);
-      log.info(`[coach] userId=${session.userId} count=${count} limit=${FREE_COACH_LIMIT} isPro=${isCoachPro}`);
-      if (count >= FREE_COACH_LIMIT) {
-        return res.status(402).json({ error: 'coach_limit_reached', messagesUsed: count, limit: FREE_COACH_LIMIT });
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+    for (const m of messages) {
+      if (typeof m?.content !== 'string' || m.content.length > 3000) {
+        return res.status(400).json({ error: 'Invalid message content' });
       }
-      await db.incrementCoachUsage(session.userId);
+      if (m.role !== 'user' && m.role !== 'assistant') {
+        return res.status(400).json({ error: 'Invalid message role' });
+      }
     }
 
     const { name = 'User', goal = 'eat healthier', dailyCalories = 2000, macros = { protein: 150, carbs: 200, fat: 67 }, dietaryPrefs = [], allergies = [], weight = 70, height = 170, age = 30, currency = 'USD', preferred_cuisine = '', language: coachLang = 'en' } = profile || {};
