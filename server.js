@@ -476,6 +476,11 @@ function clearFailedLogins(email) {
   failedLoginAttempts.delete(email);
 }
 
+// Constant-time filler for signin timing — computed once at startup so the
+// no-such-user / wrong-password / legacy-account paths all pay the same
+// bcrypt.compare() cost and don't leak account existence via response time.
+const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing-safety', 12);
+
 function clientIp(req) {
   return req.ip || req.socket.remoteAddress || 'unknown';
 }
@@ -585,6 +590,17 @@ function emailPasswordReset(name, resetUrl) {
     <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
     <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
     <p style="color:#aaa;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email. Your password won't change.</p>
+  `);
+}
+
+function emailAccountExists(name) {
+  const safeName = escapeHtml(name || 'there');
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Someone tried to sign up with your email</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, someone just tried to create a Mealzy account using this email address. You already have an account — if this was you, just sign in instead.</p>
+    <a href="https://mealzy.org/login.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Sign In →</a>
+    <p style="color:#888;font-size:13px;margin:0;">Forgot your password? <a href="https://mealzy.org/login.html" style="color:#3d8b5e;text-decoration:none;">Reset it here</a>.</p>
+    <p style="color:#aaa;font-size:12px;margin-top:16px;">If this wasn't you, no action is needed — your account is safe and nothing has changed.</p>
   `);
 }
 
@@ -698,7 +714,8 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 
     const existing = await db.getUserByEmail(email);
     if (existing) {
-      return res.status(409).json({ error: 'account_exists', message: 'An account with this email already exists.' });
+      await sendEmail(existing.email, 'Someone tried to sign up with your email', emailAccountExists(existing.name)).catch(() => {});
+      return res.json({ success: true, message: 'If an account exists with this email, we\'ve sent a notice to it. Sign in or reset your password if this was you.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -742,6 +759,7 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
 
     const user = await db.getUserByEmail(email);
     if (!user) {
+      await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
       recordFailedLogin(email);
       const retryAfter = 60; // 1 minute (IP-based rate limit window)
       res.setHeader('Retry-After', retryAfter);
@@ -754,10 +772,8 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       // Pre-migration account — no bcrypt hash to compare against. Reject up front
       // rather than falling through to a comparison that can never succeed.
       logger.warn('[auth] Legacy pre-bcrypt account attempted login', { email });
-      return res.status(403).json({
-        error: 'password_reset_required',
-        message: "We've upgraded account security. Please reset your password to continue."
-      });
+      await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
+      return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
     const valid = await bcrypt.compare(password, storedHash);
@@ -2463,17 +2479,14 @@ app.get('/api/shared-plan/:shareId', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // GET /api/ref-lookup?code=ref_ABC123 — resolves a code to an email for referral credit
-app.get('/api/ref-lookup', async (req, res) => {
+app.get('/api/ref-lookup', authLimiter, async (req, res) => {
   const { code } = req.query;
   if (!code) return res.json({ found: false });
-  // Support both email refs (legacy) and ref_CODE refs
   if (code.startsWith('ref_')) {
     const user = await db.getUserByRefCode(code);
     if (user) return res.json({ found: true, email: user.email });
     return res.json({ found: false });
   }
-  // Legacy email ref
-  if (code.includes('@')) return res.json({ found: true, email: code });
   res.json({ found: false });
 });
 
