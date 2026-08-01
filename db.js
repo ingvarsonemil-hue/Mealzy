@@ -129,6 +129,7 @@ async function _applySchema() {
     `ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`,
     `ALTER TABLE users ADD COLUMN google_id TEXT`,
     `ALTER TABLE users ADD COLUMN nps_submitted_at TEXT`,
+    `ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0`,
   ];
   for (const sql of alters) {
     try { await _client.execute(sql); } catch(e) { /* column already exists */ }
@@ -200,6 +201,10 @@ async function setUserPro(userId) {
 
 async function updatePassword(userId, hashedPassword) {
   await run('UPDATE users SET hashed_password = ? WHERE id = ?', [hashedPassword, userId]);
+}
+
+async function bumpTokenVersion(userId) {
+  await run('UPDATE users SET token_version = COALESCE(token_version, 0) + 1 WHERE id = ?', [userId]);
 }
 
 async function getAllUsers() {
@@ -597,7 +602,7 @@ module.exports = {
   run:  (sql, params) => run(sql, params || []),
   // users
   createUser, getUserByEmail, getUserById, getUserByGoogleId, createUserGoogle, linkGoogleId,
-  setUserPro, updatePassword, getAllUsers,
+  setUserPro, updatePassword, getAllUsers, bumpTokenVersion,
   removeUserPro, setStripeCustomerId, setUserProUntil,
   // ref codes
   setUserRefCode, getUserByRefCode,

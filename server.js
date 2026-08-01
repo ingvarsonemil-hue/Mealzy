@@ -60,6 +60,7 @@ app.disable('x-powered-by');
 
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
+const MAX_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 // Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
 // ── Explicit output shapes — define exactly what each endpoint returns to clients ──
@@ -306,6 +307,16 @@ function clearJwtCookie(res) {
   res.setHeader('Set-Cookie', 'mealzy_session=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/');
 }
 
+function buildSessionPayload(user, existingLoginAt) {
+  return {
+    userId: user.id,
+    email: user.email,
+    pro: user.pro === 1 || user.pro === true,
+    tv: user.token_version || 0,
+    loginAt: existingLoginAt || Date.now(),
+  };
+}
+
 /**
  * Verify the JWT cookie. Returns the decoded payload or null.
  * On sensitive endpoints (pro activation, plan save) callers re-query
@@ -320,6 +331,45 @@ function getSessionFromReq(req) {
   } catch(e) {
     return null;
   }
+}
+
+async function requireSession(req, res, next) {
+  const decoded = getSessionFromReq(req);
+  if (!decoded) return res.status(401).json({ error: 'not_authenticated' });
+  if (decoded.loginAt && (Date.now() - decoded.loginAt) > MAX_SESSION_MS) {
+    clearJwtCookie(res);
+    return res.status(401).json({ error: 'session_expired' });
+  }
+  let user;
+  try {
+    user = await db.getUserById(decoded.userId);
+  } catch (err) {
+    logger.error('[session] user lookup error', { message: err.message });
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+  if (!user || (user.token_version || 0) !== (decoded.tv || 0)) {
+    clearJwtCookie(res);
+    return res.status(401).json({ error: 'session_revoked' });
+  }
+  req.session = decoded;
+  next();
+}
+
+async function optionalSession(req, res, next) {
+  req.session = null;
+  const decoded = getSessionFromReq(req);
+  if (decoded && !(decoded.loginAt && (Date.now() - decoded.loginAt) > MAX_SESSION_MS)) {
+    try {
+      const user = await db.getUserById(decoded.userId);
+      if (user && (user.token_version || 0) === (decoded.tv || 0)) {
+        req.session = decoded;
+      }
+    } catch (err) {
+      logger.error('[session] optional lookup error', { message: err.message });
+      // fall through as anonymous — do not fail the request
+    }
+  }
+  next();
 }
 
 // ── Input sanitisation helpers ─────────────────────────────────────────────
@@ -662,8 +712,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 
     await db.logEvent('signup', { email }, '');
 
-    const jwtPayload = { userId, email, pro: false };
-    setJwtCookie(res, jwtPayload);
+    setJwtCookie(res, buildSessionPayload({ id: userId, email, pro: false, token_version: 0 }));
     res.json({ success: true, user: { id: userId, name, email, pro: false, ref_code: refCode } });
   } catch(err) {
     console.error('Signup error:', err);
@@ -727,8 +776,7 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
 
     // Success — clear failed login attempts for this account
     clearFailedLogins(email);
-    const jwtPayload = { userId: user.id, email: user.email, pro: user.pro === 1 };
-    setJwtCookie(res, jwtPayload);
+    setJwtCookie(res, buildSessionPayload(user));
     res.json({ success: true, user: OutputShapes.User(user) });
   } catch(err) {
     console.error('Signin error:', err);
@@ -741,6 +789,11 @@ app.get('/api/auth/me', async (req, res) => {
   const session = getSessionFromReq(req);
   if (!session) return res.status(401).json({ error: 'not_authenticated' });
 
+  if (session.loginAt && (Date.now() - session.loginAt) > MAX_SESSION_MS) {
+    clearJwtCookie(res);
+    return res.status(401).json({ error: 'session_expired' });
+  }
+
   const user = await db.getUserById(session.userId);
   if (!user) {
     clearJwtCookie(res);
@@ -748,8 +801,7 @@ app.get('/api/auth/me', async (req, res) => {
   }
 
   // Always refresh the cookie to extend the session while the user is active
-  const serverPro = user.pro === 1;
-  setJwtCookie(res, { userId: user.id, email: user.email, pro: serverPro });
+  setJwtCookie(res, buildSessionPayload(user, session.loginAt));
 
   const profile = await db.getProfile(user.id);
   res.json(OutputShapes.UserWithProfile(user, profile));
@@ -759,6 +811,18 @@ app.get('/api/auth/me', async (req, res) => {
 app.post('/api/auth/signout', async (req, res) => {
   clearJwtCookie(res);
   res.json({ success: true });
+});
+
+// POST /api/auth/signout-all — revoke all existing sessions for this user
+app.post('/api/auth/signout-all', requireSession, async (req, res) => {
+  try {
+    await db.bumpTokenVersion(req.session.userId);
+    clearJwtCookie(res);
+    res.json({ success: true });
+  } catch (err) {
+    logger.error('[auth] signout-all error', { message: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
 });
 
 // POST /api/auth/reset-request
@@ -817,6 +881,7 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
 
     const finalHash = await bcrypt.hash(newPassword, 12);
     await db.updatePassword(record.user_id, finalHash);
+    await db.bumpTokenVersion(record.user_id);
     await db.markResetTokenUsed(incomingHash);
     res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
   } catch(err) {
@@ -901,7 +966,7 @@ app.get('/auth/google/callback', async (req, res) => {
       await db.logEvent('google_linked', { email }, '');
     }
 
-    setJwtCookie(res, { userId: user.id, email: user.email, pro: !!user.pro });
+    setJwtCookie(res, buildSessionPayload(user));
     const profile = await db.getProfile(user.id);
     res.redirect(profile ? '/dashboard.html' : '/onboarding.html');
   } catch(err) {
@@ -1134,7 +1199,7 @@ app.post('/api/pro/activate', stripeLimiter, async (req, res) => {
 
   // If already Pro (webhook already ran), just refresh the JWT cookie and return
   if (user.pro === 1) {
-    setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
+    setJwtCookie(res, buildSessionPayload(user, session.loginAt));
     return res.json({ success: true, pro: true });
   }
 
@@ -1161,7 +1226,8 @@ app.post('/api/pro/activate', stripeLimiter, async (req, res) => {
 
   await db.setUserPro(session.userId);
   await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome_verified' }, '');
-  setJwtCookie(res, { userId: user.id, email: user.email, pro: true });
+  user.pro = 1; // reflect the update just made — `user` was fetched before setUserPro
+  setJwtCookie(res, buildSessionPayload(user, session.loginAt));
   res.json({ success: true, pro: true });
 });
 
