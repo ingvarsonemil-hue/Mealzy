@@ -84,17 +84,22 @@
     try {
       var res = await fetch('/api/auth/signup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name, email: email, password: password }) });
       var data = await res.json();
-      if (!res.ok) { showError(data.error === 'account_exists' ? 'An account with this email already exists. Sign in instead.' : (data.message || 'Sign up failed. Please try again.')); setLoading('btnSignUp', false); return; }
-      localStorage.setItem('mealzy_user', JSON.stringify({ name: data.user.name, email: data.user.email }));
-      if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
-      try { fetch('/api/email-leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, name: name, source: 'signup' }) }); } catch (err) {}
-      var pendingRef = localStorage.getItem('mealzy_pending_ref');
-      if (pendingRef && pendingRef !== email) {
-        try { fetch('/api/referral', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referrer_email: pendingRef, new_user_email: email }) }); } catch (err) {}
-        localStorage.removeItem('mealzy_pending_ref');
+      if (!res.ok) { showError(data.message || 'Sign up failed. Please try again.'); setLoading('btnSignUp', false); return; }
+      if (data.user) {
+        localStorage.setItem('mealzy_user', JSON.stringify({ name: data.user.name, email: data.user.email }));
+        if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
+        try { fetch('/api/email-leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, name: name, source: 'signup' }) }); } catch (err) {}
+        var pendingRef = localStorage.getItem('mealzy_pending_ref');
+        if (pendingRef && pendingRef !== email) {
+          try { fetch('/api/referral', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ referrer_email: pendingRef, new_user_email: email }) }); } catch (err) {}
+          localStorage.removeItem('mealzy_pending_ref');
+        }
+        localStorage.setItem('mealzy_is_new_user', '1');
+        window.location.href = 'onboarding.html';
+      } else {
+        showSuccess(data.message || 'Check your email to continue.');
+        setLoading('btnSignUp', false);
       }
-      localStorage.setItem('mealzy_is_new_user', '1');
-      window.location.href = 'onboarding.html';
     } catch (err) { showError('Could not connect. Please check your connection and try again.'); setLoading('btnSignUp', false); }
   }
 
