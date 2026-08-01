@@ -2030,13 +2030,45 @@ function splitGroceryListByDay(groceryList) {
   return byDay;
 }
 
-app.post('/api/generate-grocery-list', aiLimiter, async (req, res) => {
-  try {
-    const session = getSessionFromReq(req);
-    if (!session) return res.status(401).json({ error: 'not_authenticated' });
+function requireGrocerySession(req, res, next) {
+  const session = getSessionFromReq(req);
+  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  req.grocerySession = session;
+  next();
+}
 
-    const { profile, meals, weekStart, day, planId: requestedPlanId } = req.body;
-    if (!meals || meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
+const groceryLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "You're sending requests too fast — wait 60 seconds and try again." },
+  keyGenerator: (req) => req.grocerySession.userId,
+});
+
+const GROCERY_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+app.post('/api/generate-grocery-list', requireGrocerySession, groceryLimiter, async (req, res) => {
+  try {
+    const session = req.grocerySession;
+
+    const { profile = {}, meals: rawMeals, weekStart: rawWeekStart, day: rawDay, planId: requestedPlanId } = req.body;
+
+    profile.allergies    = capList(profile.allergies, 20, 40);
+    profile.dietaryPrefs = capList(profile.dietaryPrefs, 20, 40);
+
+    const meals = Array.isArray(rawMeals)
+      ? rawMeals.slice(0, 50).map(m => ({ name: sanitise(m?.name, 100), type: sanitise(m?.type, 30) }))
+      : [];
+    if (meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
+
+    let budget = Number(profile.budget);
+    if (Number.isNaN(budget)) budget = 100;
+    budget = Math.min(10000, Math.max(1, budget));
+    profile.budget = budget;
+
+    const day = GROCERY_DAYS.includes(rawDay) ? rawDay : undefined;
+    const weekStart = sanitise(rawWeekStart, 20);
 
     const groceryList = await generateGroceryListForMeals({ meals, profile, weekStart, day });
 
