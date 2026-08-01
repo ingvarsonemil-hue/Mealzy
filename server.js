@@ -785,14 +785,8 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
 });
 
 // GET /api/auth/me — returns current user (with profile) if JWT is valid
-app.get('/api/auth/me', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
-
-  if (session.loginAt && (Date.now() - session.loginAt) > MAX_SESSION_MS) {
-    clearJwtCookie(res);
-    return res.status(401).json({ error: 'session_expired' });
-  }
+app.get('/api/auth/me', requireSession, async (req, res) => {
+  const session = req.session;
 
   const user = await db.getUserById(session.userId);
   if (!user) {
@@ -980,9 +974,8 @@ app.get('/auth/google/callback', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/profile
-app.post('/api/profile', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/profile', requireSession, async (req, res) => {
+  const session = req.session;
   const { profile } = req.body;
   if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
     return res.status(400).json({ error: 'profile object required' });
@@ -995,18 +988,16 @@ app.post('/api/profile', async (req, res) => {
 });
 
 // GET /api/profile
-app.get('/api/profile', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/profile', requireSession, async (req, res) => {
+  const session = req.session;
   const profile = await db.getProfile(session.userId);
   if (!profile) return res.status(404).json({ error: 'no_profile' });
   res.json({ success: true, profile });
 });
 
 // DELETE /api/profile — permanently delete the authenticated user's profile data
-app.delete('/api/profile', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.delete('/api/profile', requireSession, async (req, res) => {
+  const session = req.session;
   await db.run('DELETE FROM profiles WHERE user_id = ?', [session.userId]);
   res.json({ success: true });
 });
@@ -1016,18 +1007,16 @@ app.delete('/api/profile', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // GET /api/family-profiles — list all family profiles for the authenticated user
-app.get('/api/family-profiles', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/family-profiles', requireSession, async (req, res) => {
+  const session = req.session;
   const profiles = await db.getFamilyProfiles(session.userId);
   res.json({ success: true, profiles });
 });
 
 // POST /api/family-profiles — create or update a family profile
 // Body: { id (optional — omit to create), name, calorieGoal, budget, dietaryRestrictions, avatar }
-app.post('/api/family-profiles', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/family-profiles', requireSession, async (req, res) => {
+  const session = req.session;
 
   // Check user is pro (family profiles are a pro feature)
   const user = await db.getUserById(session.userId);
@@ -1062,9 +1051,8 @@ app.post('/api/family-profiles', async (req, res) => {
 });
 
 // DELETE /api/family-profiles/:id
-app.delete('/api/family-profiles/:id', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.delete('/api/family-profiles/:id', requireSession, async (req, res) => {
+  const session = req.session;
   await db.deleteFamilyProfile(req.params.id, session.userId);
   res.json({ success: true });
 });
@@ -1161,9 +1149,8 @@ Respond ONLY with valid JSON, no markdown, no extra text:
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/plans/save
-app.post('/api/plans/save', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/plans/save', requireSession, async (req, res) => {
+  const session = req.session;
   const { plan, date } = req.body;
   if (!plan) return res.status(400).json({ error: 'plan required' });
   try {
@@ -1177,9 +1164,8 @@ app.post('/api/plans/save', async (req, res) => {
 });
 
 // GET /api/plans
-app.get('/api/plans', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/plans', requireSession, async (req, res) => {
+  const session = req.session;
   const plans = await db.getRecentPlans(session.userId, 10);
   res.json({ success: true, plans });
 });
@@ -1190,9 +1176,8 @@ app.get('/api/plans', async (req, res) => {
 
 // POST /api/pro/activate — called from pro-welcome.html as a belt-and-suspenders
 // backup to the Stripe webhook. Both paths set pro = 1 in the DB.
-app.post('/api/pro/activate', stripeLimiter, async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/pro/activate', stripeLimiter, requireSession, async (req, res) => {
+  const session = req.session;
 
   const user = await db.getUserById(session.userId);
   if (!user) return res.status(404).json({ error: 'user_not_found' });
@@ -1233,9 +1218,8 @@ app.post('/api/pro/activate', stripeLimiter, async (req, res) => {
 
 // ── POST /api/cancel-subscription ─────────────────────────────────────────
 // Cancels the user's Stripe subscription at period end and logs survey reason.
-app.post('/api/cancel-subscription', stripeLimiter, async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated', message: 'Please log in to cancel your subscription.' });
+app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, res) => {
+  const session = req.session;
 
   const user = await db.getUserById(session.userId);
   if (!user) return res.status(404).json({ error: 'user_not_found', message: 'User not found. Please log in again.' });
@@ -1278,8 +1262,8 @@ app.post('/api/cancel-subscription', stripeLimiter, async (req, res) => {
 
 // ── GET /api/nps/check ────────────────────────────────────────────────────
 // Returns { show: true } if the user is ≥7 days old and hasn't submitted NPS.
-app.get('/api/nps/check', async (req, res) => {
-  const session = getSessionFromReq(req);
+app.get('/api/nps/check', optionalSession, async (req, res) => {
+  const session = req.session;
   if (!session) return res.json({ show: false });
 
   try {
@@ -1296,9 +1280,8 @@ app.get('/api/nps/check', async (req, res) => {
 
 // ── POST /api/nps/submit ──────────────────────────────────────────────────
 // Records NPS score (0–10) and optional comment, marks user as submitted.
-app.post('/api/nps/submit', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/nps/submit', requireSession, async (req, res) => {
+  const session = req.session;
 
   const score = Number(req.body.score);
   if (!Number.isInteger(score) || score < 0 || score > 10) {
@@ -1455,9 +1438,8 @@ app.post('/api/track', trackLimiter, async (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/analytics', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/analytics', requireSession, async (req, res) => {
+  const session = req.session;
 
   const proToken = req.headers['x-pro-token'];
   const isAdmin  = proToken && process.env.PRO_TOKEN &&
@@ -1512,10 +1494,9 @@ app.get('/api/analytics', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/referral — credit a referral (called at signup when a pending ref exists)
-app.post('/api/referral', authLimiter, async (req, res) => {
+app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
   // Require authentication — only a real signed-in new user can trigger referral credit
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+  const session = req.session;
 
   const { referrer_email, new_user_email } = req.body;
   if (!isValidEmail(referrer_email)) return res.status(400).json({ error: 'referrer_email required' });
@@ -1570,7 +1551,6 @@ app.get('/api/referral-capture', async (req, res) => {
 app.get('/api/referral-status', async (req, res) => {
   const { email } = req.query;
   if (!isValidEmail(email)) return res.status(400).json({ error: 'email required' });
-  const session = getSessionFromReq(req);
   const ip = clientIp(req);
   const usage         = getUsage(ip);
   const effectiveLimit = await getEffectiveLimit(email);
@@ -1612,14 +1592,14 @@ app.post('/api/email-leads', leadLimiter, async (req, res) => {
 // MEAL GENERATION
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/generate-meal', generateLimiter, async (req, res) => {
+app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res) => {
   try {
     const { profile, date, swap_meal_type, plan_token, user_email, avoid_meals } = req.body;
 
     if (!profile) return res.status(400).json({ error: 'Profile is required' });
 
     // ── Freemium gate: server-side pro check is authoritative ─────────────
-    const session = getSessionFromReq(req);
+    const session = req.session;
     const PRO_TOKEN = process.env.PRO_TOKEN || '';
     let isPro = !!(
       PRO_TOKEN.length >= 32 &&
@@ -2100,10 +2080,10 @@ function splitGroceryListByDay(groceryList) {
 }
 
 function requireGrocerySession(req, res, next) {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
-  req.grocerySession = session;
-  next();
+  return requireSession(req, res, () => {
+    req.grocerySession = req.session;
+    next();
+  });
 }
 
 const groceryLimiter = rateLimit({
@@ -2178,9 +2158,8 @@ app.post('/api/generate-grocery-list', requireGrocerySession, groceryLimiter, as
 
 // GET /api/grocery-list/:planId/days — available days for the day-switcher UI
 // (registered before the /:day route below — otherwise Express would match "days" as a day value)
-app.get('/api/grocery-list/:planId/days', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/grocery-list/:planId/days', requireSession, async (req, res) => {
+  const session = req.session;
   try {
     const lists = await db.getGroceryListsForPlan(req.params.planId);
     if (lists.length > 0 && lists[0].userId !== session.userId) {
@@ -2194,9 +2173,8 @@ app.get('/api/grocery-list/:planId/days', async (req, res) => {
 });
 
 // GET /api/grocery-list/:planId/:day
-app.get('/api/grocery-list/:planId/:day', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/grocery-list/:planId/:day', requireSession, async (req, res) => {
+  const session = req.session;
   try {
     const groceryList = await db.getGroceryListByDay(req.params.planId, req.params.day);
     if (!groceryList || groceryList.userId !== session.userId) {
@@ -2232,10 +2210,10 @@ const coachLimiterPro = rateLimit({
 });
 
 function requireCoachAuth(req, res, next) {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
-  req.coachSession = session;
-  next();
+  return requireSession(req, res, () => {
+    req.coachSession = req.session;
+    next();
+  });
 }
 
 async function routeCoachLimiter(req, res, next) {
@@ -2356,9 +2334,8 @@ function generateFallbackMealPlan(profile) {
 
 // POST /api/xp/award — award XP to the authenticated user (server validates)
 // Body: { action: 'generate_plan' | 'swap_meal' | 'complete_day' | 'onboarding' }
-app.post('/api/xp/award', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/xp/award', requireSession, async (req, res) => {
+  const session = req.session;
 
   const XP_MAP = {
     generate_plan:  50,
@@ -2449,9 +2426,8 @@ app.get('/api/share-card/:userId', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/plans/share — generate a shareable link for a plan
-app.post('/api/plans/share', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.post('/api/plans/share', requireSession, async (req, res) => {
+  const session = req.session;
 
   const { plan, date, title } = req.body;
   if (!plan) return res.status(400).json({ error: 'plan required' });
@@ -2505,9 +2481,8 @@ app.get('/api/ref-lookup', async (req, res) => {
 // ANALYTICS FUNNEL — admin endpoint
 // ════════════════════════════════════════════════════════════════════════════
 
-app.get('/api/analytics/funnel', async (req, res) => {
-  const session = getSessionFromReq(req);
-  if (!session) return res.status(401).json({ error: 'not_authenticated' });
+app.get('/api/analytics/funnel', requireSession, async (req, res) => {
+  const session = req.session;
 
   const proToken = req.headers['x-pro-token'];
   const isAdmin  = proToken && process.env.PRO_TOKEN &&
