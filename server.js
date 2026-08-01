@@ -133,8 +133,11 @@ app.post(
 
 // ── Explicit CORS configuration with allowlist ─────────────────────────────
 const cors = require('cors');
+const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
+  ? ['https://mealzy.org', 'https://www.mealzy.org']
+  : ['https://mealzy.org', 'http://localhost:3000'];
 app.use(cors({
-  origin: ['https://mealzy.org', 'http://localhost:3000'],
+  origin: ALLOWED_ORIGINS,
   credentials: true,
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-admin-token', 'x-pro-token', 'x-cron-secret']
@@ -2460,10 +2463,11 @@ app.get('/api/analytics/funnel', async (req, res) => {
 // ════════════════════════════════════════════════════════════════════════════
 
 function cronAuth(req, res) {
-  const secret    = req.headers['x-cron-secret'];
-  const timestamp = parseInt(req.headers['x-cron-timestamp'] || '0', 10);
-  const age       = Date.now() - timestamp;
-  if (!secret || secret !== process.env.CRON_SECRET) {
+  const secret      = req.headers['x-cron-secret'];
+  const timestamp   = parseInt(req.headers['x-cron-timestamp'] || '0', 10);
+  const age         = Date.now() - timestamp;
+  const CRON_SECRET = process.env.CRON_SECRET || '';
+  if (!secret || CRON_SECRET.length < 32 || !timingSafeCompare(secret, CRON_SECRET)) {
     res.status(401).json({ error: 'Unauthorized' }); return false;
   }
   if (isNaN(timestamp) || age > 5 * 60 * 1000 || age < 0) {
