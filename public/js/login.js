@@ -87,6 +87,7 @@
       if (!res.ok) { showError(data.message || 'Sign up failed. Please try again.'); setLoading('btnSignUp', false); return; }
       if (data.user) {
         localStorage.setItem('mealzy_user', JSON.stringify({ name: data.user.name, email: data.user.email }));
+        if (data.user.ref_code) localStorage.setItem('mealzy_ref_code', data.user.ref_code);
         if (data.user.pro) localStorage.setItem('mealzy_pro', 'true');
         try { fetch('/api/email-leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, name: name, source: 'signup' }) }); } catch (err) {}
         var pendingRef = localStorage.getItem('mealzy_pending_ref');

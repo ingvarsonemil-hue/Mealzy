@@ -1515,15 +1515,19 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
   const session = req.session;
 
   const { referrer_email, new_user_email } = req.body;
-  if (!isValidEmail(referrer_email)) return res.status(400).json({ error: 'referrer_email required' });
 
   // The authenticated user must be the one being referred
   if (session.email !== (new_user_email || '').toLowerCase()) {
     return res.status(403).json({ error: 'can_only_credit_own_signup' });
   }
 
-  // Referrer must exist in DB
-  const referrer = await db.getUserByEmail(referrer_email.toLowerCase());
+  // Referrer must exist in DB — referrer_email may be a ref_ code or a raw email
+  let referrer;
+  if (typeof referrer_email === 'string' && referrer_email.startsWith('ref_')) {
+    referrer = await db.getUserByRefCode(referrer_email);
+  } else if (isValidEmail(referrer_email)) {
+    referrer = await db.getUserByEmail(referrer_email.toLowerCase());
+  }
   if (!referrer) return res.status(404).json({ error: 'referrer_not_found' });
 
   // Idempotency: one referral credit per referred user, ever
@@ -1538,15 +1542,15 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
   const ip = clientIp(req);
   try {
     const { randomUUID } = require('crypto');
-    await db.saveReferral(randomUUID(), referrer_email, ip, session.email);
-    await db.addBonusPlan(referrer_email);
-    await db.markReferralConverted(referrer_email, session.email);
+    await db.saveReferral(randomUUID(), referrer.email, ip, session.email);
+    await db.addBonusPlan(referrer.email);
+    await db.markReferralConverted(referrer.email, session.email);
   } catch(e) { console.error('[referral] DB error:', e); }
 
-  const current = referralBonus.get(referrer_email) || 0;
-  referralBonus.set(referrer_email, current + 1);
+  const current = referralBonus.get(referrer.email) || 0;
+  referralBonus.set(referrer.email, current + 1);
 
-  await db.logEvent('referral_signup', { referrer: referrer_email, new_user: session.email }, '');
+  await db.logEvent('referral_signup', { referrer: referrer.email, new_user: session.email }, '');
   res.json({ ok: true, bonus_plans: current + 1 });
 });
 
@@ -1554,13 +1558,18 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
 // Stores the referral intent so it can be credited when they sign up
 app.get('/api/referral-capture', async (req, res) => {
   const { ref, ip: queryIp } = req.query;
-  if (!isValidEmail(ref)) return res.json({ ok: false });
+  let resolvedRef = ref;
+  if (typeof ref === 'string' && ref.startsWith('ref_')) {
+    const referrer = await db.getUserByRefCode(ref);
+    resolvedRef = referrer ? referrer.email : null;
+  }
+  if (!isValidEmail(resolvedRef)) return res.json({ ok: false });
   const ip = clientIp(req) || queryIp || '';
   try {
     const { randomUUID } = require('crypto');
-    await db.saveReferral(randomUUID(), ref, ip.slice(-16), '');
+    await db.saveReferral(randomUUID(), resolvedRef, ip.slice(-16), '');
   } catch(e) { /* non-fatal */ }
-  await db.logEvent('referral_visit', { ref }, ip.slice(-8));
+  await db.logEvent('referral_visit', { ref: resolvedRef }, ip.slice(-8));
   res.json({ ok: true });
 });
 
@@ -2484,8 +2493,7 @@ app.get('/api/ref-lookup', authLimiter, async (req, res) => {
   if (!code) return res.json({ found: false });
   if (code.startsWith('ref_')) {
     const user = await db.getUserByRefCode(code);
-    if (user) return res.json({ found: true, email: user.email });
-    return res.json({ found: false });
+    return res.json({ found: !!user });
   }
   res.json({ found: false });
 });

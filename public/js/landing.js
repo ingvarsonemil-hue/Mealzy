@@ -203,12 +203,8 @@
         localStorage.setItem('mealzy_pending_ref', ref);
         fetch('/api/referral-capture?ref=' + encodeURIComponent(ref)).catch(function () {});
       } else if (ref.indexOf('ref_') === 0) {
-        fetch('/api/ref-lookup?code=' + encodeURIComponent(ref)).then(function (r) { return r.json(); }).then(function (d) {
-          if (d.found && d.email) {
-            localStorage.setItem('mealzy_pending_ref', d.email);
-            fetch('/api/referral-capture?ref=' + encodeURIComponent(d.email)).catch(function () {});
-          }
-        }).catch(function () {});
+        localStorage.setItem('mealzy_pending_ref', ref);
+        fetch('/api/referral-capture?ref=' + encodeURIComponent(ref)).catch(function () {});
       }
     }
   }
