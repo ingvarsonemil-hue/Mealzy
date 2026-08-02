@@ -447,34 +447,82 @@ const FREE_PLAN_LIMIT = 3;
 const referralBonus   = new Map(); // kept for in-session backward compat; SQLite is source of truth
 
 // ── Failed login tracking — per-account rate limiting and lockout ──────────
-const failedLoginAttempts = new Map(); // email -> { count, lastAttempt, lockedUntil }
+const failedLoginAttempts = new Map(); // "email|ip" -> { count, lastAttempt, lockedUntil }
 const MAX_FAILED_ATTEMPTS = 10;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
-function isAccountLocked(email) {
-  const record = failedLoginAttempts.get(email);
+const ipFailedAttempts = new Map(); // ip -> { count, lastAttempt, lockedUntil }
+const MAX_IP_FAILED_ATTEMPTS = 50;
+const IP_LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+function failKey(email, ip) {
+  return `${email}|${ip}`;
+}
+
+function isAccountLocked(email, ip) {
+  const record = failedLoginAttempts.get(failKey(email, ip));
   if (!record || !record.lockedUntil) return false;
   if (Date.now() < record.lockedUntil) return true;
-  // Lockout expired — clear the record
-  failedLoginAttempts.delete(email);
+  failedLoginAttempts.delete(failKey(email, ip));
   return false;
 }
 
-function recordFailedLogin(email) {
+function isIpLocked(ip) {
+  const record = ipFailedAttempts.get(ip);
+  if (!record || !record.lockedUntil) return false;
+  if (Date.now() < record.lockedUntil) return true;
+  ipFailedAttempts.delete(ip);
+  return false;
+}
+
+function recordFailedLogin(email, ip) {
   const now = Date.now();
-  const record = failedLoginAttempts.get(email) || { count: 0, lastAttempt: now, lockedUntil: null };
+  const key = failKey(email, ip);
+  const record = failedLoginAttempts.get(key) || { count: 0, lastAttempt: now, lockedUntil: null };
   record.count += 1;
   record.lastAttempt = now;
   if (record.count >= MAX_FAILED_ATTEMPTS) {
     record.lockedUntil = now + LOCKOUT_DURATION_MS;
-    logger.warn('[auth] Account lockout triggered', { email, attempts: record.count });
+    logger.warn('[auth] Account lockout triggered', { email, ip, attempts: record.count });
   }
-  failedLoginAttempts.set(email, record);
+  failedLoginAttempts.set(key, record);
+
+  const ipRecord = ipFailedAttempts.get(ip) || { count: 0, lastAttempt: now, lockedUntil: null };
+  ipRecord.count += 1;
+  ipRecord.lastAttempt = now;
+  if (ipRecord.count >= MAX_IP_FAILED_ATTEMPTS) {
+    ipRecord.lockedUntil = now + IP_LOCKOUT_DURATION_MS;
+    logger.warn('[auth] IP-wide lockout triggered', { ip, attempts: ipRecord.count });
+  }
+  ipFailedAttempts.set(ip, ipRecord);
+
+  return {
+    accountLocked: !!record.lockedUntil,
+    ipLocked: !!ipRecord.lockedUntil,
+    lockedUntil: record.lockedUntil || ipRecord.lockedUntil || null,
+  };
 }
 
-function clearFailedLogins(email) {
-  failedLoginAttempts.delete(email);
+function clearFailedLogins(email, ip) {
+  failedLoginAttempts.delete(failKey(email, ip));
+  // Deliberately do NOT clear ipFailedAttempts here — a successful login
+  // on one account must not reset an attacker's spray-attempt counter
+  // against other accounts from the same IP.
 }
+
+// Periodic cleanup so these Maps can't grow unbounded (mirrors the
+// pattern from the original security audit for exactly this concern).
+setInterval(() => {
+  const cutoff = Date.now() - 60 * 60 * 1000; // 1 hour
+  for (const [k, v] of failedLoginAttempts) {
+    if ((v.lastAttempt || 0) < cutoff) failedLoginAttempts.delete(k);
+  }
+  for (const [k, v] of ipFailedAttempts) {
+    if ((v.lastAttempt || 0) < cutoff) ipFailedAttempts.delete(k);
+  }
+  if (failedLoginAttempts.size > 10000) failedLoginAttempts.clear();
+  if (ipFailedAttempts.size > 10000) ipFailedAttempts.clear();
+}, 10 * 60 * 1000).unref();
 
 // Constant-time filler for signin timing — computed once at startup so the
 // no-such-user / wrong-password / legacy-account paths all pay the same
@@ -747,8 +795,11 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       return res.status(400).json({ error: 'missing_fields', message: 'email and password are required.' });
     }
 
-    // Check per-account lockout (15 minutes after 10 failed attempts)
-    if (isAccountLocked(email)) {
+    const ip = clientIp(req);
+
+    // Check per-account lockout (15 minutes after 10 failed attempts) and
+    // the IP-wide backstop (15 minutes after 50 failed attempts across accounts)
+    if (isAccountLocked(email, ip) || isIpLocked(ip)) {
       const retryAfter = 900; // 15 minutes in seconds
       res.setHeader('Retry-After', retryAfter);
       return res.status(429).json({
@@ -760,9 +811,12 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
     const user = await db.getUserByEmail(email);
     if (!user) {
       await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
-      recordFailedLogin(email);
-      const retryAfter = 60; // 1 minute (IP-based rate limit window)
-      res.setHeader('Retry-After', retryAfter);
+      const lockResult = recordFailedLogin(email, ip);
+      if (lockResult.accountLocked || lockResult.ipLocked) {
+        res.setHeader('Retry-After', 900);
+        return res.status(429).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
+      }
+      res.setHeader('Retry-After', 60);
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
@@ -779,19 +833,20 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
     const valid = await bcrypt.compare(password, storedHash);
 
     if (!valid) {
-      recordFailedLogin(email);
-      const record = failedLoginAttempts.get(email);
-      const attemptsLeft = MAX_FAILED_ATTEMPTS - record.count;
-      let retryAfter = 60;
-      if (record.lockedUntil) {
-        retryAfter = Math.ceil((record.lockedUntil - Date.now()) / 1000);
+      const lockResult = recordFailedLogin(email, ip);
+      if (lockResult.accountLocked || lockResult.ipLocked) {
+        const retryAfter = lockResult.lockedUntil
+          ? Math.ceil((lockResult.lockedUntil - Date.now()) / 1000)
+          : 900;
+        res.setHeader('Retry-After', retryAfter);
+        return res.status(429).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
       }
-      res.setHeader('Retry-After', retryAfter);
+      res.setHeader('Retry-After', 60);
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
     // Success — clear failed login attempts for this account
-    clearFailedLogins(email);
+    clearFailedLogins(email, ip);
     setJwtCookie(res, buildSessionPayload(user));
     res.json({ success: true, user: OutputShapes.User(user) });
   } catch(err) {
