@@ -1,5 +1,6 @@
 'use strict';
 
+const express = require('express');
 const { randomUUID } = require('crypto');
 
 const EXTRACT_PROMPT =
@@ -8,22 +9,31 @@ const EXTRACT_PROMPT =
   'If any field is unclear from the image, make a reasonable estimate. Always return valid JSON.';
 
 const VALID_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
-module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromReq, generateLimiter, db }) {
+module.exports = function registerRecipeRoutes(app, { anthropic, requireSession, generateLimiter, db }) {
 
   // POST /api/recipes/import-photo — Pro only, vision extraction, image never stored
-  app.post('/api/recipes/import-photo', generateLimiter, async (req, res) => {
-    const session = getSessionFromReq(req);
-    if (!session) return res.status(401).json({ error: 'not_authenticated' });
-
+  app.post(
+    '/api/recipes/import-photo',
+    generateLimiter,
+    requireSession,
+    express.json({ limit: '8mb' }),
+    async (req, res) => {
     // Fresh DB lookup — never trust JWT payload for Pro gate
-    const user = await db.getUserById(session.userId);
+    const user = await db.getUserById(req.session.userId);
     if (!user)     return res.status(401).json({ error: 'user_not_found' });
     if (!user.pro) return res.status(403).json({ error: 'pro_required', message: 'Photo import requires a Pro plan.' });
 
     const { imageData, mimeType } = req.body;
     if (!imageData || typeof imageData !== 'string') {
       return res.status(400).json({ error: 'imageData (base64 string) required' });
+    }
+    if (imageData.length > 5 * 1024 * 1024) {
+      return res.status(413).json({ error: 'image_too_large', message: 'Image must be under 5MB.' });
+    }
+    if (!BASE64_RE.test(imageData)) {
+      return res.status(400).json({ error: 'invalid_base64' });
     }
     const mime = VALID_MIME_TYPES.includes(mimeType) ? mimeType : 'image/jpeg';
 
@@ -60,10 +70,7 @@ module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromR
   });
 
   // POST /api/recipes/save — authenticated, saves reviewed/edited recipe to library
-  app.post('/api/recipes/save', async (req, res) => {
-    const session = getSessionFromReq(req);
-    if (!session) return res.status(401).json({ error: 'not_authenticated' });
-
+  app.post('/api/recipes/save', requireSession, async (req, res) => {
     const { recipe } = req.body;
     if (!recipe || typeof recipe !== 'object') {
       return res.status(400).json({ error: 'recipe object required' });
@@ -71,8 +78,8 @@ module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromR
 
     try {
       const id = randomUUID();
-      await db.saveRecipe(id, session.userId, recipe);
-      await db.logEvent('recipe_imported', { userId: session.userId }, '');
+      await db.saveRecipe(id, req.session.userId, recipe);
+      await db.logEvent('recipe_imported', { userId: req.session.userId }, '');
       res.json({ success: true, id });
     } catch (err) {
       console.error('[recipes/save]', err.message);
@@ -81,12 +88,9 @@ module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromR
   });
 
   // GET /api/recipes — authenticated, returns all saved recipes for the user
-  app.get('/api/recipes', async (req, res) => {
-    const session = getSessionFromReq(req);
-    if (!session) return res.status(401).json({ error: 'not_authenticated' });
-
+  app.get('/api/recipes', requireSession, async (req, res) => {
     try {
-      const recipes = await db.getRecipes(session.userId);
+      const recipes = await db.getRecipes(req.session.userId);
       res.json({ success: true, recipes });
     } catch (err) {
       console.error('[recipes]', err.message);
@@ -95,17 +99,14 @@ module.exports = function registerRecipeRoutes(app, { anthropic, getSessionFromR
   });
 
   // DELETE /api/recipes/:id — authenticated, only deletes recipes owned by current user
-  app.delete('/api/recipes/:id', async (req, res) => {
-    const session = getSessionFromReq(req);
-    if (!session) return res.status(401).json({ error: 'not_authenticated' });
-
+  app.delete('/api/recipes/:id', requireSession, async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'id required' });
 
     try {
       await db.run(
         'DELETE FROM recipes WHERE id = ? AND user_id = ?',
-        [id, session.userId]
+        [id, req.session.userId]
       );
       res.json({ success: true });
     } catch (err) {
