@@ -144,7 +144,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'x-admin-token', 'x-pro-token', 'x-cron-secret']
 }));
 
-app.use(express.json({ limit: '10mb' }));
+app.use((req, res, next) => {
+  if (req.path === '/api/recipes/import-photo') return next();
+  express.json({ limit: '64kb' })(req, res, next);
+});
 
 // ── Page view tracking (fires before static files are served) ──
 app.use((req, res, next) => {
@@ -2643,7 +2646,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
 });
 
 // ── Recipe routes (photo import, save, list) ──────────────────────────────
-require('./routes/recipes')(app, { anthropic, getSessionFromReq, generateLimiter, db });
+require('./routes/recipes')(app, { anthropic, requireSession, generateLimiter, db });
 
 // ── Blog routes ────────────────────────────────────────────────────────────
 app.get('/blog', (req, res) => {
@@ -2675,6 +2678,9 @@ app.get('*', async (req, res) => {
 
 // ── Global error handler — prevents unhandled exceptions from crashing the server ──
 app.use((err, req, res, next) => {
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'payload_too_large', message: 'Request body is too large.' });
+  }
   console.error('[ERROR]', err.stack || err.message || err);
   res.status(500).json({ error: 'Something went wrong. Please try again.' });
 });
