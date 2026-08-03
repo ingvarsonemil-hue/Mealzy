@@ -117,6 +117,12 @@ async function _applySchema() {
       date TEXT PRIMARY KEY,
       cost_usd REAL NOT NULL DEFAULT 0
     )`,
+    `CREATE TABLE IF NOT EXISTS verification_tokens (
+      token TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      used INTEGER DEFAULT 0
+    )`,
   ];
 
   for (const sql of tables) {
@@ -134,6 +140,7 @@ async function _applySchema() {
     `ALTER TABLE users ADD COLUMN google_id TEXT`,
     `ALTER TABLE users ADD COLUMN nps_submitted_at TEXT`,
     `ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0`,
+    `ALTER TABLE users ADD COLUMN email_verified INTEGER`,
   ];
   for (const sql of alters) {
     try { await _client.execute(sql); } catch(e) { /* column already exists */ }
@@ -148,6 +155,10 @@ async function _applySchema() {
 
   try {
     await _client.execute(`UPDATE users SET signup_date = created_at WHERE signup_date IS NULL`);
+  } catch(e) {}
+
+  try {
+    await _client.execute(`UPDATE users SET email_verified = 1 WHERE email_verified IS NULL`);
   } catch(e) {}
 }
 
@@ -178,7 +189,7 @@ async function all(sql, params = []) {
 
 async function createUser({ id, name, email, hashedPassword }) {
   await run(
-    `INSERT INTO users (id, name, email, hashed_password, pro) VALUES (?, ?, ?, ?, 0)`,
+    `INSERT INTO users (id, name, email, hashed_password, pro, email_verified) VALUES (?, ?, ?, ?, 0, 0)`,
     [id, name, email.toLowerCase().trim(), hashedPassword]
   );
 }
@@ -275,6 +286,31 @@ async function markResetTokenUsed(token) {
 
 async function purgeExpiredTokens() {
   await run(`DELETE FROM reset_tokens WHERE expires_at < datetime('now') OR used = 1`);
+}
+
+// ── Verification Tokens ─────────────────────────────────────────────────────
+
+async function createVerificationToken(token, userId, expiresAt) {
+  await run(
+    `INSERT INTO verification_tokens (token, user_id, expires_at, used) VALUES (?, ?, ?, 0)`,
+    [token, userId, expiresAt]
+  );
+}
+
+async function getVerificationToken(token) {
+  return get('SELECT * FROM verification_tokens WHERE token = ? AND used = 0', [token]);
+}
+
+async function markVerificationTokenUsed(token) {
+  await run('UPDATE verification_tokens SET used = 1 WHERE token = ?', [token]);
+}
+
+async function markEmailVerified(userId) {
+  await run('UPDATE users SET email_verified = 1 WHERE id = ?', [userId]);
+}
+
+async function purgeExpiredVerificationTokens() {
+  await run(`DELETE FROM verification_tokens WHERE expires_at < datetime('now') OR used = 1`);
 }
 
 // ── Leads ─────────────────────────────────────────────────────────────────────
@@ -444,6 +480,7 @@ async function getUsersNeedingNudge() {
       AND nudge_sent = 0
       AND signup_date IS NOT NULL
       AND datetime(signup_date) <= datetime('now', '-3 days')
+      AND email_verified = 1
     LIMIT 100
   `);
 }
@@ -457,6 +494,7 @@ async function getUsersForWeeklyDigest() {
     SELECT id, name, email, pro FROM users
     WHERE email IS NOT NULL AND email != ''
       AND pro = 0
+      AND email_verified = 1
     LIMIT 500
   `);
 }
@@ -666,6 +704,8 @@ module.exports = {
   saveShareLink, getShareLink, incrementShareViews,
   // reset tokens
   createResetToken, getResetToken, markResetTokenUsed, purgeExpiredTokens,
+  // verification tokens
+  createVerificationToken, getVerificationToken, markVerificationTokenUsed, markEmailVerified, purgeExpiredVerificationTokens,
   // leads
   saveLead, countLeads,
   // analytics

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/theme-init.js"></script>
+<!-- Cookie consent gate (must load before analytics) -->
+<script src="/js/consent.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a3d2b">
+<title>Verify Email | Mealzy</title>
+<meta name="description" content="Verify your Mealzy email address to unlock AI meal plans, grocery lists, and the coach.">
+<meta property="og:title" content="Verify Email — Mealzy">
+<meta property="og:description" content="Verify your Mealzy email address to unlock AI meal plans, grocery lists, and the coach.">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/landing.css">
+<link rel="stylesheet" href="/css/funnel.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body class="card-page">
+<a href="#main" class="skip-link">Skip to main content</a>
+<main id="main" class="page-card">
+  <a href="/" class="page-card-logo">Mealzy</a>
+
+  <!-- Loading state -->
+  <div id="loadingState" style="text-align:center;color:var(--color-muted-fg);padding:1rem 0;"><span class="spinner"></span>Verifying your email...</div>
+
+  <!-- Invalid / expired token -->
+  <div id="invalidState" style="display:none;">
+    <div class="auth-msg show" id="invalidMsg" role="alert">This link doesn't work anymore</div>
+    <p class="h-sub">It may have expired or already been used. You can request a new verification link from your account settings.</p>
+    <a href="login.html" class="btn btn-primary btn-full">Back to sign in</a>
+  </div>
+
+  <!-- Success state -->
+  <div id="successState" tabindex="-1" style="display:none;">
+    <h1 style="font-size:1.25rem;">Email verified</h1>
+    <div class="auth-msg success show">Your email has been verified successfully.</div>
+    <p class="h-sub">You can now use AI meal plans, grocery lists, and the coach.</p>
+    <a href="login.html" class="btn btn-primary btn-full">Sign in</a>
+  </div>
+
+</main>
+
+<script>
+  const token = new URLSearchParams(window.location.search).get('token');
+
+  function show(id) {
+    ['loadingState','invalidState','successState'].forEach(s => {
+      document.getElementById(s).style.display = s === id ? 'block' : 'none';
+    });
+  }
+
+  async function verifyEmail() {
+    if (!token) {
+      show('invalidState');
+      document.getElementById('invalidMsg').textContent = 'No verification token found in the URL. Please request a new verification link.';
+      return;
+    }
+
+    try {
+      const res  = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        show('invalidState');
+        document.getElementById('invalidMsg').textContent = data.message || "This link doesn't work anymore";
+        return;
+      }
+
+      show('successState');
+      document.getElementById('successState').focus();
+    } catch(err) {
+      show('invalidState');
+      document.getElementById('invalidMsg').textContent = 'Could not connect. Please check your connection and try again.';
+    }
+  }
+
+  verifyEmail();
+</script>
+</body>
+</html>
