@@ -11,7 +11,7 @@ const EXTRACT_PROMPT =
 const VALID_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
-module.exports = function registerRecipeRoutes(app, { anthropic, requireSession, generateLimiter, db }) {
+module.exports = function registerRecipeRoutes(app, { anthropic, requireSession, generateLimiter, db, callAnthropicWithSpendCap }) {
 
   // POST /api/recipes/import-photo — Pro only, vision extraction, image never stored
   app.post(
@@ -38,7 +38,7 @@ module.exports = function registerRecipeRoutes(app, { anthropic, requireSession,
     const mime = VALID_MIME_TYPES.includes(mimeType) ? mimeType : 'image/jpeg';
 
     try {
-      const message = await anthropic.messages.create({
+      const message = await callAnthropicWithSpendCap({
         model:      'claude-haiku-4-5-20251001',
         max_tokens: 1024,
         messages: [{
@@ -64,6 +64,12 @@ module.exports = function registerRecipeRoutes(app, { anthropic, requireSession,
       res.json({ success: true, recipe });
 
     } catch (err) {
+      if (err.spendCapReached) {
+        return res.status(503).json({
+          error: 'service_temporarily_unavailable',
+          message: 'AI features are temporarily paused due to high demand. Please try again later.'
+        });
+      }
       console.error('[recipes/import-photo]', err.message);
       res.status(500).json({ error: 'extraction_failed', message: 'Failed to extract recipe from image.' });
     }

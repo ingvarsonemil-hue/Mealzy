@@ -113,6 +113,10 @@ async function _applySchema() {
       event_id     TEXT PRIMARY KEY,
       processed_at TEXT DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS daily_api_spend (
+      date TEXT PRIMARY KEY,
+      cost_usd REAL NOT NULL DEFAULT 0
+    )`,
   ];
 
   for (const sql of tables) {
@@ -570,6 +574,23 @@ async function incrementCoachUsage(userId) {
   );
 }
 
+// ── Daily API spend ───────────────────────────────────────────────────────────
+
+async function getDailySpend() {
+  const today = new Date().toISOString().split('T')[0];
+  const row = await get('SELECT cost_usd FROM daily_api_spend WHERE date = ?', [today]);
+  return row ? Number(row.cost_usd) : 0;
+}
+
+async function addDailySpend(costUsd) {
+  const today = new Date().toISOString().split('T')[0];
+  await run(
+    `INSERT INTO daily_api_spend (date, cost_usd) VALUES (?, ?)
+     ON CONFLICT(date) DO UPDATE SET cost_usd = cost_usd + excluded.cost_usd`,
+    [today, costUsd]
+  );
+}
+
 // ── Grocery lists ─────────────────────────────────────────────────────────────
 
 async function saveGroceryList(id, userId, planId, day, groceryListObj) {
@@ -657,6 +678,8 @@ module.exports = {
   saveRecipe, getRecipes,
   // coach usage
   getCoachUsage, incrementCoachUsage,
+  // daily API spend
+  getDailySpend, addDailySpend,
   // grocery lists
   saveGroceryList, getGroceryListsForPlan, getGroceryListByDay, deleteGroceryListForPlanDay,
   // health
