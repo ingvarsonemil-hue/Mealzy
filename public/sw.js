@@ -1,4 +1,4 @@
-const CACHE = 'mealzy-v194';
+const CACHE = 'mealzy-v195';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -59,6 +59,21 @@ self.addEventListener('fetch', e => {
   }
   // Network-first for CSS — design changes take effect immediately
   if (e.request.url.match(/\.css(\?|$)/)) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // Network-first for stripe-config.js — dynamic, env-driven, must never go stale
+  if (e.request.url.includes('/stripe-config.js')) {
     e.respondWith(
       fetch(e.request)
         .then(res => {
