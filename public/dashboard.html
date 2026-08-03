@@ -772,11 +772,11 @@
             ${meal.cookTime ? `<span class="mcv2-stat">${ICO.clock} ${meal.cookTime} min</span>` : ''}
           </div>
         </div>
-        <div class="mcv2-name">${meal.name}</div>
-        <p class="mcv2-desc">${meal.description || ''}</p>
+        <div class="mcv2-name">${escHtml(meal.name)}</div>
+        <p class="mcv2-desc">${escHtml(meal.description || '')}</p>
         <div class="mcv2-actions">
           <label class="mcv2-check">
-            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${meal.name} as done" />
+            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${escHtml(meal.name)} as done" />
             Mark as done
           </label>
           <div class="mcv2-btns">
@@ -2048,6 +2048,18 @@
 
   async function loadRecipes() {
     const grid = document.getElementById('recipesGrid');
+    if (!grid.dataset.delegated) {
+      grid.dataset.delegated = '1';
+      grid.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        if (btn.dataset.action === 'use-recipe') {
+          useRecipeInPlan(Number(btn.dataset.idx));
+        } else if (btn.dataset.action === 'delete-recipe') {
+          deleteRecipe(btn.dataset.id);
+        }
+      });
+    }
     grid.innerHTML = '<p style="color:var(--clr-muted-fg);padding:1rem;">Loading...</p>';
     try {
       const res  = await fetch('/api/recipes');
@@ -2064,14 +2076,14 @@
       } else {
         grid.innerHTML = _recipesCache.map((r, idx) => `
           <div class="card card-sm" style="display:flex;flex-direction:column;">
-            <div style="font-weight:700;margin-bottom:0.35rem;">${r.name || 'Untitled Recipe'}</div>
+            <div style="font-weight:700;margin-bottom:0.35rem;">${escHtml(r.name || 'Untitled Recipe')}</div>
             <div style="font-size:0.82rem;color:var(--clr-muted-fg);line-height:1.6;">
               ${r.servings ? r.servings + ' servings' : ''}${r.estimatedCalories ? ' · ' + r.estimatedCalories + ' kcal' : ''}${r.estimatedProtein ? ' · ' + r.estimatedProtein + 'g protein' : ''}
             </div>
             ${r.ingredients && r.ingredients.length ? `<div style="font-size:0.78rem;color:var(--clr-muted-fg);margin-top:0.5rem;">${r.ingredients.length} ingredients</div>` : ''}
             <div style="display:flex;gap:0.5rem;margin-top:0.85rem;">
-              <button class="btn btn-outline btn-sm" style="flex:1;font-size:0.8rem;" onclick="useRecipeInPlan(${idx})">${window.t('use_in_plan')}</button>
-              <button class="btn btn-ghost btn-sm" style="color:var(--clr-destructive);font-size:0.8rem;" onclick="deleteRecipe('${r.id}')">${window.t('btn_delete')}</button>
+              <button class="btn btn-outline btn-sm" style="flex:1;font-size:0.8rem;" data-action="use-recipe" data-idx="${idx}">${window.t('use_in_plan')}</button>
+              <button class="btn btn-ghost btn-sm" style="color:var(--clr-destructive);font-size:0.8rem;" data-action="delete-recipe" data-id="${escHtml(r.id)}">${window.t('btn_delete')}</button>
             </div>
           </div>`).join('');
       }

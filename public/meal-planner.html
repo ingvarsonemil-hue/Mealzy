@@ -720,6 +720,14 @@
 
   function renderMeals() {
     const container = document.getElementById('mealsContainer');
+    if (!container.dataset.delegated) {
+      container.dataset.delegated = '1';
+      container.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="swap-meal"]');
+        if (!btn) return;
+        swapMeal(Number(btn.dataset.idx), btn.dataset.type);
+      });
+    }
     if (!currentMeals || currentMeals.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -745,16 +753,16 @@
             ${meal.cookTime ? `<span class="mcv2-stat">${ICO.clock} ${meal.cookTime} min</span>` : ''}
           </div>
         </div>
-        <div class="mcv2-name">${meal.name}</div>
-        <p class="mcv2-desc">${meal.description || ''}</p>
+        <div class="mcv2-name">${escHtml(meal.name)}</div>
+        <p class="mcv2-desc">${escHtml(meal.description || '')}</p>
         <div class="mcv2-actions">
           <label class="mcv2-check">
-            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${meal.name} as done" />
+            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${escHtml(meal.name)} as done" />
             Mark done
           </label>
           <div class="mcv2-btns">
             <span class="mcv2-stat text-muted">${ICO.grain} ${meal.carbs}g &nbsp;${ICO.drop} ${meal.fat}g</span>
-            <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i}, '${meal.type}')" style="font-size:0.78rem;padding:0.25rem 0.65rem;min-height:32px;">Swap</button>
+            <button class="btn btn-outline btn-sm" id="swapBtn${i}" data-action="swap-meal" data-idx="${i}" data-type="${escHtml(meal.type)}" style="font-size:0.78rem;padding:0.25rem 0.65rem;min-height:32px;">Swap</button>
           </div>
         </div>
         <div class="mcv2-expand">
@@ -1059,6 +1067,25 @@
     const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const totalDaysWithMeals = Object.values(plans).filter(p => p && p.meals && p.meals.length > 0).length;
     const container = document.getElementById('weekViewContainer');
+    if (!container.dataset.delegated) {
+      container.dataset.delegated = '1';
+      container.addEventListener('click', (e) => {
+        const popupBtn = e.target.closest('[data-action="show-meal-popup"]');
+        if (popupBtn) {
+          showWeekMealPopup(e, popupBtn.dataset.date, Number(popupBtn.dataset.idx));
+          return;
+        }
+        const genBtn = e.target.closest('[data-action="generate-day"]');
+        if (genBtn) {
+          switchToDayAndGenerate(genBtn.dataset.date);
+          return;
+        }
+        const dayCol = e.target.closest('[data-action="switch-day"]');
+        if (dayCol) {
+          switchToDay(dayCol.dataset.date);
+        }
+      });
+    }
     const todayStr = new Date().toISOString().split('T')[0];
     const goalCals = profile?.dailyCalories || 2000;
     const days = [];
@@ -1097,17 +1124,17 @@
         </div>` : '';
 
       const mealChips = meals.map((m, mi) =>
-        `<span class="week-meal-chip ${m.type}" title="${m.name}"
-          onclick="event.stopPropagation();showWeekMealPopup(event,'${dateStr}',${mi})"
-          style="cursor:pointer;">${m.name}</span>`
+        `<span class="week-meal-chip ${m.type}" title="${escHtml(m.name)}"
+          data-action="show-meal-popup" data-date="${dateStr}" data-idx="${mi}"
+          style="cursor:pointer;">${escHtml(m.name)}</span>`
       ).join('');
 
       const generateBtn = meals.length === 0
-        ? `<button class="week-generate-btn" onclick="event.stopPropagation();switchToDayAndGenerate('${dateStr}')">+ Generate</button>`
+        ? `<button class="week-generate-btn" data-action="generate-day" data-date="${dateStr}">+ Generate</button>`
         : '';
 
       return `
-        <div class="week-day-col${isToday ? ' today' : ''}" onclick="switchToDay('${dateStr}')"
+        <div class="week-day-col${isToday ? ' today' : ''}" data-action="switch-day" data-date="${dateStr}"
           style="display:flex;flex-direction:column;min-height:120px;">
           <div class="week-day-label">${dayNames[idx]}</div>
           <div class="week-day-date">${d.getDate()}</div>
