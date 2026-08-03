@@ -971,15 +971,15 @@
       <span class="macro-pill">${ICO.zap} ${meal.protein}g protein</span>
       <span class="macro-pill">${ICO.grain} ${meal.carbs}g carbs</span>
       <span class="macro-pill">${ICO.drop} ${meal.fat}g fat</span>
-      ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${meal.cookTime} min</span>` : ''}
+      ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${escHtml(meal.cookTime)} min</span>` : ''}
     `;
     const ingList = meal.ingredients || [];
     document.getElementById('modalIngredients').innerHTML = ingList.map(ing =>
-      `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` · ${getCurrencySymbol(profile.currency)}${ing.cost.toFixed(2)}` : ''}</span></li>`
+      `<li><span>${escHtml(ing.name)}</span><span class="text-muted">${escHtml(ing.amount)}${ing.cost ? ` · ${getCurrencySymbol(profile.currency)}${ing.cost.toFixed(2)}` : ''}</span></li>`
     ).join('');
     const instList = meal.instructions || [];
     document.getElementById('modalInstructions').innerHTML = instList.map(step =>
-      `<li>${step}</li>`
+      `<li>${escHtml(step)}</li>`
     ).join('');
     document.getElementById('recipeModal').classList.add('open');
   }

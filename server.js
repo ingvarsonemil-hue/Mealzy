@@ -1805,23 +1805,6 @@ app.get('/api/referral-capture', async (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/referral-status', async (req, res) => {
-  const { email } = req.query;
-  if (!isValidEmail(email)) return res.status(400).json({ error: 'email required' });
-  const ip = clientIp(req);
-  const usage         = getUsage(ip);
-  const effectiveLimit = await getEffectiveLimit(email);
-
-  // Get SQLite-persisted referral count (survives restarts)
-  let referralCount = referralBonus.get(email) || 0;
-  try {
-    const dbCount = await db.getReferralCount(email);
-    if (dbCount > referralCount) referralCount = dbCount;
-  } catch(e) { /* non-fatal */ }
-
-  res.json(OutputShapes.ReferralStatus(referralCount, effectiveLimit, usage.count));
-});
-
 // ════════════════════════════════════════════════════════════════════════════
 // EMAIL LEADS
 // ════════════════════════════════════════════════════════════════════════════

@@ -11,6 +11,11 @@ const EXTRACT_PROMPT =
 const VALID_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
+function sanitise(val, maxLen = 500) {
+  if (typeof val !== 'string') return '';
+  return val.trim().slice(0, maxLen);
+}
+
 module.exports = function registerRecipeRoutes(app, { anthropic, requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap }) {
 
   // POST /api/recipes/import-photo — Pro only, vision extraction, image never stored
@@ -83,9 +88,21 @@ module.exports = function registerRecipeRoutes(app, { anthropic, requireSession,
       return res.status(400).json({ error: 'recipe object required' });
     }
 
+    const safeRecipe = {
+      name:               sanitise(recipe.name, 120),
+      servings:           Number(recipe.servings) || 0,
+      ingredients: (Array.isArray(recipe.ingredients) ? recipe.ingredients : []).slice(0, 30).map(ing => ({
+        name:   sanitise(ing?.name, 100),
+        amount: sanitise(ing?.amount, 50),
+      })),
+      instructions: (Array.isArray(recipe.instructions) ? recipe.instructions : []).slice(0, 20).map(step => sanitise(step, 300)),
+      estimatedCalories: Number(recipe.estimatedCalories) || 0,
+      estimatedProtein:  Number(recipe.estimatedProtein)  || 0,
+    };
+
     try {
       const id = randomUUID();
-      await db.saveRecipe(id, req.session.userId, recipe);
+      await db.saveRecipe(id, req.session.userId, safeRecipe);
       await db.logEvent('recipe_imported', { userId: req.session.userId }, '');
       res.json({ success: true, id });
     } catch (err) {

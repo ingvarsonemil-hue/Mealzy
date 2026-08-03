@@ -26,7 +26,6 @@
     "jsonwebtoken": "^9.0.3",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "sql.js": "^1.14.1",
     "stripe": "^22.1.1",
     "tailwind-merge": "^3.6.0",
     "twitter-api-v2": "^1.29.0",
