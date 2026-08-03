@@ -108,7 +108,7 @@ export default function PlanCards({ mode }) {
       <PlanCard
         name="Pro"
         tag="For people who plan every week."
-        price={yearly ? '$5.17' : '$8'}
+        price={yearly ? '$5' : '$8'}
         billed={yearly ? 'Billed $62/year — save $34 vs monthly' : ''}
         popular
         features={PRO_FEATURES}
