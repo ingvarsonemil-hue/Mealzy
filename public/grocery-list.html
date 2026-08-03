@@ -735,8 +735,8 @@
             ${items.map((item, idx) => `
               <div class="grocery-item ${item.checked ? 'checked' : ''}" id="item-${catKey}-${idx}">
                 <input type="checkbox" ${item.checked ? 'checked' : ''} aria-checked="${item.checked ? 'true' : 'false'}" onchange="toggleItem('${catKey}', ${idx}, this.checked)" />
-                <span class="grocery-item-name">${item.name}</span>
-                <span class="grocery-item-qty">${item.amount || ''}</span>
+                <span class="grocery-item-name">${escHtml(item.name)}</span>
+                <span class="grocery-item-qty">${escHtml(item.amount || '')}</span>
                 ${item.cost ? `<span class="grocery-item-cost">${sym}${item.cost.toFixed(2)}</span>` : ''}
               </div>`).join('')}
           </div>

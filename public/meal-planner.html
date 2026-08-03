@@ -773,7 +773,7 @@
           <div class="expandable" id="ingredients${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ul class="ingredients-list">
               ${(meal.ingredients || []).map(ing =>
-                `<li><span>${ing.name}</span><span class="text-muted">${ing.amount}${ing.cost ? ` &middot; $${ing.cost.toFixed(2)}` : ''}</span></li>`
+                `<li><span>${escHtml(ing.name)}</span><span class="text-muted">${escHtml(ing.amount)}${ing.cost ? ` &middot; $${ing.cost.toFixed(2)}` : ''}</span></li>`
               ).join('')}
             </ul>
           </div>
@@ -783,7 +783,7 @@
           </button>
           <div class="expandable" id="instructions${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ol class="instructions-list">
-              ${(meal.instructions || []).map(step => `<li>${step}</li>`).join('')}
+              ${(meal.instructions || []).map(step => `<li>${escHtml(step)}</li>`).join('')}
             </ol>
           </div>
         </div>
