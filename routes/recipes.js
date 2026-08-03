@@ -11,13 +11,14 @@ const EXTRACT_PROMPT =
 const VALID_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const BASE64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 
-module.exports = function registerRecipeRoutes(app, { anthropic, requireSession, generateLimiter, db, callAnthropicWithSpendCap }) {
+module.exports = function registerRecipeRoutes(app, { anthropic, requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap }) {
 
   // POST /api/recipes/import-photo — Pro only, vision extraction, image never stored
   app.post(
     '/api/recipes/import-photo',
     generateLimiter,
     requireSession,
+    requireVerifiedEmail,
     express.json({ limit: '8mb' }),
     async (req, res) => {
     // Fresh DB lookup — never trust JWT payload for Pro gate

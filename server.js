@@ -364,6 +364,24 @@ async function requireSession(req, res, next) {
   next();
 }
 
+async function requireVerifiedEmail(req, res, next) {
+  if (!req.session) return res.status(401).json({ error: 'not_authenticated' });
+  try {
+    const user = await db.getUserById(req.session.userId);
+    if (!user) return res.status(401).json({ error: 'user_not_found' });
+    if (!user.email_verified) {
+      return res.status(403).json({
+        error: 'email_not_verified',
+        message: 'Please verify your email to use this feature. Check your inbox, or resend the link from your account settings.'
+      });
+    }
+    next();
+  } catch(err) {
+    logger.error('[verify-gate] lookup error', { message: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+}
+
 async function optionalSession(req, res, next) {
   req.session = null;
   const decoded = getSessionFromReq(req);
@@ -699,6 +717,17 @@ function emailAccountExists(name) {
   `);
 }
 
+function emailVerifyAddress(name, verifyUrl) {
+  const safeName = escapeHtml(name || 'there');
+  const safeUrl = escapeHtml(verifyUrl);
+  return emailBase(`
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Verify your email</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, welcome to Mealzy! Please verify your email to unlock AI meal plans, grocery lists, and the coach. This link expires in 24 hours.</p>
+    <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Verify My Email →</a>
+    <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
+  `);
+}
+
 function emailDay3Nudge(name, plansLeft) {
   const safeName = escapeHtml(name || 'there');
   return emailBase(`
@@ -821,6 +850,14 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
     const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
     try { await db.setUserRefCode(userId, refCode); } catch(e) {}
     try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
+
+    const rawVerifyToken = randomUUID();
+    const verifyTokenHash = require('crypto').createHash('sha256').update(rawVerifyToken).digest('hex');
+    const verifyExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    try { await db.createVerificationToken(verifyTokenHash, userId, verifyExpiresAt); } catch(e) {}
+    const verifyHost = process.env.APP_URL || 'https://mealzy.org';
+    const verifyUrl = `${verifyHost}/verify-email.html?token=${rawVerifyToken}`;
+    sendEmail(email, 'Verify your email — Mealzy', emailVerifyAddress(name, verifyUrl)).catch(() => {});
 
     await db.logEvent('signup', { userId }, '');
 
@@ -998,6 +1035,51 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
     res.json({ success: true, message: 'Password updated. You can now sign in with your new password.' });
   } catch(err) {
     console.error('Reset confirm error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/auth/verify-email
+app.post('/api/auth/verify-email', authLimiter, async (req, res) => {
+  try {
+    const token = sanitise(req.body.token, 36);
+    if (!token) return res.status(400).json({ error: 'token_required' });
+    const tokenHash = require('crypto').createHash('sha256').update(token).digest('hex');
+    const record = await db.getVerificationToken(tokenHash);
+    if (!record) {
+      return res.status(400).json({ error: 'invalid_token', message: "This link doesn't work anymore." });
+    }
+    if (new Date(record.expires_at) < new Date()) {
+      await db.markVerificationTokenUsed(tokenHash);
+      return res.status(400).json({ error: 'expired_token', message: 'This link has expired. Request a new one from your account.' });
+    }
+    await db.markEmailVerified(record.user_id);
+    await db.markVerificationTokenUsed(tokenHash);
+    res.json({ success: true, message: 'Your email has been verified.' });
+  } catch(err) {
+    console.error('Verify email error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/auth/resend-verification
+app.post('/api/auth/resend-verification', authLimiter, requireSession, async (req, res) => {
+  try {
+    const user = await db.getUserById(req.session.userId);
+    if (!user) return res.status(404).json({ error: 'user_not_found' });
+    if (user.email_verified) {
+      return res.json({ success: true, message: 'Your email is already verified.' });
+    }
+    const rawToken = randomUUID();
+    const tokenHash = require('crypto').createHash('sha256').update(rawToken).digest('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    await db.createVerificationToken(tokenHash, user.id, expiresAt);
+    const host = process.env.APP_URL || 'https://mealzy.org';
+    const verifyUrl = `${host}/verify-email.html?token=${rawToken}`;
+    sendEmail(user.email, 'Verify your email — Mealzy', emailVerifyAddress(user.name, verifyUrl)).catch(() => {});
+    res.json({ success: true, message: 'Verification email sent — check your inbox.' });
+  } catch(err) {
+    console.error('Resend verification error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
@@ -1775,6 +1857,18 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
 
     // ── Freemium gate: server-side pro check is authoritative ─────────────
     const session = req.session;
+
+    let sessionUser = null;
+    if (session) {
+      sessionUser = await db.getUserById(session.userId);
+      if (sessionUser && !sessionUser.email_verified) {
+        return res.status(403).json({
+          error: 'email_not_verified',
+          message: 'Please verify your email to generate plans. Check your inbox, or resend the link from your account settings.'
+        });
+      }
+    }
+
     const PRO_TOKEN = process.env.PRO_TOKEN || '';
     let isPro = !!(
       PRO_TOKEN.length >= 32 &&
@@ -1784,8 +1878,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
 
     if (!isPro && session) {
       // Re-query DB — the JWT payload may be stale if Pro was just activated
-      const dbUser = await db.getUserById(session.userId);
-      isPro = dbUser?.pro === 1;
+      isPro = sessionUser?.pro === 1;
     }
     if (!swap_meal_type && !isPro) {
       const ip = clientIp(req);
@@ -2278,7 +2371,7 @@ const groceryLimiter = rateLimit({
 
 const GROCERY_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 
-app.post('/api/generate-grocery-list', requireGrocerySession, groceryLimiter, async (req, res) => {
+app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEmail, groceryLimiter, async (req, res) => {
   try {
     const session = req.grocerySession;
 
@@ -2414,7 +2507,7 @@ async function routeCoachLimiter(req, res, next) {
   return (req.coachIsPro ? coachLimiterPro : coachLimiterFree)(req, res, next);
 }
 
-app.post('/api/ai-coach', requireCoachAuth, routeCoachLimiter, async (req, res) => {
+app.post('/api/ai-coach', requireCoachAuth, requireVerifiedEmail, routeCoachLimiter, async (req, res) => {
   try {
     const session = req.coachSession;
     const isCoachPro = req.coachIsPro;
@@ -2785,7 +2878,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
 });
 
 // ── Recipe routes (photo import, save, list) ──────────────────────────────
-require('./routes/recipes')(app, { anthropic, requireSession, generateLimiter, db, callAnthropicWithSpendCap });
+require('./routes/recipes')(app, { anthropic, requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap });
 
 // ── Blog routes ────────────────────────────────────────────────────────────
 app.get('/blog', (req, res) => {
