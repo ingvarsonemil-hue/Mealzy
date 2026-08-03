@@ -161,7 +161,7 @@ function renderPlan(plan, shareId) {
     const dayCost  = dayMeals.reduce((s, m) => s + (m.estimatedCost || 0), 0);
     return `<div class="splan-day">
       <header>
-        <span>${day}</span>
+        <span>${escHtml(day)}</span>
         <span class="day-cost">~$${dayCost.toFixed(2)}</span>
       </header>
       ${dayMeals.map(m => `

@@ -179,6 +179,8 @@ if (hasDistBuild) {
       }
     }
   }));
+} else {
+  logger.error('[startup] dist/ build missing — serving legacy public/ pages. Run npm run build.');
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -2550,18 +2552,47 @@ app.get('/api/share-card/:userId', async (req, res) => {
 // SHAREABLE MEAL PLANS — public, no login
 // ════════════════════════════════════════════════════════════════════════════
 
+const PLAN_SHARE_DAYS = new Set([
+  'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday',
+  'Today','Unspecified'
+]);
+
 // POST /api/plans/share — generate a shareable link for a plan
 app.post('/api/plans/share', requireSession, async (req, res) => {
   const session = req.session;
 
   const { plan, date, title } = req.body;
-  if (!plan) return res.status(400).json({ error: 'plan required' });
+  if (!plan || typeof plan !== 'object') {
+    return res.status(400).json({ error: 'plan required' });
+  }
+
+  const meals = (Array.isArray(plan.meals) ? plan.meals : []).slice(0, 50).map(m => ({
+    day:           PLAN_SHARE_DAYS.has(m?.day) ? m.day : 'Unspecified',
+    type:          sanitise(m?.type, 20),
+    name:          sanitise(m?.name, 120),
+    description:   sanitise(m?.description, 300),
+    calories:      Number(m?.calories)      || 0,
+    protein:       Number(m?.protein)       || 0,
+    cookTime:      Number(m?.cookTime)      || 0,
+    estimatedCost: Number(m?.estimatedCost) || 0,
+  }));
+  if (meals.length === 0) {
+    return res.status(400).json({ error: 'plan.meals required' });
+  }
+
+  const safeTitle = sanitise(title, 200);
+  const safeDate  = sanitise(date, 20);
 
   const shareId = require('crypto').randomBytes(5).toString('hex'); // 8 chars, e.g. "a1b2c3d4"
   const planId  = randomUUID();
 
   try {
-    await db.saveShareLink(shareId, planId, session.userId, { plan, date, title, sharedAt: new Date().toISOString() });
+    await db.saveShareLink(shareId, planId, session.userId, {
+      plan: { ...plan, meals },
+      date: safeDate,
+      title: safeTitle,
+      sharedAt: new Date().toISOString()
+    });
     await db.logEvent('plan_shared', { shareId }, '');
     const shareUrl = `${process.env.APP_URL || 'https://mealzy.org'}/plan.html?id=${shareId}`;
     res.json({ success: true, shareId, shareUrl });
