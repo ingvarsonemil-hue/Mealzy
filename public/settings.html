@@ -1105,9 +1105,21 @@
     document.getElementById('resetModal').classList.remove('open');
   }
 
-  function confirmReset() {
-    localStorage.clear();
-    window.location.href = 'onboarding.html';
+  async function confirmReset() {
+    try {
+      const res = await fetch('/api/account', { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) {
+        closeResetModal();
+        showToast(data.message || 'Could not delete account. Please try again.', 'error');
+        return;
+      }
+      localStorage.clear();
+      window.location.href = 'login.html';
+    } catch (err) {
+      closeResetModal();
+      showToast('Could not connect. Please check your connection and try again.', 'error');
+    }
   }
 
   function showToast(msg, type = '') {

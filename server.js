@@ -778,7 +778,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
     try { await db.setUserRefCode(userId, refCode); } catch(e) {}
     try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
 
-    await db.logEvent('signup', { email }, '');
+    await db.logEvent('signup', { userId }, '');
 
     setJwtCookie(res, buildSessionPayload({ id: userId, email, pro: false, token_version: 0 }));
     res.json({ success: true, user: { id: userId, name, email, pro: false, ref_code: refCode } });
@@ -1027,11 +1027,11 @@ app.get('/auth/google/callback', async (req, res) => {
       const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
       try { await db.setUserRefCode(newId, refCode); } catch(e) {}
       try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), newId]); } catch(e) {}
-      await db.logEvent('signup_google', { email }, '');
+      await db.logEvent('signup_google', { userId: newId }, '');
       user = await db.getUserById(newId);
     } else if (!user.google_id) {
       await db.linkGoogleId(user.id, googleId);
-      await db.logEvent('google_linked', { email }, '');
+      await db.logEvent('google_linked', { userId: user.id }, '');
     }
 
     setJwtCookie(res, buildSessionPayload(user));
@@ -1284,7 +1284,7 @@ app.post('/api/pro/activate', stripeLimiter, requireSession, async (req, res) =>
   }
 
   await db.setUserPro(session.userId);
-  await db.logEvent('pro_activated', { email: session.email, source: 'pro_welcome_verified' }, '');
+  await db.logEvent('pro_activated', { userId: session.userId, source: 'pro_welcome_verified' }, '');
   user.pro = 1; // reflect the update just made — `user` was fetched before setUserPro
   setJwtCookie(res, buildSessionPayload(user, session.loginAt));
   res.json({ success: true, pro: true });
@@ -1323,14 +1323,51 @@ app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, 
     const sub = subscriptions.data[0];
     await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true });
 
-    await db.logEvent('cancel_survey', { email: user.email, reason, detail }, '');
-    logger.info(`[cancel] ${user.email} — reason: ${reason}`);
+    await db.logEvent('cancel_survey', { userId: user.id, reason, detail }, '');
+    logger.info(`[cancel] ${user.id} — reason: ${reason}`);
 
     const cancelAt = new Date(sub.current_period_end * 1000).toISOString().split('T')[0];
     res.json({ success: true, cancel_at: cancelAt });
   } catch (e) {
     logger.error('[cancel-subscription] error:', e.message);
     res.status(500).json({ error: 'cancel_failed', message: 'Failed to cancel subscription. Please try again or email support@mealzy.org.' });
+  }
+});
+
+// ── DELETE /api/account ───────────────────────────────────────────────────
+// Permanently deletes the user's account and all associated data (GDPR erasure).
+app.delete('/api/account', authLimiter, requireSession, async (req, res) => {
+  const session = req.session;
+  const user = await db.getUserById(session.userId);
+  if (!user) return res.status(404).json({ error: 'user_not_found' });
+
+  if (user.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      const subscriptions = await stripe.subscriptions.list({
+        customer: user.stripe_customer_id,
+        status:   'active',
+        limit:    1
+      });
+      if (subscriptions.data.length > 0) {
+        return res.status(409).json({
+          error: 'active_subscription',
+          message: 'Please cancel your Pro subscription before deleting your account.'
+        });
+      }
+    } catch (e) {
+      logger.error('[delete-account] Stripe check error:', e.message);
+      return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+  }
+
+  try {
+    await db.deleteUserAccount(user.id, user.email);
+    clearJwtCookie(res);
+    res.json({ success: true });
+  } catch (e) {
+    logger.error('[delete-account] deletion error:', e.message);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
 
@@ -1368,9 +1405,9 @@ app.post('/api/nps/submit', requireSession, async (req, res) => {
     const user = await db.getUserById(session.userId);
     if (!user) return res.status(404).json({ error: 'user_not_found' });
 
-    await db.logEvent('nps_response', { email: user.email, score, comment }, '');
+    await db.logEvent('nps_response', { userId: user.id, score, comment }, '');
     await db.run('UPDATE users SET nps_submitted_at = datetime(\'now\') WHERE id = ?', [user.id]);
-    logger.info(`[nps] ${user.email} — score: ${score}`);
+    logger.info(`[nps] ${user.id} — score: ${score}`);
 
     res.json({ success: true });
   } catch (e) {
@@ -1416,7 +1453,7 @@ async function handleStripeWebhook(req, res) {
       if (user) {
         await db.setUserPro(user.id);
         if (customerId) try { await db.setStripeCustomerId(user.id, customerId); } catch(e) {}
-        await db.logEvent('pro_activated', { email, source: 'stripe_webhook' }, '');
+        await db.logEvent('pro_activated', { userId: user.id, source: 'stripe_webhook' }, '');
         logger.info(`[stripe] Pro activated — userId: ${user ? user.id : 'unknown'}`);
 
       } else {
@@ -1438,7 +1475,7 @@ async function handleStripeWebhook(req, res) {
           const proUntil = user.pro_until ? new Date(user.pro_until) : null;
           if (!proUntil || proUntil < new Date()) {
             await db.removeUserPro(user.id);
-            await db.logEvent('pro_removed', { email: user.email, reason: event.type }, '');
+            await db.logEvent('pro_removed', { userId: user.id, reason: event.type }, '');
             logger.info(`[stripe] Pro removed — userId: ${user.id}, event: ${event.type}`);
           }
         } else {
@@ -1466,8 +1503,8 @@ app.post('/api/admin/grant-pro', adminLimiter, requireAdmin, async (req, res) =>
     const user = await db.getUserByEmail(email.trim().toLowerCase());
     if (!user) return res.status(404).json({ error: 'No user found with that email' });
     await db.setUserPro(user.id);
-    await db.logEvent('pro_granted_admin', { email: user.email }, '');
-    logger.info(`[admin] Pro granted to ${user.email}`);
+    await db.logEvent('pro_granted_admin', { userId: user.id }, '');
+    logger.info(`[admin] Pro granted — userId: ${user.id}`);
     res.json({ success: true, message: `Pro activated for ${user.email}` });
   } catch(e) {
     logger.error('[admin grant-pro]', e);
@@ -1608,7 +1645,7 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
   const current = referralBonus.get(referrer.email) || 0;
   referralBonus.set(referrer.email, current + 1);
 
-  await db.logEvent('referral_signup', { referrer: referrer.email, new_user: session.email }, '');
+  await db.logEvent('referral_signup', { referrerId: referrer.id, newUserId: session.userId }, '');
   res.json({ ok: true, bonus_plans: current + 1 });
 });
 
@@ -1617,9 +1654,14 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
 app.get('/api/referral-capture', async (req, res) => {
   const { ref, ip: queryIp } = req.query;
   let resolvedRef = ref;
+  let referrerId = null;
   if (typeof ref === 'string' && ref.startsWith('ref_')) {
     const referrer = await db.getUserByRefCode(ref);
     resolvedRef = referrer ? referrer.email : null;
+    referrerId = referrer ? referrer.id : null;
+  } else if (typeof ref === 'string' && isValidEmail(ref)) {
+    const referrer = await db.getUserByEmail(ref.toLowerCase());
+    referrerId = referrer ? referrer.id : null;
   }
   if (!isValidEmail(resolvedRef)) return res.json({ ok: false });
   const ip = clientIp(req) || queryIp || '';
@@ -1627,7 +1669,7 @@ app.get('/api/referral-capture', async (req, res) => {
     const { randomUUID } = require('crypto');
     await db.saveReferral(randomUUID(), resolvedRef, ip.slice(-16), '');
   } catch(e) { /* non-fatal */ }
-  await db.logEvent('referral_visit', { ref: resolvedRef }, ip.slice(-8));
+  await db.logEvent('referral_visit', referrerId ? { referrerId } : {}, ip.slice(-8));
   res.json({ ok: true });
 });
 

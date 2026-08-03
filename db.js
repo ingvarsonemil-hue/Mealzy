@@ -407,6 +407,25 @@ async function removeUserPro(userId) {
   await run('UPDATE users SET pro = 0, pro_until = NULL WHERE id = ?', [userId]);
 }
 
+async function deleteUserAccount(userId, email) {
+  const lowerEmail = (email || '').toLowerCase().trim();
+  await _client.batch([
+    { sql: 'DELETE FROM profiles WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM plans WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM grocery_lists WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM recipes WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM family_profiles WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM share_links WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM coach_usage WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM reset_tokens WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM leads WHERE email = ?', args: [lowerEmail] },
+    { sql: 'DELETE FROM email_queue WHERE to_email = ?', args: [lowerEmail] },
+    { sql: 'DELETE FROM referrals WHERE referrer_email = ? OR referred_email = ?', args: [lowerEmail, lowerEmail] },
+    { sql: "DELETE FROM analytics WHERE data LIKE '%' || ? || '%'", args: [lowerEmail] },
+    { sql: 'DELETE FROM users WHERE id = ?', args: [userId] },
+  ], 'write');
+}
+
 async function getUsersNeedingNudge() {
   return all(`
     SELECT id, name, email FROM users
@@ -603,7 +622,7 @@ module.exports = {
   // users
   createUser, getUserByEmail, getUserById, getUserByGoogleId, createUserGoogle, linkGoogleId,
   setUserPro, updatePassword, getAllUsers, bumpTokenVersion,
-  removeUserPro, setStripeCustomerId, setUserProUntil,
+  removeUserPro, setStripeCustomerId, setUserProUntil, deleteUserAccount,
   // ref codes
   setUserRefCode, getUserByRefCode,
   // nurture
