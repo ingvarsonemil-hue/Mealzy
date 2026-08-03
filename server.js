@@ -2266,7 +2266,7 @@ app.post('/api/generate-grocery-list', requireGrocerySession, groceryLimiter, as
           }
         }
         if (!planId) planId = randomUUID();
-        await db.deleteGroceryListForPlanDay(planId, day);
+        await db.deleteGroceryListForPlanDay(planId, day, session.userId);
         await db.saveGroceryList(randomUUID(), session.userId, planId, day, groceryList);
       } else {
         planId = randomUUID();
@@ -2695,7 +2695,7 @@ app.post('/api/cron/day3-nudge', cronLimiter, async (req, res) => {
     res.json({ ok: true, sent, total: users.length });
   } catch(err) {
     console.error('[cron/day3-nudge] error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'cron_failed' });
   }
 });
 
@@ -2708,7 +2708,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
     for (const user of users) {
       const result = await sendEmail(
         user.email,
-        'New week — generate your meal plan in 30 seconds 🥗',
+        'New week — generate your meal plan in 30 seconds',
         emailWeeklyDigest(user.name, user.pro === 1)
       );
       if (result.ok) sent++;
@@ -2718,7 +2718,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
     res.json({ ok: true, sent, total: users.length });
   } catch(err) {
     console.error('[cron/weekly-digest] error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'cron_failed' });
   }
 });
 
