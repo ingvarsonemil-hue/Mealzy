@@ -135,6 +135,13 @@ async function _applySchema() {
     try { await _client.execute(sql); } catch(e) { /* column already exists */ }
   }
 
+  const indexes = [
+    `CREATE INDEX IF NOT EXISTS idx_grocery_user_plan_day ON grocery_lists(user_id, plan_id, day)`,
+  ];
+  for (const sql of indexes) {
+    try { await _client.execute(sql); } catch(e) { /* index already exists */ }
+  }
+
   try {
     await _client.execute(`UPDATE users SET signup_date = created_at WHERE signup_date IS NULL`);
   } catch(e) {}
@@ -586,8 +593,11 @@ async function getGroceryListsForPlan(planId) {
   }));
 }
 
-async function deleteGroceryListForPlanDay(planId, day) {
-  await run('DELETE FROM grocery_lists WHERE plan_id = ? AND day = ?', [planId, day]);
+async function deleteGroceryListForPlanDay(planId, day, userId) {
+  await run(
+    'DELETE FROM grocery_lists WHERE plan_id = ? AND day = ? AND user_id = ?',
+    [planId, day, userId]
+  );
 }
 
 async function getGroceryListByDay(planId, day) {
