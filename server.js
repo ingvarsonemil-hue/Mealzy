@@ -576,6 +576,44 @@ if (!_anthropicKey) logger.warn('[WARN] ANTHROPIC_API_KEY is not set — AI feat
 else logger.info('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + ')');
 const anthropic = new Anthropic({ apiKey: _anthropicKey });
 
+const DAILY_SPEND_CAP_USD = Number(process.env.DAILY_SPEND_CAP_USD) || 5;
+// claude-haiku-4-5-20251001 pricing, confirmed current as of this session:
+// $1.00 / million input tokens, $5.00 / million output tokens.
+// Cache-read/cache-creation tokens are billed cheaper by Anthropic, but
+// we deliberately count them at the full input rate here — this is a
+// safety backstop, not a billing reconciliation, so it's correct to
+// slightly OVERestimate real spend rather than risk underestimating it.
+const HAIKU_INPUT_COST_PER_TOKEN = 1 / 1_000_000;
+const HAIKU_OUTPUT_COST_PER_TOKEN = 5 / 1_000_000;
+
+// Known limitation: under high concurrency, multiple simultaneous requests
+// could all pass the pre-check before any of them records its spend,
+// allowing a small overshoot right at the cap boundary. Acceptable for a
+// safety backstop at this traffic scale — not worth adding transaction
+// locking for.
+async function callAnthropicWithSpendCap(params) {
+  const currentSpend = await db.getDailySpend();
+  if (currentSpend >= DAILY_SPEND_CAP_USD) {
+    logger.error('[spend-cap] Daily Anthropic spend cap reached — blocking call', {
+      currentSpend, cap: DAILY_SPEND_CAP_USD
+    });
+    const err = new Error('daily_spend_cap_reached');
+    err.spendCapReached = true;
+    throw err;
+  }
+  const completion = await anthropic.messages.create(params);
+  const usage = completion.usage || {};
+  const inputTokens = (usage.input_tokens || 0)
+    + (usage.cache_creation_input_tokens || 0)
+    + (usage.cache_read_input_tokens || 0);
+  const outputTokens = usage.output_tokens || 0;
+  const cost = (inputTokens * HAIKU_INPUT_COST_PER_TOKEN) + (outputTokens * HAIKU_OUTPUT_COST_PER_TOKEN);
+  db.addDailySpend(cost).catch(err => {
+    logger.error('[spend-cap] failed to record spend (non-fatal)', { message: err.message });
+  });
+  return completion;
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // EMAIL UTILITY (Resend API — set RESEND_API_KEY in Render env vars)
 // ════════════════════════════════════════════════════════════════════════════
@@ -1198,7 +1236,7 @@ Respond ONLY with valid JSON, no markdown, no extra text:
   "avgDailyCalories": number
 }`;
 
-    const completion = await anthropic.messages.create({
+    const completion = await callAnthropicWithSpendCap({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 3500,
       system: [{ type: 'text', text: 'You are a meal planning API. Always respond with valid JSON only. No markdown fences, no explanations.', cache_control: { type: 'ephemeral' } }],
@@ -1219,6 +1257,12 @@ Respond ONLY with valid JSON, no markdown, no extra text:
     res.json({ success: true, plan });
 
   } catch(err) {
+    if (err.spendCapReached) {
+      return res.status(503).json({
+        error: 'service_temporarily_unavailable',
+        message: 'AI features are temporarily paused due to high demand. Please try again later.'
+      });
+    }
     console.error('[demo-meal] error:', err);
     res.status(500).json({ error: 'Failed to generate demo. Please try again.' });
   }
@@ -1924,7 +1968,7 @@ LANGUAGE: All meal name, description, and ingredient names MUST be in ${language
 Respond ONLY with valid JSON matching this exact schema (no markdown, no extra text):
 ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_meal_type}"`)}`;
 
-      const completion = await anthropic.messages.create({
+      const completion = await callAnthropicWithSpendCap({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 900,
         system: [{ type: 'text', text: 'You are a professional nutritionist and chef. Always respond with valid JSON only, no markdown fences, no explanation. Never include ingredients that violate dietary restrictions or allergies.', cache_control: { type: 'ephemeral' } }],
@@ -2017,7 +2061,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     const _sysBlocks = [{ type: 'text', text: _baseSys, cache_control: { type: 'ephemeral' } }];
     if (dietaryBlock) _sysBlocks.push({ type: 'text', text: `CRITICAL: ${activeDietRules.split('\n')[0]}` });
 
-    const completion = await anthropic.messages.create({
+    const completion = await callAnthropicWithSpendCap({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: isPro ? 6000 : 4000,
       system: _sysBlocks,
@@ -2036,7 +2080,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     } catch(parseErr) {
       // Retry once with a simpler prompt
       console.warn('[meal] Parse failed, retrying with explicit JSON request...');
-      const retryCompletion = await anthropic.messages.create({
+      const retryCompletion = await callAnthropicWithSpendCap({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 3000,
         system: [{ type: 'text', text: 'You are a JSON API. Output only valid JSON, nothing else.', cache_control: { type: 'ephemeral' } }],
@@ -2131,6 +2175,12 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     }
 
   } catch(error) {
+    if (error.spendCapReached) {
+      return res.status(503).json({
+        error: 'service_temporarily_unavailable',
+        message: 'AI features are temporarily paused due to high demand. Please try again later.'
+      });
+    }
     console.error('Error generating meal plan:', error);
     res.status(500).json({
       error: 'Something went wrong. Please try again.',
@@ -2182,7 +2232,7 @@ async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
 
   const prompt = `Generate a complete grocery list for the following meals:\n\n${mealList}\n\n${prefInfo}\n${allergyInfo}\n${dayLine}\nBudget: ${currency} ${budget}. Keep total cost at or under this amount.\nWrite all ingredient names in ${langName}. JSON keys stay in English.\nConsolidate duplicate ingredients. Group by category.\n\nRespond ONLY with valid JSON:\n{\n  "weekStart": "${weekStart || ''}",\n  "totalCost": 85.50,\n  "budgetAmount": ${budget},\n  "currency": "${currency}",\n  "categories": {\n    "produce": [{ "name": "Spinach", "amount": "200g", "cost": 2.50, "checked": false, "day": "${exampleDay}" }],\n    "protein": [],\n    "dairy": [],\n    "grains": [],\n    "pantry": [],\n    "frozen": [],\n    "beverages": [],\n    "other": []\n  }\n}`;
 
-  const completion = await anthropic.messages.create({
+  const completion = await callAnthropicWithSpendCap({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
     system: 'You are a professional nutritionist. Always respond with valid JSON only, no markdown.',
@@ -2282,6 +2332,12 @@ app.post('/api/generate-grocery-list', requireGrocerySession, groceryLimiter, as
     res.json({ success: true, groceryList, ...(planId ? { planId } : {}) });
 
   } catch(error) {
+    if (error.spendCapReached) {
+      return res.status(503).json({
+        error: 'service_temporarily_unavailable',
+        message: 'AI features are temporarily paused due to high demand. Please try again later.'
+      });
+    }
     console.error('Error generating grocery list:', error);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
@@ -2419,7 +2475,7 @@ Respond in ${coachLangName}.`;
       return msg;
     });
 
-    const completion = await anthropic.messages.create({
+    const completion = await callAnthropicWithSpendCap({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: isCoachPro ? 600 : 300,
       system: [
@@ -2435,6 +2491,12 @@ Respond in ${coachLangName}.`;
     res.json({ success: true, message: { role: 'assistant', content: completion.content[0].text, timestamp: new Date().toISOString() } });
 
   } catch(error) {
+    if (error.spendCapReached) {
+      return res.status(503).json({
+        error: 'service_temporarily_unavailable',
+        message: 'AI features are temporarily paused due to high demand. Please try again later.'
+      });
+    }
     log.error('[coach] Anthropic error:', { message: error.message, status: error.status });
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
@@ -2723,7 +2785,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
 });
 
 // ── Recipe routes (photo import, save, list) ──────────────────────────────
-require('./routes/recipes')(app, { anthropic, requireSession, generateLimiter, db });
+require('./routes/recipes')(app, { anthropic, requireSession, generateLimiter, db, callAnthropicWithSpendCap });
 
 // ── Blog routes ────────────────────────────────────────────────────────────
 app.get('/blog', (req, res) => {
