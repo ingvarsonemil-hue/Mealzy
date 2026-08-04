@@ -57,7 +57,7 @@ function MealCard({ meal }) {
 
 /* Floating bar for small screens, revealed once the hero has scrolled away and
  * pulled back before the footer so it never sits on top of it. */
-function MobileCta() {
+function MobileCta({ onStartPlan }) {
   const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
@@ -89,7 +89,18 @@ function MobileCta() {
         show ? 'translate-y-0' : 'translate-y-full'
       )}
     >
-      <Button href="login.html?signup=1" full size="lg" tabIndex={show ? undefined : -1}>
+      {/* Same as the hero CTA: opens the 3-step preview, href is the no-JS fallback. */}
+      <Button
+        href="login.html?signup=1"
+        full
+        size="lg"
+        tabIndex={show ? undefined : -1}
+        onClick={(e) => {
+          if (!onStartPlan) return;
+          e.preventDefault();
+          onStartPlan();
+        }}
+      >
         Plan My Week Free
       </Button>
       <p className="mt-2 text-center text-[13px] text-muted-fg">30s setup · No credit card</p>
@@ -157,7 +168,7 @@ function BudgetPanel({ plan, budget, onChange }) {
   );
 }
 
-export default function Showcase() {
+export default function Showcase({ onStartPlan }) {
   const [budget, setBudget] = React.useState(BASE_BUDGET);
   const plan = React.useMemo(() => planFor(budget), [budget]);
 
@@ -265,7 +276,7 @@ export default function Showcase() {
         </Reveal>
       </div>
 
-      <MobileCta />
+      <MobileCta onStartPlan={onStartPlan} />
     </section>
   );
 }
