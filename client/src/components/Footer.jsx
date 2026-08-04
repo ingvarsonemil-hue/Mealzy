@@ -14,7 +14,7 @@ const COLUMNS = [
     heading: 'Account',
     links: [
       { href: '/login.html', label: 'Sign in' },
-      { href: '/login.html?signup=1', label: 'Plan My Week Free' },
+      { href: '/login.html?signup=1', label: 'Build My Free Plan' },
       { href: '/reset-password.html', label: 'Reset password' }
     ]
   },
@@ -44,10 +44,7 @@ export default function Footer() {
               Mealzy
             </a>
             <p className="mt-4 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              A full week of meals, priced to your budget, in 30 seconds.
-            </p>
-            <p className="mt-3 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              Used in 10 countries, in 11 languages.
+              A full week of meals, priced to your budget, in under 1 minute.
             </p>
           </div>
           {COLUMNS.map((col) => (

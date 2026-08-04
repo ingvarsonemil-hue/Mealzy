@@ -13,7 +13,6 @@ const FREE_FEATURES = [
   { text: 'Budget tracking' },
   { text: 'Calorie and macro targets' },
   { text: 'AI Coach — 10 messages/day' },
-  { text: '11 languages' },
   { text: 'Unlimited plan generation', included: false },
   { text: 'Unlimited AI coach', included: false },
   { text: 'PDF export', included: false }
@@ -25,7 +24,6 @@ const PRO_FEATURES = [
   { text: 'Budget tracking' },
   { text: 'Calorie and macro targets' },
   { text: <><strong>Unlimited</strong> AI Coach</> },
-  { text: '11 languages' },
   { text: 'Priority generation — 2x faster' },
   { text: 'PDF meal plan export' },
   { text: 'Advanced macro splits per meal' },

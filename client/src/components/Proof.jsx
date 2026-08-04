@@ -1,18 +1,18 @@
 import * as React from 'react';
 import Reveal from '@/components/Reveal';
+import { planFor, range, BASE_BUDGET } from '@/components/showcase-plan';
 
-/* Stands in the slot a testimonial wall would occupy, but carries only figures
- * a visitor can verify without trusting us: the first two come straight from
- * the sample plan rendered above (showcase-plan.js, $60 budget), the third from
- * the free tier. No attributed quotes until there are real ones to publish. */
+/* Figures a visitor can check against the sample plan rendered above rather
+ * than take on trust. The first is derived from that same plan, so the two can
+ * never drift apart; the third comes from the pricing. */
 const PROOF = [
   {
-    figure: '$57.84',
+    figure: range(planFor(BASE_BUDGET).spend),
     title: 'A full week, priced line by line',
-    body: '21 meals in the plan above, $2.16 under a $60 cap. Move the budget slider and the receipt still adds up to the number on the card.'
+    body: `21 meals, estimated against a $${BASE_BUDGET} cap. Move the budget slider and the grocery list re-prices with it.`
   },
   {
-    figure: '30 s',
+    figure: '< 1 min',
     title: 'From targets to a shopping list',
     body: 'Calories and budget in, seven days of breakfast, lunch and dinner out, with the grocery list already sorted by aisle.'
   },
@@ -28,9 +28,6 @@ export default function Proof() {
     <section aria-labelledby="proof-heading" className="bg-parchment py-16 sm:py-20">
       <div className="mx-auto max-w-container px-4 sm:px-5">
         <Reveal className="mx-auto mb-10 max-w-prose text-center">
-          <span className="mb-4 inline-block rounded-full border border-border-warm bg-cream px-4 py-1 text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
-            Early access
-          </span>
           <h2
             id="proof-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
@@ -38,8 +35,8 @@ export default function Proof() {
             Numbers you can check yourself.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            Mealzy is new, so there is no wall of reviews here yet. Instead, here is what the
-            product does — every figure comes from the sample plan on this page or from the pricing.
+            Every figure below comes from the sample plan on this page or from the pricing, so you
+            can check each one against what you just saw.
           </p>
         </Reveal>
 
@@ -63,8 +60,8 @@ export default function Proof() {
         </ul>
 
         <Reveal delay={240} as="p" className="mt-8 text-center text-sm text-muted-fg">
-          Figures from the sample plan and the current pricing, not from customer testimonials.
-          We will publish those once early users have run a few weeks.
+          Grocery prices vary by store and city, so every total is an estimated range rather than
+          a quote.
         </Reveal>
       </div>
     </section>

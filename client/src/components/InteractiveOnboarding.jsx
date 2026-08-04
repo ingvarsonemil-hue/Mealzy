@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { Check, X } from '@/components/icons';
-import { money } from '@/components/showcase-plan';
+import { range } from '@/components/showcase-plan';
 import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,9 @@ import { cn } from '@/lib/utils';
 const BUDGETS = [40, 60, 80, 120];
 const HOUSEHOLDS = [1, 2, 3, 4];
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+/* Where the visitor's targets live between visits. */
+const SAVED_PLAN_KEY = 'mealzy_preview_plan';
 
 /* `signup` is the value handed to the signup page so the choice survives
  * the jump; it matches the dietary values server.js already accepts. */
@@ -55,7 +58,7 @@ const DIETS = [
 
 const LOADING_STEPS = [
   'Searching local ingredient pricing...',
-  'Balancing macro ratios...',
+  'Balancing the week against your budget...',
   'Eliminating cross-recipe grocery waste...'
 ];
 
@@ -63,7 +66,7 @@ const LOADING_STEPS = [
 const STEP_MS = 500;
 
 /* A planned week lands just under budget, the same 96.4% ratio the Showcase
- * sample uses ($57.84 of $60), so the two previews never contradict each other. */
+ * sample uses, so the two previews never contradict each other. */
 const SPEND_RATIO = 0.964;
 
 /* Fixed per-day weights (sum exactly 1) so the seven rows always add up to the
@@ -230,9 +233,9 @@ function RevealStep({ plan, household, onClaim, onBack }) {
   return (
     <>
       <div className="grid grid-cols-3 gap-4 rounded-md border border-border-warm bg-muted-bg p-4">
-        <Stat label="Week spend" value={money(plan.spend)} />
-        <Stat label="Per person / day" value={money(plan.perPersonDay)} />
-        <Stat label="Under budget" value={`+${money(plan.saved)}`} accent />
+        <Stat label="Est. week spend" value={range(plan.spend)} />
+        <Stat label="Per person / day" value={range(plan.perPersonDay)} />
+        <Stat label="Left in budget" value={range(plan.saved)} accent />
       </div>
 
       <h3 className="mt-6 font-display text-lg font-bold italic">Your 7 days</h3>
@@ -243,7 +246,7 @@ function RevealStep({ plan, household, onClaim, onBack }) {
               {day}
             </span>
             <span className="min-w-0 flex-1 truncate">{dinner}</span>
-            <span className="shrink-0 font-medium tabular-nums">{money(cents)}</span>
+            <span className="shrink-0 font-medium tabular-nums">{range(cents)}</span>
           </li>
         ))}
       </ul>
@@ -255,7 +258,10 @@ function RevealStep({ plan, household, onClaim, onBack }) {
       <Button full size="lg" className="mt-6" onClick={onClaim}>
         Claim This Exact Plan (Free Signup)
       </Button>
-      <p className="mt-3 text-center text-[13px] text-muted-fg">
+      <p className="mt-3 text-center text-[13px] leading-[1.6] text-muted-fg">
+        Your plan saves to your browser — optional free account to sync across devices.
+      </p>
+      <p className="mt-1.5 text-center text-[13px] text-muted-fg">
         3 free plans a month &middot; No credit card
       </p>
       <button
@@ -289,6 +295,30 @@ export default function InteractiveOnboarding({ open, onOpenChange }) {
     [budget, dietId, household]
   );
 
+  /* The plan is a pure function of these three values, so storing them is
+   * enough to bring the exact same week back on the next visit — which is what
+   * the hero promises when it says the plan saves to your browser. Read in an
+   * effect rather than a state initializer so the prerendered markup and the
+   * first client render always agree. */
+  const hasSaved = React.useRef(false);
+  React.useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(SAVED_PLAN_KEY) || 'null');
+      if (!saved) return;
+      /* Every field is re-validated against the current option lists, so a
+       * stale or hand-edited value falls back to the default instead of
+       * rendering a week we can't build. */
+      if (!BUDGETS.includes(saved.budget)) return;
+      if (!DIETS.some((d) => d.id === saved.dietId)) return;
+      if (!HOUSEHOLDS.includes(saved.household)) return;
+      setBudget(saved.budget);
+      setDietId(saved.dietId);
+      setHousehold(saved.household);
+      hasSaved.current = true;
+      setStep('reveal');
+    } catch (e) { /* private mode, or a value we no longer understand */ }
+  }, []);
+
   /* Drives step 2: one line every 500 ms, then straight into the reveal. */
   React.useEffect(() => {
     if (step !== 'loading') return undefined;
@@ -303,6 +333,10 @@ export default function InteractiveOnboarding({ open, onOpenChange }) {
 
   const generate = () => {
     setStep('loading');
+    try {
+      localStorage.setItem(SAVED_PLAN_KEY, JSON.stringify({ budget, dietId, household }));
+      hasSaved.current = true;
+    } catch (e) { /* private mode — the preview still works, it just won't persist */ }
     track('onboarding_targets_set', { budget, diet: dietId, household });
   };
 
@@ -318,7 +352,9 @@ export default function InteractiveOnboarding({ open, onOpenChange }) {
   };
 
   const change = (next) => {
-    if (!next) setStep('targets'); // a reopened modal starts clean
+    /* Reopening lands on the saved week when there is one, and on a clean
+     * first question when there isn't. */
+    if (!next) setStep(hasSaved.current ? 'reveal' : 'targets');
     onOpenChange(next);
   };
 
@@ -339,8 +375,8 @@ export default function InteractiveOnboarding({ open, onOpenChange }) {
             </Dialog.Title>
             <Dialog.Description id="onboarding-desc" className="mt-1.5 text-sm text-on-forest-body">
               {step === 'reveal'
-                ? `A ${money(plan.spend)} week for ${household === 1 ? '1 person' : `${household} people`}, ${plan.diet.label.toLowerCase()}.`
-                : 'A real preview built from your budget, your diet, and your household. Takes about 30 seconds.'}
+                ? `A ${range(plan.spend)} week for ${household === 1 ? '1 person' : `${household} people`}, ${plan.diet.label.toLowerCase()}.`
+                : 'A real preview built from your budget, your diet, and your household. Under 1 minute.'}
             </Dialog.Description>
             <Dialog.Close
               aria-label="Close"

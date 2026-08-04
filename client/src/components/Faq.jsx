@@ -2,30 +2,20 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 
+/* Three questions, matched one-for-one by the FAQPage JSON-LD in
+ * client/index.html — change one and change the other. */
 const FAQS = [
   {
-    q: 'Is it actually free?',
-    a: 'Yes. The free plan gives you 3 meal plans per month, the grocery list, calorie and macro tracking, and 10 AI coach messages per day. No credit card required. Pro removes the limits — see the pricing page for current plans.'
+    q: 'What does Mealzy cost?',
+    a: 'Pro is $8 a month or $62 a year, and Family is $16 a month or $130 a year. Both remove the monthly plan limit. See the pricing page for what each tier includes.'
   },
   {
-    q: 'How does the budget work?',
-    a: "You set a weekly grocery budget in onboarding. Mealzy builds every meal plan to stay within it. The AI calculates per-meal costs and won't suggest meals that push you over."
+    q: "Can I swap a meal I don't want?",
+    a: 'Yes. Swap any meal in one click and the week rebuilds around it — the grocery list and the budget total update with it, so you never end up over your cap.'
   },
   {
-    q: 'Can it handle dietary restrictions?',
-    a: 'Yes. Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set your preferences and allergies in onboarding and they apply to every generated plan.'
-  },
-  {
-    q: 'How accurate are the calorie calculations?',
-    a: 'We estimate your daily calorie target based on your goal. You can adjust it anytime in settings.'
-  },
-  {
-    q: 'What languages does Mealzy support?',
-    a: 'English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, and Japanese. The meal names, ingredient lists, AI coach responses, and app interface all switch to your chosen language.'
-  },
-  {
-    q: 'Does Mealzy work in Europe and Sweden?',
-    a: "Yes. Mealzy works in 11 languages including Swedish, Norwegian, German, and French. Grocery budget estimates use local pricing. Emil, Mealzy's founder, is based in Sweden."
+    q: 'What do I get for free?',
+    a: 'Three full meal plans a month, each with its grocery list, and no credit card. The free tier is the real product, not a trial.'
   }
 ];
 

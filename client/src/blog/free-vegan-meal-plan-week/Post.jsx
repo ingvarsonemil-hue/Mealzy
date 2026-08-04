@@ -68,7 +68,7 @@ const FAQS = [
 export default function Post() {
   return (
     <BlogArticleShell title="Free Vegan Meal Plan for the Week — 7 Days + Grocery List" meta="Published June 16, 2026 · 10 min read">
-      <p>The hardest part of eating vegan isn't the diet — it's planning meals that hit your protein targets without spending a fortune or eating the same three things on rotation. This 7-day plan solves that. Every day has breakfast, lunch, and dinner with calorie totals and vegan protein sources called out. At the bottom: a full grocery list you can take straight to the store. And if you want a plan customized to your exact calorie goal and budget, Mealzy generates one in 30 seconds — free.</p>
+      <p>The hardest part of eating vegan isn't the diet — it's planning meals that hit your protein targets without spending a fortune or eating the same three things on rotation. This 7-day plan solves that. Every day has breakfast, lunch, and dinner with calorie totals and vegan protein sources called out. At the bottom: a full grocery list you can take straight to the store. And if you want a plan customized to your exact calorie goal and budget, Mealzy generates one in under 1 minute — free.</p>
 
       <h2>Your Free 7-Day Vegan Meal Plan</h2>
       {DAYS.map((d) => (
@@ -145,7 +145,7 @@ export default function Post() {
       <p><strong>If you need 1,200 kcal per day:</strong> Reduce lunch and dinner portions by about 10–15%. Cut oil used for cooking slightly. Skip or reduce snacks. A 10% reduction across the board gets you to roughly 1,380 kcal — close enough for maintenance in most cases.</p>
       <p><strong>If you need 1,800 kcal per day:</strong> Add a 200-300 kcal snack (e.g., fruit with nut butter, granola and yogurt, or hummus and veggies). Increase portion sizes of grains slightly or add an extra meal component like toast or pasta.</p>
       <p><strong>If you need 2,000+ kcal per day:</strong> Add 2–3 snacks across the day and increase main meal portions. Add nuts, seeds, or nut butters liberally — they're calorie-dense and vegan.</p>
-      <p>But here's the thing: if custom tailoring feels overwhelming, that's exactly what Mealzy does for you. Enter your exact calorie goal, dietary preference (vegan), weekly budget, and any foods you dislike — Mealzy generates a fully customized week in 30 seconds. You get a plan that fits your body, your budget, and your taste. Free to try, no credit card needed.</p>
+      <p>But here's the thing: if custom tailoring feels overwhelming, that's exactly what Mealzy does for you. Enter your exact calorie goal, dietary preference (vegan), weekly budget, and any foods you dislike — Mealzy generates a fully customized week in under 1 minute. You get a plan that fits your body, your budget, and your taste. Free to try, no credit card needed.</p>
 
       <h2>Tips for Sticking to a Vegan Meal Plan</h2>
       <p><strong>1. Batch cook one grain and one protein on Sunday.</strong> Spend 45 minutes cooking rice + lentils in bulk. This covers breakfast and lunch for 4–5 days. Portion into containers, refrigerate, and you've eliminated the "what's for lunch" decision for half the week.</p>
@@ -158,10 +158,10 @@ export default function Post() {
 
       <BlogCta
         lead="This plan is a starting point."
-        body="For a plan built around your exact calorie goal, grocery budget, and food preferences — Mealzy generates it in 30 seconds. Free to try, no credit card, no sign up needed for the demo."
+        body="For a plan built around your exact calorie goal, grocery budget, and food preferences — Mealzy generates it in under 1 minute. Free to try, no credit card, no sign up needed for the demo."
       />
 
-      <p>Eating vegan doesn't have to be hard. You just need a plan. This one works — it's tested, budget-friendly, hits protein targets, and uses ingredients you can find in any regular grocery store. Print it, follow it, or use it as a template for your own ideas. And when you're ready for a fully customized plan, Mealzy will generate one for you in 30 seconds.</p>
+      <p>Eating vegan doesn't have to be hard. You just need a plan. This one works — it's tested, budget-friendly, hits protein targets, and uses ingredients you can find in any regular grocery store. Print it, follow it, or use it as a template for your own ideas. And when you're ready for a fully customized plan, Mealzy will generate one for you in under 1 minute.</p>
     </BlogArticleShell>
   );
 }

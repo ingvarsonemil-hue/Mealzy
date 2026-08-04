@@ -21,7 +21,7 @@ const BRAND_FEATURES = [
 
 const HEADINGS = {
   signin: { h: 'Welcome back', sub: 'Your plans are waiting.' },
-  signup: { h: 'Create your account', sub: 'A full week of meals, 30 seconds from now.' },
+  signup: { h: 'Create your account', sub: 'A full week of meals, a minute from now.' },
   reset: { h: 'Reset password', sub: "Enter your email and we'll send a reset link." }
 };
 
@@ -198,7 +198,7 @@ export default function LoginPage() {
           <div className="max-w-md px-10 py-16">
             <a href="/" className="font-display text-4xl font-black italic text-on-forest no-underline">Mealzy</a>
             <p className="mt-4 font-display text-2xl font-bold italic leading-snug tracking-[-0.01em] text-on-forest-strong">
-              A full week of meals in 30 seconds.
+              A full week of meals in under 1 minute.
             </p>
             <ul role="list" className="mt-10 flex flex-col gap-4">
               {BRAND_FEATURES.map((f) => (
