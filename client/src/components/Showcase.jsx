@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Reveal from '@/components/Reveal';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Sunrise, Bowl, Cutlery } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import {
