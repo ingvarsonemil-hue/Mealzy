@@ -1,6 +1,7 @@
 'use strict';
 
 const { createClient } = require('@libsql/client');
+const { randomUUID } = require('crypto');
 
 let _client = null;
 
@@ -123,6 +124,22 @@ async function _applySchema() {
       expires_at TEXT NOT NULL,
       used INTEGER DEFAULT 0
     )`,
+    `CREATE TABLE IF NOT EXISTS ingredient_prices (
+      id             TEXT PRIMARY KEY,
+      name           TEXT NOT NULL UNIQUE,
+      category       TEXT DEFAULT 'pantry',
+      price_per_unit REAL NOT NULL,
+      unit           TEXT NOT NULL,
+      created_at     DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
+    `CREATE TABLE IF NOT EXISTS meal_feedback (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      meal_name  TEXT NOT NULL,
+      action     TEXT NOT NULL,
+      reason     TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`,
   ];
 
   for (const sql of tables) {
@@ -148,6 +165,9 @@ async function _applySchema() {
 
   const indexes = [
     `CREATE INDEX IF NOT EXISTS idx_grocery_user_plan_day ON grocery_lists(user_id, plan_id, day)`,
+    `CREATE INDEX IF NOT EXISTS idx_ingredient_prices_name ON ingredient_prices(name)`,
+    `CREATE INDEX IF NOT EXISTS idx_meal_feedback_user_action ON meal_feedback(user_id, action)`,
+    `CREATE INDEX IF NOT EXISTS idx_meal_feedback_user_id ON meal_feedback(user_id)`,
   ];
   for (const sql of indexes) {
     try { await _client.execute(sql); } catch(e) { /* index already exists */ }
@@ -629,6 +649,21 @@ async function addDailySpend(costUsd) {
   );
 }
 
+// ── Plan generation quotas ──────────────────────────────────────────────────────
+
+async function getPlanGenerationCount(userId, month) {
+  const row = await get('SELECT count FROM plan_generations WHERE user_id = ? AND month = ?', [userId, month]);
+  return row ? Number(row.count) : 0;
+}
+
+async function incrementPlanGeneration(userId, month) {
+  await run(
+    `INSERT INTO plan_generations (id, user_id, month, count, updated_at) VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)
+     ON CONFLICT(user_id, month) DO UPDATE SET count = count + 1, updated_at = CURRENT_TIMESTAMP`,
+    [randomUUID(), userId, month]
+  );
+}
+
 // ── Grocery lists ─────────────────────────────────────────────────────────────
 
 async function saveGroceryList(id, userId, planId, day, groceryListObj) {
@@ -676,6 +711,40 @@ async function getGroceryListByDay(planId, day) {
   };
 }
 
+// ── Ingredient prices ─────────────────────────────────────────────────────────
+
+let _ingredientPricesCache = null;
+let _ingredientPricesCacheAt = 0;
+const INGREDIENT_PRICES_CACHE_MS = 5 * 60 * 1000;
+
+async function getIngredientPrices() {
+  const now = Date.now();
+  if (_ingredientPricesCache && (now - _ingredientPricesCacheAt) < INGREDIENT_PRICES_CACHE_MS) {
+    return _ingredientPricesCache;
+  }
+  const rows = await all('SELECT name, category, price_per_unit, unit FROM ingredient_prices');
+  _ingredientPricesCache = rows;
+  _ingredientPricesCacheAt = now;
+  return rows;
+}
+
+// ── Meal feedback ─────────────────────────────────────────────────────────────
+
+async function saveMealFeedback({ userId, mealName, action, reason }) {
+  await run(
+    `INSERT INTO meal_feedback (id, user_id, meal_name, action, reason) VALUES (?, ?, ?, ?, ?)`,
+    [randomUUID(), userId, mealName, action, reason || null]
+  );
+}
+
+async function getUserDislikedMeals(userId) {
+  const rows = await all(
+    `SELECT DISTINCT meal_name FROM meal_feedback WHERE user_id = ? AND action IN ('dislike', 'swap')`,
+    [userId]
+  );
+  return rows.map(r => r.meal_name);
+}
+
 // ── Health ────────────────────────────────────────────────────────────────────
 
 async function ping() {
@@ -718,8 +787,14 @@ module.exports = {
   saveRecipe, getRecipes,
   // coach usage
   getCoachUsage, incrementCoachUsage,
+  // plan generation quotas
+  getPlanGenerationCount, incrementPlanGeneration,
   // daily API spend
   getDailySpend, addDailySpend,
+  // ingredient prices
+  getIngredientPrices,
+  // meal feedback
+  saveMealFeedback, getUserDislikedMeals,
   // grocery lists
   saveGroceryList, getGroceryListsForPlan, getGroceryListByDay, deleteGroceryListForPlanDay,
   // health

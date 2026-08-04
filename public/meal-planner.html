@@ -830,6 +830,18 @@
     document.getElementById('totalCost').textContent = sym + totalCost.toFixed(2);
   }
 
+  /** Monday (YYYY-MM-DD) of the week containing the given Date. */
+  function getMondayStr(date) {
+    const d = new Date(date);
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return monday.toISOString().split('T')[0];
+  }
+
+  // Generates a full 7-day plan (21 meals + snacks) for the week containing
+  // currentDate — 1 generation credit unlocks the whole week. Populates
+  // localStorage per-day so the existing Day View / Week View rendering
+  // (which reads mealzy_meal_plans by date) works unchanged.
   async function generateMealPlan(isRegenerate) {
     if (!profile) return;
     await refreshProfileFromServer();
@@ -853,8 +865,10 @@
     const btn = document.getElementById('generateBtn');
     if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
 
+    const weekStart = getMondayStr(currentDate);
+    const existingPlans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const avoidMeals = isRegenerate
-      ? (currentMeals || []).map(m => m.name).filter(Boolean)
+      ? Object.values(existingPlans).flatMap(p => (p && p.meals) ? p.meals.map(m => m.name) : []).filter(Boolean)
       : [];
 
     try {
@@ -863,7 +877,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           profile,
-          date: currentDateStr,
+          weekStart,
           avoid_meals: avoidMeals
         })
       });
@@ -881,16 +895,19 @@
         return;
       }
 
-      const meals = data.mealPlan?.meals || [];
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-      plans[currentDateStr] = { meals, generatedAt: new Date().toISOString() };
+      (data.days || []).forEach(d => {
+        plans[d.date] = { meals: d.meals || [], generatedAt: new Date().toISOString() };
+      });
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
-      currentMeals = meals;
+
+      currentMeals = (plans[currentDateStr] && plans[currentDateStr].meals) ? plans[currentDateStr].meals : [];
       renderMeals();
       updateTotals();
       checkPlanLimitBanner();
+      if (currentView === 'week') renderWeekView();
       document.getElementById('sharePlanPanel').style.display = 'block';
-      generateShareLink(meals);
+      generateShareLink(currentMeals);
 
       try {
         await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
