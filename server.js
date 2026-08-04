@@ -1832,9 +1832,62 @@ app.post('/api/email-leads', leadLimiter, async (req, res) => {
 // MEAL GENERATION
 // ════════════════════════════════════════════════════════════════════════════
 
+const DEFAULT_INGREDIENT_COST_USD = 0.50;
+
+function _parseIngredientQuantity(amountStr) {
+  const m = String(amountStr || '').match(/[\d.]+/);
+  const n = m ? parseFloat(m[0]) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : 1;
+}
+
+function _findIngredientPriceRow(name, priceRows) {
+  const norm = String(name || '').toLowerCase().trim();
+  if (!norm) return null;
+  return priceRows.find(p => p.name === norm)
+    || priceRows.find(p => norm.includes(p.name) || p.name.includes(norm))
+    || null;
+}
+
+/** Deterministic ingredient-cost lookup: matches ingredient names against
+ * ingredient_prices, falls back to a flat default for unmatched items.
+ * Never asks the AI to guess prices. */
+async function calculateMealCost(ingredients) {
+  if (!Array.isArray(ingredients) || ingredients.length === 0) return 0;
+  const priceRows = await db.getIngredientPrices();
+  let total = 0;
+  for (const ing of ingredients) {
+    const priceRow = _findIngredientPriceRow(ing?.name, priceRows);
+    total += priceRow
+      ? priceRow.price_per_unit * _parseIngredientQuantity(ing?.amount)
+      : DEFAULT_INGREDIENT_COST_USD;
+  }
+  return Math.round(total * 100) / 100;
+}
+
+/** Thrown when a generated meal contains a declared allergen; the route
+ * turns this into a 400 for single-day requests or fails the whole week. */
+class AllergyViolationError extends Error {
+  constructor(allergen, mealName) {
+    super(`Allergy violation: ${allergen} in ${mealName}`);
+    this.allergen = allergen;
+    this.mealName = mealName;
+  }
+}
+
+/** Adds `n` days to a YYYY-MM-DD date string, returning YYYY-MM-DD. */
+function addDaysToDateStr(dateStr, n) {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+
+const WEEK_START_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res) => {
   try {
-    const { profile, date, swap_meal_type, plan_token, user_email, avoid_meals } = req.body;
+    const { profile, date: rawDate, weekStart: rawWeekStart, swap_meal_type, plan_token, user_email, avoid_meals } = req.body;
+    const date = sanitise(rawDate, 40);
+    const weekStart = (!swap_meal_type && typeof rawWeekStart === 'string' && WEEK_START_RE.test(rawWeekStart)) ? rawWeekStart : null;
 
     if (!profile) return res.status(400).json({ error: 'Profile is required' });
 
@@ -1863,52 +1916,44 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
       // Re-query DB — the JWT payload may be stale if Pro was just activated
       isPro = sessionUser?.pro === 1;
     }
+
+    // ── Quota check (read-only) — plan_generations table, not an analytics full-scan.
+    // Credits are only *consumed* later, after the plan passes validation (see below).
+    const ip = clientIp(req);
+    const genMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+    let quotaUsedSoFar = 0;
+    let anonUsage = null;
     if (!swap_meal_type && !isPro) {
-      const ip = clientIp(req);
       const effectiveLimit = await getEffectiveLimit(session?.email || user_email || '');
 
       if (session) {
-        // Logged-in user: count generate_plan events for this user this month from analytics
-        // (uses analytics not plans table — counts generations, not saves)
-        const monthStart = new Date();
-        monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
-        const monthStartStr = monthStart.toISOString().replace('T', ' ').slice(0, 19);
-        const genRow = await db.get(
-          `SELECT COUNT(*) as n FROM analytics WHERE event = 'generate_plan' AND json_extract(data, '$.userId') = ? AND created_at >= ?`,
-          [session.userId, monthStartStr]
-        );
-        const generationsThisMonth = genRow?.n || 0;
-        if (generationsThisMonth >= effectiveLimit) {
+        quotaUsedSoFar = await db.getPlanGenerationCount(session.userId, genMonth);
+        if (quotaUsedSoFar >= effectiveLimit) {
           await db.logEvent('free_limit_hit', { userId: session.userId }, '');
           return res.status(402).json({
             error: 'free_limit_reached',
             message: `You've used all ${effectiveLimit} free plans this month.`,
             upgrade_url: '/pricing.html',
             resets_in: 'Start of next month',
-            used: generationsThisMonth,
+            used: quotaUsedSoFar,
             limit: effectiveLimit
           });
         }
-        await db.logEvent('generate_plan', { plan_num: generationsThisMonth + 1, userId: session.userId }, '');
       } else {
         // Anonymous user: track by IP (in-memory, resets on server restart)
-        const usage = getUsage(ip);
-        if (usage.count >= effectiveLimit) {
+        anonUsage = getUsage(ip);
+        if (anonUsage.count >= effectiveLimit) {
           await db.logEvent('free_limit_hit', {}, '');
           return res.status(402).json({
             error: 'free_limit_reached',
             message: `You've used all ${effectiveLimit} free plans this month.`,
             upgrade_url: '/pricing.html',
             resets_in: 'Start of next month',
-            used: usage.count,
+            used: anonUsage.count,
             limit: effectiveLimit
           });
         }
-        incrementUsage(ip);
-        await db.logEvent('generate_plan', { plan_num: usage.count + 1 }, '');
       }
-    } else if (!swap_meal_type && isPro) {
-      await db.logEvent('generate_plan', { pro: true }, '');
     }
 
     // ── Profile field extraction ──────────────────────────────────────────
@@ -1917,7 +1962,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     const dietaryPrefs       = Array.isArray(profile.dietary_preferences || profile.dietaryPrefs) ? (profile.dietary_preferences || profile.dietaryPrefs) : [];
     const allergies          = capList(profile.allergies, 20, 40);
     const cookingSkill       = sanitise(profile.cooking_skill || profile.cookingSkill || 'intermediate', 50);
-    const dailyCalories      = Number(profile.daily_calories || profile.dailyCalories || 2000);
+    const dailyCalories      = Math.min(4000, Math.max(1200, Number(profile.daily_calories || profile.dailyCalories || 2000)));
     const dailyProtein       = Number(profile.daily_protein  || (profile.macros?.protein) || 150);
     const dailyCarbs         = Number(profile.daily_carbs    || (profile.macros?.carbs) || 200);
     const dailyFat           = Number(profile.daily_fat      || (profile.macros?.fat) || 65);
@@ -1957,9 +2002,11 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     const allergyBlock = allergies.length > 0
       ? `\n⚠️ ALLERGY WARNING — NEVER include these ingredients in any form: ${allergies.join(', ')}.\n`
       : '';
-    const avoidList = capList(avoid_meals, 30, 80);
+    const clientAvoidList = capList(avoid_meals, 30, 80);
+    const dislikedMeals = session ? await db.getUserDislikedMeals(session.userId) : [];
+    const avoidList = Array.from(new Set([...clientAvoidList, ...dislikedMeals])).slice(0, 60);
     const avoidBlock = avoidList.length > 0
-      ? `Do NOT suggest these previously disliked meals: ${avoidList.join(', ')}.`
+      ? `STRICT AVOID — do not include any of these previously rejected meals: ${avoidList.join(', ')}.`
       : '';
 
     const cuisineGroups = {
@@ -1976,17 +2023,8 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     };
     const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines','halloumi','duck','venison'];
 
-    const preferredCuisine = profile.preferred_cuisine || null;
-    let todayCuisine;
-    if (preferredCuisine && cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')]) {
-      const group = cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')];
-      todayCuisine = group[Math.floor(Math.random() * group.length)];
-    } else if (preferredCuisine) {
-      todayCuisine = preferredCuisine;
-    } else {
-      const allCuisines = Object.values(cuisineGroups).flat();
-      todayCuisine = allCuisines[Math.floor(Math.random() * allCuisines.length)];
-    }
+    const preferredCuisine = sanitise(profile.preferred_cuisine, 60) || null;
+    const allCuisinesFlat = Object.values(cuisineGroups).flat();
     // Filter protein suggestions to match dietary restrictions — prevents biasing the model with forbidden proteins
     const proteinsByDiet = {
       vegan:       ['tofu','lentils','chickpeas','tempeh','edamame','hemp seeds','black beans','kidney beans'],
@@ -2004,8 +2042,26 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     }
     // Special keto+vegan combo: only plant-based fats/proteins
     if (isVegan && isKeto) eligibleProteins = ['tofu','tempeh','hemp seeds','edamame'];
-    const todayProtein = eligibleProteins[Math.floor(Math.random() * eligibleProteins.length)];
-    const randomSeed   = Math.floor(Math.random() * 99999);
+
+    /** Picks a fresh cuisine/protein/seed for one day's generation, optionally
+     * avoiding the previous day's cuisine so a 7-day week doesn't repeat. */
+    function pickDayVariety(excludeCuisine) {
+      let todayCuisine;
+      if (preferredCuisine && cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')]) {
+        const group = cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')];
+        const pool = (excludeCuisine && group.length > 1) ? group.filter(c => c !== excludeCuisine) : group;
+        todayCuisine = pool[Math.floor(Math.random() * pool.length)];
+      } else if (preferredCuisine) {
+        todayCuisine = preferredCuisine;
+      } else {
+        const pool = excludeCuisine ? allCuisinesFlat.filter(c => c !== excludeCuisine) : allCuisinesFlat;
+        todayCuisine = pool[Math.floor(Math.random() * pool.length)];
+      }
+      const todayProtein = eligibleProteins[Math.floor(Math.random() * eligibleProteins.length)];
+      const randomSeed    = Math.floor(Math.random() * 99999);
+      return { todayCuisine, todayProtein, randomSeed };
+    }
+    const { todayCuisine, todayProtein, randomSeed } = pickDayVariety(null);
 
     // ── JSON schema embedded in the prompt for reliable parsing ──────────
     const mealSchema = `{
@@ -2052,6 +2108,7 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       });
 
       const meal = parseJsonResponse(completion.content[0].text);
+      meal.cost = await calculateMealCost(meal.ingredients);
 
       if (process.env.UNSPLASH_ACCESS_KEY) {
         try {
@@ -2066,7 +2123,8 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
     }
 
     // ══════════════════════════════════════════════════════════════════════
-    // FULL DAILY MEAL PLAN
+    // FULL MEAL PLAN — one day's worth of meals, called once per day
+    // (7 times for a week, once for the legacy single-day path)
     // ══════════════════════════════════════════════════════════════════════
 
     // Pro vs Free difference:
@@ -2089,9 +2147,22 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       ? `BATCH COOKING MODE: Make dinner yield 3 servings. Schedule the leftovers as Tuesday and Wednesday lunch automatically — label them as 'Leftover: [dinner name]' with identical macros. This reduces daily cooking time significantly.`
       : '';
 
-    const fullPlanPrompt = `${dietaryBlock}${allergyBlock}${ingredientOverlapLine}
+    // Prompt caching: stable role block cached, volatile dietary block appended uncached
+    const _baseSys = isPro
+      ? 'You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements. NEVER violate dietary restrictions or allergies — this is non-negotiable.'
+      : 'You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise. NEVER violate dietary restrictions or allergies — this is non-negotiable.';
+    const _sysBlocks = [{ type: 'text', text: _baseSys, cache_control: { type: 'ephemeral' } }];
+    if (dietaryBlock) _sysBlocks.push({ type: 'text', text: `CRITICAL: ${activeDietRules.split('\n')[0]}` });
 
-Generate a practical, delicious daily meal plan for ${name} on ${date}.
+    /** Generates and validates ONE day's 4-meal plan. Throws AllergyViolationError
+     * if a generated meal contains a declared allergen. Never trusts AI totals —
+     * calorie/macro/cost sums are always recomputed here. */
+    async function generateDayMealPlan(dayDate, variety) {
+      const { todayCuisine, todayProtein, randomSeed } = variety;
+
+      const fullPlanPrompt = `${dietaryBlock}${allergyBlock}${ingredientOverlapLine}
+
+Generate a practical, delicious daily meal plan for ${name} on ${dayDate}.
 
 Cuisine style: ${todayCuisine}. Variety seed: ${randomSeed}. Suggested protein for ONE meal only: ${todayProtein} (use different proteins across other meals for variety — no protein should appear in more than 2 of the 4 meals).
 Use real, everyday supermarket ingredients. Meals must be realistic for a home cook.
@@ -2104,8 +2175,6 @@ User profile:
 - Cooking skill: ${cookingSkill}
 - Max time per meal: ${cookingTimeMinutes} min
 - STRICT DAILY BUDGET: ${currency} ${dailyBudget} total. Each meal max ${currency} ${perMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
-- BUDGET MATH: The totalCost field MUST equal the exact arithmetic sum of all 4 estimatedCost values (breakfast + lunch + dinner + snack). Never echo the budget ceiling as totalCost — report only the actual calculated cost.
-- MACRO CALCULATION: Derive each meal's protein, carbs, and fat from its actual ingredients and realistic portion sizes — do not reverse-engineer numbers to hit the daily targets. Each meal must satisfy: (protein×4 + carbs×4 + fat×9) within ±50 kcal of its stated calories field.
 - User's price tier: ${priceTierLabel}. Adjust ingredient quality and brand expectations accordingly — Budget means value supermarket staples, Premium means quality cuts and fresh produce.
 
 ${batchCookingLine ? batchCookingLine + '\n\n' : ''}${avoidBlock}
@@ -2125,99 +2194,102 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     ${mealSchema},
     ${mealSchema}
   ],
-  "totalCalories": number,
-  "totalCost": number,
   "nutritionNote": "string (short, in ${languageName})"
 }`;
 
-    // Prompt caching: stable role block cached, volatile dietary block appended uncached
-    const _baseSys = isPro
-      ? 'You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements. NEVER violate dietary restrictions or allergies — this is non-negotiable.'
-      : 'You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise. NEVER violate dietary restrictions or allergies — this is non-negotiable.';
-    const _sysBlocks = [{ type: 'text', text: _baseSys, cache_control: { type: 'ephemeral' } }];
-    if (dietaryBlock) _sysBlocks.push({ type: 'text', text: `CRITICAL: ${activeDietRules.split('\n')[0]}` });
-
-    const completion = await callAnthropicWithSpendCap({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: isPro ? 6000 : 4000,
-      system: _sysBlocks,
-      messages: [{ role: 'user', content: fullPlanPrompt }]
-    });
-    if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
-      log.info(`[meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
-    }
-
-    const rawText = completion.content[0].text;
-    logger.debug('[meal] AI response chars: ' + rawText.length);
-
-    let mealPlan;
-    try {
-      mealPlan = parseJsonResponse(rawText);
-    } catch(parseErr) {
-      // Retry once with a simpler prompt
-      console.warn('[meal] Parse failed, retrying with explicit JSON request...');
-      const retryCompletion = await callAnthropicWithSpendCap({
+      const completion = await callAnthropicWithSpendCap({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 3000,
-        system: [{ type: 'text', text: 'You are a JSON API. Output only valid JSON, nothing else.', cache_control: { type: 'ephemeral' } }],
-        messages: [
-          { role: 'user', content: fullPlanPrompt },
-          { role: 'assistant', content: rawText },
-          { role: 'user', content: 'Your response was not valid JSON. Output ONLY the JSON object, starting with { and ending with }, no other text.' }
-        ]
+        max_tokens: isPro ? 6000 : 4000,
+        system: _sysBlocks,
+        messages: [{ role: 'user', content: fullPlanPrompt }]
       });
-      mealPlan = parseJsonResponse(retryCompletion.content[0].text);
-    }
-
-    // ── Macro sanity check — log discrepancies for agent review ─────────────
-    if (mealPlan.meals) {
-      for (const meal of mealPlan.meals) {
-        const p = Number(meal.protein) || 0;
-        const c = Number(meal.carbs)   || 0;
-        const f = Number(meal.fat)     || 0;
-        const stated     = Number(meal.calories) || 0;
-        const calculated = p * 4 + c * 4 + f * 9;
-        if (Math.abs(stated - calculated) > 100) {
-          log.warn(`[macro-check] meal "${meal.name}" calories stated ${stated} calculated ${calculated}`);
-        }
+      if (completion.usage?.cache_read_input_tokens || completion.usage?.cache_creation_input_tokens) {
+        log.info(`[meal cache] hit=${completion.usage.cache_read_input_tokens||0} write=${completion.usage.cache_creation_input_tokens||0}`);
       }
-    }
 
-    // ── Allergy enforcement — server-side scan after AI generation ───────────
-    if (allergies.length > 0 && mealPlan.meals) {
-      const lowerAllergies = allergies.map(a => a.toLowerCase());
-      for (const meal of mealPlan.meals) {
-        const haystack = [
-          meal.name || '',
-          meal.description || '',
-          ...(meal.ingredients || []).map(i => i.name || '')
-        ].join(' ').toLowerCase();
-        // Whole-word/phrase match so "nut" doesn't false-positive on ingredients
-        // that merely contain "nut" as a substring. Examples:
-        //   allergy "nut"       + haystack "coconut curry"        -> no match
-        //   allergy "nut"       + haystack "walnut brownies"      -> no match
-        //   allergy "nut"       + haystack "pumpkin nutmeg soup"  -> no match
-        //   allergy "nut"       + haystack "glazed doughnut"      -> no match
-        //   allergy "nut"       + haystack "mixed nuts"           -> match ("nuts")
-        //   allergy "nut"       + haystack "roasted nut medley"   -> match
-        //   allergy "tree nut"  + haystack "tree nut butter"      -> match
-        //   allergy "shellfish" + haystack "shellfish stock"      -> match
-        const match = lowerAllergies.find(a => {
-          const escaped = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const pattern = new RegExp(`\\b${escaped}s?\\b`);
-          return pattern.test(haystack);
+      const rawText = completion.content[0].text;
+      logger.debug('[meal] AI response chars: ' + rawText.length);
+
+      let mealPlan;
+      try {
+        mealPlan = parseJsonResponse(rawText);
+      } catch(parseErr) {
+        // Retry once with a simpler prompt
+        console.warn('[meal] Parse failed, retrying with explicit JSON request...');
+        const retryCompletion = await callAnthropicWithSpendCap({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 3000,
+          system: [{ type: 'text', text: 'You are a JSON API. Output only valid JSON, nothing else.', cache_control: { type: 'ephemeral' } }],
+          messages: [
+            { role: 'user', content: fullPlanPrompt },
+            { role: 'assistant', content: rawText },
+            { role: 'user', content: 'Your response was not valid JSON. Output ONLY the JSON object, starting with { and ending with }, no other text.' }
+          ]
         });
-        if (match) {
-          await db.logEvent('allergy_violation_detected', { allergen: match, meal: meal.name, userId: session?.userId || 'anon' }, '');
-          logger.warn(`[allergy] Violation detected: "${match}" in "${meal.name}"`);
-          return res.status(400).json({ error: 'allergy_violation', retry: true, allergen: match, message: `Generated meal "${meal.name}" may contain "${match}". Please regenerate your plan.` });
+        mealPlan = parseJsonResponse(retryCompletion.content[0].text);
+      }
+
+      // ── Macro sanity check + daily sums — computed in code, never trusted from the model ──
+      if (mealPlan.meals) {
+        const sums = { calories: 0, protein: 0, carbs: 0, fat: 0, cost: 0 };
+        for (const meal of mealPlan.meals) {
+          const p = Number(meal.protein) || 0;
+          const c = Number(meal.carbs)   || 0;
+          const f = Number(meal.fat)     || 0;
+          const stated     = Number(meal.calories) || 0;
+          const calculated = p * 4 + c * 4 + f * 9;
+          if (Math.abs(stated - calculated) > 100) {
+            log.warn(`[macro-check] meal "${meal.name}" calories stated ${stated} calculated ${calculated}`);
+          }
+          sums.calories += stated;
+          sums.protein  += p;
+          sums.carbs    += c;
+          sums.fat      += f;
+          meal.cost      = await calculateMealCost(meal.ingredients);
+          sums.cost     += meal.cost;
+        }
+        mealPlan.totalCalories = Math.round(sums.calories);
+        mealPlan.totalProtein  = Math.round(sums.protein);
+        mealPlan.totalCarbs    = Math.round(sums.carbs);
+        mealPlan.totalFat      = Math.round(sums.fat);
+        mealPlan.totalCost     = Math.round(sums.cost * 100) / 100;
+      }
+
+      // ── Allergy enforcement — server-side scan after AI generation ───────────
+      if (allergies.length > 0 && mealPlan.meals) {
+        const lowerAllergies = allergies.map(a => a.toLowerCase());
+        for (const meal of mealPlan.meals) {
+          const haystack = [
+            meal.name || '',
+            meal.description || '',
+            ...(meal.ingredients || []).map(i => i.name || '')
+          ].join(' ').toLowerCase();
+          // Whole-word/phrase match so "nut" doesn't false-positive on ingredients
+          // that merely contain "nut" as a substring. Examples:
+          //   allergy "nut"       + haystack "coconut curry"        -> no match
+          //   allergy "nut"       + haystack "walnut brownies"      -> no match
+          //   allergy "nut"       + haystack "pumpkin nutmeg soup"  -> no match
+          //   allergy "nut"       + haystack "glazed doughnut"      -> no match
+          //   allergy "nut"       + haystack "mixed nuts"           -> match ("nuts")
+          //   allergy "nut"       + haystack "roasted nut medley"   -> match
+          //   allergy "tree nut"  + haystack "tree nut butter"      -> match
+          //   allergy "shellfish" + haystack "shellfish stock"      -> match
+          const match = lowerAllergies.find(a => {
+            const escaped = a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pattern = new RegExp(`\\b${escaped}s?\\b`);
+            return pattern.test(haystack);
+          });
+          if (match) throw new AllergyViolationError(match, meal.name);
         }
       }
+
+      return mealPlan;
     }
 
-    // Attach images if Unsplash is configured
-    if (process.env.UNSPLASH_ACCESS_KEY && mealPlan.meals) {
-      await Promise.all(mealPlan.meals.map(async (meal) => {
+    /** Fetches and attaches an Unsplash photo to each meal, best-effort. */
+    async function attachMealImages(meals) {
+      if (!process.env.UNSPLASH_ACCESS_KEY || !meals) return;
+      await Promise.all(meals.map(async (meal) => {
         try {
           const q = encodeURIComponent((meal.imageKeyword || meal.name) + ' dish plated food photography');
           const imgRes = await fetch(`https://api.unsplash.com/search/photos?query=${q}&per_page=1&orientation=landscape`, { headers: { Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS_KEY}` } });
@@ -2226,6 +2298,124 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         } catch(e) { /* keep default */ }
       }));
     }
+
+    if (weekStart) {
+      // ══════════════════════════════════════════════════════════════════
+      // WEEK MODE — 1 generation credit unlocks a full 7-day plan
+      // (21 meals + snacks), matching the marketing promise and the
+      // 7-day grid on meal-planner.html.
+      // ══════════════════════════════════════════════════════════════════
+      const days = [];
+      let prevCuisine = null;
+      for (let i = 0; i < 7; i++) {
+        const dayDate = addDaysToDateStr(weekStart, i);
+        const variety = pickDayVariety(prevCuisine);
+        prevCuisine = variety.todayCuisine;
+
+        let dayMealPlan;
+        try {
+          dayMealPlan = await generateDayMealPlan(dayDate, variety);
+        } catch (err) {
+          if (err instanceof AllergyViolationError) {
+            await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
+            logger.warn(`[allergy] Violation detected: "${err.allergen}" in "${err.mealName}" (week day ${i + 1}/${dayDate})`);
+            return res.status(400).json({
+              error: 'allergy_violation', retry: true, allergen: err.allergen,
+              message: `Generated meal "${err.mealName}" may contain "${err.allergen}". Please regenerate your plan.`,
+              day: dayDate
+            });
+          }
+          throw err;
+        }
+
+        await attachMealImages(dayMealPlan.meals);
+        days.push({ date: dayDate, dayName: getDayNameFromDate(dayDate), ...dayMealPlan });
+      }
+
+      // ── Weekly totals — sums and per-day averages computed in code, never trusted from the model ──
+      const weeklyTotals = days.reduce((acc, d) => {
+        acc.totalCalories += d.totalCalories || 0;
+        acc.totalProtein  += d.totalProtein  || 0;
+        acc.totalCarbs    += d.totalCarbs    || 0;
+        acc.totalFat      += d.totalFat      || 0;
+        acc.totalCost     += d.totalCost     || 0;
+        return acc;
+      }, { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0, totalCost: 0 });
+      weeklyTotals.totalCost   = Math.round(weeklyTotals.totalCost * 100) / 100;
+      weeklyTotals.avgCalories = Math.round(weeklyTotals.totalCalories / 7);
+      weeklyTotals.avgProtein  = Math.round(weeklyTotals.totalProtein  / 7);
+      weeklyTotals.avgCarbs    = Math.round(weeklyTotals.totalCarbs    / 7);
+      weeklyTotals.avgFat      = Math.round(weeklyTotals.totalFat      / 7);
+
+      // ── Quota consumption — 1 credit for the whole week, only after every
+      // day has passed allergy/macro validation. Errors above never reach here.
+      if (isPro) {
+        await db.logEvent('generate_plan', { pro: true, weekStart }, '');
+      } else if (session) {
+        await db.incrementPlanGeneration(session.userId, genMonth);
+        await db.logEvent('generate_plan', { plan_num: quotaUsedSoFar + 1, userId: session.userId, weekStart }, '');
+      } else {
+        incrementUsage(ip);
+        await db.logEvent('generate_plan', { plan_num: (anonUsage?.count || 0) + 1, weekStart }, '');
+      }
+
+      // Save the whole week as one plan row so days can't drift out of sync.
+      const weekPlanId = randomUUID();
+      if (session) {
+        try {
+          await db.savePlan(weekPlanId, session.userId, { weekStart, days, weeklyTotals, savedAt: new Date().toISOString() });
+        } catch (saveErr) {
+          console.error('[generate-meal] week DB save error (non-fatal):', saveErr);
+        }
+      }
+
+      res.json({ success: true, weekStart, days, weeklyTotals });
+
+      // Auto-generate and persist each day's grocery list in the background —
+      // fire-and-forget so it never slows down or fails the plan response.
+      if (session) {
+        for (const d of days) {
+          if (!d.meals?.length) continue;
+          generateGroceryListForMeals({ meals: d.meals, profile, weekStart, day: d.dayName })
+            .then(groceryList => db.saveGroceryList(randomUUID(), session.userId, weekPlanId, d.dayName, groceryList))
+            .catch(err => console.error('[generate-meal] grocery auto-generate error (non-fatal):', err));
+        }
+      }
+
+      return;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // SINGLE-DAY MODE (legacy) — used by dashboard.html's "today" widget.
+    // Kept unchanged so it doesn't affect the 7-day credit accounting above.
+    // ══════════════════════════════════════════════════════════════════════
+    let mealPlan;
+    try {
+      mealPlan = await generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed });
+    } catch (err) {
+      if (err instanceof AllergyViolationError) {
+        await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
+        logger.warn(`[allergy] Violation detected: "${err.allergen}" in "${err.mealName}"`);
+        return res.status(400).json({ error: 'allergy_violation', retry: true, allergen: err.allergen, message: `Generated meal "${err.mealName}" may contain "${err.allergen}". Please regenerate your plan.` });
+      }
+      throw err;
+    }
+
+    // ── Quota consumption — only now, after the plan has passed allergy/macro
+    // validation and is guaranteed to be returned. Errors and rejects above never reach here.
+    if (!swap_meal_type) {
+      if (isPro) {
+        await db.logEvent('generate_plan', { pro: true }, '');
+      } else if (session) {
+        await db.incrementPlanGeneration(session.userId, genMonth);
+        await db.logEvent('generate_plan', { plan_num: quotaUsedSoFar + 1, userId: session.userId }, '');
+      } else {
+        incrementUsage(ip);
+        await db.logEvent('generate_plan', { plan_num: (anonUsage?.count || 0) + 1 }, '');
+      }
+    }
+
+    await attachMealImages(mealPlan.meals);
 
     // Save to DB server-side before responding so the plan is persisted even if
     // the client navigates away while this fetch is in-flight.
@@ -2658,6 +2848,27 @@ app.post('/api/xp/award', requireSession, async (req, res) => {
     });
   } catch(err) {
     console.error('XP award error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/meal-feedback — record a like/dislike/swap for a meal (server-authoritative userId)
+// Body: { mealName: string, action: 'like' | 'dislike' | 'swap', reason?: string }
+const MEAL_FEEDBACK_ACTIONS = new Set(['like', 'dislike', 'swap']);
+app.post('/api/meal-feedback', requireSession, async (req, res) => {
+  const session = req.session;
+  const { mealName: rawMealName, action, reason: rawReason } = req.body;
+
+  const mealName = sanitise(rawMealName, 200);
+  if (!mealName) return res.status(400).json({ error: 'mealName is required' });
+  if (!MEAL_FEEDBACK_ACTIONS.has(action)) return res.status(400).json({ error: 'action must be like, dislike, or swap' });
+  const reason = rawReason ? sanitise(rawReason, 200) : null;
+
+  try {
+    await db.saveMealFeedback({ userId: session.userId, mealName, action, reason });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Meal feedback error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
