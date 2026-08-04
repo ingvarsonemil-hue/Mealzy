@@ -574,6 +574,20 @@
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <div class="form-group">
+        <label class="form-label">Household Size</label>
+        <select class="form-select" id="settingHouseholdSize">
+          <option value="1">1 person</option>
+          <option value="2">2 people</option>
+          <option value="3">3 people</option>
+          <option value="4">4 people</option>
+          <option value="5">5 people</option>
+          <option value="6">6 people</option>
+          <option value="7">7 people</option>
+          <option value="8">8 people</option>
+        </select>
+        <div style="font-size:0.78rem;color:var(--clr-muted-fg);margin-top:0.3rem;">Recipes and grocery lists scale ingredient amounts to this number of people.</div>
+      </div>
       <button class="btn btn-primary btn-sm" id="saveCookingBtn" onclick="saveCooking()">Save Cooking Preferences</button>
       <span id="saveCookingStatus" role="status" aria-live="polite" style="display:none;font-size:0.82rem;color:var(--clr-primary);margin-left:0.5rem;"></span>
       <span id="saveCookingError" role="alert" style="display:none;font-size:0.82rem;color:var(--clr-destructive);margin-left:0.5rem;"></span>
@@ -872,6 +886,10 @@
     document.getElementById('settingPriceTier').value = profile.price_tier || 'mid-range';
     document.getElementById('settingBatchCooking').checked = !!profile.batch_cooking;
 
+    const storedHouseholdSize = parseInt(localStorage.getItem('mealzy_household_size'), 10);
+    const householdSize = profile.householdSize || (storedHouseholdSize >= 1 && storedHouseholdSize <= 8 ? storedHouseholdSize : 1);
+    document.getElementById('settingHouseholdSize').value = householdSize;
+
     const currency = profile.currency || 'USD';
     document.getElementById('settingCurrency').value = currency;
     document.getElementById('settingCuisine').value = profile.preferred_cuisine || '';
@@ -1073,6 +1091,8 @@
   function saveCooking() {
     const budget = parseFloat(document.getElementById('settingBudget').value);
     if (!budget || budget < 0) { showToast('Please enter a valid budget', 'error'); return; }
+    let householdSize = parseInt(document.getElementById('settingHouseholdSize').value, 10);
+    if (!Number.isInteger(householdSize) || householdSize < 1 || householdSize > 8) householdSize = 1;
     const btn = document.getElementById('saveCookingBtn');
     const statusEl = document.getElementById('saveCookingStatus');
     const errorEl = document.getElementById('saveCookingError');
@@ -1087,6 +1107,8 @@
       profile.preferred_cuisine = document.getElementById('settingCuisine').value;
       profile.language = document.getElementById('settingLanguage').value;
       profile.batch_cooking = document.getElementById('settingBatchCooking').checked;
+      profile.householdSize = householdSize;
+      localStorage.setItem('mealzy_household_size', String(householdSize));
       saveProfile();
       if (btn) { btn.textContent = 'Saved'; btn.disabled = false; }
       if (statusEl) { statusEl.textContent = 'Preferences saved'; statusEl.style.display = 'inline'; }

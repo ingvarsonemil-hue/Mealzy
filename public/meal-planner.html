@@ -459,15 +459,30 @@
     </div>
 
     <!-- VIEW TOGGLE & PRINT -->
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
       <div class="view-toggle">
         <button class="view-toggle-btn active" id="dayViewBtn" onclick="setView('day')">Day View</button>
         <button class="view-toggle-btn" id="weekViewBtn" onclick="setView('week')">Week View</button>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="window.print()" title="Print meal plan" style="display:flex;align-items:center;gap:0.4rem;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Print
-      </button>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--clr-muted-fg);" for="householdSizeSelect">
+          Servings for
+          <select class="form-select" id="householdSizeSelect" style="width:auto;padding:0.3rem 1.75rem 0.3rem 0.6rem;font-size:0.82rem;" onchange="setHouseholdSize(this.value)">
+            <option value="1">1 person</option>
+            <option value="2">2 people</option>
+            <option value="3">3 people</option>
+            <option value="4">4 people</option>
+            <option value="5">5 people</option>
+            <option value="6">6 people</option>
+            <option value="7">7 people</option>
+            <option value="8">8 people</option>
+          </select>
+        </label>
+        <button class="btn btn-outline btn-sm" onclick="window.print()" title="Print meal plan" style="display:flex;align-items:center;gap:0.4rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print
+        </button>
+      </div>
     </div>
 
     <!-- DATE NAVIGATOR (day view only) -->
@@ -686,10 +701,29 @@
     document.getElementById('mobileUserName').textContent = profile.name || 'User';
     applyNavTranslations();
 
+    const householdSelect = document.getElementById('householdSizeSelect');
+    if (householdSelect) householdSelect.value = String(profile.householdSize || getHouseholdSize());
+
     setDateStr();
     loadMeals();
     checkPlanLimitBanner();
     checkPendingRecipe();
+  }
+
+  function setHouseholdSize(value) {
+    let size = parseInt(value, 10);
+    if (!Number.isInteger(size) || size < 1 || size > 8) size = 1;
+    localStorage.setItem('mealzy_household_size', String(size));
+    if (profile) {
+      profile.householdSize = size;
+      localStorage.setItem('mealzy_profile', JSON.stringify(profile));
+      fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile })
+      }).catch(() => {});
+    }
+    renderMeals();
   }
 
   function setDateStr() {
@@ -741,6 +775,7 @@
       return;
     }
 
+    const householdSize = getHouseholdSize();
     container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => {
       const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
       return `
@@ -772,9 +807,11 @@
           </button>
           <div class="expandable" id="ingredients${i}" style="max-height:0;transition:max-height 0.3s ease;">
             <ul class="ingredients-list">
-              ${(meal.ingredients || []).map(ing =>
-                `<li><span>${escHtml(ing.name)}</span><span class="text-muted">${escHtml(ing.amount)}${ing.cost ? ` &middot; $${ing.cost.toFixed(2)}` : ''}</span></li>`
-              ).join('')}
+              ${(meal.ingredients || []).map(ing => {
+                const scaledAmount = scaleAmount(ing.amount, householdSize);
+                const scaledCost = scaleCost(ing.cost, householdSize);
+                return `<li><span>${escHtml(ing.name)}</span><span class="text-muted">${escHtml(scaledAmount)}${scaledCost ? ` &middot; $${scaledCost.toFixed(2)}` : ''}</span></li>`;
+              }).join('')}
             </ul>
           </div>
           <button class="expand-btn" style="margin-top:0.35rem;" onclick="toggleSection('instructions${i}', this)">

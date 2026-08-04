@@ -1012,9 +1012,12 @@
       ${meal.cookTime ? `<span class="macro-pill">${ICO.clock} ${escHtml(meal.cookTime)} min</span>` : ''}
     `;
     const ingList = meal.ingredients || [];
-    document.getElementById('modalIngredients').innerHTML = ingList.map(ing =>
-      `<li><span>${escHtml(ing.name)}</span><span class="text-muted">${escHtml(ing.amount)}${ing.cost ? ` · ${getCurrencySymbol(profile.currency)}${ing.cost.toFixed(2)}` : ''}</span></li>`
-    ).join('');
+    const householdSize = getHouseholdSize();
+    document.getElementById('modalIngredients').innerHTML = ingList.map(ing => {
+      const scaledAmount = scaleAmount(ing.amount, householdSize);
+      const scaledCost = scaleCost(ing.cost, householdSize);
+      return `<li><span>${escHtml(ing.name)}</span><span class="text-muted">${escHtml(scaledAmount)}${scaledCost ? ` · ${getCurrencySymbol(profile.currency)}${scaledCost.toFixed(2)}` : ''}</span></li>`;
+    }).join('');
     const instList = meal.instructions || [];
     document.getElementById('modalInstructions').innerHTML = instList.map(step =>
       `<li>${escHtml(step)}</li>`
