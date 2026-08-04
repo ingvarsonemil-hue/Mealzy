@@ -477,6 +477,8 @@
     thumbDn: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2V13L12 21L10.5 20.5C10 20.3 9.5 19.7 9.5 19V15H4C3.2 15 2.5 14.3 2.5 13.5L4 6C4.2 5 5 4.5 5.8 4.5H17"/><path d="M17 13H20.5C21 13 21.5 12.5 21.5 12V2.5C21.5 2 21 1.5 20.5 1.5H17"/></svg>`,
     fire: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C12 3 10 7 9 9.5C8 8 8 6 9 4C6.5 6.5 6 9 6 11.5C6 15.8 8.7 19 12 19C15.3 19 18 15.8 18 11.5C18 9 17.5 7.5 16 6C16.5 7.5 16.5 9 16 10.5C15 8.5 14.5 6.5 12 3Z"/></svg>`,
     medal: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="6.5"/><path d="M8.5 3.5L6 8H10L12 5L14 8H18L15.5 3.5C15 2.7 14.2 2.5 13.5 2.5H10.5C9.8 2.5 9 2.7 8.5 3.5Z"/></svg>`,
+    starOutline: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L14.9 9.4L21.4 10.4L16.7 15L17.8 21.5L12 18.4L6.2 21.5L7.3 15L2.6 10.4L9.1 9.4L12 3.5Z"/></svg>`,
+    starFilled: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L14.9 9.4L21.4 10.4L16.7 15L17.8 21.5L12 18.4L6.2 21.5L7.3 15L2.6 10.4L9.1 9.4L12 3.5Z"/></svg>`,
   };
 
   // Dark mode
@@ -533,6 +535,44 @@
   let waterCount = 0;
   const today = new Date().toISOString().split('T')[0];
   let calorieChart = null;
+  let favoriteKeys = new Set();
+
+  async function loadFavorites() {
+    try {
+      const res = await fetch('/api/favorites');
+      if (res.ok) {
+        const data = await res.json();
+        favoriteKeys = new Set((data.favorites || []).map(f => f.mealKey));
+      }
+    } catch (e) { /* offline — favorites stay empty */ }
+  }
+
+  async function toggleFavorite(index) {
+    const meal = todayMeals[index];
+    if (!meal || !meal.name) return;
+    const key = meal.name.trim().toLowerCase();
+    const isFav = favoriteKeys.has(key);
+    try {
+      if (isFav) {
+        const res = await fetch('/api/favorites/' + encodeURIComponent(key), { method: 'DELETE' });
+        if (!res.ok) throw new Error('delete failed');
+        favoriteKeys.delete(key);
+        showToast('Removed from favorites', 'success');
+      } else {
+        const res = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ meal })
+        });
+        if (!res.ok) throw new Error('save failed');
+        favoriteKeys.add(key);
+        showToast('Added to favorites', 'success');
+      }
+    } catch (e) {
+      showToast('Could not update favorites', 'error');
+    }
+    renderMeals();
+  }
 
   async function init() {
     // Auth: server session is source of truth
@@ -668,6 +708,7 @@
       todayMeals = [];
     }
 
+    await loadFavorites();
     renderMeals();
     updateStats();
   }
@@ -800,6 +841,7 @@
     container.innerHTML = `<div class="grid-2" role="list">${todayMeals.map((meal, i) => {
       const r = ratings[meal.name] || 0;
       const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
+      const isFav = favoriteKeys.has((meal.name || '').trim().toLowerCase());
       return `
       <div class="meal-card-v2 mcv2-${meal.type} ${meal.completed ? 'completed' : ''}" id="mealCard${i}" role="listitem">
         <div class="mcv2-header">
@@ -809,6 +851,7 @@
             <span class="mcv2-stat">${ICO.zap} ${meal.protein}g protein</span>
             ${meal.cookTime ? `<span class="mcv2-stat">${ICO.clock} ${meal.cookTime} min</span>` : ''}
           </div>
+          <button type="button" onclick="toggleFavorite(${i})" aria-pressed="${isFav}" aria-label="${isFav ? 'Remove ' + escHtml(meal.name) + ' from favorites' : 'Add ' + escHtml(meal.name) + ' to favorites'}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}" style="background:none;border:none;padding:0.15rem;margin-left:0.4rem;cursor:pointer;display:inline-flex;align-items:center;color:${isFav ? 'var(--clr-primary)' : 'var(--clr-muted-fg)'};">${isFav ? ICO.starFilled : ICO.starOutline}</button>
         </div>
         <div class="mcv2-name">${escHtml(meal.name)}</div>
         <p class="mcv2-desc">${escHtml(meal.description || '')}</p>
