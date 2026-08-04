@@ -94,6 +94,36 @@ export const HelpCircle = (props) => (
   </svg>
 );
 
+/* Meal-course marks for the sample plan. Line-art only, never emoji. */
+export const Sunrise = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" {...base} strokeWidth="1.8" aria-hidden="true" {...props}>
+    <path d="M12 3v3" />
+    <path d="m5.6 8.6 2.1 2.1" />
+    <path d="m18.4 8.6-2.1 2.1" />
+    <path d="M8 17a4 4 0 0 1 8 0" />
+    <line x1="3" y1="17" x2="5" y2="17" />
+    <line x1="19" y1="17" x2="21" y2="17" />
+    <line x1="4" y1="21" x2="20" y2="21" />
+  </svg>
+);
+
+export const Bowl = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" {...base} strokeWidth="1.8" aria-hidden="true" {...props}>
+    <path d="M3 11h18a9 9 0 0 1-9 9 9 9 0 0 1-9-9z" />
+    <path d="M9 7c0-1.2.9-1.8.9-3" />
+    <path d="M14.1 7c0-1.2.9-1.8.9-3" />
+  </svg>
+);
+
+export const Cutlery = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" {...base} strokeWidth="1.8" aria-hidden="true" {...props}>
+    <path d="M6 3v7a2 2 0 0 0 4 0V3" />
+    <path d="M8 10v11" />
+    <path d="M17 3c-1.7 1-2.5 2.8-2.5 5s.8 3.5 2.5 3.5V3z" />
+    <path d="M17 11.5V21" />
+  </svg>
+);
+
 /* Google brand mark — official multicolor paths, fixed fills by design. */
 export const GoogleLogo = (props) => (
   <svg viewBox="0 0 18 18" width="18" height="18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" {...props}>
