@@ -719,6 +719,7 @@
     const container = document.getElementById('groceryContainer');
     const currency = profile?.currency || 'USD';
     const sym = getCurrencySymbol(currency);
+    const householdSize = getHouseholdSize();
 
     let html = '';
     for (const [catKey, config] of Object.entries(categoryConfig)) {
@@ -732,13 +733,17 @@
             <span class="badge badge-muted" style="margin-left:auto;">${items.length}</span>
           </h3>
           <div>
-            ${items.map((item, idx) => `
+            ${items.map((item, idx) => {
+              const scaledAmount = scaleAmount(item.amount, householdSize);
+              const scaledCost = scaleCost(item.cost, householdSize);
+              return `
               <div class="grocery-item ${item.checked ? 'checked' : ''}" id="item-${catKey}-${idx}">
                 <input type="checkbox" ${item.checked ? 'checked' : ''} aria-checked="${item.checked ? 'true' : 'false'}" onchange="toggleItem('${catKey}', ${idx}, this.checked)" />
                 <span class="grocery-item-name">${escHtml(item.name)}</span>
-                <span class="grocery-item-qty">${escHtml(item.amount || '')}</span>
-                ${item.cost ? `<span class="grocery-item-cost">${sym}${item.cost.toFixed(2)}</span>` : ''}
-              </div>`).join('')}
+                <span class="grocery-item-qty">${escHtml(scaledAmount || '')}</span>
+                ${scaledCost ? `<span class="grocery-item-cost">${sym}${scaledCost.toFixed(2)}</span>` : ''}
+              </div>`;
+            }).join('')}
           </div>
         </div>`;
     }
@@ -771,12 +776,13 @@
   function updateProgress() {
     if (!groceryList || !groceryList.categories) return;
 
+    const householdSize = getHouseholdSize();
     let total = 0, checked = 0, totalCost = 0;
     for (const items of Object.values(groceryList.categories)) {
       for (const item of items) {
         total++;
         if (item.checked) checked++;
-        if (item.cost) totalCost += item.cost;
+        if (item.cost) totalCost += scaleCost(item.cost, householdSize);
       }
     }
 

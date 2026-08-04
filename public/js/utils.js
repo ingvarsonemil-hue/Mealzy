@@ -19,6 +19,43 @@ function getCurrencySymbol(currency) {
   return symbols[currency] || currency || '$';
 }
 
+// Household size (1-8 people, default 1) — drives recipe/grocery ingredient scaling
+function getHouseholdSize() {
+  const n = parseInt(localStorage.getItem('mealzy_household_size'), 10);
+  return (Number.isInteger(n) && n >= 1 && n <= 8) ? n : 1;
+}
+
+// Scales a quantity string like "200g", "1/2 cup", "1 1/2 tbsp" by a multiplier.
+// Base amounts in meal/recipe data are always for 1 person — this is display-only scaling.
+function scaleAmount(amount, multiplier) {
+  if (amount === null || amount === undefined) return amount;
+  const str = String(amount).trim();
+  if (!multiplier || multiplier === 1) return str;
+  const match = str.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d*\.?\d+)\s*(.*)$/);
+  if (!match) return str;
+  const [, qtyStr, rest] = match;
+  let qty;
+  if (qtyStr.includes(' ')) {
+    const [whole, frac] = qtyStr.split(' ');
+    const [n, d] = frac.split('/').map(Number);
+    qty = Number(whole) + n / d;
+  } else if (qtyStr.includes('/')) {
+    const [n, d] = qtyStr.split('/').map(Number);
+    qty = n / d;
+  } else {
+    qty = parseFloat(qtyStr);
+  }
+  if (!Number.isFinite(qty)) return str;
+  const scaled = qty * multiplier;
+  const scaledStr = Number.isInteger(scaled) ? String(scaled) : scaled.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  return rest ? `${scaledStr} ${rest}` : scaledStr;
+}
+
+function scaleCost(cost, multiplier) {
+  if (typeof cost !== 'number' || !Number.isFinite(cost)) return cost;
+  return cost * (multiplier || 1);
+}
+
 function getLocalStores(currency) {
   const stores = {
     USD: [{n:'Walmart',e:'🏪'},{n:'Kroger',e:'🛒'},{n:'Whole Foods',e:'🌿'},{n:'Trader Joe\'s',e:'🌺'},{n:'Costco',e:'📦'}],
