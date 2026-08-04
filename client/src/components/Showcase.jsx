@@ -26,6 +26,12 @@ const GROCERIES = [
   ]]
 ];
 
+const MACROS = [
+  { label: 'Protein', value: '132 / 150g', pct: 88, color: 'var(--clr-warning)' },
+  { label: 'Carbs', value: '178 / 220g', pct: 81, color: 'var(--clr-info)' },
+  { label: 'Fat', value: '54 / 70g', pct: 77, color: 'var(--clr-accent)' }
+];
+
 function MealCell({ name, kcal }) {
   return (
     <td className="px-3 py-2.5 align-top">
@@ -40,6 +46,9 @@ export default function Showcase() {
     <section id="features" aria-labelledby="showcase-heading" className="bg-parchment py-16 sm:py-20">
       <div className="mx-auto max-w-container px-4 sm:px-5">
         <Reveal className="mx-auto mb-12 max-w-prose text-center">
+          <span className="mb-4 inline-block rounded-full bg-green px-4 py-1 text-xs font-bold uppercase tracking-[0.08em] text-white">
+            Product preview
+          </span>
           <h2
             id="showcase-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
@@ -47,12 +56,12 @@ export default function Showcase() {
             Your week, planned and ready to shop.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            One plan, one list, one trip to the store. Every meal is counted, every ingredient is priced.
+            One plan, one list, one trip to the store. Every meal is counted, every ingredient is priced, every macro is tracked.
           </p>
         </Reveal>
 
-        <div className="grid items-start gap-8 lg:grid-cols-[1.4fr_1fr]">
-          <Reveal className="min-w-0 rounded-lg border border-border-warm bg-cream shadow-card">
+        <div className="grid items-start gap-8 lg:grid-cols-2">
+          <Reveal className="min-w-0 rounded-lg border border-border-warm bg-cream shadow-card lg:col-span-2">
             <div className="flex items-baseline justify-between border-b border-border-warm px-5 py-4">
               <strong className="font-display text-lg font-bold italic">The week</strong>
               <span className="text-sm text-muted-fg">7 days · 2,100 kcal/day target</span>
@@ -103,10 +112,34 @@ export default function Showcase() {
               $11.90 under your $60 budget.
             </p>
           </Reveal>
+
+          <Reveal delay={150} className="min-w-0 rounded-lg border border-border-warm bg-cream p-6 shadow-card">
+            <h3 className="border-b border-dashed border-border-warm pb-3 font-display text-xl font-bold italic">
+              Today's macros
+            </h3>
+            <div className="mb-5 mt-4 flex items-baseline gap-2">
+              <span className="font-display text-3xl font-bold italic text-green">1,840</span>
+              <span className="text-sm text-muted-fg">of 2,100 kcal</span>
+            </div>
+            {MACROS.map((m, i) => (
+              <div key={m.label} className={i > 0 ? 'mt-4' : undefined}>
+                <div className="mb-1.5 flex justify-between text-sm">
+                  <span>{m.label}</span>
+                  <span className="tabular-nums text-muted-fg">{m.value}</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-border-warm">
+                  <div className="h-full rounded-full" style={{ width: `${m.pct}%`, background: m.color }} />
+                </div>
+              </div>
+            ))}
+            <p className="mt-5 text-sm text-muted-fg">
+              Every meal in your plan already has this counted — no extra logging.
+            </p>
+          </Reveal>
         </div>
 
         <Reveal delay={200} as="p" className="mt-8 text-center text-sm text-muted-fg">
-          Generated in about 30 seconds from your preferences. List shown is an excerpt.
+          Generated in about 30 seconds from your preferences. Meal plan, grocery list, and macro totals shown are excerpts.
         </Reveal>
       </div>
     </section>

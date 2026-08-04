@@ -8,7 +8,7 @@ const STEPS = [
   },
   {
     title: 'Get your week in 30 seconds',
-    body: "Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like something — swap it in one click."
+    body: "Calorie and macro targets are set with the Mifflin-St Jeor formula, the same one dietitians use. Recipes are then matched against your grocery budget, so nothing gets suggested that would push you over it. Don't like something — swap it in one click."
   },
   {
     title: 'Shop from the list, cook, repeat',
@@ -27,6 +27,9 @@ export default function HowItWorks() {
           >
             Three steps. Under 2 minutes.
           </h2>
+          <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
+            Calorie targets come from a proven formula, not a guess. Every recipe swap stays inside your grocery budget.
+          </p>
         </Reveal>
         <div className="mx-auto max-w-3xl">
           {STEPS.map((step, i) => (
