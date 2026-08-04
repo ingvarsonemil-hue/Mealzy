@@ -100,11 +100,12 @@ export default function Hero({ onGenerate, generating }) {
             id="hero-heading"
             className="font-display font-black italic leading-[1.05] tracking-[-0.03em] text-on-forest [font-size:clamp(2.5rem,4.6vw+1rem,4.25rem)]"
           >
-            A full week of meals, planned in 30 seconds.
+            A week of meals that fits your budget, your goals, and your schedule.
           </h1>
           <p className="mt-6 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-            Tell Mealzy your calorie goal, your grocery budget, and what you won't eat. It builds
-            all seven days, hits your macros, and writes the shopping list — before you've found a pen.
+            Set your grocery budget and calorie target once. Mealzy plans all seven days around
+            them — quick, practical recipes, a shopping list priced to the dollar, and no more
+            standing at the fridge wondering what's for dinner.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
