@@ -81,7 +81,7 @@ export default function WeeklyMealPlanPage() {
       <main id="main">
         <PageHero
           title="Your free 7-day meal plan — built around your actual goals."
-          lede="Stop reinventing your meals every week. Set your calorie goal, your budget, and your dietary preferences once. Mealzy generates a full 7-day plan with breakfast, lunch, dinner, and snacks — plus a sorted grocery list — in about 30 seconds. Free."
+          lede="Stop reinventing your meals every week. Set your calorie goal, your budget, and your dietary preferences once. Mealzy generates a full 7-day plan with breakfast, lunch, dinner, and snacks — plus a sorted grocery list — in under 1 minute. Free."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
           fine="3 plans/month free. No credit card. No catch."
@@ -118,7 +118,7 @@ export default function WeeklyMealPlanPage() {
           <div className="article-prose">
             <h2>Why weekly meal planning actually works</h2>
             <p>Research consistently shows that people who plan their meals in advance consume fewer calories, spend less on food, and waste less grocery shopping. The mechanism is simple: when you don't plan, you make food decisions when you're hungry — which is the worst time to make decisions. When you've already decided what you're eating for the week, you shop with a list, cook with purpose, and don't stand in front of the fridge at 7pm wondering what to eat.</p>
-            <p>The problem is that planning properly takes time. Most people spend 30–60 minutes per week figuring out meals, checking what's in the fridge, writing a grocery list, and making sure the numbers roughly add up. Mealzy compresses that into 30 seconds.</p>
+            <p>The problem is that planning properly takes time. Most people spend 30–60 minutes per week figuring out meals, checking what's in the fridge, writing a grocery list, and making sure the numbers roughly add up. Mealzy compresses that into under 1 minute.</p>
 
             <h2>What makes a good weekly meal plan?</h2>
             <p>A well-designed weekly meal plan has five properties:</p>
@@ -151,7 +151,7 @@ export default function WeeklyMealPlanPage() {
 
         <ClosingCtaBand
           title="Get your free weekly meal plan."
-          lede="Enter your calorie goal, budget, and dietary preferences once. Mealzy builds the week in 30 seconds — balanced, practical, and grocery-list ready."
+          lede="Enter your calorie goal, budget, and dietary preferences once. Mealzy builds the week in under 1 minute — balanced, practical, and grocery-list ready."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
         />

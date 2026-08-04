@@ -79,13 +79,13 @@ export default function DemoResult({ demo }) {
               </h2>
               <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
                 The full Mealzy plan adds the sorted grocery list with estimated costs, swaps,
-                and your saved preferences — every week, in your language.
+                and your saved preferences — every week.
               </p>
               <Button
                 href="login.html?signup=1" size="lg" className="mt-6"
                 onClick={() => track('demo_to_signup_click', {})}
               >
-                Plan My Week Free
+                Build My Free Plan
               </Button>
               <p className="mt-3 text-sm text-muted-fg">No credit card. No catch. Resets every 30 days.</p>
             </div>

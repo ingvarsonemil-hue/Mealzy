@@ -2,9 +2,9 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 
 const STATS = [
-  { num: '10', label: 'Countries' },
-  { num: '30 s', label: 'To plan a week' },
-  { num: 'Free', label: 'To start' }
+  { num: '< 1 min', label: 'To plan a week' },
+  { num: '21', label: 'Meals per plan' },
+  { num: '$0', label: 'To start' }
 ];
 
 export default function Founder() {

@@ -109,10 +109,10 @@ export default function Header({ links = NAV_LINKS, activeHref }) {
           <Button href="/login.html" variant="quiet" size="sm" className="hidden text-on-forest-body hover:text-on-forest md:inline-flex">
             Sign in
           </Button>
-          {/* Short variant: the full "Plan My Week Free" wraps to two lines in the
+          {/* Short variant: the full "Build My Free Plan" wraps to two lines in the
             * nav bar at the md breakpoint, where space is tightest. */}
           <Button href="/login.html?signup=1" size="sm" className="hidden md:inline-flex">
-            Plan My Week
+            Build My Plan
           </Button>
 
           {/* Mobile slide-out panel */}
@@ -163,7 +163,7 @@ export default function Header({ links = NAV_LINKS, activeHref }) {
                     </a>
                   </li>
                   <li className="mt-4">
-                    <Button href="/login.html?signup=1" full>Plan My Week Free</Button>
+                    <Button href="/login.html?signup=1" full>Build My Free Plan</Button>
                   </li>
                 </ul>
               </Dialog.Content>

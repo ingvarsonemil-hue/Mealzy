@@ -1,9 +1,12 @@
 /* Sample-plan data and the pure math behind the budget slider.
  *
  * Everything the Showcase renders derives from these tables, so the numbers on
- * screen can never drift apart. Two anchors hold the model together at the
- * $60 default: the grocery lines sum to exactly $57.84, and the meal-course
- * costs sum to exactly $57.84 as well.
+ * screen can never drift apart. The grocery lines and the meal-course costs are
+ * anchored to the same total at the $60 default.
+ *
+ * The model is exact to the cent internally, but real grocery prices are not,
+ * so every figure presented as a claim is rendered through range() rather than
+ * money(). Only the budget the visitor typed themselves is shown exactly.
  *
  * Cost scales linearly with the budget (a bigger basket buys more and better
  * ingredients). Calories scale far more gently — cheap calories are easy, so
@@ -17,42 +20,34 @@ export const BUDGET_STEP = 5;
 /* Daily calorie target at the baseline budget. */
 const BASE_KCAL_TARGET = 2100;
 
-/* Macro targets in grams at BASE_KCAL_TARGET, in bar order. */
-const MACRO_TARGETS = [
-  { key: 'protein', label: 'Protein', grams: 150, color: 'var(--clr-warning)' },
-  { key: 'carbs', label: 'Carbs', grams: 220, color: 'var(--clr-info)' },
-  { key: 'fat', label: 'Fat', grams: 70, color: 'var(--clr-accent)' }
-];
-
-/* [day, name, kcal, cents, [protein, carb, fat] as % of calories].
- * Splits are percentages of energy, so grams stay consistent at any scale. */
+/* [day, name, kcal, cents]. */
 const COURSES = [
   ['Breakfast', [
-    ['Mon', 'Greek Yogurt Parfait', 430, 195, [30, 47, 23]],
-    ['Tue', 'Avocado Toast', 410, 180, [15, 46, 39]],
-    ['Wed', 'Oat Porridge & Berries', 440, 165, [19, 57, 24]],
-    ['Thu', 'Scrambled Eggs on Rye', 420, 190, [29, 33, 38]],
-    ['Fri', 'Banana Smoothie Bowl', 400, 175, [19, 62, 19]],
-    ['Sat', 'French Toast', 470, 205, [22, 50, 28]],
-    ['Sun', 'Blueberry Pancakes', 460, 200, [18, 57, 25]]
+    ['Mon', 'Greek Yogurt Parfait', 430, 195],
+    ['Tue', 'Avocado Toast', 410, 180],
+    ['Wed', 'Oat Porridge & Berries', 440, 165],
+    ['Thu', 'Scrambled Eggs on Rye', 420, 190],
+    ['Fri', 'Banana Smoothie Bowl', 400, 175],
+    ['Sat', 'French Toast', 470, 205],
+    ['Sun', 'Blueberry Pancakes', 460, 200]
   ]],
   ['Lunch', [
-    ['Mon', 'Quinoa Buddha Bowl', 610, 273, [24, 52, 24]],
-    ['Tue', 'Lentil Soup', 580, 218, [29, 52, 19]],
-    ['Wed', 'Greek Salad & Pitta', 590, 253, [22, 43, 35]],
-    ['Thu', 'Roasted Tomato Soup', 560, 209, [16, 55, 29]],
-    ['Fri', 'Tuna & Corn Wrap', 620, 283, [36, 42, 22]],
-    ['Sat', 'Caesar Salad', 600, 264, [34, 24, 42]],
-    ['Sun', 'Mushroom Risotto', 640, 230, [16, 59, 25]]
+    ['Mon', 'Quinoa Buddha Bowl', 610, 273],
+    ['Tue', 'Lentil Soup', 580, 218],
+    ['Wed', 'Greek Salad & Pitta', 590, 253],
+    ['Thu', 'Roasted Tomato Soup', 560, 209],
+    ['Fri', 'Tuna & Corn Wrap', 620, 283],
+    ['Sat', 'Caesar Salad', 600, 264],
+    ['Sun', 'Mushroom Risotto', 640, 230]
   ]],
   ['Dinner', [
-    ['Mon', 'Herb-Crusted Salmon', 800, 455, [39, 24, 37]],
-    ['Tue', 'Chicken Stir-Fry', 830, 390, [42, 34, 24]],
-    ['Wed', 'Beef & Black Bean Tacos', 810, 415, [34, 38, 28]],
-    ['Thu', 'Pasta Pomodoro', 840, 325, [19, 62, 19]],
-    ['Fri', 'Coconut Veggie Curry', 830, 340, [16, 48, 36]],
-    ['Sat', 'Roast Chicken & Veg', 790, 400, [44, 23, 33]],
-    ['Sun', 'Baked Cod & Greens', 780, 419, [49, 23, 28]]
+    ['Mon', 'Herb-Crusted Salmon', 800, 455],
+    ['Tue', 'Chicken Stir-Fry', 830, 390],
+    ['Wed', 'Beef & Black Bean Tacos', 810, 415],
+    ['Thu', 'Pasta Pomodoro', 840, 325],
+    ['Fri', 'Coconut Veggie Curry', 830, 340],
+    ['Sat', 'Roast Chicken & Veg', 790, 400],
+    ['Sun', 'Baked Cod & Greens', 780, 419]
   ]]
 ];
 
@@ -76,6 +71,22 @@ const GROCERIES = [
 
 export const money = (cents) => `$${(cents / 100).toFixed(2)}`;
 
+/* Whole dollars, no cents — used for the budget the visitor set themselves. */
+export const dollars = (cents) => `$${Math.round(cents / 100)}`;
+
+/**
+ * A price band around a modelled figure, in whole dollars: `$52–$64`.
+ * Groceries vary by store, city and week, so every figure the page presents as
+ * a claim goes through here instead of quoting a cent-exact total we cannot
+ * stand behind. The band always spans at least one dollar so tiny figures
+ * still read as a range.
+ */
+export function range(cents, spread = 0.1) {
+  const low = Math.floor((cents * (1 - spread)) / 100);
+  const high = Math.max(Math.ceil((cents * (1 + spread)) / 100), low + 1);
+  return `$${low}–$${high}`;
+}
+
 /* Daily calorie target: +12 kcal per extra dollar, so $40 → 1,860 and
  * $60 → 2,100 exactly. */
 const kcalTargetFor = (budget) => 1860 + (budget - MIN_BUDGET) * 12;
@@ -91,12 +102,11 @@ export function planFor(budget) {
 
   const courses = COURSES.map(([course, meals]) => [
     course,
-    meals.map(([day, name, kcal, cents, split]) => ({
+    meals.map(([day, name, kcal, cents]) => ({
       day,
       name,
       kcal: Math.round((kcal * kcalRatio) / 5) * 5,
-      cost: money(Math.round(cents * costRatio)),
-      split
+      cost: range(Math.round(cents * costRatio))
     }))
   ]);
 
@@ -112,34 +122,12 @@ export function planFor(budget) {
     0
   );
 
-  /* Daily averages across all 21 courses, converted from energy to grams. */
-  const perGram = { protein: 4, carbs: 4, fat: 9 };
-  const totals = { protein: 0, carbs: 0, fat: 0 };
-  for (const [, meals] of courses) {
-    for (const { kcal, split } of meals) {
-      totals.protein += (kcal * split[0]) / 100 / perGram.protein;
-      totals.carbs += (kcal * split[1]) / 100 / perGram.carbs;
-      totals.fat += (kcal * split[2]) / 100 / perGram.fat;
-    }
-  }
-
-  const macros = MACRO_TARGETS.map(({ key, label, grams, color }) => {
-    const target = Math.round((grams * kcalRatio) / 5) * 5;
-    const value = Math.round(totals[key] / 7);
-    return { label, value, target, pct: Math.min(100, Math.round((value / target) * 100)), color };
-  });
-
-  const dailyKcal =
-    courses.reduce((n, [, meals]) => n + meals.reduce((s, m) => s + m.kcal, 0), 0) / 7;
-
   return {
     budget,
     courses,
     groceries,
     spend,
     saved: budget * 100 - spend,
-    kcalTarget,
-    dailyKcal: Math.round(dailyKcal),
-    macros
+    kcalTarget
   };
 }

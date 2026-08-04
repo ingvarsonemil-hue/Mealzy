@@ -16,8 +16,8 @@ const DIETS = [
 const TRUST_ITEMS = [
   { icon: Check, label: '3 free plans/month' },
   { icon: Check, label: 'No credit card' },
-  { icon: Check, label: 'Takes 30 seconds' },
-  { icon: Shield, label: 'Used in 10 countries' }
+  { icon: Check, label: 'Under 1 minute' },
+  { icon: Shield, label: 'Nothing to install' }
 ];
 
 /* The interactive planner tool. Same inputs, same clamps, same endpoint
@@ -100,11 +100,11 @@ export default function Hero({ onGenerate, generating, onStartPlan }) {
             id="hero-heading"
             className="font-display font-black italic leading-[1.05] tracking-[-0.03em] text-on-forest [font-size:clamp(2.5rem,4.6vw+1rem,4.25rem)]"
           >
-            Eat better. Spend less.
+            Plan your week of meals inside your grocery budget.
           </h1>
           <p className="mt-6 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-            Your grocery budget turned into a full week of personalized meals in 30 seconds.
-            No endless prompts, no math.
+            Set a weekly spend, get seven days of meals and the grocery list that goes with them.
+            Under 1 minute, no endless prompts, no math.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             {/* Opens the 3-step preview instead of jumping to an empty signup
@@ -112,13 +112,14 @@ export default function Hero({ onGenerate, generating, onStartPlan }) {
             <Button
               href="login.html?signup=1"
               size="lg"
+              className="text-lg font-bold"
               onClick={(e) => {
                 if (!onStartPlan) return;
                 e.preventDefault();
                 onStartPlan();
               }}
             >
-              Plan My Week Free
+              Build My Free Plan
             </Button>
             <Button
               href="#how-it-works" variant="quiet" className="text-on-forest-body hover:text-on-forest"
@@ -132,8 +133,13 @@ export default function Hero({ onGenerate, generating, onStartPlan }) {
             <span aria-hidden="true" className="h-1 w-1 rounded-full bg-on-forest-faint" />
             <span>No credit card required</span>
             <span aria-hidden="true" className="h-1 w-1 rounded-full bg-on-forest-faint" />
-            <span>Instant meal plan</span>
+            <span>Under 1 minute</span>
           </div>
+          {/* States up front what happens to the plan when there is no account,
+            * so the no-signup hook doesn't read as "and then you lose it". */}
+          <p className="mt-4 max-w-prose text-sm leading-[1.6] text-on-forest-muted">
+            Your plan saves to your browser — optional free account to sync across devices.
+          </p>
           <div aria-hidden="true" className="mt-10 hidden max-w-md grid-cols-7 gap-1 lg:grid">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
               <span

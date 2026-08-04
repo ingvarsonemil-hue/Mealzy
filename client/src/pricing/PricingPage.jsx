@@ -163,7 +163,7 @@ export default function PricingPage() {
               Stop planning meals by hand.
             </h2>
             <p className="mx-auto mt-4 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-              Mealzy builds the full week in 30 seconds. Free to start — no credit card.
+              Mealzy builds the full week in under 1 minute. Free to start — no credit card.
             </p>
             <div className="mt-8">
               <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>

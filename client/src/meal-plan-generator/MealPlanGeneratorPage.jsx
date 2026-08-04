@@ -27,8 +27,7 @@ const FACTS = [
   { title: 'Respects your budget', body: 'Set a weekly grocery budget and Mealzy never exceeds it. Every plan includes estimated costs per meal.' },
   { title: 'Grocery list included', body: 'Every ingredient, sorted by supermarket category, with estimated costs. One list for the whole week.' },
   { title: 'Any diet, any restriction', body: 'Vegetarian, vegan, gluten-free, keto, paleo, dairy-free, nut-free, and more. Set once, applied to every plan.' },
-  { title: '11 languages', body: 'Plans generated in English, Swedish, French, German, Spanish, Italian, Portuguese, Dutch, Norwegian, Danish, or Japanese.' },
-  { title: 'Ready in 30 seconds', body: 'Type your preferences once. The full plan — 4 meals per day, 7 days — is ready in about 30 seconds.' }
+  { title: 'Ready in under 1 minute', body: 'Type your preferences once. The full plan — 4 meals per day, 7 days — is ready in under 1 minute.' }
 ];
 
 const FAQS = [
@@ -179,7 +178,7 @@ export default function MealPlanGeneratorPage() {
       <Header />
       <main id="main">
         <PageHero
-          title="Build your full week of meals in 30 seconds."
+          title="Build your full week of meals in under 1 minute."
           lede="Tell Mealzy your calorie goal, weekly budget, and any dietary preferences. It generates a balanced, practical meal plan and a sorted grocery list — completely free. No credit card, no catch."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
@@ -203,14 +202,14 @@ export default function MealPlanGeneratorPage() {
           <div className="article-prose mt-10">
             <h2>What is an AI meal plan generator?</h2>
             <p>An AI meal plan generator uses artificial intelligence to create a personalised weekly meal plan based on your specific goals, dietary preferences, and budget. Unlike generic meal plans you find in magazines, an AI generator adapts to your exact calorie target, macros, allergies, and cooking skill level.</p>
-            <p>Mealzy is an AI meal plan generator that takes about 30 seconds to produce a full 7-day plan with breakfast, lunch, dinner, and a snack for each day — plus a complete grocery list with estimated costs.</p>
+            <p>Mealzy is an AI meal plan generator that takes under 1 minute to produce a full 7-day plan with breakfast, lunch, dinner, and a snack for each day — plus a complete grocery list with estimated costs.</p>
 
             <h2>How does the Mealzy meal plan generator work?</h2>
             <p>Mealzy uses Claude AI (by Anthropic) to generate meal plans. Here's the process:</p>
             <ul>
               <li>You enter your daily calorie goal, weekly grocery budget, cooking skill, and any dietary restrictions or allergies.</li>
               <li>Mealzy sends this to Claude with a detailed prompt that includes macro targets, budget constraints, and dietary requirements.</li>
-              <li>Claude generates a 7-day meal plan that respects all your constraints — typically in under 30 seconds.</li>
+              <li>Claude generates a 7-day meal plan that respects all your constraints — typically in under 1 minute.</li>
               <li>Mealzy formats the output into a readable plan with a sorted grocery list, calorie counts, and per-meal costs.</li>
             </ul>
             <p>The result is practical, home-cooked meals using ingredients you can find in any regular supermarket.</p>
@@ -259,7 +258,7 @@ export default function MealPlanGeneratorPage() {
         </div>
 
         <ClosingCtaBand
-          title="Your week, planned in 30 seconds."
+          title="Your week, planned in under 1 minute."
           lede="Set your goals once. Mealzy builds every week from there — meals, macros, and the grocery list."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"

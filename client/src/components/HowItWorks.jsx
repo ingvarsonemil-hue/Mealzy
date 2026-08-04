@@ -7,7 +7,7 @@ const STEPS = [
     body: "Calories, weekly budget, diet, and anything you can't eat. Two minutes, once — it remembers."
   },
   {
-    title: 'Get your week in 30 seconds',
+    title: 'Get your week in under 1 minute',
     body: "Targets use the Mifflin-St Jeor formula dietitians use. Every recipe is matched to your budget, so nothing gets suggested that pushes you over. Swap any meal in one click."
   },
   {
@@ -25,7 +25,7 @@ export default function HowItWorks() {
             id="how-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
           >
-            Three steps. Under 2 minutes.
+            Three steps. One week planned.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
             Real targets from a proven formula. Every swap stays inside your budget.

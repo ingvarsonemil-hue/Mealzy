@@ -2,12 +2,13 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { cn, prefersReducedMotion } from '@/lib/utils';
 
-/* Typographic treatment — no icon circles. Oversized Fraunces numerals carry
- * the visual interest; sizes come from the mealzy-design type scale. */
+/* Three pillars, nothing else. Typographic treatment — no icon circles.
+ * Oversized Fraunces numerals carry the visual interest; sizes come from the
+ * mealzy-design type scale. */
 const FEATURES = [
   {
     label: 'Plan',
-    title: 'AI meal planning',
+    title: 'A week that builds itself',
     body: 'Tell it your calories, your budget, and what you like. It builds the whole week — practical, home-cooked meals using ingredients from any regular supermarket.'
   },
   {
@@ -16,24 +17,9 @@ const FEATURES = [
     body: "Every ingredient from your week's plan, organised by category, with estimated costs. You only buy what you need. Nothing goes to waste."
   },
   {
-    label: 'Spend',
+    label: 'Save',
     title: 'A budget that holds',
     body: "Set your weekly grocery budget once. Mealzy builds every plan around it. The number doesn't move unless you change it."
-  },
-  {
-    label: 'Ask',
-    title: 'AI nutrition coach',
-    body: "Ask Mia — your AI nutritionist — anything. Recipe ideas, macro questions, what to cook with what's in your fridge. Available any time."
-  },
-  {
-    label: 'Track',
-    title: 'Calorie and macro tracking',
-    body: 'Every meal is already calculated. Log what you eat, see your weekly trends, and watch how your nutrition stacks up against your targets.'
-  },
-  {
-    label: 'Speak',
-    title: '11 languages',
-    body: 'English, Swedish, Norwegian, Danish, German, French, Spanish, Italian, Portuguese, Dutch, Japanese. The whole app works in your language.'
   }
 ];
 
@@ -73,11 +59,15 @@ export default function FeaturesGrid() {
             id="included-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
           >
-            Never buy food you won't use.
+            Plan. Shop. Save.
           </h2>
+          <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
+            Three things, done properly. Nothing else to learn.
+          </p>
         </Reveal>
 
-        <div ref={gridRef} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Three pillars, so one row from md up rather than a 2 + 1 orphan. */}
+        <div ref={gridRef} className="grid gap-5 md:grid-cols-3">
           {FEATURES.map((f, i) => (
             /* Outer div owns the entrance animation; inner article owns hover,
              * so the stagger delay never slows down hover feedback. */

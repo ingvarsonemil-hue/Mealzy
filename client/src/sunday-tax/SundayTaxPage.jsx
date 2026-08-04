@@ -17,7 +17,7 @@ const MOCKUP_DAYS = [
 ];
 
 const TRUST_ITEMS = [
-  'Full week in 30 seconds',
+  'Full week in under 1 minute',
   'Hits your exact calorie targets',
   'Stays within your grocery budget',
   'Free — no credit card'
@@ -25,7 +25,7 @@ const TRUST_ITEMS = [
 
 const HOW_IT_WORKS = [
   { title: 'Tell Mealzy about you', body: "Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes, once." },
-  { title: 'Get your week in 30 seconds', body: "Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like a meal — swap it in one click." },
+  { title: 'Get your week in under 1 minute', body: "Mealzy builds 7 days of meals balanced to your exact targets and budget. Don't like a meal — swap it in one click." },
   { title: 'Shop the list, cook, done', body: 'The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That\'s the whole system.' }
 ];
 
@@ -37,7 +37,7 @@ const BEFORE = [
 ];
 
 const AFTER = [
-  '30 seconds on Sunday. The whole week is planned before you\'ve finished your coffee',
+  'Under 1 minute on Sunday. The whole week is planned before you\'ve finished your coffee',
   'One grocery run with a list that already has everything and nothing extra',
   'You know what\'s for dinner every night of the week. There\'s a plan. It\'s already in your fridge.',
   'Hitting your targets consistently because the plan exists before the week starts, not during it'
@@ -68,7 +68,7 @@ export default function SundayTaxPage() {
                 Stop spending 2 hours every Sunday on meal planning.
               </h1>
               <p className="mt-6 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-                Tell Mealzy your goals and your weekly grocery budget. It builds the whole week — meals, macros, grocery list — in about 30 seconds. Then you shop, cook, and repeat. That's the whole system.
+                Tell Mealzy your goals and your weekly grocery budget. It builds the whole week — meals, budget, grocery list — in under 1 minute. Then you shop, cook, and repeat. That's the whole system.
               </p>
               <div className="mt-8">
                 <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
@@ -169,7 +169,7 @@ export default function SundayTaxPage() {
 
         <ClosingCtaBand
           title="Your Sunday just got 90 minutes back."
-          lede="Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card."
+          lede="Mealzy builds the week, holds your budget, and writes the grocery list in under 1 minute. Free to start — no credit card."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
         />
