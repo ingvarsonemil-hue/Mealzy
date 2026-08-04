@@ -3,6 +3,8 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import DemoResult from '@/components/DemoResult';
 import Showcase from '@/components/Showcase';
+import Comparison from '@/components/Comparison';
+import Proof from '@/components/Proof';
 import HowItWorks from '@/components/HowItWorks';
 import FeaturesGrid from '@/components/FeaturesGrid';
 import Founder from '@/components/Founder';
@@ -47,6 +49,8 @@ export default function App() {
         <Hero onGenerate={runDemo} generating={demo.status === 'loading'} />
         <DemoResult demo={demo} />
         <Showcase />
+        <Comparison />
+        <Proof />
         <HowItWorks />
         <FeaturesGrid />
         <Founder />

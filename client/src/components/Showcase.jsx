@@ -1,20 +1,13 @@
 import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/Button';
-import { Check, Sunrise, Bowl, Cutlery } from '@/components/icons';
+import { Sunrise, Bowl, Cutlery } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import {
   planFor, money, BASE_BUDGET, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
 } from '@/components/showcase-plan';
 
 const COURSE_ICON = { Breakfast: Sunrise, Lunch: Bowl, Dinner: Cutlery };
-
-const VS_CHATGPT = [
-  ['Categorized grocery list', 'Sorted by aisle, priced per item.'],
-  ['Deterministic pricing', 'The same plan costs the same every time.'],
-  ['1-click recipe swaps', 'Swap a meal, the budget re-checks itself.'],
-  ['Macro tracking', 'Protein, carbs, and fat counted for every meal.']
-];
 
 const num = (n) => n.toLocaleString('en-US');
 
@@ -263,22 +256,8 @@ export default function Showcase() {
           </Reveal>
         </div>
 
-        <Reveal delay={180} className="mt-6 rounded-lg border border-border-warm bg-cream p-6 shadow-card sm:p-8">
-          <h3 className="font-display text-2xl font-bold italic leading-[1.15] tracking-[-0.01em]">
-            Why Mealzy vs ChatGPT?
-          </h3>
-          <ul role="list" className="mt-5 grid gap-4 sm:grid-cols-2">
-            {VS_CHATGPT.map(([title, body]) => (
-              <li key={title} className="flex gap-3">
-                <Check className="mt-1 shrink-0 text-green" />
-                <div>
-                  <span className="block font-semibold">{title}</span>
-                  <span className="text-[15px] leading-[1.6] text-muted-fg">{body}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
+        {/* The Mealzy-vs-ChatGPT list that used to sit here now lives in its own
+         * section (Comparison.jsx), immediately below this one. */}
 
         <Reveal delay={200} as="p" className="mt-8 text-center text-sm text-muted-fg">
           Sample plan, generated in about 30 seconds. Prices are estimates and scale with the
