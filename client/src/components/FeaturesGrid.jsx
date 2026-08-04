@@ -73,7 +73,7 @@ export default function FeaturesGrid() {
             id="included-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
           >
-            Everything in one place. Nothing you don't need.
+            Never buy food you won't use.
           </h2>
         </Reveal>
 

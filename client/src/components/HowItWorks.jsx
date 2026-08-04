@@ -4,15 +4,15 @@ import Reveal from '@/components/Reveal';
 const STEPS = [
   {
     title: 'Tell Mealzy about you',
-    body: "Your calorie goal, weekly grocery budget, dietary preferences, and anything you can't eat. Takes about 2 minutes and it remembers everything."
+    body: "Calories, weekly budget, diet, and anything you can't eat. Two minutes, once — it remembers."
   },
   {
     title: 'Get your week in 30 seconds',
-    body: "Calorie and macro targets are set with the Mifflin-St Jeor formula, the same one dietitians use. Recipes are then matched against your grocery budget, so nothing gets suggested that would push you over it. Don't like something — swap it in one click."
+    body: "Targets use the Mifflin-St Jeor formula dietitians use. Every recipe is matched to your budget, so nothing gets suggested that pushes you over. Swap any meal in one click."
   },
   {
     title: 'Shop from the list, cook, repeat',
-    body: "The grocery list is already sorted by category with estimated costs. Tick things off as you shop. That's the whole system."
+    body: "Sorted by category, priced per item. Tick things off as you shop. That's it."
   }
 ];
 
@@ -28,7 +28,7 @@ export default function HowItWorks() {
             Three steps. Under 2 minutes.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            Calorie targets come from a proven formula, not a guess. Every recipe swap stays inside your grocery budget.
+            Real targets from a proven formula. Every swap stays inside your budget.
           </p>
         </Reveal>
         <div className="mx-auto max-w-3xl">
