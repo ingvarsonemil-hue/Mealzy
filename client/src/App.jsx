@@ -11,11 +11,16 @@ import Founder from '@/components/Founder';
 import Faq from '@/components/Faq';
 import ClosingCta from '@/components/ClosingCta';
 import EmailPopup from '@/components/EmailPopup';
+import InteractiveOnboarding from '@/components/InteractiveOnboarding';
 import Footer from '@/components/Footer';
 import { generateDemoMeal, track, captureReferral } from '@/lib/api';
 
 export default function App() {
   const [demo, setDemo] = React.useState({ status: 'idle', plan: null, error: null, rateLimited: false, cals: 2000, budget: 60 });
+  /* Owned here because the two CTAs that open it — the hero's and the mobile
+   * sticky bar inside Showcase — sit in different subtrees. */
+  const [onboarding, setOnboarding] = React.useState(false);
+  const startPlan = React.useCallback(() => setOnboarding(true), []);
 
   const bootRan = React.useRef(false);
   React.useEffect(() => {
@@ -46,9 +51,9 @@ export default function App() {
       <a href="#main" className="skip-link">Skip to main content</a>
       <Header />
       <main id="main">
-        <Hero onGenerate={runDemo} generating={demo.status === 'loading'} />
+        <Hero onGenerate={runDemo} generating={demo.status === 'loading'} onStartPlan={startPlan} />
         <DemoResult demo={demo} />
-        <Showcase />
+        <Showcase onStartPlan={startPlan} />
         <Comparison />
         <Proof />
         <HowItWorks />
@@ -57,6 +62,7 @@ export default function App() {
         <Faq />
         <ClosingCta />
       </main>
+      <InteractiveOnboarding open={onboarding} onOpenChange={setOnboarding} />
       <EmailPopup />
       <Footer />
     </>

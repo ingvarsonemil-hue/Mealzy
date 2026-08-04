@@ -82,7 +82,7 @@ function PlannerCard({ onGenerate, generating }) {
   );
 }
 
-export default function Hero({ onGenerate, generating }) {
+export default function Hero({ onGenerate, generating, onStartPlan }) {
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative bg-forest text-on-forest">
       {/* Radial depth in the hero background */}
@@ -107,7 +107,19 @@ export default function Hero({ onGenerate, generating }) {
             No endless prompts, no math.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
+            {/* Opens the 3-step preview instead of jumping to an empty signup
+              * form. The href stays as the no-JS fallback. */}
+            <Button
+              href="login.html?signup=1"
+              size="lg"
+              onClick={(e) => {
+                if (!onStartPlan) return;
+                e.preventDefault();
+                onStartPlan();
+              }}
+            >
+              Plan My Week Free
+            </Button>
             <Button
               href="#how-it-works" variant="quiet" className="text-on-forest-body hover:text-on-forest"
               onClick={(e) => scrollToHash(e, '#how-it-works')}
