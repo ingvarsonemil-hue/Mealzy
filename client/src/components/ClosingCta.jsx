@@ -17,7 +17,7 @@ export default function ClosingCta() {
           Free to start — no credit card.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
+          <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
           <Button href="pricing.html" variant="veil" size="lg">See pricing</Button>
         </div>
       </Reveal>

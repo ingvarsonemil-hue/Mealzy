@@ -82,7 +82,7 @@ export default function WeeklyMealPlanPage() {
         <PageHero
           title="Your free 7-day meal plan — built around your actual goals."
           lede="Stop reinventing your meals every week. Set your calorie goal, your budget, and your dietary preferences once. Mealzy generates a full 7-day plan with breakfast, lunch, dinner, and snacks — plus a sorted grocery list — in about 30 seconds. Free."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
           fine="3 plans/month free. No credit card. No catch."
         />
@@ -152,7 +152,7 @@ export default function WeeklyMealPlanPage() {
         <ClosingCtaBand
           title="Get your free weekly meal plan."
           lede="Enter your calorie goal, budget, and dietary preferences once. Mealzy builds the week in 30 seconds — balanced, practical, and grocery-list ready."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
         />
       </main>

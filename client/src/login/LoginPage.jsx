@@ -208,7 +208,7 @@ export default function LoginPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-12 text-sm text-on-forest-muted">Built by Emil, 16, Sweden</p>
+            <p className="mt-12 text-sm text-on-forest-muted">Built by Emil, Sweden</p>
           </div>
         </div>
 

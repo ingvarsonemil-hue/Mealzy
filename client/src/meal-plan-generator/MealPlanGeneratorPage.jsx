@@ -163,7 +163,7 @@ function SamplePlannerPanel() {
             </div>
           </div>
           <div className="mt-5 text-center">
-            <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
+            <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
             <p className="mt-2 text-[0.78rem] text-muted-fg">The full week includes all 7 days, breakfast, snacks, and a full grocery list.</p>
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function MealPlanGeneratorPage() {
         <PageHero
           title="Build your full week of meals in 30 seconds."
           lede="Tell Mealzy your calorie goal, weekly budget, and any dietary preferences. It generates a balanced, practical meal plan and a sorted grocery list — completely free. No credit card, no catch."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
           fine="Free to start. 3 plans/month at no cost. No credit card."
         />
@@ -261,7 +261,7 @@ export default function MealPlanGeneratorPage() {
         <ClosingCtaBand
           title="Your week, planned in 30 seconds."
           lede="Set your goals once. Mealzy builds every week from there — meals, macros, and the grocery list."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
         />
       </main>

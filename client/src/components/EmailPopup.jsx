@@ -82,7 +82,7 @@ export default function EmailPopup() {
               aria-describedby={error ? 'popupEmailError' : undefined}
               className="h-12 w-full rounded-md border border-forest-line bg-white/10 px-4 text-base text-on-forest placeholder:text-white/70 focus:border-green-light focus:outline-none focus:ring-[3px] focus:ring-green-light/20"
             />
-            <Button full size="lg" onClick={submit}>Start Planning Free</Button>
+            <Button full size="lg" onClick={submit}>Plan My Week Free</Button>
           </div>
           {error && (
             <div id="popupEmailError" role="alert" className="mt-2 text-sm font-medium text-[#fda4af]">

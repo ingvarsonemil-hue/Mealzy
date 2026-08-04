@@ -100,15 +100,14 @@ export default function Hero({ onGenerate, generating }) {
             id="hero-heading"
             className="font-display font-black italic leading-[1.05] tracking-[-0.03em] text-on-forest [font-size:clamp(2.5rem,4.6vw+1rem,4.25rem)]"
           >
-            A week of meals that fits your budget, your goals, and your schedule.
+            Eat better. Spend less.
           </h1>
           <p className="mt-6 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-            Set your grocery budget and calorie target once. Mealzy plans all seven days around
-            them — quick, practical recipes, a shopping list priced to the dollar, and no more
-            standing at the fridge wondering what's for dinner.
+            Your grocery budget turned into a full week of personalized meals in 30 seconds.
+            No endless prompts, no math.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
+            <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
             <Button
               href="#how-it-works" variant="quiet" className="text-on-forest-body hover:text-on-forest"
               onClick={(e) => scrollToHash(e, '#how-it-works')}
@@ -117,11 +116,11 @@ export default function Hero({ onGenerate, generating }) {
             </Button>
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-on-forest-muted">
-            <span>No credit card</span>
+            <span>3 simple questions</span>
             <span aria-hidden="true" className="h-1 w-1 rounded-full bg-on-forest-faint" />
-            <span>3 free plans a month</span>
+            <span>No credit card required</span>
             <span aria-hidden="true" className="h-1 w-1 rounded-full bg-on-forest-faint" />
-            <span>Works in 11 languages</span>
+            <span>Instant meal plan</span>
           </div>
           <div aria-hidden="true" className="mt-10 hidden max-w-md grid-cols-7 gap-1 lg:grid">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (

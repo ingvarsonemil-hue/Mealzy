@@ -166,7 +166,7 @@ export default function PricingPage() {
               Mealzy builds the full week in 30 seconds. Free to start — no credit card.
             </p>
             <div className="mt-8">
-              <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
+              <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
             </div>
           </Reveal>
         </section>

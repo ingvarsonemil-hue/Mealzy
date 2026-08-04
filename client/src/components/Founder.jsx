@@ -25,7 +25,7 @@ export default function Founder() {
             </div>
             <div>
               <div className="text-base font-semibold">Emil Ingvarson</div>
-              <div className="text-sm text-on-forest-muted">Founder · 16 years old · Uppsala, Sweden</div>
+              <div className="text-sm text-on-forest-muted">Founder · Uppsala, Sweden</div>
             </div>
           </div>
           <div className="mt-10 grid grid-cols-3 gap-6 border-t border-forest-line pt-8">
