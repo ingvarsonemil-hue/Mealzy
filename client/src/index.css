@@ -41,6 +41,13 @@
   --color-forest-deep:    #12291d;
   --clr-green-deep:       #2d6e4a;
 
+  /* Macro-bar and dark-surface tokens, mirrored from public/css/tokens.css.
+   * Without these the macro bars render transparent on the React pages. */
+  --clr-page-dark:     #1a2e22;          /* Dark mode card / chat bg */
+  --clr-warning:       hsl(32,88%,54%);  /* Protein, warm amber */
+  --clr-info:          hsl(200,100%,50%); /* Carbs, info blue */
+  --clr-accent:        hsl(260,60%,55%); /* Fat, purple accent */
+
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* RGB triplets for Tailwind alpha composition (theme-constant colors only) */
