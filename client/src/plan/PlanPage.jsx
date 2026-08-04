@@ -185,7 +185,7 @@ export default function PlanPage() {
                 <p className="mx-auto mb-5 mt-2 max-w-[44ch] text-[0.92rem] text-on-forest-body">
                   Tell Mealzy your calorie goal, budget, and dietary preferences. It builds your full week of meals and writes the grocery list — in 30 seconds. Free, no credit card.
                 </p>
-                <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
+                <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
                 <p className="mt-3.5 text-[0.78rem] text-on-forest-muted">
                   Made with <a href="https://mealzy.org" className="font-bold text-on-forest">Mealzy</a> — free AI meal planner
                 </p>

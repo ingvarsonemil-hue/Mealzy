@@ -72,7 +72,7 @@ export default function BudgetMealPlanPage() {
         <PageHero
           title="Eat well for $50 a week. Here's exactly how."
           lede="The average UK household spends £65/week on food. The average American spends $160. Both numbers are completely avoidable. This page shows you how to eat well on $50/week — and how to generate a personalised $50 plan for free, built around your actual goals."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1&budget=50"
           fine="Free. No credit card. Your plan stays under $50."
         />
@@ -148,7 +148,7 @@ export default function BudgetMealPlanPage() {
         <ClosingCtaBand
           title="Generate your $50 meal plan — free."
           lede="Tell Mealzy your weekly budget and calorie goal. It builds 7 days of budget-friendly meals and a sorted grocery list in 30 seconds."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1&budget=50"
         />
       </main>

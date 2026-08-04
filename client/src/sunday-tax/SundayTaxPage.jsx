@@ -71,7 +71,7 @@ export default function SundayTaxPage() {
                 Tell Mealzy your goals and your weekly grocery budget. It builds the whole week — meals, macros, grocery list — in about 30 seconds. Then you shop, cook, and repeat. That's the whole system.
               </p>
               <div className="mt-8">
-                <Button href="login.html?signup=1" size="lg">Start Planning Free</Button>
+                <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
               </div>
               <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-on-forest-muted">
                 <span>Free to start</span>
@@ -170,7 +170,7 @@ export default function SundayTaxPage() {
         <ClosingCtaBand
           title="Your Sunday just got 90 minutes back."
           lede="Mealzy builds the week, hits your macros, and writes the grocery list in about 30 seconds. Free to start — no credit card."
-          ctaLabel="Start Planning Free"
+          ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
         />
       </main>

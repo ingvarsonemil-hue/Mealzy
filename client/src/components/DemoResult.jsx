@@ -85,7 +85,7 @@ export default function DemoResult({ demo }) {
                 href="login.html?signup=1" size="lg" className="mt-6"
                 onClick={() => track('demo_to_signup_click', {})}
               >
-                Start Planning Free
+                Plan My Week Free
               </Button>
               <p className="mt-3 text-sm text-muted-fg">No credit card. No catch. Resets every 30 days.</p>
             </div>

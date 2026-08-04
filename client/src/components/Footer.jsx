@@ -31,7 +31,7 @@ const COLUMNS = [
 const TRUST_BADGES = [
   'Powered by USDA Nutrition Data',
   'Deterministic Grocery Engine',
-  'Over 10,000 meals planned'
+  'Every price calculated, not guessed'
 ];
 
 export default function Footer() {

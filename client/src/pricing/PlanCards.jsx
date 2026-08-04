@@ -103,7 +103,7 @@ export default function PlanCards({ mode }) {
         price="$0"
         billed=""
         features={FREE_FEATURES}
-        cta={<Button href="login.html?signup=1" full>Start Planning Free</Button>}
+        cta={<Button href="login.html?signup=1" full>Plan My Week Free</Button>}
       />
       <PlanCard
         name="Pro"
