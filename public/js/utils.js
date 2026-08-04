@@ -91,3 +91,7 @@ function getLocalStores(currency) {
   };
   return stores[currency] || stores['USD'];
 }
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { escHtml, getCurrencySymbol, getHouseholdSize, scaleAmount, scaleCost, getLocalStores };
+}
