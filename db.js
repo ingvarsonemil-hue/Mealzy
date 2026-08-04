@@ -140,6 +140,13 @@ async function _applySchema() {
       reason     TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS favorites (
+      id         TEXT PRIMARY KEY,
+      user_id    TEXT NOT NULL,
+      meal_key   TEXT NOT NULL,
+      data       TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )`,
   ];
 
   for (const sql of tables) {
@@ -168,6 +175,7 @@ async function _applySchema() {
     `CREATE INDEX IF NOT EXISTS idx_ingredient_prices_name ON ingredient_prices(name)`,
     `CREATE INDEX IF NOT EXISTS idx_meal_feedback_user_action ON meal_feedback(user_id, action)`,
     `CREATE INDEX IF NOT EXISTS idx_meal_feedback_user_id ON meal_feedback(user_id)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_favorites_user_mealkey ON favorites(user_id, meal_key)`,
   ];
   for (const sql of indexes) {
     try { await _client.execute(sql); } catch(e) { /* index already exists */ }
@@ -481,6 +489,7 @@ async function deleteUserAccount(userId, email) {
     { sql: 'DELETE FROM plans WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM grocery_lists WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM recipes WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM favorites WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM family_profiles WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM share_links WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM coach_usage WHERE user_id = ?', args: [userId] },
@@ -539,6 +548,33 @@ async function getRecipes(userId) {
     createdAt: r.created_at,
     ...(() => { try { return JSON.parse(r.data); } catch(e) { return {}; } })(),
   }));
+}
+
+// ── Favorites ─────────────────────────────────────────────────────────────────
+
+async function saveFavorite(id, userId, mealKey, mealObj) {
+  await run(
+    `INSERT INTO favorites (id, user_id, meal_key, data) VALUES (?, ?, ?, ?)
+     ON CONFLICT(user_id, meal_key) DO UPDATE SET data = excluded.data`,
+    [id, userId, mealKey, JSON.stringify(mealObj)]
+  );
+}
+
+async function getFavorites(userId) {
+  const rows = await all(
+    'SELECT id, meal_key, data, created_at FROM favorites WHERE user_id = ? ORDER BY created_at DESC',
+    [userId]
+  );
+  return rows.map(r => ({
+    id:        r.id,
+    mealKey:   r.meal_key,
+    createdAt: r.created_at,
+    ...(() => { try { return JSON.parse(r.data); } catch(e) { return {}; } })(),
+  }));
+}
+
+async function deleteFavorite(userId, mealKey) {
+  await run('DELETE FROM favorites WHERE user_id = ? AND meal_key = ?', [userId, mealKey]);
 }
 
 // ── Share links ───────────────────────────────────────────────────────────────
@@ -785,6 +821,8 @@ module.exports = {
   saveReferral, markReferralConverted, getReferralCount, addBonusPlan, getUserBonusPlans,
   // recipes
   saveRecipe, getRecipes,
+  // favorites
+  saveFavorite, getFavorites, deleteFavorite,
   // coach usage
   getCoachUsage, incrementCoachUsage,
   // plan generation quotas

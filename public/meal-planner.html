@@ -341,6 +341,51 @@
     }
     .limit-modal-dismiss:hover { color: var(--clr-foreground); }
 
+    /* ── Custom meal modal ──────────────────────────────────── */
+    #customMealModal {
+      display: none;
+      position: fixed; inset: 0; z-index: 300;
+      background: var(--clr-scrim);
+      backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #customMealModal.open { display: flex; }
+    .custom-meal-modal-inner {
+      background: var(--clr-card);
+      border-radius: 1.25rem;
+      padding: 1.75rem;
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(26,61,43,0.22);
+      animation: fadeInUp 0.28s ease both;
+    }
+    .custom-meal-modal-inner h2 {
+      font-family: var(--font-display); font-style: italic;
+      font-weight: 900; font-size: 1.3rem; letter-spacing: -0.03em;
+      margin-bottom: 1rem; color: var(--clr-foreground);
+    }
+    .custom-meal-field { margin-bottom: 0.85rem; }
+    .custom-meal-field label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--clr-foreground); margin-bottom: 0.3rem;
+    }
+    .custom-meal-field input, .custom-meal-field select, .custom-meal-field textarea {
+      width: 100%; padding: 0.55rem 0.7rem;
+      border: 1px solid var(--clr-border); border-radius: 0.6rem;
+      background: var(--clr-background); color: var(--clr-foreground);
+      font-family: inherit; font-size: 0.9rem;
+    }
+    .custom-meal-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem;
+    }
+    .custom-meal-actions {
+      display: flex; gap: 0.6rem; margin-top: 1.1rem;
+    }
+    .custom-meal-actions .btn { flex: 1; }
+
   </style>
 <script src="/js/utils.js" defer></script>
   <link rel="stylesheet" href="/css/fonts.css">
@@ -616,6 +661,65 @@
   <button onclick="closeWeekMealPopup()" style="position:absolute;top:0.5rem;right:0.6rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:1rem;line-height:1;padding:0;">×</button>
 </div>
 
+
+<!-- CUSTOM MEAL MODAL -->
+<div id="customMealModal" role="dialog" aria-modal="true" aria-labelledby="customMealModalTitle">
+  <div class="custom-meal-modal-inner">
+    <h2 id="customMealModalTitle">Add a custom meal</h2>
+    <form id="customMealForm" onsubmit="saveCustomMeal(event)">
+      <div class="custom-meal-grid">
+        <div class="custom-meal-field">
+          <label for="customMealName">Meal name</label>
+          <input type="text" id="customMealName" maxlength="120" required />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealType">Type</label>
+          <select id="customMealType">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+          </select>
+        </div>
+      </div>
+      <div class="custom-meal-field">
+        <label for="customMealDesc">Description</label>
+        <textarea id="customMealDesc" rows="2" maxlength="500"></textarea>
+      </div>
+      <div class="custom-meal-grid">
+        <div class="custom-meal-field">
+          <label for="customMealCalories">Calories (kcal)</label>
+          <input type="number" id="customMealCalories" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealCookTime">Cook time (min)</label>
+          <input type="number" id="customMealCookTime" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealProtein">Protein (g)</label>
+          <input type="number" id="customMealProtein" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealCarbs">Carbs (g)</label>
+          <input type="number" id="customMealCarbs" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealFat">Fat (g)</label>
+          <input type="number" id="customMealFat" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealCost">Est. cost</label>
+          <input type="number" id="customMealCost" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="custom-meal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeCustomMealModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save meal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -633,6 +737,7 @@
     drop:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L5.5 13C5.5 17 8.5 20.5 12 20.5C15.5 20.5 18.5 17 18.5 13L12 3.5Z"/></svg>`,
     clock: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5C8 4.5 4.5 8 4.5 12C4.5 16 8 19.5 12 19.5C16 19.5 19.5 16 19.5 12C19.5 8 16 4.5 12 4.5Z"/><path d="M12 8V12.5L15.5 14.5"/></svg>`,
     star:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    starFilled: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
     cal:   `<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
   };
 
@@ -668,6 +773,94 @@
   let currentDateStr = '';
   let currentMeals = [];
   let currentView = 'day';
+  let favoriteKeys = new Set();
+  let _customMealIndex = null;
+
+  async function loadFavorites() {
+    try {
+      const res = await fetch('/api/favorites');
+      if (res.ok) {
+        const data = await res.json();
+        favoriteKeys = new Set((data.favorites || []).map(f => f.mealKey));
+      }
+    } catch (e) { /* offline — favorites stay empty */ }
+  }
+
+  async function toggleFavorite(index) {
+    const meal = currentMeals[index];
+    if (!meal || !meal.name) return;
+    const key = meal.name.trim().toLowerCase();
+    const isFav = favoriteKeys.has(key);
+    try {
+      if (isFav) {
+        const res = await fetch('/api/favorites/' + encodeURIComponent(key), { method: 'DELETE' });
+        if (!res.ok) throw new Error('delete failed');
+        favoriteKeys.delete(key);
+        showToast('Removed from favorites', 'success');
+      } else {
+        const res = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ meal })
+        });
+        if (!res.ok) throw new Error('save failed');
+        favoriteKeys.add(key);
+        showToast('Added to favorites', 'success');
+      }
+    } catch (e) {
+      showToast('Could not update favorites', 'error');
+    }
+    renderMeals();
+  }
+
+  function openCustomMealModal(index, type) {
+    _customMealIndex = (index === undefined || index === null) ? null : index;
+    document.getElementById('customMealForm').reset();
+    document.getElementById('customMealType').value = type || 'lunch';
+    document.getElementById('customMealModal').classList.add('open');
+    document.getElementById('customMealName').focus();
+  }
+
+  function closeCustomMealModal() {
+    document.getElementById('customMealModal').classList.remove('open');
+  }
+
+  function saveCustomMeal(e) {
+    e.preventDefault();
+    const name = document.getElementById('customMealName').value.trim().slice(0, 120);
+    if (!name) return;
+
+    const meal = {
+      type:          document.getElementById('customMealType').value,
+      name,
+      description:   document.getElementById('customMealDesc').value.trim().slice(0, 500),
+      calories:      Math.max(0, Number(document.getElementById('customMealCalories').value) || 0),
+      protein:       Math.max(0, Number(document.getElementById('customMealProtein').value) || 0),
+      carbs:         Math.max(0, Number(document.getElementById('customMealCarbs').value) || 0),
+      fat:           Math.max(0, Number(document.getElementById('customMealFat').value) || 0),
+      cookTime:      Math.max(0, Number(document.getElementById('customMealCookTime').value) || 0),
+      estimatedCost: Math.max(0, Number(document.getElementById('customMealCost').value) || 0),
+      ingredients: [],
+      instructions: [],
+      completed: false
+    };
+
+    if (_customMealIndex === null) {
+      currentMeals.push(meal);
+    } else {
+      currentMeals[_customMealIndex] = meal;
+    }
+
+    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+    if (!plans[currentDateStr]) plans[currentDateStr] = { meals: [] };
+    plans[currentDateStr].meals = currentMeals;
+    localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+
+    closeCustomMealModal();
+    renderMeals();
+    updateTotals();
+    showToast('Custom meal saved', 'success');
+  }
 
   const mealFallbacks = {
     breakfast: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80',
@@ -705,6 +898,7 @@
     if (householdSelect) householdSelect.value = String(profile.householdSize || getHouseholdSize());
 
     setDateStr();
+    await loadFavorites();
     loadMeals();
     checkPlanLimitBanner();
     checkPendingRecipe();
@@ -757,9 +951,12 @@
     if (!container.dataset.delegated) {
       container.dataset.delegated = '1';
       container.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-action="swap-meal"]');
-        if (!btn) return;
-        swapMeal(Number(btn.dataset.idx), btn.dataset.type);
+        const swapBtn = e.target.closest('[data-action="swap-meal"]');
+        if (swapBtn) { swapMeal(Number(swapBtn.dataset.idx), swapBtn.dataset.type); return; }
+        const favBtn = e.target.closest('[data-action="toggle-favorite"]');
+        if (favBtn) { toggleFavorite(Number(favBtn.dataset.idx)); return; }
+        const customBtn = e.target.closest('[data-action="custom-meal"]');
+        if (customBtn) { openCustomMealModal(Number(customBtn.dataset.idx), customBtn.dataset.type); return; }
       });
     }
     if (!currentMeals || currentMeals.length === 0) {
@@ -771,6 +968,9 @@
           <button class="btn btn-primary" onclick="generateMealPlan()" style="display:inline-flex;align-items:center;gap:0.4rem;">
             ${ICO.star} Generate AI Plan
           </button>
+          <button class="btn btn-outline" onclick="openCustomMealModal(null, 'lunch')" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.6rem;">
+            Add custom meal
+          </button>
         </div>`;
       return;
     }
@@ -778,6 +978,7 @@
     const householdSize = getHouseholdSize();
     container.innerHTML = `<div class="grid-2">${currentMeals.map((meal, i) => {
       const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
+      const isFav = favoriteKeys.has((meal.name || '').trim().toLowerCase());
       return `
       <div class="meal-card-v2 mcv2-${meal.type} meal-card-animated ${meal.completed ? 'completed' : ''}">
         <div class="mcv2-header">
@@ -787,6 +988,7 @@
             <span class="mcv2-stat">${ICO.zap} ${meal.protein}g protein</span>
             ${meal.cookTime ? `<span class="mcv2-stat">${ICO.clock} ${meal.cookTime} min</span>` : ''}
           </div>
+          <button type="button" data-action="toggle-favorite" data-idx="${i}" aria-pressed="${isFav}" aria-label="${isFav ? 'Remove ' + escHtml(meal.name) + ' from favorites' : 'Add ' + escHtml(meal.name) + ' to favorites'}" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}" style="background:none;border:none;padding:0.15rem;margin-left:0.4rem;cursor:pointer;display:inline-flex;align-items:center;color:${isFav ? 'var(--clr-primary)' : 'var(--clr-muted-fg)'};">${isFav ? ICO.starFilled : ICO.star}</button>
         </div>
         <div class="mcv2-name">${escHtml(meal.name)}</div>
         <p class="mcv2-desc">${escHtml(meal.description || '')}</p>
@@ -797,6 +999,7 @@
           </label>
           <div class="mcv2-btns">
             <span class="mcv2-stat text-muted">${ICO.grain} ${meal.carbs}g &nbsp;${ICO.drop} ${meal.fat}g</span>
+            <button class="btn btn-outline btn-sm" data-action="custom-meal" data-idx="${i}" data-type="${escHtml(meal.type)}" style="font-size:0.78rem;padding:0.25rem 0.65rem;min-height:32px;">Custom</button>
             <button class="btn btn-outline btn-sm" id="swapBtn${i}" data-action="swap-meal" data-idx="${i}" data-type="${escHtml(meal.type)}" style="font-size:0.78rem;padding:0.25rem 0.65rem;min-height:32px;">Swap</button>
           </div>
         </div>
@@ -1360,6 +1563,14 @@
     const first = focusable[0], last = focusable[focusable.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  // Close custom meal modal on backdrop click or Escape
+  document.getElementById('customMealModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCustomMealModal();
+  });
+  document.getElementById('customMealModal').addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeCustomMealModal();
   });
 </script>
 </body>

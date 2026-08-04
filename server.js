@@ -3073,6 +3073,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
 
 // ── Recipe routes (photo import, save, list) ──────────────────────────────
 require('./routes/recipes')(app, { anthropic, requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap });
+require('./routes/favorites')(app, { requireSession, db });
 
 // ── Blog routes ────────────────────────────────────────────────────────────
 app.get('/blog', (req, res) => {
