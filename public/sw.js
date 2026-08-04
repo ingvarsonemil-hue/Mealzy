@@ -1,4 +1,4 @@
-const CACHE = 'mealzy-v197';
+const CACHE = 'mealzy-v198';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -6,9 +6,18 @@ const PRECACHE = [
   '/css/landing.css',
   '/css/funnel.css',
   '/css/app-theme.css',
+  '/css/dashboard.css',
+  '/css/meal-planner.css',
   '/js/landing.js',
   '/js/pricing.js',
   '/js/login.js',
+  '/js/dashboard-state.js',
+  '/js/dashboard-render.js',
+  '/js/dashboard-actions.js',
+  '/js/dashboard-social.js',
+  '/js/dashboard-bootstrap.js',
+  '/js/meal-planner-core.js',
+  '/js/meal-planner-ui.js',
   '/manifest.json',
   '/favicon.svg',
   '/translations.js',
