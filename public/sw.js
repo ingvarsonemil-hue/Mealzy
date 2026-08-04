@@ -1,4 +1,4 @@
-const CACHE = 'mealzy-v195';
+const CACHE = 'mealzy-v196';
 const PRECACHE = [
   '/',
   '/index.html',
@@ -77,13 +77,14 @@ self.addEventListener('fetch', e => {
     e.respondWith(
       fetch(e.request)
         .then(res => {
-          if (res && res.status === 200) {
+          if (res && res.ok) {
             const clone = res.clone();
             caches.open(CACHE).then(c => c.put(e.request, clone));
+            return res;
           }
-          return res;
+          return caches.match(e.request).then(c => c || res);
         })
-        .catch(() => caches.match(e.request))
+        .catch(() => caches.match(e.request).then(c => c || Response.error()))
     );
     return;
   }
