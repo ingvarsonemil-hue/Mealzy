@@ -581,7 +581,7 @@
     updateUserUI();
     initAbTest();
     updateGreeting();
-    loadTodayData();
+    await loadTodayData();
     renderRecentPlans();
     checkRetentionBanners();
     renderWaterGlasses();
@@ -641,12 +641,26 @@
     if (mealDateSub) mealDateSub.textContent = dateStr;
   }
 
-  function loadTodayData() {
-    const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-    const logs = JSON.parse(localStorage.getItem('mealzy_nutrition_logs') || '{}');
-    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
+  /** Monday (YYYY-MM-DD) of the week containing the given Date — matches meal-planner.html. */
+  function getMondayStr(date) {
+    const d = new Date(date);
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return monday.toISOString().split('T')[0];
+  }
 
+  async function loadTodayData() {
+    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
     waterCount = water[today] || 0;
+
+    let plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+
+    if (!plans[today] || !plans[today].meals || plans[today].meals.length === 0) {
+      // Nothing cached locally for today — pull the user's most recent saved
+      // plan from the server (read-only, no credit spent) instead of leaving
+      // the widget empty or auto-generating a new one.
+      plans = await fetchActivePlanIfNeeded(plans);
+    }
 
     if (plans[today] && plans[today].meals && plans[today].meals.length > 0) {
       todayMeals = plans[today].meals.map(m => ({ ...m, completed: false }));
@@ -656,6 +670,30 @@
 
     renderMeals();
     updateStats();
+  }
+
+  // Fetches the user's most recently saved plan (week or legacy single-day
+  // format) and merges it into localStorage.mealzy_meal_plans. Never triggers
+  // generation — GET /api/plans is read-only, so no credit is consumed.
+  async function fetchActivePlanIfNeeded(plans) {
+    try {
+      const res = await fetch('/api/plans');
+      if (!res.ok) return plans;
+      const data = await res.json();
+      const latest = (data.plans || [])[0];
+      if (!latest) return plans;
+
+      if (latest.weekStart && Array.isArray(latest.days)) {
+        latest.days.forEach(d => {
+          if (d.date && d.meals) plans[d.date] = { meals: d.meals, generatedAt: latest.savedAt || new Date().toISOString() };
+        });
+      } else if (latest.date && latest.plan && latest.plan.meals) {
+        plans[latest.date] = { meals: latest.plan.meals, generatedAt: latest.savedAt || new Date().toISOString() };
+      }
+
+      localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+    } catch (e) { /* offline or no saved plan — leave as-is */ }
+    return plans;
   }
 
   function getSampleMeals() {
@@ -988,6 +1026,10 @@
     document.getElementById('recipeModal').classList.remove('open');
   }
 
+  // Generates the full 7-day plan for the current week (1 credit = 1 week —
+  // same weekStart flow as meal-planner.html) and refreshes the "Today's
+  // Meal" widget from it. Also used for regeneration: existing meals for the
+  // week are passed as avoid_meals so a re-click doesn't just repeat itself.
   async function generateMealPlan() {
     if (!profile) { window.location.href = 'onboarding.html'; return; }
     await refreshProfileFromServer();
@@ -996,14 +1038,15 @@
     document.getElementById('generateBtn').disabled = true;
     startLoadingAnimation();
     try {
-      const ratingsData = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
-      const avoid_meals = Object.entries(ratingsData).filter(([,v]) => v === -1).map(([k]) => k);
-      const lsUser = JSON.parse(localStorage.getItem('mealzy_user') || '{}');
       const isPro = !!serverUser?.pro;
+      const weekStart = getMondayStr(new Date());
+      const existingPlans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+      const avoid_meals = Object.values(existingPlans).flatMap(p => (p && p.meals) ? p.meals.map(m => m.name) : []).filter(Boolean);
+
       const response = await fetch('/api/generate-meal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, date: today, avoid_meals, user_email: lsUser.email || '', is_pro: isPro })
+        body: JSON.stringify({ profile, weekStart, avoid_meals })
       });
 
       if (response.status === 402) {
@@ -1014,16 +1057,19 @@
       }
 
       const data = await response.json();
-      if (data.success && data.mealPlan) {
-        todayMeals = data.mealPlan.meals.map(m => ({ ...m, completed: false }));
-      } else if (data.fallback) {
-        todayMeals = data.fallback.meals.map(m => ({ ...m, completed: false }));
-        showToast('Using offline meal suggestions', 'success');
+      if (!response.ok || !data.success) {
+        showToast(data.error || 'Generation failed. Please try again.', 'error');
+        return;
       }
+
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-      plans[today] = { meals: todayMeals, generatedAt: new Date().toISOString() };
+      (data.days || []).forEach(d => {
+        plans[d.date] = { meals: d.meals || [], generatedAt: new Date().toISOString() };
+      });
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
-      trackEvent('generate_plan', {});
+
+      todayMeals = (plans[today] && plans[today].meals) ? plans[today].meals.map(m => ({ ...m, completed: false })) : [];
+      trackEvent('generate_plan', { weekStart });
 
       try {
         const xpRes = await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
@@ -1044,16 +1090,8 @@
       saveToHistory(todayMeals);
       renderMeals();
       updateStats();
+      renderRecentPlans();
       cloudSave();
-
-      // Save plan to server (persistent across browser clears)
-      try {
-        fetch('/api/plans/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: data.mealPlan, date: today })
-        });
-      } catch(e) { /* fail silently — localStorage still has it */ }
 
       showToast('Meal plan generated!', 'success');
 
