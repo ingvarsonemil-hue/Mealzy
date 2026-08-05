@@ -7,7 +7,11 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 const FAQS = [
   {
     q: 'What does Mealzy cost?',
-    a: 'Pro is $8 a month or $62 a year, and Family is $16 a month or $130 a year. Both remove the monthly plan limit. See the pricing page for what each tier includes.'
+    a: 'Free covers 3 meal plans a month with no credit card. Pro is $8 a month or $62 a year, and Family is $16 a month or $130 a year — both remove the monthly plan limit, and Family adds up to 4 profiles. Those are the only prices; nothing else is charged.',
+    /* The link is separate from the answer text so the string above stays
+      * identical to the FAQPage JSON-LD in client/index.html. */
+    href: '/pricing.html',
+    linkText: 'See the full pricing page'
   },
   {
     q: "Can I swap a meal I don't want?",
@@ -41,7 +45,20 @@ export default function Faq() {
               {FAQS.map((f, i) => (
                 <AccordionItem key={i} value={`faq-${i + 1}`}>
                   <AccordionTrigger>{f.q}</AccordionTrigger>
-                  <AccordionContent>{f.a}</AccordionContent>
+                  <AccordionContent>
+                    {f.a}
+                    {f.href && (
+                      <>
+                        {' '}
+                        <a
+                          href={f.href}
+                          className="font-semibold text-green-deep no-underline hover:underline dark:text-green-light"
+                        >
+                          {f.linkText}
+                        </a>
+                      </>
+                    )}
+                  </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>

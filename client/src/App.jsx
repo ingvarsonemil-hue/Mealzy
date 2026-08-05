@@ -12,9 +12,14 @@ import EmailPopup from '@/components/EmailPopup';
 import InteractiveOnboarding from '@/components/InteractiveOnboarding';
 import Footer from '@/components/Footer';
 import { generateDemoMeal, track, captureReferral } from '@/lib/api';
+import { BASE_BUDGET } from '@/components/showcase-plan';
 
 export default function App() {
-  const [demo, setDemo] = React.useState({ status: 'idle', plan: null, error: null, rateLimited: false, cals: 2000, budget: 60 });
+  const [demo, setDemo] = React.useState({ status: 'idle', plan: null, error: null, rateLimited: false, cals: 2000, budget: BASE_BUDGET });
+  /* One budget for the page. The hero form and the showcase slider are two
+   * handles on the same number, so dragging either re-plans the whole preview
+   * and a visitor never sets their budget twice. */
+  const [budget, setBudget] = React.useState(BASE_BUDGET);
   /* Owned here because the two CTAs that open it — the hero's and the mobile
    * sticky bar inside Showcase — sit in different subtrees. The hero passes
    * the targets it collected; the mobile bar has none to pass. */
@@ -54,9 +59,15 @@ export default function App() {
       <a href="#main" className="skip-link">Skip to main content</a>
       <Header />
       <main id="main">
-        <Hero onGenerate={runDemo} generating={demo.status === 'loading'} onStartPlan={startPlan} />
+        <Hero
+          onGenerate={runDemo}
+          generating={demo.status === 'loading'}
+          onStartPlan={startPlan}
+          budget={budget}
+          onBudgetChange={setBudget}
+        />
         <DemoResult demo={demo} />
-        <Showcase onStartPlan={startPlan} />
+        <Showcase onStartPlan={startPlan} budget={budget} onBudgetChange={setBudget} />
         <Proof />
         <HowItWorks />
         <FeaturesGrid />

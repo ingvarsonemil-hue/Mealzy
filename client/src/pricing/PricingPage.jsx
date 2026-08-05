@@ -28,6 +28,10 @@ const COMPARISON = [
 
 const FAQS = [
   {
+    q: 'What does Mealzy cost, exactly?',
+    a: 'Free is $0 for 3 meal plans a month, with no credit card. Pro is $8 a month or $62 a year. Family is $16 a month or $130 a year and covers up to 4 profiles. Those are the only prices — no setup fee, no per-plan charge, and nothing else added at checkout.'
+  },
+  {
     q: 'Can I cancel at any time?',
     a: 'Yes — cancel in one click from your Stripe billing portal. You keep Pro access until the end of your current billing period. No penalties, no fine print.'
   },
@@ -63,7 +67,8 @@ export default function PricingPage() {
               Simple pricing. Start free.
             </h1>
             <p className="mx-auto mt-4 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-              3 meal plans a month, free forever. No credit card required.
+              3 meal plans a month, free forever. No credit card required. Paid plans are $8 or $16
+              a month — the full figures are below.
             </p>
             {annualAvailable && (
               <BillingToggle mode={mode} onChange={setMode} annualLabel="Annual — Save 35%" className="mt-8" />

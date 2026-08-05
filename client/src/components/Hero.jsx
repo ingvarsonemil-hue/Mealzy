@@ -18,9 +18,8 @@ const TRUST_ITEMS = [
  * first thing a visitor sees is the three questions, already answerable.
  * The same values drive both actions below it — the modal preview and the
  * live sample generator — so nothing has to be re-entered. */
-function PlannerForm({ onGenerate, generating, onStartPlan }) {
+function PlannerForm({ onGenerate, generating, onStartPlan, budget, onBudgetChange }) {
   const [cals, setCals] = React.useState('2000');
-  const [budget, setBudget] = React.useState(60);
   const [dietId, setDietId] = React.useState(DIETS[0].id);
 
   const diet = DIETS.find((d) => d.id === dietId) || DIETS[0];
@@ -43,7 +42,10 @@ function PlannerForm({ onGenerate, generating, onStartPlan }) {
        * would inherit white onto cream. */
       className="rounded-lg border border-border-warm bg-cream p-6 text-foreground shadow-xl sm:p-8"
     >
-      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8">
+      {/* The three questions sit on their own inset panel so they read as one
+        * thing to fill in, with the CTA directly beneath it inside the same
+        * card — a form, rather than three controls sharing a background. */}
+      <div className="grid gap-6 rounded-md border border-border-warm bg-muted-bg p-5 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8 sm:p-6">
         <div>
           <Label htmlFor="heroBudget" className="mb-0">Weekly grocery budget</Label>
           <p className="font-display text-[clamp(2.25rem,4vw,3rem)] font-black italic leading-none tabular-nums">
@@ -55,7 +57,7 @@ function PlannerForm({ onGenerate, generating, onStartPlan }) {
             max={MAX_BUDGET}
             step={BUDGET_STEP}
             value={budget}
-            onChange={(e) => setBudget(Number(e.target.value))}
+            onChange={(e) => onBudgetChange(Number(e.target.value))}
             aria-describedby="heroBudgetHint"
             className="mt-4"
           />
@@ -103,7 +105,7 @@ function PlannerForm({ onGenerate, generating, onStartPlan }) {
         href="login.html?signup=1"
         full
         size="lg"
-        className="mt-7 text-lg font-bold"
+        className="mt-5 text-lg font-bold"
         onClick={(e) => {
           if (!onStartPlan) return;
           e.preventDefault();
@@ -141,7 +143,7 @@ function PlannerForm({ onGenerate, generating, onStartPlan }) {
   );
 }
 
-export default function Hero({ onGenerate, generating, onStartPlan }) {
+export default function Hero({ onGenerate, generating, onStartPlan, budget, onBudgetChange }) {
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative bg-forest text-on-forest">
       {/* Radial depth in the hero background */}
@@ -169,7 +171,13 @@ export default function Hero({ onGenerate, generating, onStartPlan }) {
         </div>
 
         <div className="mt-8">
-          <PlannerForm onGenerate={onGenerate} generating={generating} onStartPlan={onStartPlan} />
+          <PlannerForm
+            onGenerate={onGenerate}
+            generating={generating}
+            onStartPlan={onStartPlan}
+            budget={budget}
+            onBudgetChange={onBudgetChange}
+          />
         </div>
       </div>
 
