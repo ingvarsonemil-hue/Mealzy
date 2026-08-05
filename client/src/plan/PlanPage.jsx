@@ -183,7 +183,7 @@ export default function PlanPage() {
               <div className="mt-10 rounded-lg bg-forest px-8 py-9 text-center text-on-forest-strong">
                 <h2 className="font-display text-2xl font-black italic text-on-forest">Generate your own free plan.</h2>
                 <p className="mx-auto mb-5 mt-2 max-w-[44ch] text-[0.92rem] text-on-forest-body">
-                  Tell Mealzy your calorie goal, budget, and dietary preferences. It builds your full week of meals and writes the grocery list — in under 1 minute. Free, no credit card.
+                  Tell Mealzy your calorie goal, budget, and dietary preferences. It builds your full week of meals and writes the grocery list — in 30 seconds. Free, no credit card.
                 </p>
                 <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
                 <p className="mt-3.5 text-[0.78rem] text-on-forest-muted">

@@ -147,7 +147,7 @@ export default function BudgetMealPlanPage() {
 
         <ClosingCtaBand
           title="Generate your $50 meal plan — free."
-          lede="Tell Mealzy your weekly budget and calorie goal. It builds 7 days of budget-friendly meals and a sorted grocery list in under 1 minute."
+          lede="Tell Mealzy your weekly budget and calorie goal. It builds 7 days of budget-friendly meals and a sorted grocery list in 30 seconds."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1&budget=50"
         />

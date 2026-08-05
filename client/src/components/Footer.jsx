@@ -47,7 +47,12 @@ export default function Footer() {
               Mealzy
             </a>
             <p className="mt-4 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              A full week of meals, priced to your budget, in under 1 minute.
+              A full week of meals, priced to your budget, in 30 seconds.
+            </p>
+            {/* The one time claim the site is held to, stated the same way in
+              * the hero and in How it works. */}
+            <p className="mt-2 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
+              2-minute setup. 30 seconds every week after.
             </p>
             {/* The prices in full, where someone looking for them last will
               * look. No tier is named here that the pricing page doesn't
@@ -94,7 +99,8 @@ export default function Footer() {
           ))}
         </ul>
         <div className="mt-6 text-xs leading-[1.6] text-on-forest-muted">
-          <p>&copy; 2026 Mealzy. Nutritional calculations aligned with USDA dietary guidelines.</p>
+          <p>&copy; 2026 Mealzy &mdash; Sweden</p>
+          <p className="mt-1">Nutritional calculations aligned with USDA dietary guidelines.</p>
           <p className="mt-1">Mealzy is an AI tool and does not provide medical or nutritional advice.</p>
         </div>
       </div>

@@ -16,22 +16,17 @@ const TRUST_ITEMS = [
 
 /* The planner form itself, sitting in the hero rather than beside it: the
  * first thing a visitor sees is the three questions, already answerable.
- * The same values drive both actions below it — the modal preview and the
- * live sample generator — so nothing has to be re-entered. */
-function PlannerForm({ onGenerate, generating, onStartPlan, budget, onBudgetChange }) {
+ * The values feed straight into the interactive preview below the button, so
+ * nothing has to be re-entered. */
+function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
   const [cals, setCals] = React.useState('2000');
   const [dietId, setDietId] = React.useState(DIETS[0].id);
-
-  const diet = DIETS.find((d) => d.id === dietId) || DIETS[0];
 
   /* The field accepts any keystroke while typing, so it is clamped here rather
    * than on change — a half-typed "20" must not snap to 1200 mid-entry. */
   const kcal = Math.min(Math.max(parseInt(cals, 10) || 2000, MIN_KCAL), MAX_KCAL);
 
   const build = () => onStartPlan && onStartPlan({ budget, dietId, kcal });
-
-  const generate = () =>
-    onGenerate({ calorieGoal: kcal, budget, dietary: diet.signup });
 
   return (
     <div
@@ -103,7 +98,10 @@ function PlannerForm({ onGenerate, generating, onStartPlan, budget, onBudgetChan
         </div>
       </div>
 
-      {/* The one action this page is for. The href is the no-JS fallback. */}
+      {/* The only action this page offers. It opens the interactive preview
+        * seeded with the three answers above; the href is the no-JS fallback.
+        * A second button here used to run a separate live sample, which meant
+        * two demos quoting two sets of numbers — there is now one. */}
       <Button
         href="login.html?signup=1"
         full
@@ -120,33 +118,11 @@ function PlannerForm({ onGenerate, generating, onStartPlan, budget, onBudgetChan
       <p className="mt-3 text-center text-sm text-muted-fg">
         No email. No sign-up. Your plan saves to your browser.
       </p>
-
-      {/* Secondary: writes a real plan with the AI rather than the modelled
-        * preview, so it stays available but never competes with the CTA. */}
-      <div className="mt-5 border-t border-border-warm pt-5 text-center">
-        <Button
-          id="demoBtn"
-          variant="quiet"
-          size="sm"
-          className="text-muted-fg hover:bg-muted-bg hover:text-foreground"
-          onClick={generate}
-          disabled={generating}
-          aria-busy={generating}
-        >
-          {generating && (
-            <span
-              aria-hidden="true"
-              className="h-4 w-4 animate-spin rounded-full border-2 border-muted-fg/40 border-t-muted-fg motion-reduce:animate-none"
-            />
-          )}
-          {generating ? 'Generating...' : 'Or generate one live sample day'}
-        </Button>
-      </div>
     </div>
   );
 }
 
-export default function Hero({ onGenerate, generating, onStartPlan, budget, onBudgetChange }) {
+export default function Hero({ onStartPlan, budget, onBudgetChange }) {
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative bg-forest text-on-forest">
       {/* Radial depth in the hero background */}
@@ -174,14 +150,12 @@ export default function Hero({ onGenerate, generating, onStartPlan, budget, onBu
           {/* The one time claim the whole site is held to. Every other mention
             * of how long this takes is a restatement of this sentence. */}
           <p className="mt-2 text-[17px] font-semibold leading-[1.55] text-on-forest-strong">
-            2-minute setup. Under 1 minute every week after.
+            2-minute setup. 30 seconds every week after.
           </p>
         </div>
 
         <div className="mt-8">
           <PlannerForm
-            onGenerate={onGenerate}
-            generating={generating}
             onStartPlan={onStartPlan}
             budget={budget}
             onBudgetChange={onBudgetChange}

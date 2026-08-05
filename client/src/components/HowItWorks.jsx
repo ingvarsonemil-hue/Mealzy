@@ -7,7 +7,7 @@ const STEPS = [
     body: "Calories, weekly budget, diet, and anything you can't eat. A 2-minute setup, once — it remembers."
   },
   {
-    title: 'Get your week in under 1 minute',
+    title: 'Get your week in 30 seconds',
     body: "Targets use the Mifflin-St Jeor formula dietitians use. Every recipe is matched to your budget, so nothing gets suggested that pushes you over. Swap any meal in one click."
   },
   {
@@ -30,7 +30,7 @@ export default function HowItWorks() {
           {/* Same sentence as the hero, word for word — the two places a
             * visitor meets the time claim must not quote different numbers. */}
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            2-minute setup. Under 1 minute every week after. Every swap stays inside your budget.
+            2-minute setup. 30 seconds every week after. Every swap stays inside your budget.
           </p>
         </Reveal>
         <div className="mx-auto max-w-3xl">

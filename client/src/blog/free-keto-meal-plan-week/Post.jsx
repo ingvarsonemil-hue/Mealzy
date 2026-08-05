@@ -68,7 +68,7 @@ const FAQS = [
 export default function Post() {
   return (
     <BlogArticleShell title="Free 7-Day Keto Meal Plan With Grocery List" meta="Published June 16, 2026 · 10 min read">
-      <p>The hardest part of keto isn't giving up carbs — it's planning meals that stay under 20g net carbs without eating boring chicken and broccoli every day. This 7-day plan solves that. Every day has breakfast, lunch, and dinner with net carb counts and calorie totals. At the bottom: a full grocery list. And if you want a plan customized to your exact calorie goal and carb limit, Mealzy generates one in under 1 minute — free.</p>
+      <p>The hardest part of keto isn't giving up carbs — it's planning meals that stay under 20g net carbs without eating boring chicken and broccoli every day. This 7-day plan solves that. Every day has breakfast, lunch, and dinner with net carb counts and calorie totals. At the bottom: a full grocery list. And if you want a plan customized to your exact calorie goal and carb limit, Mealzy generates one in 30 seconds — free.</p>
 
       <h2>Your Free 7-Day Keto Meal Plan</h2>
       {DAYS.map((d) => (
@@ -132,7 +132,7 @@ export default function Post() {
       <p><strong>If you need 1,200 kcal per day:</strong> Reduce meat portions by about 15%. Skip the extra cheese on a few days. A 15% reduction gets you to roughly 1,196 kcal. Carb counts stay the same.</p>
       <p><strong>If you need 1,600 kcal per day:</strong> Add extra fat (oil, butter, mayo) to existing meals. Increase meat portions slightly. Add a keto snack like cheese or almonds. Most of your extra calories will come from fat, which won't affect net carbs.</p>
       <p><strong>If you need 2,000+ kcal per day:</strong> Add fatty cuts (salmon, pork belly), extra oil, and full-fat dairy. Snack on nuts, cheese, and macadamia nuts liberally. Keto meals are naturally calorie-dense, so hitting high targets is easy.</p>
-      <p>But here's the thing: if custom tailoring feels overwhelming, that's exactly what Mealzy does for you. Enter your exact calorie goal, dietary preference (keto), weekly budget, and any foods you dislike — Mealzy generates a fully customized week in under 1 minute. You get a plan that fits your body, your budget, and your taste. Free to try, no credit card needed.</p>
+      <p>But here's the thing: if custom tailoring feels overwhelming, that's exactly what Mealzy does for you. Enter your exact calorie goal, dietary preference (keto), weekly budget, and any foods you dislike — Mealzy generates a fully customized week in 30 seconds. You get a plan that fits your body, your budget, and your taste. Free to try, no credit card needed.</p>
 
       <h2>Tips for Sticking to a Keto Meal Plan</h2>
       <p><strong>1. Buy fattier cuts of meat on purpose.</strong> Chicken thighs instead of breasts. Salmon instead of cod. Ground beef instead of lean. Fat is where the flavor lives on keto, and it keeps you full longer. Don't eat "diet chicken" — that's not keto.</p>
@@ -145,10 +145,10 @@ export default function Post() {
 
       <BlogCta
         lead="This plan is a starting point."
-        body="For a plan built around your exact calorie goal, carb limit, and food preferences — Mealzy generates it in under 1 minute. Free to try, no credit card, no sign up needed for the demo."
+        body="For a plan built around your exact calorie goal, carb limit, and food preferences — Mealzy generates it in 30 seconds. Free to try, no credit card, no sign up needed for the demo."
       />
 
-      <p>Keto doesn't have to be boring. You just need a plan. This one works — it's tested, budget-friendly, keeps carbs low, and uses ingredients you can find in any regular grocery store. Print it, follow it, or use it as a template for your own ideas. And when you're ready for a fully customized plan, Mealzy will generate one for you in under 1 minute.</p>
+      <p>Keto doesn't have to be boring. You just need a plan. This one works — it's tested, budget-friendly, keeps carbs low, and uses ingredients you can find in any regular grocery store. Print it, follow it, or use it as a template for your own ideas. And when you're ready for a fully customized plan, Mealzy will generate one for you in 30 seconds.</p>
     </BlogArticleShell>
   );
 }

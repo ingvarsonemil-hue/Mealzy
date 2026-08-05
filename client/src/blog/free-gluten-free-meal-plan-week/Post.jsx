@@ -70,7 +70,7 @@ const FAQS = [
 export default function Post() {
   return (
     <BlogArticleShell title="Free 7-Day Gluten-Free Meal Plan With Grocery List" meta="Published June 16, 2026 · 11 min read">
-      <p>The hardest part of eating gluten-free isn't avoiding gluten — it's knowing which everyday foods hide it, and building meals that are filling, varied, and actually enjoyable. This 7-day plan solves that. Every day has breakfast, lunch, and dinner with clear gluten-free labels. All meals use whole foods (rice, quinoa, potatoes, corn) instead of expensive specialty products. At the bottom: a full grocery list with no hidden gluten sources. And if you want a plan customized to your exact calorie goal, allergies, and preferences, Mealzy generates one in under 1 minute — free.</p>
+      <p>The hardest part of eating gluten-free isn't avoiding gluten — it's knowing which everyday foods hide it, and building meals that are filling, varied, and actually enjoyable. This 7-day plan solves that. Every day has breakfast, lunch, and dinner with clear gluten-free labels. All meals use whole foods (rice, quinoa, potatoes, corn) instead of expensive specialty products. At the bottom: a full grocery list with no hidden gluten sources. And if you want a plan customized to your exact calorie goal, allergies, and preferences, Mealzy generates one in 30 seconds — free.</p>
 
       <h2>Your Free 7-Day Gluten-Free Meal Plan</h2>
       {DAYS.map((d) => (
@@ -141,7 +141,7 @@ export default function Post() {
       <p><strong>If you need 1,200 kcal per day:</strong> Reduce grain portions (rice, quinoa) by 15%. Use less oil for cooking. A 15% reduction gets you to roughly 1,207 kcal without affecting meal quality.</p>
       <p><strong>If you need 1,600 kcal per day:</strong> Increase protein portions and add a gluten-free snack (rice cakes with honey, fruit, or gluten-free crackers). Most of your extra calories can come from fruit or whole grains.</p>
       <p><strong>If you need 2,000+ kcal per day:</strong> Add gluten-free snacks like nuts, dried fruit, gluten-free granola, and extra servings of grains and protein. Most whole foods are naturally gluten-free, so hitting high calorie targets is straightforward.</p>
-      <p>But here's the thing: if custom tailoring feels overwhelming, that's exactly what Mealzy does for you. Enter your exact calorie goal, dietary preference (gluten-free), and any other allergies or restrictions — Mealzy generates a fully customized week in under 1 minute. You get a plan that fits your body, your budget, and your diet. Free to try, no credit card needed.</p>
+      <p>But here's the thing: if custom tailoring feels overwhelming, that's exactly what Mealzy does for you. Enter your exact calorie goal, dietary preference (gluten-free), and any other allergies or restrictions — Mealzy generates a fully customized week in 30 seconds. You get a plan that fits your body, your budget, and your diet. Free to try, no credit card needed.</p>
 
       <h2>Tips for Sticking to a Gluten-Free Meal Plan</h2>
       <p><strong>1. Read labels obsessively at first, then only when trying new products.</strong> After a month, you'll know which brands are safe. Build your own mental inventory of trusted gluten-free products. Check unfamiliar items, but don't overthink it once you have a routine.</p>
@@ -154,10 +154,10 @@ export default function Post() {
 
       <BlogCta
         lead="This plan is a starting point."
-        body="For a plan built around your exact calorie goal, allergies, and food preferences — Mealzy generates it in under 1 minute. Free to try, no credit card, no sign up needed for the demo."
+        body="For a plan built around your exact calorie goal, allergies, and food preferences — Mealzy generates it in 30 seconds. Free to try, no credit card, no sign up needed for the demo."
       />
 
-      <p>Gluten-free eating doesn't have to be complicated. You just need a plan. This one works — it's tested, budget-friendly, uses whole foods, and avoids all the hidden gluten sources that trip people up. Print it, follow it, or use it as a template for your own ideas. And when you're ready for a fully customized plan that respects your exact calorie goal and allergies, Mealzy will generate one for you in under 1 minute.</p>
+      <p>Gluten-free eating doesn't have to be complicated. You just need a plan. This one works — it's tested, budget-friendly, uses whole foods, and avoids all the hidden gluten sources that trip people up. Print it, follow it, or use it as a template for your own ideas. And when you're ready for a fully customized plan that respects your exact calorie goal and allergies, Mealzy will generate one for you in 30 seconds.</p>
     </BlogArticleShell>
   );
 }

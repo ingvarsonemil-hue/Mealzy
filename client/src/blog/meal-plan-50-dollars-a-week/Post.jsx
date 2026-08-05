@@ -59,12 +59,12 @@ export default function Post() {
 
       <BlogCta
         lead="Stop overspending on groceries."
-        body="Mealzy builds a full week of meals for $50 in under 1 minute — generates your shopping list automatically, organized by category with costs."
+        body="Mealzy builds a full week of meals for $50 in 30 seconds — generates your shopping list automatically, organized by category with costs."
       />
 
-      <p><strong>The bottom line:</strong> $50 per week is about planning, not deprivation. It's about removing waste, buying in bulk, and choosing cheap proteins that don't sacrifice nutrition. A good meal planner enforces your budget during planning so you're never surprised at checkout. Mealzy does this. You enter $50 as your budget, answer a few questions, click a button, and you get a week of meals with a sorted grocery list in under 1 minute. No guessing. No impulse buys. No waste.</p>
+      <p><strong>The bottom line:</strong> $50 per week is about planning, not deprivation. It's about removing waste, buying in bulk, and choosing cheap proteins that don't sacrifice nutrition. A good meal planner enforces your budget during planning so you're never surprised at checkout. Mealzy does this. You enter $50 as your budget, answer a few questions, click a button, and you get a week of meals with a sorted grocery list in 30 seconds. No guessing. No impulse buys. No waste.</p>
 
-      <p>Try Mealzy free — enter $50 as your budget and get a full week of meals in under 1 minute. No credit card required. Generate a plan right now and see what a week of budget-friendly, nutritious meals looks like.</p>
+      <p>Try Mealzy free — enter $50 as your budget and get a full week of meals in 30 seconds. No credit card required. Generate a plan right now and see what a week of budget-friendly, nutritious meals looks like.</p>
     </BlogArticleShell>
   );
 }

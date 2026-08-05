@@ -10,19 +10,19 @@ const POSTS = [
     date: 'June 16, 2026',
     href: '/blog/free-gluten-free-meal-plan-week.html',
     title: 'Free 7-Day Gluten-Free Meal Plan With Grocery List',
-    desc: 'A complete 7-day gluten-free meal plan using whole foods and naturally gluten-free ingredients. No hidden gluten sources, budget-friendly, and a free AI tool to generate a custom gluten-free plan in under 1 minute.'
+    desc: 'A complete 7-day gluten-free meal plan using whole foods and naturally gluten-free ingredients. No hidden gluten sources, budget-friendly, and a free AI tool to generate a custom gluten-free plan in 30 seconds.'
   },
   {
     date: 'June 16, 2026',
     href: '/blog/free-keto-meal-plan-week.html',
     title: 'Free 7-Day Keto Meal Plan With Grocery List',
-    desc: 'A complete 7-day keto meal plan under 20g net carbs per day, with calorie totals, keto protein sources, full grocery list, and a free AI tool to generate a custom version in under 1 minute.'
+    desc: 'A complete 7-day keto meal plan under 20g net carbs per day, with calorie totals, keto protein sources, full grocery list, and a free AI tool to generate a custom version in 30 seconds.'
   },
   {
     date: 'June 16, 2026',
     href: '/blog/free-vegan-meal-plan-week.html',
     title: 'Free Vegan Meal Plan for the Week — 7 Days + Grocery List',
-    desc: 'A complete 7-day vegan meal plan with calorie totals, vegan protein sources, full grocery list, and a free AI tool to generate a custom version in under 1 minute.'
+    desc: 'A complete 7-day vegan meal plan with calorie totals, vegan protein sources, full grocery list, and a free AI tool to generate a custom version in 30 seconds.'
   },
   {
     date: 'June 16, 2026',

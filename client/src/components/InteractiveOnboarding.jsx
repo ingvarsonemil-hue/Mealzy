@@ -367,7 +367,7 @@ export default function InteractiveOnboarding({ open, onOpenChange, seed }) {
             <Dialog.Description id="onboarding-desc" className="mt-1.5 text-sm text-on-forest-body">
               {step === 'reveal'
                 ? `A ${range(plan.spend)} week for ${household === 1 ? '1 person' : `${household} people`}, ${plan.diet.label.toLowerCase()}.`
-                : 'A real preview built from your budget, your diet, and your household. Under 1 minute.'}
+                : 'A real preview built from your budget, your diet, and your household. 30 seconds.'}
             </Dialog.Description>
             <Dialog.Close
               aria-label="Close"

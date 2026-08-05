@@ -12,7 +12,7 @@ const PROOF = [
     body: `21 meals, estimated against a $${BASE_BUDGET} cap. Move the budget slider and the grocery list re-prices with it.`
   },
   {
-    figure: '< 1 min',
+    figure: '30 sec',
     title: 'From targets to a shopping list',
     body: 'Calories and budget in, seven days of breakfast, lunch and dinner out, with the grocery list already sorted by aisle.'
   },

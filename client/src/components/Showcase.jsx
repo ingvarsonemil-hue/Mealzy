@@ -115,8 +115,8 @@ function DayCard({ day, onSwap }) {
   );
 }
 
-/* The back half of the week, once opened: the same three meals per day without
- * the photography. Three days of images are enough to show what a plan looks
+/* The back half of the week: the same three meals per day without the
+ * photography. Three days of images are enough to show what a plan looks
  * like — seven only cost the visitor bandwidth to scroll past. */
 function CompactDayCard({ day }) {
   return (
@@ -189,7 +189,7 @@ function MobileCta({ onStartPlan }) {
       >
         Build My Free Plan
       </Button>
-      <p className="mt-2 text-center text-[13px] text-muted-fg">Under 1 minute · No credit card</p>
+      <p className="mt-2 text-center text-[13px] text-muted-fg">30 seconds · No credit card</p>
     </div>
   );
 }
@@ -252,12 +252,15 @@ function BudgetPanel({ plan, budget, onChange }) {
   );
 }
 
-/* Mon–Wed carry the photography; the rest of the week opens on request. */
+/* Mon–Wed carry the photography; Thu–Sun render as collapsed summary rows. */
 const PREVIEW_DAYS = 3;
 
 export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
   const plan = React.useMemo(() => planFor(budget), [budget]);
-  const [fullWeek, setFullWeek] = React.useState(false);
+  /* Open by default: the claim is a full seven-day plan, so all seven days are
+   * on screen without asking. The toggle stays so the page can be collapsed
+   * back down to the three photographed days. */
+  const [fullWeek, setFullWeek] = React.useState(true);
 
   /* Seeded with the budget the visitor has already set here, so the modal opens
    * on their week rather than on the default one. */
@@ -333,7 +336,7 @@ export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
         </Reveal>
 
         <Reveal delay={200} as="p" className="mt-6 text-center text-sm text-muted-fg">
-          Sample plan, built in under 1 minute. Prices are estimates and scale with the
+          Sample 7-day plan generated from preferences. Prices are estimates and scale with the
           budget you set.
         </Reveal>
       </div>

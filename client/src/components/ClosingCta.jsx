@@ -13,7 +13,7 @@ export default function ClosingCta() {
           Stop planning meals by hand.
         </h2>
         <p className="mx-auto mt-4 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-          Mealzy builds the week, holds your budget, and writes the grocery list in under 1 minute.
+          Mealzy builds the week, holds your budget, and writes the grocery list in 30 seconds.
           Free to start — no credit card.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
