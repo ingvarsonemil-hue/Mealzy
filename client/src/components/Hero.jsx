@@ -10,7 +10,7 @@ const MAX_KCAL = 4000;
 const TRUST_ITEMS = [
   { icon: Check, label: '3 free plans/month' },
   { icon: Check, label: 'No credit card' },
-  { icon: Check, label: 'Under 1 minute' },
+  { icon: Check, label: '2-minute setup' },
   { icon: Shield, label: 'Nothing to install' }
 ];
 
@@ -42,10 +42,13 @@ function PlannerForm({ onGenerate, generating, onStartPlan, budget, onBudgetChan
        * would inherit white onto cream. */
       className="rounded-lg border border-border-warm bg-cream p-6 text-foreground shadow-xl sm:p-8"
     >
-      {/* The three questions sit on their own inset panel so they read as one
-        * thing to fill in, with the CTA directly beneath it inside the same
-        * card — a form, rather than three controls sharing a background. */}
-      <div className="grid gap-6 rounded-md border border-border-warm bg-muted-bg p-5 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8 sm:p-6">
+      {/* The three questions and the CTA are one form on one surface. They used
+        * to sit on an inset panel of their own, but muted-bg on cream measures
+        * 1.02:1 — no visible fill difference — so that panel read as a stray
+        * border boxing the fields off from the button that submits them. The
+        * contrast that matters is the card against the forest hero behind it,
+        * and that is already the strongest edge on the page. */}
+      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8">
         <div>
           <Label htmlFor="heroBudget" className="mb-0">Weekly grocery budget</Label>
           <p className="font-display text-[clamp(2.25rem,4vw,3rem)] font-black italic leading-none tabular-nums">
@@ -167,6 +170,11 @@ export default function Hero({ onGenerate, generating, onStartPlan, budget, onBu
           </h1>
           <p className="mt-3 text-[17px] leading-[1.55] text-on-forest-body">
             Set your three targets. Get seven days of meals and the list to shop them.
+          </p>
+          {/* The one time claim the whole site is held to. Every other mention
+            * of how long this takes is a restatement of this sentence. */}
+          <p className="mt-2 text-[17px] font-semibold leading-[1.55] text-on-forest-strong">
+            2-minute setup. Under 1 minute every week after.
           </p>
         </div>
 

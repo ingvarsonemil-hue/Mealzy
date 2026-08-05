@@ -4,7 +4,7 @@ import Reveal from '@/components/Reveal';
 const STEPS = [
   {
     title: 'Tell Mealzy about you',
-    body: "Calories, weekly budget, diet, and anything you can't eat. Two minutes, once — it remembers."
+    body: "Calories, weekly budget, diet, and anything you can't eat. A 2-minute setup, once — it remembers."
   },
   {
     title: 'Get your week in under 1 minute',
@@ -27,8 +27,10 @@ export default function HowItWorks() {
           >
             Three steps. One week planned.
           </h2>
+          {/* Same sentence as the hero, word for word — the two places a
+            * visitor meets the time claim must not quote different numbers. */}
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            Real targets from a proven formula. Every swap stays inside your budget.
+            2-minute setup. Under 1 minute every week after. Every swap stays inside your budget.
           </p>
         </Reveal>
         <div className="mx-auto max-w-3xl">

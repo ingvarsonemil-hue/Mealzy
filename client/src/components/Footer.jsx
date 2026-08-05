@@ -28,9 +28,12 @@ const COLUMNS = [
   }
 ];
 
+/* Plain statements of what the numbers are, in place of the engineering-sounding
+ * labels that used to sit here ("Deterministic Grocery Engine", "Powered by USDA
+ * Nutrition Data") — they described the plumbing rather than telling a visitor
+ * anything they could act on. */
 const TRUST_BADGES = [
-  'Powered by USDA Nutrition Data',
-  'Deterministic Grocery Engine',
+  'Prices estimated from regional grocery data.',
   'Every price calculated, not guessed'
 ];
 
@@ -80,7 +83,7 @@ export default function Footer() {
         </div>
         <ul
           role="list"
-          aria-label="What Mealzy runs on"
+          aria-label="How Mealzy prices a plan"
           className="mt-12 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-forest-line pt-6 text-sm text-on-forest-body"
         >
           {TRUST_BADGES.map((badge, i) => (
