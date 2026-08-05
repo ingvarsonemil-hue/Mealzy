@@ -14,8 +14,8 @@ const FAQS = [
     a: 'Yes. Swap any meal in one click and the week rebuilds around it — the grocery list and the budget total update with it, so you never end up over your cap.'
   },
   {
-    q: 'What do I get for free?',
-    a: 'Three full meal plans a month, each with its grocery list, and no credit card. The free tier is the real product, not a trial.'
+    q: 'How accurate are the grocery estimates?',
+    a: 'They are estimates, not quotes. Every line is priced from typical supermarket rates and shown as a range, because groceries vary by store, city and week. Pantry staples are counted at the share the week actually uses rather than as a full pack.'
   }
 ];
 

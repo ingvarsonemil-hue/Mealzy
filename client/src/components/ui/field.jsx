@@ -22,6 +22,33 @@ export const Input = React.forwardRef(function Input({ className, ...props }, re
   return <input ref={ref} className={cn(fieldClasses, className)} {...props} />;
 });
 
+/* Budget-style range input: green track up to the thumb, cream-ringed thumb.
+ * Shared by the hero form and the showcase budget panel so the two sliders
+ * cannot drift apart visually. */
+const sliderClasses =
+  'h-2 w-full cursor-pointer appearance-none rounded-full outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-solid [&::-moz-range-thumb]:border-cream [&::-moz-range-thumb]:bg-green [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-cream [&::-webkit-slider-thumb]:bg-green [&::-webkit-slider-thumb]:shadow-button';
+
+export const RangeSlider = React.forwardRef(function RangeSlider(
+  { className, min, max, value, ...props },
+  ref
+) {
+  const fill = ((value - min) / (max - min)) * 100;
+  return (
+    <input
+      ref={ref}
+      type="range"
+      min={min}
+      max={max}
+      value={value}
+      style={{
+        background: `linear-gradient(to right, var(--color-green) ${fill}%, var(--color-border) ${fill}%)`
+      }}
+      className={cn(sliderClasses, className)}
+      {...props}
+    />
+  );
+});
+
 export const Select = React.forwardRef(function Select({ className, children, ...props }, ref) {
   return (
     <span className="relative block">

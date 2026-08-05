@@ -6,7 +6,6 @@ import { cn, scrollToHash, prefersReducedMotion } from '@/lib/utils';
 
 const NAV_LINKS = [
   { href: '#how-it-works', label: 'How it works' },
-  { href: '#our-story', label: 'Our story' },
   { href: '/pricing.html', label: 'Pricing' },
   { href: '#faq', label: 'FAQ' }
 ];

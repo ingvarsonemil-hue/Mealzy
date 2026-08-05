@@ -1,4 +1,4 @@
-const CACHE = 'mealzy-v208';
+const CACHE = 'mealzy-v209';
 const PRECACHE = [
   '/',
   '/index.html',

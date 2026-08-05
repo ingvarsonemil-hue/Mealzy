@@ -1,17 +1,11 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input, Select, Label } from '@/components/ui/field';
-import { Check, Shield, ArrowDown } from '@/components/icons';
-import { scrollToHash } from '@/lib/utils';
+import { Input, Select, Label, RangeSlider } from '@/components/ui/field';
+import { Check, Shield } from '@/components/icons';
+import { DIETS, dollars, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP } from '@/components/showcase-plan';
 
-const DIETS = [
-  { value: 'none', label: 'No restriction' },
-  { value: 'vegetarian', label: 'Vegetarian' },
-  { value: 'vegan', label: 'Vegan' },
-  { value: 'gluten-free', label: 'Gluten-free' },
-  { value: 'dairy-free', label: 'Dairy-free' },
-  { value: 'high-protein', label: 'High protein' }
-];
+const MIN_KCAL = 1200;
+const MAX_KCAL = 4000;
 
 const TRUST_ITEMS = [
   { icon: Check, label: '3 free plans/month' },
@@ -20,64 +14,129 @@ const TRUST_ITEMS = [
   { icon: Shield, label: 'Nothing to install' }
 ];
 
-/* The interactive planner tool. Same inputs, same clamps, same endpoint
- * payload as the original landing.js — visual styling only. */
-function PlannerCard({ onGenerate, generating }) {
+/* The planner form itself, sitting in the hero rather than beside it: the
+ * first thing a visitor sees is the three questions, already answerable.
+ * The same values drive both actions below it — the modal preview and the
+ * live sample generator — so nothing has to be re-entered. */
+function PlannerForm({ onGenerate, generating, onStartPlan }) {
   const [cals, setCals] = React.useState('2000');
-  const [budget, setBudget] = React.useState('60');
-  const [diet, setDiet] = React.useState('none');
+  const [budget, setBudget] = React.useState(60);
+  const [dietId, setDietId] = React.useState(DIETS[0].id);
 
-  const submit = () => {
-    onGenerate({
-      calorieGoal: parseInt(cals, 10) || 2000,
-      budget: parseFloat(budget) || 60,
-      dietary: diet
-    });
-  };
+  const diet = DIETS.find((d) => d.id === dietId) || DIETS[0];
+
+  /* The field accepts any keystroke while typing, so it is clamped here rather
+   * than on change — a half-typed "20" must not snap to 1200 mid-entry. */
+  const kcal = Math.min(Math.max(parseInt(cals, 10) || 2000, MIN_KCAL), MAX_KCAL);
+
+  const build = () => onStartPlan && onStartPlan({ budget, dietId, kcal });
+
+  const generate = () =>
+    onGenerate({ calorieGoal: kcal, budget, dietary: diet.signup });
 
   return (
     <div
       role="group"
-      aria-label="Generate a sample plan"
-      className="w-full rounded-lg border border-border-warm bg-cream p-6 shadow-lg sm:p-7"
+      aria-label="Plan your week"
+      /* text-foreground is load-bearing: the card sits inside the hero's
+       * text-on-forest scope, so anything that doesn't set its own colour
+       * would inherit white onto cream. */
+      className="rounded-lg border border-border-warm bg-cream p-6 text-foreground shadow-xl sm:p-8"
     >
-      <p className="mb-5 font-display text-xl font-bold italic text-foreground">
-        Try it now — no account needed.
-      </p>
-      <div className="mb-4 grid grid-cols-2 gap-3">
+      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8">
         <div>
-          <Label htmlFor="demoCals">Daily calories</Label>
-          <Input
-            id="demoCals" type="number" min="1200" max="4000" step="50" placeholder="2000"
-            value={cals} onChange={(e) => setCals(e.target.value)}
+          <Label htmlFor="heroBudget" className="mb-0">Weekly grocery budget</Label>
+          <p className="font-display text-[clamp(2.25rem,4vw,3rem)] font-black italic leading-none tabular-nums">
+            {dollars(budget * 100)}
+          </p>
+          <RangeSlider
+            id="heroBudget"
+            min={MIN_BUDGET}
+            max={MAX_BUDGET}
+            step={BUDGET_STEP}
+            value={budget}
+            onChange={(e) => setBudget(Number(e.target.value))}
+            aria-describedby="heroBudgetHint"
+            className="mt-4"
           />
+          <div className="mt-2 flex justify-between text-[13px] tabular-nums text-muted-fg">
+            <span>{dollars(MIN_BUDGET * 100)}</span>
+            <span id="heroBudgetHint">Drag to set your cap</span>
+            <span>{dollars(MAX_BUDGET * 100)}</span>
+          </div>
         </div>
+
         <div>
-          <Label htmlFor="demoBudget">Weekly budget ($)</Label>
+          <Label htmlFor="heroDiet">Dietary style</Label>
+          <Select id="heroDiet" value={dietId} onChange={(e) => setDietId(e.target.value)}>
+            {DIETS.map((d) => (
+              <option key={d.id} value={d.id}>{d.label}</option>
+            ))}
+          </Select>
+          <p className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
+            Every meal in the week respects it.
+          </p>
+        </div>
+
+        <div>
+          <Label htmlFor="heroCals">Daily calorie target</Label>
           <Input
-            id="demoBudget" type="number" min="20" max="500" step="5" placeholder="60"
-            value={budget} onChange={(e) => setBudget(e.target.value)}
+            id="heroCals"
+            type="number"
+            inputMode="numeric"
+            min={MIN_KCAL}
+            max={MAX_KCAL}
+            step="50"
+            placeholder="2000"
+            value={cals}
+            onChange={(e) => setCals(e.target.value)}
+            aria-describedby="heroCalsHint"
           />
+          <p id="heroCalsHint" className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
+            Anything from {MIN_KCAL.toLocaleString('en-US')} to {MAX_KCAL.toLocaleString('en-US')} kcal.
+          </p>
         </div>
       </div>
-      <div className="mb-5">
-        <Label htmlFor="demoDiet">Dietary preference</Label>
-        <Select id="demoDiet" value={diet} onChange={(e) => setDiet(e.target.value)}>
-          {DIETS.map((d) => (
-            <option key={d.value} value={d.value}>{d.label}</option>
-          ))}
-        </Select>
-      </div>
-      <Button id="demoBtn" full size="lg" onClick={submit} disabled={generating} aria-busy={generating}>
-        {generating && (
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white motion-reduce:animate-none"
-          />
-        )}
-        {generating ? 'Generating...' : 'Generate Sample Plan'}
+
+      {/* The one action this page is for. The href is the no-JS fallback. */}
+      <Button
+        href="login.html?signup=1"
+        full
+        size="lg"
+        className="mt-7 text-lg font-bold"
+        onClick={(e) => {
+          if (!onStartPlan) return;
+          e.preventDefault();
+          build();
+        }}
+      >
+        Build My Free Plan
       </Button>
-      <p className="mt-3 text-center text-sm text-muted-fg">No email. No sign-up. Just the plan.</p>
+      <p className="mt-3 text-center text-sm text-muted-fg">
+        No email. No sign-up. Your plan saves to your browser.
+      </p>
+
+      {/* Secondary: writes a real plan with the AI rather than the modelled
+        * preview, so it stays available but never competes with the CTA. */}
+      <div className="mt-5 border-t border-border-warm pt-5 text-center">
+        <Button
+          id="demoBtn"
+          variant="quiet"
+          size="sm"
+          className="text-muted-fg hover:bg-muted-bg hover:text-foreground"
+          onClick={generate}
+          disabled={generating}
+          aria-busy={generating}
+        >
+          {generating && (
+            <span
+              aria-hidden="true"
+              className="h-4 w-4 animate-spin rounded-full border-2 border-muted-fg/40 border-t-muted-fg motion-reduce:animate-none"
+            />
+          )}
+          {generating ? 'Generating...' : 'Or generate one live sample day'}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -91,68 +150,27 @@ export default function Hero({ onGenerate, generating, onStartPlan }) {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(900px 480px at 18% 12%, rgba(74,222,128,0.10), transparent 60%), radial-gradient(700px 420px at 88% 78%, rgba(74,222,128,0.06), transparent 55%)'
+            'radial-gradient(900px 480px at 18% 12%, rgb(var(--rgb-green-light) / 0.10), transparent 60%), radial-gradient(700px 420px at 88% 78%, rgb(var(--rgb-green-light) / 0.06), transparent 55%)'
         }}
       />
-      <div className="relative mx-auto grid max-w-container items-center gap-12 px-4 pb-16 pt-32 sm:px-5 lg:min-h-[80vh] lg:grid-cols-[1.15fr_0.85fr] lg:gap-16 lg:pb-20">
-        <div>
+      <div className="relative mx-auto max-w-container px-4 pb-16 pt-28 sm:px-5 lg:pb-20 lg:pt-32">
+        {/* Deliberately compact: the form below is the page, and the headline
+          * only has to say what the form is for. */}
+        <div className="max-w-3xl">
           <h1
             id="hero-heading"
-            className="font-display font-black italic leading-[1.05] tracking-[-0.03em] text-on-forest [font-size:clamp(2.5rem,4.6vw+1rem,4.25rem)]"
+            className="font-display font-black italic leading-[1.05] tracking-[-0.03em] text-on-forest [font-size:clamp(1.75rem,2.4vw+0.9rem,2.75rem)]"
           >
             Plan your week of meals inside your grocery budget.
           </h1>
-          <p className="mt-6 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-            Set a weekly spend, get seven days of meals and the grocery list that goes with them.
-            Under 1 minute, no endless prompts, no math.
+          <p className="mt-3 text-[17px] leading-[1.55] text-on-forest-body">
+            Set your three targets. Get seven days of meals and the list to shop them.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            {/* Opens the 3-step preview instead of jumping to an empty signup
-              * form. The href stays as the no-JS fallback. */}
-            <Button
-              href="login.html?signup=1"
-              size="lg"
-              className="text-lg font-bold"
-              onClick={(e) => {
-                if (!onStartPlan) return;
-                e.preventDefault();
-                onStartPlan();
-              }}
-            >
-              Build My Free Plan
-            </Button>
-            <Button
-              href="#how-it-works" variant="quiet" className="text-on-forest-body hover:text-on-forest"
-              onClick={(e) => scrollToHash(e, '#how-it-works')}
-            >
-              See how it works <ArrowDown />
-            </Button>
-          </div>
-          <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-on-forest-muted">
-            <span>3 simple questions</span>
-            <span aria-hidden="true" className="h-1 w-1 rounded-full bg-on-forest-faint" />
-            <span>No credit card required</span>
-            <span aria-hidden="true" className="h-1 w-1 rounded-full bg-on-forest-faint" />
-            <span>Under 1 minute</span>
-          </div>
-          {/* States up front what happens to the plan when there is no account,
-            * so the no-signup hook doesn't read as "and then you lose it". */}
-          <p className="mt-4 max-w-prose text-sm leading-[1.6] text-on-forest-muted">
-            Your plan saves to your browser — optional free account to sync across devices.
-          </p>
-          <div aria-hidden="true" className="mt-10 hidden max-w-md grid-cols-7 gap-1 lg:grid">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-              <span
-                key={d}
-                className="rounded-sm border border-forest-line py-1.5 text-center font-display text-xs italic text-on-forest-muted"
-              >
-                {d}
-              </span>
-            ))}
-          </div>
         </div>
 
-        <PlannerCard onGenerate={onGenerate} generating={generating} />
+        <div className="mt-8">
+          <PlannerForm onGenerate={onGenerate} generating={generating} onStartPlan={onStartPlan} />
+        </div>
       </div>
 
       {/* Trust strip */}

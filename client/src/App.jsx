@@ -6,7 +6,6 @@ import Showcase from '@/components/Showcase';
 import Proof from '@/components/Proof';
 import HowItWorks from '@/components/HowItWorks';
 import FeaturesGrid from '@/components/FeaturesGrid';
-import Founder from '@/components/Founder';
 import Faq from '@/components/Faq';
 import ClosingCta from '@/components/ClosingCta';
 import EmailPopup from '@/components/EmailPopup';
@@ -17,9 +16,14 @@ import { generateDemoMeal, track, captureReferral } from '@/lib/api';
 export default function App() {
   const [demo, setDemo] = React.useState({ status: 'idle', plan: null, error: null, rateLimited: false, cals: 2000, budget: 60 });
   /* Owned here because the two CTAs that open it — the hero's and the mobile
-   * sticky bar inside Showcase — sit in different subtrees. */
+   * sticky bar inside Showcase — sit in different subtrees. The hero passes
+   * the targets it collected; the mobile bar has none to pass. */
   const [onboarding, setOnboarding] = React.useState(false);
-  const startPlan = React.useCallback(() => setOnboarding(true), []);
+  const [seed, setSeed] = React.useState(null);
+  const startPlan = React.useCallback((targets) => {
+    if (targets) setSeed(targets);
+    setOnboarding(true);
+  }, []);
 
   const bootRan = React.useRef(false);
   React.useEffect(() => {
@@ -56,11 +60,10 @@ export default function App() {
         <Proof />
         <HowItWorks />
         <FeaturesGrid />
-        <Founder />
         <Faq />
         <ClosingCta />
       </main>
-      <InteractiveOnboarding open={onboarding} onOpenChange={setOnboarding} />
+      <InteractiveOnboarding open={onboarding} onOpenChange={setOnboarding} seed={seed} />
       <EmailPopup />
       <Footer />
     </>
