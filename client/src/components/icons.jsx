@@ -124,6 +124,14 @@ export const Cutlery = (props) => (
   </svg>
 );
 
+/* Phone outline — marks the grocery list as something you shop from in-aisle. */
+export const Phone = (props) => (
+  <svg viewBox="0 0 24 24" width="16" height="16" {...base} strokeWidth="1.8" aria-hidden="true" {...props}>
+    <rect x="6" y="2" width="12" height="20" rx="2.5" />
+    <line x1="11" y1="18.5" x2="13" y2="18.5" />
+  </svg>
+);
+
 /* Google brand mark — official multicolor paths, fixed fills by design. */
 export const GoogleLogo = (props) => (
   <svg viewBox="0 0 18 18" width="18" height="18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" {...props}>

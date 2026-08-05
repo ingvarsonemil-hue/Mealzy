@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { Check, X } from '@/components/icons';
-import { range } from '@/components/showcase-plan';
+import { range, DIETS } from '@/components/showcase-plan';
 import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -20,41 +20,11 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 /* Where the visitor's targets live between visits. */
 const SAVED_PLAN_KEY = 'mealzy_preview_plan';
 
-/* `signup` is the value handed to the signup page so the choice survives
- * the jump; it matches the dietary values server.js already accepts. */
-const DIETS = [
-  {
-    id: 'balanced', label: 'Balanced', signup: 'none', kcal: 2100,
-    dinners: [
-      'Herb-Crusted Salmon', 'Chicken Stir-Fry', 'Beef & Black Bean Tacos',
-      'Pasta Pomodoro', 'Coconut Veggie Curry', 'Roast Chicken & Veg', 'Baked Cod & Greens'
-    ]
-  },
-  {
-    id: 'high-protein', label: 'High Protein', signup: 'high-protein', kcal: 2200,
-    dinners: [
-      'Grilled Chicken & Quinoa', 'Turkey Chili', 'Steak & Roast Potatoes',
-      'Tuna Steak & Edamame', 'Cottage Cheese Pasta Bake', 'Pork Loin & Green Beans',
-      'Shrimp & Egg Fried Rice'
-    ]
-  },
-  {
-    id: 'vegan', label: 'Vegan', signup: 'vegan', kcal: 2000,
-    dinners: [
-      'Chickpea Tikka Masala', 'Black Bean Burrito Bowl', 'Peanut Tofu Noodles',
-      'Lentil Shepherd’s Pie', 'Mushroom & Barley Risotto', 'Roasted Cauliflower Tacos',
-      'Red Curry Tempeh'
-    ]
-  },
-  {
-    id: 'keto', label: 'Keto', signup: 'keto', kcal: 1900,
-    dinners: [
-      'Garlic Butter Salmon', 'Chicken Alfredo Zoodles', 'Beef & Broccoli Skillet',
-      'Egg Roll in a Bowl', 'Pesto Chicken Bake', 'Cauliflower Cottage Pie',
-      'Ribeye & Asparagus'
-    ]
-  }
-];
+/* The hero slider is continuous; these buttons are not. Snapping keeps the
+ * handoff honest — the visitor lands on the nearest budget we actually model
+ * rather than on a silent default. */
+const nearestBudget = (n) =>
+  BUDGETS.reduce((best, b) => (Math.abs(b - n) < Math.abs(best - n) ? b : best), BUDGETS[0]);
 
 const LOADING_STEPS = [
   'Searching local ingredient pricing...',
@@ -65,9 +35,10 @@ const LOADING_STEPS = [
 /* 500 ms per line, three lines — 1.5 s total. */
 const STEP_MS = 500;
 
-/* A planned week lands just under budget, the same 96.4% ratio the Showcase
- * sample uses, so the two previews never contradict each other. */
-const SPEND_RATIO = 0.964;
+/* A planned week lands under budget, the same 84.3% ratio the Showcase sample
+ * uses ($50.58 of a $60 cap, pantry staples counted at the share the week
+ * actually uses), so the two previews never contradict each other. */
+const SPEND_RATIO = 0.843;
 
 /* Fixed per-day weights (sum exactly 1) so the seven rows always add up to the
  * week total — no rounding drift between the table and the figure above it. */
@@ -77,8 +48,10 @@ const DAY_WEIGHTS = [0.15, 0.138, 0.145, 0.132, 0.15, 0.144, 0.141];
  * Build the previewed week. Pure and deterministic.
  * The budget is the whole household's weekly grocery spend; household size
  * changes portions, not the total, so it only divides the per-person figure.
+ * `kcal` overrides the diet's default when the visitor set a target in the
+ * hero form, so the reveal quotes their number rather than ours.
  */
-export function planPreview({ budget, dietId, household }) {
+export function planPreview({ budget, dietId, household, kcal }) {
   const diet = DIETS.find((d) => d.id === dietId) || DIETS[0];
   const spend = Math.round(budget * 100 * SPEND_RATIO);
 
@@ -90,6 +63,7 @@ export function planPreview({ budget, dietId, household }) {
   return {
     diet,
     spend,
+    kcal: kcal || diet.kcal,
     saved: budget * 100 - spend,
     perPersonDay: Math.round(spend / household / 7),
     days: DAYS.map((day, i) => ({ day, dinner: diet.dinners[i], cents: cents[i] }))
@@ -251,7 +225,7 @@ function RevealStep({ plan, household, onClaim, onBack }) {
         ))}
       </ul>
       <p className="mt-2.5 text-[13px] text-muted-fg">
-        Each day covers all three meals for {people}, at about {plan.diet.kcal.toLocaleString('en-US')} kcal
+        Each day covers all three meals for {people}, at about {plan.kcal.toLocaleString('en-US')} kcal
         each. Dinners shown; breakfasts and lunches are planned too.
       </p>
 
@@ -283,16 +257,17 @@ const TITLES = {
   reveal: 'Here is your week.'
 };
 
-export default function InteractiveOnboarding({ open, onOpenChange }) {
+export default function InteractiveOnboarding({ open, onOpenChange, seed }) {
   const [step, setStep] = React.useState('targets');
   const [phase, setPhase] = React.useState(0);
   const [budget, setBudget] = React.useState(60);
   const [dietId, setDietId] = React.useState('balanced');
   const [household, setHousehold] = React.useState(2);
+  const [kcal, setKcal] = React.useState(null);
 
   const plan = React.useMemo(
-    () => planPreview({ budget, dietId, household }),
-    [budget, dietId, household]
+    () => planPreview({ budget, dietId, household, kcal }),
+    [budget, dietId, household, kcal]
   );
 
   /* The plan is a pure function of these three values, so storing them is
@@ -314,10 +289,26 @@ export default function InteractiveOnboarding({ open, onOpenChange }) {
       setBudget(saved.budget);
       setDietId(saved.dietId);
       setHousehold(saved.household);
+      /* Optional — plans saved before the hero asked for a calorie target have
+       * no kcal, and fall back to the diet default. */
+      if (Number.isFinite(saved.kcal) && saved.kcal >= 1200 && saved.kcal <= 4000) {
+        setKcal(saved.kcal);
+      }
       hasSaved.current = true;
       setStep('reveal');
     } catch (e) { /* private mode, or a value we no longer understand */ }
   }, []);
+
+  /* Targets the visitor already set in the hero form win over anything
+   * restored above: they are the newer answer. Household is the only question
+   * the hero doesn't ask, so the modal still opens on step 1 to collect it. */
+  React.useEffect(() => {
+    if (!open || !seed) return;
+    setBudget(nearestBudget(seed.budget));
+    if (DIETS.some((d) => d.id === seed.dietId)) setDietId(seed.dietId);
+    setKcal(seed.kcal || null);
+    setStep('targets');
+  }, [open, seed]);
 
   /* Drives step 2: one line every 500 ms, then straight into the reveal. */
   React.useEffect(() => {
@@ -334,7 +325,7 @@ export default function InteractiveOnboarding({ open, onOpenChange }) {
   const generate = () => {
     setStep('loading');
     try {
-      localStorage.setItem(SAVED_PLAN_KEY, JSON.stringify({ budget, dietId, household }));
+      localStorage.setItem(SAVED_PLAN_KEY, JSON.stringify({ budget, dietId, household, kcal }));
       hasSaved.current = true;
     } catch (e) { /* private mode — the preview still works, it just won't persist */ }
     track('onboarding_targets_set', { budget, diet: dietId, household });

@@ -1,10 +1,11 @@
 import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
-import { Sunrise, Bowl, Cutlery } from '@/components/icons';
+import { RangeSlider } from '@/components/ui/field';
+import { Sunrise, Bowl, Cutlery, Phone } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import {
-  planFor, range, dollars, BASE_BUDGET, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
+  planFor, range, dollars, photo, BASE_BUDGET, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
 } from '@/components/showcase-plan';
 
 const COURSE_ICON = { Breakfast: Sunrise, Lunch: Bowl, Dinner: Cutlery };
@@ -20,20 +21,66 @@ function Figure({ label, value, className }) {
   );
 }
 
-function MealCard({ meal }) {
+/* Calories and cost read as two separate chips rather than one run-on line, so
+ * the week can be scanned down either column. */
+function Badge({ children, accent }) {
   return (
-    <li
-      className="rounded-md border border-border-warm bg-cream p-4 shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold tabular-nums',
+        accent
+          ? 'border-green/40 bg-green/10 text-green-deep dark:text-green-light'
+          : 'border-border-warm bg-muted-bg text-muted-fg'
+      )}
     >
-      <p className="text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">
-        {meal.day}
-      </p>
-      <p className="mt-1.5 text-[17px] font-medium leading-snug">{meal.name}</p>
-      <p className="mt-2 inline-flex items-baseline gap-1.5 rounded-full border border-border-warm bg-muted-bg px-2.5 py-1 text-[13px] font-medium tabular-nums text-muted-fg">
-        <span>{num(meal.kcal)} kcal</span>
-        <span aria-hidden="true">·</span>
-        <span>Est. {meal.cost}</span>
-      </p>
+      {children}
+    </span>
+  );
+}
+
+function MealRow({ meal }) {
+  const Icon = COURSE_ICON[meal.course];
+  return (
+    <li className="flex gap-3.5 py-3 first:pt-0 last:pb-0">
+      {/* Decorative: the dish is named in the text beside it, so an alt here
+        * would only repeat what a screen reader has already read out. */}
+      <img
+        src={photo(meal.img)}
+        srcSet={`${photo(meal.img)} 1x, ${photo(meal.img, 800)} 2x`}
+        alt=""
+        width="96"
+        height="67"
+        loading="lazy"
+        decoding="async"
+        className="h-[67px] w-24 shrink-0 rounded-sm bg-muted-bg object-cover"
+      />
+      <div className="min-w-0">
+        <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
+          <Icon width="14" height="14" className="shrink-0" />
+          {meal.course}
+        </p>
+        <p className="mt-1 text-[15px] font-medium leading-snug">{meal.name}</p>
+        <p className="mt-2 flex flex-wrap gap-1.5">
+          <Badge>{num(meal.kcal)} kcal</Badge>
+          <Badge accent>Est. {meal.cost}</Badge>
+        </p>
+      </div>
+    </li>
+  );
+}
+
+function DayCard({ day }) {
+  return (
+    <li className="flex flex-col overflow-hidden rounded-md border border-border-warm bg-cream shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+      <header className="flex items-baseline justify-between gap-3 bg-forest px-4 py-2.5 text-on-forest">
+        <h4 className="font-display text-base font-bold italic">{day.day}</h4>
+        <span className="text-xs tabular-nums text-on-forest-muted">{num(day.kcal)} kcal</span>
+      </header>
+      <ul role="list" className="divide-y divide-border-warm px-4 py-3.5">
+        {day.meals.map((meal) => (
+          <MealRow key={meal.course} meal={meal} />
+        ))}
+      </ul>
     </li>
   );
 }
@@ -92,7 +139,6 @@ function MobileCta({ onStartPlan }) {
 }
 
 function BudgetPanel({ plan, budget, onChange }) {
-  const fill = ((budget - MIN_BUDGET) / (MAX_BUDGET - MIN_BUDGET)) * 100;
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
       <div>
@@ -105,19 +151,15 @@ function BudgetPanel({ plan, budget, onChange }) {
         <p className="mt-1 font-display text-[clamp(2.5rem,5vw,3.5rem)] font-black italic leading-none tabular-nums">
           {dollars(budget * 100)}
         </p>
-        <input
+        <RangeSlider
           id="showcase-budget"
-          type="range"
           min={MIN_BUDGET}
           max={MAX_BUDGET}
           step={BUDGET_STEP}
           value={budget}
           onChange={(e) => onChange(Number(e.target.value))}
           aria-describedby="showcase-budget-hint"
-          style={{
-            background: `linear-gradient(to right, var(--color-green) ${fill}%, var(--color-border) ${fill}%)`
-          }}
-          className="mt-5 h-2 w-full cursor-pointer appearance-none rounded-full outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-green [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-[3px] [&::-moz-range-thumb]:border-solid [&::-moz-range-thumb]:border-cream [&::-moz-range-thumb]:bg-green [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-[3px] [&::-webkit-slider-thumb]:border-cream [&::-webkit-slider-thumb]:bg-green [&::-webkit-slider-thumb]:shadow-button"
+          className="mt-5"
         />
         <div className="mt-2 flex justify-between text-[13px] tabular-nums text-muted-fg">
           <span>{dollars(MIN_BUDGET * 100)}</span>
@@ -151,6 +193,19 @@ function BudgetPanel({ plan, budget, onChange }) {
   );
 }
 
+/* One shoppable line: name, the amount this week needs, and the estimated cost. */
+function GroceryLine({ item, qty, cents }) {
+  return (
+    <div className="flex items-baseline py-1 text-[15px]">
+      <span className="shrink-0">
+        {item} <span className="text-muted-fg">{qty}</span>
+      </span>
+      <span className="receipt-dots" aria-hidden="true" />
+      <span className="shrink-0 font-medium tabular-nums">{range(cents)}</span>
+    </div>
+  );
+}
+
 export default function Showcase({ onStartPlan }) {
   const [budget, setBudget] = React.useState(BASE_BUDGET);
   const plan = React.useMemo(() => planFor(budget), [budget]);
@@ -159,9 +214,6 @@ export default function Showcase({ onStartPlan }) {
     <section id="features" aria-labelledby="showcase-heading" className="bg-parchment py-16 sm:py-20">
       <div className="mx-auto max-w-container px-4 sm:px-5">
         <Reveal className="mx-auto mb-10 max-w-prose text-center">
-          <span className="mb-4 inline-block rounded-full bg-green px-4 py-1 text-xs font-bold uppercase tracking-[0.08em] text-white">
-            Product preview
-          </span>
           <h2
             id="showcase-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
@@ -179,42 +231,51 @@ export default function Showcase({ onStartPlan }) {
           <BudgetPanel plan={plan} budget={budget} onChange={setBudget} />
         </Reveal>
 
-        {plan.courses.map(([course, meals], i) => {
-          const Icon = COURSE_ICON[course];
-          return (
-            <Reveal key={course} delay={60 + i * 40} className="mt-8">
-              <h3 className="flex items-center gap-2.5 font-display text-xl font-bold italic">
-                <Icon className="shrink-0 text-green dark:text-green-light" />
-                {course}
-              </h3>
-              <ul
-                role="list"
-                className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              >
-                {meals.map((meal) => (
-                  <MealCard key={`${course}-${meal.day}`} meal={meal} />
-                ))}
-              </ul>
-            </Reveal>
-          );
-        })}
+        <Reveal delay={60} as="ul" role="list" className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {plan.days.map((day) => (
+            <DayCard key={day.day} day={day} />
+          ))}
+        </Reveal>
 
         <Reveal delay={100} className="mt-8 min-w-0 rounded-lg border border-border-warm bg-cream p-6 shadow-card">
-          <h3 className="font-display text-2xl font-bold leading-[1.15] tracking-[-0.01em]">The grocery list</h3>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="font-display text-2xl font-bold leading-[1.15] tracking-[-0.01em]">The grocery list</h3>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-green/40 bg-green/10 px-3 py-1 text-[13px] font-semibold text-green-deep dark:text-green-light">
+              <Phone />
+              Works on your phone
+            </span>
+          </div>
+          <p className="mt-2 text-[15px] leading-[1.6] text-muted-fg">
+            Tick items off in the aisle — the list opens in any browser, nothing to install.
+          </p>
+
           <div className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
-            {plan.groceries.map(([aisle, items]) => (
+            {plan.fresh.map(([aisle, items]) => (
               <div key={aisle} className="min-w-0">
                 <p className="mb-2 mt-5 text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">{aisle}</p>
-                {items.map(([item, cents]) => (
-                  <div key={item} className="flex items-baseline py-1 text-[15px]">
-                    <span>{item}</span>
-                    <span className="receipt-dots" aria-hidden="true" />
-                    <span className="font-medium tabular-nums">{range(cents)}</span>
-                  </div>
+                {items.map(([item, qty, cents]) => (
+                  <GroceryLine key={item} item={item} qty={qty} cents={cents} />
                 ))}
               </div>
             ))}
+
+            {/* Kept apart from the shop-this-week aisles: these are cupboard
+              * items the plan draws on, priced at the share it uses rather
+              * than as a full pack you have to buy again. */}
+            <div className="min-w-0">
+              <p className="mb-2 mt-5 text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
+                Pantry staples
+              </p>
+              {plan.pantry.map(([item, qty, cents]) => (
+                <GroceryLine key={item} item={item} qty={qty} cents={cents} />
+              ))}
+              <p className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
+                Priced at what the week uses, not a full pack — most of these are already in your
+                cupboard.
+              </p>
+            </div>
           </div>
+
           <div className="mt-5 flex items-baseline justify-between border-t border-border-warm pt-4 text-base font-bold">
             <span>Week total</span>
             <span className="tabular-nums">Est. {range(plan.spend)}</span>

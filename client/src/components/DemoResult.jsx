@@ -26,6 +26,13 @@ export default function DemoResult({ demo }) {
     return map;
   }, [demo.plan]);
 
+  /* Before a demo is run there is nothing to say here: the hero above already
+   * holds the form and its own reassurance copy, so an idle placeholder would
+   * only push the sample plan further down the page. The section collapses to
+   * nothing instead of restating the pitch. */
+  const idle = demo.status !== 'success' && demo.status !== 'error';
+  if (idle) return <section id="demo" ref={sectionRef} aria-label="Sample meal plan result" className="scroll-mt-20" />;
+
   return (
     <section id="demo" ref={sectionRef} aria-label="Sample meal plan result" className="scroll-mt-20 py-16 sm:py-20">
       <div className="mx-auto max-w-container px-4 sm:px-5">
@@ -38,7 +45,7 @@ export default function DemoResult({ demo }) {
           </div>
         )}
 
-        {demo.status === 'success' && demo.plan ? (
+        {demo.status === 'success' && demo.plan && (
           <div aria-live="polite" className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
             <div className="rounded-lg border border-border-warm bg-cream shadow-card">
               <div className="border-b border-border-warm px-6 py-5">
@@ -89,15 +96,6 @@ export default function DemoResult({ demo }) {
               </Button>
               <p className="mt-3 text-sm text-muted-fg">No credit card. No catch. Resets every 30 days.</p>
             </div>
-          </div>
-        ) : demo.status === 'error' && demo.rateLimited ? null : (
-          <div className="mx-auto max-w-prose text-center">
-            <h2 className="font-display text-[clamp(1.75rem,2.4vw+0.5rem,2.5rem)] font-bold italic leading-[1.1] tracking-[-0.02em]">
-              Generate a real sample plan — no account needed.
-            </h2>
-            <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-              Enter your goals above and see what Mealzy actually builds. No email. No sign-up. Just the plan.
-            </p>
           </div>
         )}
       </div>
