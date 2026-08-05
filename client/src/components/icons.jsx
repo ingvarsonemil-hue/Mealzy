@@ -132,6 +132,16 @@ export const Phone = (props) => (
   </svg>
 );
 
+/* Two arrows trading places — the swap affordance on a meal card. */
+export const Swap = (props) => (
+  <svg viewBox="0 0 24 24" width="15" height="15" {...base} strokeWidth="2" aria-hidden="true" {...props}>
+    <path d="M4 8h14" />
+    <polyline points="15 5 18 8 15 11" />
+    <path d="M20 16H6" />
+    <polyline points="9 13 6 16 9 19" />
+  </svg>
+);
+
 /* Google brand mark — official multicolor paths, fixed fills by design. */
 export const GoogleLogo = (props) => (
   <svg viewBox="0 0 18 18" width="18" height="18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" {...props}>

@@ -105,13 +105,6 @@
   }
   .skip-link:focus { top: 0; }
 
-  /* Dotted leaders for the grocery receipt rows */
-  .receipt-dots {
-    @apply flex-1 mx-2;
-    border-bottom: 1px dotted var(--color-border);
-    transform: translateY(-4px);
-  }
-
   /* Cookie consent banner — markup is injected by public/js/consent.js
    * (shared with the legacy public/*.html pages), so these class names
    * are fixed. Styling mirrors client/src/components/ui/button.jsx's

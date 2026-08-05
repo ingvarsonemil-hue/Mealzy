@@ -28,10 +28,12 @@ export default function DemoResult({ demo }) {
 
   /* Before a demo is run there is nothing to say here: the hero above already
    * holds the form and its own reassurance copy, so an idle placeholder would
-   * only push the sample plan further down the page. The section collapses to
-   * nothing instead of restating the pitch. */
+   * only push the sample plan further down the page. What stays behind is the
+   * bare scroll target — a plain div, not a labelled <section>, because a
+   * landmark with an accessible name and no content is announced to screen
+   * readers as an empty region the user then has to look inside. */
   const idle = demo.status !== 'success' && demo.status !== 'error';
-  if (idle) return <section id="demo" ref={sectionRef} aria-label="Sample meal plan result" className="scroll-mt-20" />;
+  if (idle) return <div id="demo" ref={sectionRef} className="scroll-mt-20" />;
 
   return (
     <section id="demo" ref={sectionRef} aria-label="Sample meal plan result" className="scroll-mt-20 py-16 sm:py-20">

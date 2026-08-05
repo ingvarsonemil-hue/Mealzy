@@ -2,7 +2,8 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { RangeSlider } from '@/components/ui/field';
-import { Sunrise, Bowl, Cutlery, Phone, Check, ChevronDown } from '@/components/icons';
+import { Sunrise, Bowl, Cutlery, ChevronDown, Swap } from '@/components/icons';
+import GroceryList from '@/components/GroceryList';
 import { cn } from '@/lib/utils';
 import {
   planFor, range, dollars, photo, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
@@ -38,7 +39,7 @@ function Badge({ children, accent }) {
   );
 }
 
-function MealRow({ meal }) {
+function MealRow({ meal, onSwap }) {
   const Icon = COURSE_ICON[meal.course];
   return (
     <li className="flex gap-3.5 py-3 first:pt-0 last:pb-0">
@@ -54,16 +55,34 @@ function MealRow({ meal }) {
         decoding="async"
         className="h-[67px] w-24 shrink-0 rounded-sm bg-muted-bg object-cover"
       />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
           <Icon width="14" height="14" className="shrink-0" />
           {meal.course}
         </p>
         <p className="mt-1 text-[15px] font-medium leading-snug">{meal.name}</p>
-        <p className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <Badge>{num(meal.kcal)} kcal</Badge>
           <Badge accent>Est. {meal.cost}</Badge>
-        </p>
+          {/* The page claims any meal can be swapped in one click; this is that
+            * claim made touchable. It opens the same preview modal the hero CTA
+            * does, seeded with the budget already on screen — the swap itself
+            * belongs to the real planner, behind it. The dish name is in the
+            * accessible name because there are 9 of these on the page. */}
+          <button
+            type="button"
+            onClick={onSwap}
+            aria-label={`Swap ${meal.name}`}
+            /* Green edge and green label, where the two badges beside it are
+              * warm-bordered and muted: this is the only thing in the row you
+              * can press, and a border-border-warm chip sits at 1.26:1 against
+              * the card — under the 3:1 WCAG 1.4.11 asks of a control boundary. */
+            className="inline-flex min-h-[32px] cursor-pointer items-center gap-1.5 rounded-full border border-green px-2.5 text-xs font-semibold text-green-deep transition-colors duration-200 hover:bg-green hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green motion-reduce:transition-none dark:text-green-light"
+          >
+            <Swap width="12" height="12" />
+            Swap meal
+          </button>
+        </div>
       </div>
     </li>
   );
@@ -83,13 +102,13 @@ function DayHeader({ day }) {
   );
 }
 
-function DayCard({ day }) {
+function DayCard({ day, onSwap }) {
   return (
     <li className={cardClasses}>
       <DayHeader day={day.day} />
       <ul role="list" className="divide-y divide-border-warm px-4 py-3.5">
         {day.meals.map((meal) => (
-          <MealRow key={meal.course} meal={meal} />
+          <MealRow key={meal.course} meal={meal} onSwap={onSwap} />
         ))}
       </ul>
     </li>
@@ -233,109 +252,16 @@ function BudgetPanel({ plan, budget, onChange }) {
   );
 }
 
-/* One shoppable line: a checkbox, the name, the amount this week needs, and the
- * estimated cost. The whole row is the label, so the tap target is the line
- * rather than the 16px box — this list is meant to be used one-handed in an
- * aisle. Ticking is presentation only; nothing is persisted from a sample. */
-function GroceryLine({ item, qty, cents, checked, onToggle }) {
-  return (
-    <label className="flex cursor-pointer items-baseline py-1 text-[15px]">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onToggle}
-        className="mr-2.5 h-4 w-4 shrink-0 cursor-pointer self-center accent-green"
-      />
-      <span className={cn('shrink-0', checked && 'text-muted-fg line-through')}>
-        {item} <span className="text-muted-fg">{qty}</span>
-      </span>
-      <span className="receipt-dots" aria-hidden="true" />
-      <span className={cn('shrink-0 font-medium tabular-nums', checked && 'text-muted-fg line-through')}>
-        {range(cents)}
-      </span>
-    </label>
-  );
-}
-
-/* The list as plain text, in the order it is rendered, for the clipboard. */
-function groceryText(plan) {
-  const line = ([item, qty, cents]) => `- ${item} (${qty}) — Est. ${range(cents)}`;
-  const blocks = plan.fresh.map(([aisle, items]) => [aisle, ...items.map(line)].join('\n'));
-
-  blocks.push(['Pantry staples', ...plan.pantry.map(line)].join('\n'));
-
-  return [
-    `Mealzy grocery list — ${dollars(plan.budget * 100)} week`,
-    ...blocks,
-    `Week total: Est. ${range(plan.spend)}`
-  ].join('\n\n');
-}
-
-/* Copies the list and says so. The confirmation is the button's own label, so
- * the answer to "did that work?" is where the click happened. */
-function CopyListButton({ plan }) {
-  const [state, setState] = React.useState('idle');
-
-  /* Cleared on a timer, so the timer has to die with the component and with
-   * any click that lands before the previous one has faded. */
-  React.useEffect(() => {
-    if (state === 'idle') return undefined;
-    const t = setTimeout(() => setState('idle'), 2400);
-    return () => clearTimeout(t);
-  }, [state]);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(groceryText(plan));
-      setState('copied');
-    } catch {
-      /* Clipboard access is refused on insecure origins and by some browser
-       * privacy settings. Say that plainly — there is no keystroke that would
-       * work instead here, since nothing on the page is selected. */
-      setState('error');
-    }
-  };
-
-  const label = {
-    idle: 'Copy grocery list',
-    copied: 'Copied to clipboard',
-    error: 'Copy blocked by your browser'
-  }[state];
-
-  return (
-    <>
-      <Button
-        variant="quiet"
-        size="sm"
-        onClick={copy}
-        className="border border-border-warm bg-cream hover:bg-muted-bg"
-      >
-        {state === 'copied' && <Check className="text-green" aria-hidden="true" />}
-        {label}
-      </Button>
-      {/* The label change is announced separately: a button's own name changing
-        * is not reliably read out by screen readers. */}
-      <span aria-live="polite" className="sr-only">
-        {state === 'idle' ? '' : label}
-      </span>
-    </>
-  );
-}
-
 /* Mon–Wed carry the photography; the rest of the week opens on request. */
 const PREVIEW_DAYS = 3;
 
 export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
   const plan = React.useMemo(() => planFor(budget), [budget]);
   const [fullWeek, setFullWeek] = React.useState(false);
-  const [ticked, setTicked] = React.useState(() => new Set());
 
-  const toggle = (id) =>
-    setTicked((prev) => {
-      const next = new Set(prev);
-      if (!next.delete(id)) next.add(id);
-      return next;
-    });
+  /* Seeded with the budget the visitor has already set here, so the modal opens
+   * on their week rather than on the default one. */
+  const swapMeal = () => onStartPlan && onStartPlan({ budget });
 
   const shown = plan.days.slice(0, PREVIEW_DAYS);
   const rest = plan.days.slice(PREVIEW_DAYS);
@@ -365,7 +291,7 @@ export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
         <Reveal delay={60} className="mt-8">
           <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {shown.map((day) => (
-              <DayCard key={day.day} day={day} />
+              <DayCard key={day.day} day={day} onSwap={swapMeal} />
             ))}
           </ul>
 
@@ -398,67 +324,7 @@ export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
           </div>
         </Reveal>
 
-        <Reveal delay={100} className="mt-8 min-w-0 rounded-lg border border-border-warm bg-cream p-6 shadow-card">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="font-display text-2xl font-bold leading-[1.15] tracking-[-0.01em]">The grocery list</h3>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-green/40 bg-green/10 px-3 py-1 text-[13px] font-semibold text-green-deep dark:text-green-light">
-              <Phone />
-              Works on your phone
-            </span>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[15px] leading-[1.6] text-muted-fg">
-              Tick items off as you shop — the list opens in any browser, nothing to install.
-            </p>
-            <CopyListButton plan={plan} />
-          </div>
-
-          <div className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
-            {plan.fresh.map(([aisle, items]) => (
-              <div key={aisle} className="min-w-0">
-                <p className="mb-2 mt-5 text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">{aisle}</p>
-                {items.map(([item, qty, cents]) => (
-                  <GroceryLine
-                    key={item}
-                    item={item}
-                    qty={qty}
-                    cents={cents}
-                    checked={ticked.has(`${aisle}:${item}`)}
-                    onToggle={() => toggle(`${aisle}:${item}`)}
-                  />
-                ))}
-              </div>
-            ))}
-
-            {/* Kept apart from the shop-this-week aisles: these are cupboard
-              * items the plan draws on, priced at the share it uses rather
-              * than as a full pack you have to buy again. */}
-            <div className="min-w-0">
-              <p className="mb-2 mt-5 text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
-                Pantry staples
-              </p>
-              {plan.pantry.map(([item, qty, cents]) => (
-                <GroceryLine
-                  key={item}
-                  item={item}
-                  qty={qty}
-                  cents={cents}
-                  checked={ticked.has(`pantry:${item}`)}
-                  onToggle={() => toggle(`pantry:${item}`)}
-                />
-              ))}
-              <p className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
-                Priced at what the week uses, not a full pack — most of these are already in your
-                cupboard.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-5 flex items-baseline justify-between border-t border-border-warm pt-4 text-base font-bold">
-            <span>Week total</span>
-            <span className="tabular-nums">Est. {range(plan.spend)}</span>
-          </div>
-        </Reveal>
+        <GroceryList plan={plan} />
 
         {/* Replaces the Mealzy-vs-ChatGPT table that used to sit below this
          * section: one line of positioning instead of a five-row teardown. */}
