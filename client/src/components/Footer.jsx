@@ -46,6 +46,18 @@ export default function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
               A full week of meals, priced to your budget, in under 1 minute.
             </p>
+            {/* The prices in full, where someone looking for them last will
+              * look. No tier is named here that the pricing page doesn't
+              * charge exactly this for. */}
+            <p className="mt-3 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
+              Free for 3 plans a month. Pro $8/mo or $62/yr. Family $16/mo or $130/yr.{' '}
+              <a
+                href="/pricing.html"
+                className="font-semibold text-on-forest underline decoration-from-font underline-offset-2"
+              >
+                See full pricing
+              </a>
+            </p>
           </div>
           {COLUMNS.map((col) => (
             <div key={col.heading}>

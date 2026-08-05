@@ -2,10 +2,10 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { RangeSlider } from '@/components/ui/field';
-import { Sunrise, Bowl, Cutlery, Phone } from '@/components/icons';
+import { Sunrise, Bowl, Cutlery, Phone, Check, ChevronDown } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import {
-  planFor, range, dollars, photo, BASE_BUDGET, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
+  planFor, range, dollars, photo, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
 } from '@/components/showcase-plan';
 
 const COURSE_ICON = { Breakfast: Sunrise, Lunch: Bowl, Dinner: Cutlery };
@@ -69,16 +69,53 @@ function MealRow({ meal }) {
   );
 }
 
+const cardClasses =
+  'flex flex-col overflow-hidden rounded-md border border-border-warm bg-cream shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0';
+
+/* The day header carries the day and nothing else. The calorie figure that used
+ * to sit here repeated on all seven cards and invited the reader to audit the
+ * arithmetic; the week's average is stated once, above. */
+function DayHeader({ day }) {
+  return (
+    <header className="bg-forest px-4 py-2.5 text-on-forest">
+      <h4 className="font-display text-base font-bold italic">{day}</h4>
+    </header>
+  );
+}
+
 function DayCard({ day }) {
   return (
-    <li className="flex flex-col overflow-hidden rounded-md border border-border-warm bg-cream shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-      <header className="flex items-baseline justify-between gap-3 bg-forest px-4 py-2.5 text-on-forest">
-        <h4 className="font-display text-base font-bold italic">{day.day}</h4>
-        <span className="text-xs tabular-nums text-on-forest-muted">{num(day.kcal)} kcal</span>
-      </header>
+    <li className={cardClasses}>
+      <DayHeader day={day.day} />
       <ul role="list" className="divide-y divide-border-warm px-4 py-3.5">
         {day.meals.map((meal) => (
           <MealRow key={meal.course} meal={meal} />
+        ))}
+      </ul>
+    </li>
+  );
+}
+
+/* The back half of the week, once opened: the same three meals per day without
+ * the photography. Three days of images are enough to show what a plan looks
+ * like — seven only cost the visitor bandwidth to scroll past. */
+function CompactDayCard({ day }) {
+  return (
+    <li className={cardClasses}>
+      <DayHeader day={day.day} />
+      <ul role="list" className="divide-y divide-border-warm px-4 py-2">
+        {day.meals.map((meal) => (
+          <li key={meal.course} className="flex items-baseline justify-between gap-3 py-2">
+            <span className="min-w-0">
+              <span className="block text-[11px] font-bold uppercase tracking-[0.08em] text-muted-fg">
+                {meal.course}
+              </span>
+              <span className="text-[15px] font-medium leading-snug">{meal.name}</span>
+            </span>
+            <span className="shrink-0 text-[13px] font-medium tabular-nums text-muted-fg">
+              {num(meal.kcal)} kcal
+            </span>
+          </li>
         ))}
       </ul>
     </li>
@@ -177,9 +214,12 @@ function BudgetPanel({ plan, budget, onChange }) {
           value={range(plan.spend)}
           className="mt-2 font-display text-3xl font-bold italic tabular-nums"
         />
+        {/* Stated once for the whole week. Individual days run above and below
+          * it — a real week is not seven identical totals — so this is the
+          * figure the plan is built to average onto. */}
         <Figure
-          label="Daily calories"
-          value={num(plan.kcalTarget)}
+          label="Avg. daily calories"
+          value={num(plan.kcalAvg)}
           className="mt-2 font-display text-3xl font-bold italic tabular-nums"
         />
         <div>
@@ -193,22 +233,112 @@ function BudgetPanel({ plan, budget, onChange }) {
   );
 }
 
-/* One shoppable line: name, the amount this week needs, and the estimated cost. */
-function GroceryLine({ item, qty, cents }) {
+/* One shoppable line: a checkbox, the name, the amount this week needs, and the
+ * estimated cost. The whole row is the label, so the tap target is the line
+ * rather than the 16px box — this list is meant to be used one-handed in an
+ * aisle. Ticking is presentation only; nothing is persisted from a sample. */
+function GroceryLine({ item, qty, cents, checked, onToggle }) {
   return (
-    <div className="flex items-baseline py-1 text-[15px]">
-      <span className="shrink-0">
+    <label className="flex cursor-pointer items-baseline py-1 text-[15px]">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onToggle}
+        className="mr-2.5 h-4 w-4 shrink-0 cursor-pointer self-center accent-green"
+      />
+      <span className={cn('shrink-0', checked && 'text-muted-fg line-through')}>
         {item} <span className="text-muted-fg">{qty}</span>
       </span>
       <span className="receipt-dots" aria-hidden="true" />
-      <span className="shrink-0 font-medium tabular-nums">{range(cents)}</span>
-    </div>
+      <span className={cn('shrink-0 font-medium tabular-nums', checked && 'text-muted-fg line-through')}>
+        {range(cents)}
+      </span>
+    </label>
   );
 }
 
-export default function Showcase({ onStartPlan }) {
-  const [budget, setBudget] = React.useState(BASE_BUDGET);
+/* The list as plain text, in the order it is rendered, for the clipboard. */
+function groceryText(plan) {
+  const line = ([item, qty, cents]) => `- ${item} (${qty}) — Est. ${range(cents)}`;
+  const blocks = plan.fresh.map(([aisle, items]) => [aisle, ...items.map(line)].join('\n'));
+
+  blocks.push(['Pantry staples', ...plan.pantry.map(line)].join('\n'));
+
+  return [
+    `Mealzy grocery list — ${dollars(plan.budget * 100)} week`,
+    ...blocks,
+    `Week total: Est. ${range(plan.spend)}`
+  ].join('\n\n');
+}
+
+/* Copies the list and says so. The confirmation is the button's own label, so
+ * the answer to "did that work?" is where the click happened. */
+function CopyListButton({ plan }) {
+  const [state, setState] = React.useState('idle');
+
+  /* Cleared on a timer, so the timer has to die with the component and with
+   * any click that lands before the previous one has faded. */
+  React.useEffect(() => {
+    if (state === 'idle') return undefined;
+    const t = setTimeout(() => setState('idle'), 2400);
+    return () => clearTimeout(t);
+  }, [state]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(groceryText(plan));
+      setState('copied');
+    } catch {
+      /* Clipboard access is refused on insecure origins and by some browser
+       * privacy settings. Say that plainly — there is no keystroke that would
+       * work instead here, since nothing on the page is selected. */
+      setState('error');
+    }
+  };
+
+  const label = {
+    idle: 'Copy grocery list',
+    copied: 'Copied to clipboard',
+    error: 'Copy blocked by your browser'
+  }[state];
+
+  return (
+    <>
+      <Button
+        variant="quiet"
+        size="sm"
+        onClick={copy}
+        className="border border-border-warm bg-cream hover:bg-muted-bg"
+      >
+        {state === 'copied' && <Check className="text-green" aria-hidden="true" />}
+        {label}
+      </Button>
+      {/* The label change is announced separately: a button's own name changing
+        * is not reliably read out by screen readers. */}
+      <span aria-live="polite" className="sr-only">
+        {state === 'idle' ? '' : label}
+      </span>
+    </>
+  );
+}
+
+/* Mon–Wed carry the photography; the rest of the week opens on request. */
+const PREVIEW_DAYS = 3;
+
+export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
   const plan = React.useMemo(() => planFor(budget), [budget]);
+  const [fullWeek, setFullWeek] = React.useState(false);
+  const [ticked, setTicked] = React.useState(() => new Set());
+
+  const toggle = (id) =>
+    setTicked((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(id)) next.add(id);
+      return next;
+    });
+
+  const shown = plan.days.slice(0, PREVIEW_DAYS);
+  const rest = plan.days.slice(PREVIEW_DAYS);
 
   return (
     <section id="features" aria-labelledby="showcase-heading" className="bg-parchment py-16 sm:py-20">
@@ -226,15 +356,46 @@ export default function Showcase({ onStartPlan }) {
           </p>
         </Reveal>
 
-        {/* The slider drives every number below it. */}
+        {/* The slider drives every number below it, and it is the same budget
+          * the hero form is set to — one value, two places to move it. */}
         <Reveal className="rounded-lg border border-green/40 bg-cream p-6 shadow-card sm:p-8">
-          <BudgetPanel plan={plan} budget={budget} onChange={setBudget} />
+          <BudgetPanel plan={plan} budget={budget} onChange={onBudgetChange} />
         </Reveal>
 
-        <Reveal delay={60} as="ul" role="list" className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {plan.days.map((day) => (
-            <DayCard key={day.day} day={day} />
-          ))}
+        <Reveal delay={60} className="mt-8">
+          <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {shown.map((day) => (
+              <DayCard key={day.day} day={day} />
+            ))}
+          </ul>
+
+          <div className="mt-6 text-center">
+            <Button
+              variant="quiet"
+              onClick={() => setFullWeek((open) => !open)}
+              aria-expanded={fullWeek}
+              aria-controls="showcase-rest-of-week"
+              className="border border-border-warm bg-cream hover:bg-muted-bg"
+            >
+              {fullWeek ? 'Show fewer days' : 'Show full week'}
+              <ChevronDown
+                width="16"
+                height="16"
+                aria-hidden="true"
+                className={cn('transition-transform duration-200 motion-reduce:transition-none', fullWeek && 'rotate-180')}
+              />
+            </Button>
+          </div>
+
+          <div id="showcase-rest-of-week">
+            {fullWeek && (
+              <ul role="list" className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {rest.map((day) => (
+                  <CompactDayCard key={day.day} day={day} />
+                ))}
+              </ul>
+            )}
+          </div>
         </Reveal>
 
         <Reveal delay={100} className="mt-8 min-w-0 rounded-lg border border-border-warm bg-cream p-6 shadow-card">
@@ -245,16 +406,26 @@ export default function Showcase({ onStartPlan }) {
               Works on your phone
             </span>
           </div>
-          <p className="mt-2 text-[15px] leading-[1.6] text-muted-fg">
-            Tick items off in the aisle — the list opens in any browser, nothing to install.
-          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-[15px] leading-[1.6] text-muted-fg">
+              Tick items off as you shop — the list opens in any browser, nothing to install.
+            </p>
+            <CopyListButton plan={plan} />
+          </div>
 
           <div className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
             {plan.fresh.map(([aisle, items]) => (
               <div key={aisle} className="min-w-0">
                 <p className="mb-2 mt-5 text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">{aisle}</p>
                 {items.map(([item, qty, cents]) => (
-                  <GroceryLine key={item} item={item} qty={qty} cents={cents} />
+                  <GroceryLine
+                    key={item}
+                    item={item}
+                    qty={qty}
+                    cents={cents}
+                    checked={ticked.has(`${aisle}:${item}`)}
+                    onToggle={() => toggle(`${aisle}:${item}`)}
+                  />
                 ))}
               </div>
             ))}
@@ -267,7 +438,14 @@ export default function Showcase({ onStartPlan }) {
                 Pantry staples
               </p>
               {plan.pantry.map(([item, qty, cents]) => (
-                <GroceryLine key={item} item={item} qty={qty} cents={cents} />
+                <GroceryLine
+                  key={item}
+                  item={item}
+                  qty={qty}
+                  cents={cents}
+                  checked={ticked.has(`pantry:${item}`)}
+                  onToggle={() => toggle(`pantry:${item}`)}
+                />
               ))}
               <p className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
                 Priced at what the week uses, not a full pack — most of these are already in your

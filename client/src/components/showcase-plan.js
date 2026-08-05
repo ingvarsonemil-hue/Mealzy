@@ -23,7 +23,7 @@ export const BUDGET_STEP = 5;
  * Every id below was checked against the dish it is attached to.
  */
 export const photo = (id, w = 400) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&h=${Math.round(w * 0.7)}&q=70`;
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 /* One entry per day, three courses each: [course, name, kcal, cents, photoId]. */
 const DAYS = [
@@ -151,6 +151,29 @@ export function range(cents, spread = 0.1) {
  * $60 → 2,100 exactly. */
 const kcalTargetFor = (budget) => 1860 + (budget - MIN_BUDGET) * 12;
 
+/* Real weeks are not flat. A plan that hits the same number seven days running
+ * reads as a spreadsheet, not as food, so each day carries a fixed shift as a
+ * fraction of the target — a lighter Monday, a heavier Saturday. The shifts sum
+ * to exactly zero, so the week still averages onto the target the visitor set.
+ * At the $60 default (2,100 kcal) this spans 1,940 to 2,220. */
+const DAY_KCAL_SHIFT = [-0.076, 0.038, -0.019, 0.057, -0.043, 0.024, 0.019];
+
+/**
+ * The seven daily calorie figures for a target, each rounded to the nearest 5.
+ * The rounding can drift the week off the target by a few kcal; the drift is
+ * settled 5 at a time across separate days rather than dumped on one, so no
+ * single day is visibly bent to make the average work.
+ */
+function dailyKcals(target) {
+  const days = DAY_KCAL_SHIFT.map((shift) => Math.round((target * (1 + shift)) / 5) * 5);
+  const drift = target * 7 - days.reduce((n, k) => n + k, 0);
+  const steps = Math.round(drift / 5);
+
+  for (let i = 0; i < Math.abs(steps); i++) days[i % days.length] += Math.sign(steps) * 5;
+
+  return days;
+}
+
 /**
  * Recompute the whole sample plan for a weekly budget in whole dollars.
  * Pure and deterministic — the same budget always yields the same plan.
@@ -159,18 +182,21 @@ export function planFor(budget) {
   const costRatio = budget / BASE_BUDGET;
   const kcalTarget = kcalTargetFor(budget);
 
-  const days = DAYS.map(([day, meals]) => {
+  const dayKcals = dailyKcals(kcalTarget);
+
+  const days = DAYS.map(([day, meals], d) => {
     /* The source rows carry the shape of a day — a light breakfast, a heavier
-     * dinner — not its total. Each day is scaled onto the calorie target and
+     * dinner — not its total. Each day is scaled onto its own calorie figure and
      * the rounding remainder settled on dinner, so the three meals on a card
-     * always add up to exactly the daily figure quoted above them. */
+     * always add up to exactly that day's total. */
+    const dayKcal = dayKcals[d];
     const raw = meals.reduce((n, [, , kcal]) => n + kcal, 0);
-    const kcals = meals.map(([, , kcal]) => Math.round((kcal * kcalTarget) / raw / 5) * 5);
-    kcals[kcals.length - 1] += kcalTarget - kcals.reduce((n, k) => n + k, 0);
+    const kcals = meals.map(([, , kcal]) => Math.round((kcal * dayKcal) / raw / 5) * 5);
+    kcals[kcals.length - 1] += dayKcal - kcals.reduce((n, k) => n + k, 0);
 
     return {
       day,
-      kcal: kcalTarget,
+      kcal: dayKcal,
       meals: meals.map(([course, name, , cents, img], i) => ({
         course,
         name,
@@ -193,6 +219,11 @@ export function planFor(budget) {
   const sum = (items) => items.reduce((n, [, , cents]) => n + cents, 0);
   const spend = fresh.reduce((total, [, items]) => total + sum(items), 0) + sum(pantry);
 
+  /* Averaged from the days actually rendered rather than quoted from the
+   * target, so the headline figure can never disagree with the cards under it
+   * even if the shift table is edited. */
+  const kcalAvg = Math.round(dayKcals.reduce((n, k) => n + k, 0) / dayKcals.length);
+
   return {
     budget,
     days,
@@ -200,6 +231,7 @@ export function planFor(budget) {
     pantry,
     spend,
     saved: budget * 100 - spend,
-    kcalTarget
+    kcalTarget,
+    kcalAvg
   };
 }
