@@ -115,32 +115,6 @@ function DayCard({ day, onSwap }) {
   );
 }
 
-/* The back half of the week: the same three meals per day without the
- * photography. Three days of images are enough to show what a plan looks
- * like — seven only cost the visitor bandwidth to scroll past. */
-function CompactDayCard({ day }) {
-  return (
-    <li className={cardClasses}>
-      <DayHeader day={day.day} />
-      <ul role="list" className="divide-y divide-border-warm px-4 py-2">
-        {day.meals.map((meal) => (
-          <li key={meal.course} className="flex items-baseline justify-between gap-3 py-2">
-            <span className="min-w-0">
-              <span className="block text-[11px] font-bold uppercase tracking-[0.08em] text-muted-fg">
-                {meal.course}
-              </span>
-              <span className="text-[15px] font-medium leading-snug">{meal.name}</span>
-            </span>
-            <span className="shrink-0 text-[13px] font-medium tabular-nums text-muted-fg">
-              {num(meal.kcal)} kcal
-            </span>
-          </li>
-        ))}
-      </ul>
-    </li>
-  );
-}
-
 /* Floating bar for small screens, revealed once the hero has scrolled away and
  * pulled back before the footer so it never sits on top of it. */
 function MobileCta({ onStartPlan }) {
@@ -194,7 +168,7 @@ function MobileCta({ onStartPlan }) {
   );
 }
 
-function BudgetPanel({ plan, budget, onChange }) {
+function BudgetPanel({ plan, budget, onChange, pending }) {
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
       <div>
@@ -224,9 +198,16 @@ function BudgetPanel({ plan, budget, onChange }) {
         </div>
       </div>
 
+      {/* Dimmed while the debounce is still holding the last drag, so the
+        * figures visibly belong to a budget that has settled rather than
+        * flickering through every step between $40 and $120. */}
       <div
         aria-live="polite"
-        className="grid gap-6 border-t border-border-warm pt-6 sm:grid-cols-3 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0"
+        aria-busy={pending}
+        className={cn(
+          'grid gap-6 border-t border-border-warm pt-6 transition-opacity duration-200 motion-reduce:transition-none sm:grid-cols-3 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0',
+          pending && 'opacity-50'
+        )}
       >
         <Figure
           label="Estimated spend"
@@ -252,14 +233,20 @@ function BudgetPanel({ plan, budget, onChange }) {
   );
 }
 
-/* Mon–Wed carry the photography; Thu–Sun render as collapsed summary rows. */
+/* How many days show before the toggle. All seven render identically — Thu–Sun
+ * used to collapse to text-only summary rows, which put a visible cliff halfway
+ * through the week and made the back half look like a lesser plan than the
+ * front half. Same card, same photography, same swap button, all seven days. */
 const PREVIEW_DAYS = 3;
 
-export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
-  const plan = React.useMemo(() => planFor(budget), [budget]);
+export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChange }) {
+  /* Built from the settled budget, not the live handle: `planBudget` is the
+   * debounced one, so a drag rebuilds the week once rather than on every step. */
+  const plan = React.useMemo(() => planFor(planBudget), [planBudget]);
+  const pending = budget !== planBudget;
   /* Open by default: the claim is a full seven-day plan, so all seven days are
    * on screen without asking. The toggle stays so the page can be collapsed
-   * back down to the three photographed days. */
+   * back down to the first three days. */
   const [fullWeek, setFullWeek] = React.useState(true);
 
   /* Seeded with the budget the visitor has already set here, so the modal opens
@@ -285,49 +272,65 @@ export default function Showcase({ onStartPlan, budget, onBudgetChange }) {
           </p>
         </Reveal>
 
-        {/* The slider drives every number below it, and it is the same budget
-          * the hero form is set to — one value, two places to move it. */}
+        {/* The only budget control on the page, and it sits directly above the
+          * week it re-plans. */}
         <Reveal className="rounded-lg border border-green/40 bg-cream p-6 shadow-card sm:p-8">
-          <BudgetPanel plan={plan} budget={budget} onChange={onBudgetChange} />
+          <BudgetPanel plan={plan} budget={budget} onChange={onBudgetChange} pending={pending} />
         </Reveal>
 
-        <Reveal delay={60} className="mt-8">
-          <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {shown.map((day) => (
-              <DayCard key={day.day} day={day} onSwap={swapMeal} />
-            ))}
-          </ul>
+        {/* The plan itself. min-h holds the space open so the section below it
+          * doesn't walk up and down the page while the week is re-planned, and
+          * the whole block fades rather than swapping numbers mid-drag. */}
+        <div
+          aria-busy={pending}
+          className={cn(
+            'min-h-[600px] transition-opacity duration-200 motion-reduce:transition-none',
+            pending && 'opacity-60'
+          )}
+        >
+          <Reveal delay={60} className="mt-8">
+            <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {shown.map((day) => (
+                <DayCard key={day.day} day={day} onSwap={swapMeal} />
+              ))}
+            </ul>
 
-          <div className="mt-6 text-center">
-            <Button
-              variant="quiet"
-              onClick={() => setFullWeek((open) => !open)}
-              aria-expanded={fullWeek}
-              aria-controls="showcase-rest-of-week"
-              className="border border-border-warm bg-cream hover:bg-muted-bg"
-            >
-              {fullWeek ? 'Show fewer days' : 'Show full week'}
-              <ChevronDown
-                width="16"
-                height="16"
-                aria-hidden="true"
-                className={cn('transition-transform duration-200 motion-reduce:transition-none', fullWeek && 'rotate-180')}
-              />
-            </Button>
-          </div>
+            {/* mt-4 matches the grid's own gap-4, so the back half of the week
+              * continues the same grid rather than starting a second one. The
+              * toggle sits after all seven cards for the same reason — between
+              * them it split the week in two, which is the cliff this section
+              * was trying to lose. */}
+            <div id="showcase-rest-of-week">
+              {fullWeek && (
+                <ul role="list" className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {rest.map((day) => (
+                    <DayCard key={day.day} day={day} onSwap={swapMeal} />
+                  ))}
+                </ul>
+              )}
+            </div>
 
-          <div id="showcase-rest-of-week">
-            {fullWeek && (
-              <ul role="list" className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {rest.map((day) => (
-                  <CompactDayCard key={day.day} day={day} />
-                ))}
-              </ul>
-            )}
-          </div>
-        </Reveal>
+            <div className="mt-6 text-center">
+              <Button
+                variant="quiet"
+                onClick={() => setFullWeek((open) => !open)}
+                aria-expanded={fullWeek}
+                aria-controls="showcase-rest-of-week"
+                className="border border-border-warm bg-cream hover:bg-muted-bg"
+              >
+                {fullWeek ? 'Show fewer days' : 'Show full week'}
+                <ChevronDown
+                  width="16"
+                  height="16"
+                  aria-hidden="true"
+                  className={cn('transition-transform duration-200 motion-reduce:transition-none', fullWeek && 'rotate-180')}
+                />
+              </Button>
+            </div>
+          </Reveal>
 
-        <GroceryList plan={plan} />
+          <GroceryList plan={plan} />
+        </div>
 
         {/* Replaces the Mealzy-vs-ChatGPT table that used to sit below this
          * section: one line of positioning instead of a five-row teardown. */}

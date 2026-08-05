@@ -18,6 +18,11 @@ import { range, dollars } from '@/components/showcase-plan';
  * flexible one and may wrap; the previous version pinned every part with
  * shrink-0, which pushed the price outside the card as soon as a name ran long.
  *
+ * gap-x-4 between the tracks, and the quantity and price tracks are sized for
+ * their widest real content ("3 tins", "$10–$12" at the top of the budget
+ * range) rather than for the $60 default — the gutter is what stops a long
+ * name and its quantity reading as one concatenated string.
+ *
  * The whole row is the label, so the tap target is the line rather than the
  * 16px box — this list is meant to be used one-handed in an aisle. Ticking is
  * presentation only; nothing is persisted from a sample. */
@@ -25,7 +30,7 @@ function GroceryLine({ item, qty, cents, checked, onToggle }) {
   const struck = checked && 'text-muted-fg line-through';
   return (
     <li>
-      <label className="grid cursor-pointer grid-cols-[minmax(0,1fr)_3.25rem_4.5rem] items-center gap-x-2 border-b border-hairline py-2.5 text-[15px] leading-snug last:border-b-0">
+      <label className="grid cursor-pointer grid-cols-[minmax(0,1fr)_3.5rem_5rem] items-center gap-x-4 border-b border-hairline py-3 text-[15px] leading-snug last:border-b-0">
         <span className="flex min-w-0 items-center gap-2.5">
           <input
             type="checkbox"

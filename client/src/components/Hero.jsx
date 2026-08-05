@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Input, Select, Label, RangeSlider } from '@/components/ui/field';
+import { Input, Select, Label } from '@/components/ui/field';
 import { Check, Shield } from '@/components/icons';
-import { DIETS, dollars, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP } from '@/components/showcase-plan';
+import { DIETS } from '@/components/showcase-plan';
 
 const MIN_KCAL = 1200;
 const MAX_KCAL = 4000;
@@ -15,10 +15,14 @@ const TRUST_ITEMS = [
 ];
 
 /* The planner form itself, sitting in the hero rather than beside it: the
- * first thing a visitor sees is the three questions, already answerable.
- * The values feed straight into the interactive preview below the button, so
- * nothing has to be re-entered. */
-function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
+ * first thing a visitor sees is the questions, already answerable. The values
+ * feed straight into the interactive preview below the button, so nothing has
+ * to be re-entered.
+ *
+ * Budget is asked once, on the showcase slider that re-plans the week in front
+ * of the visitor. It is read here for the modal seed but not set here — a
+ * second handle on the same number is a second chance to disagree with it. */
+function PlannerForm({ onStartPlan, budget }) {
   const [cals, setCals] = React.useState('2000');
   const [dietId, setDietId] = React.useState(DIETS[0].id);
 
@@ -43,29 +47,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
         * border boxing the fields off from the button that submits them. The
         * contrast that matters is the card against the forest hero behind it,
         * and that is already the strongest edge on the page. */}
-      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr_1fr] lg:gap-8">
-        <div>
-          <Label htmlFor="heroBudget" className="mb-0">Weekly grocery budget</Label>
-          <p className="font-display text-[clamp(2.25rem,4vw,3rem)] font-black italic leading-none tabular-nums">
-            {dollars(budget * 100)}
-          </p>
-          <RangeSlider
-            id="heroBudget"
-            min={MIN_BUDGET}
-            max={MAX_BUDGET}
-            step={BUDGET_STEP}
-            value={budget}
-            onChange={(e) => onBudgetChange(Number(e.target.value))}
-            aria-describedby="heroBudgetHint"
-            className="mt-4"
-          />
-          <div className="mt-2 flex justify-between text-[13px] tabular-nums text-muted-fg">
-            <span>{dollars(MIN_BUDGET * 100)}</span>
-            <span id="heroBudgetHint">Drag to set your cap</span>
-            <span>{dollars(MAX_BUDGET * 100)}</span>
-          </div>
-        </div>
-
+      <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
         <div>
           <Label htmlFor="heroDiet">Dietary style</Label>
           <Select id="heroDiet" value={dietId} onChange={(e) => setDietId(e.target.value)}>
@@ -122,7 +104,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
   );
 }
 
-export default function Hero({ onStartPlan, budget, onBudgetChange }) {
+export default function Hero({ onStartPlan, budget }) {
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative bg-forest text-on-forest">
       {/* Radial depth in the hero background */}
@@ -145,7 +127,7 @@ export default function Hero({ onStartPlan, budget, onBudgetChange }) {
             Plan your week of meals inside your grocery budget.
           </h1>
           <p className="mt-3 text-[17px] leading-[1.55] text-on-forest-body">
-            Set your three targets. Get seven days of meals and the list to shop them.
+            Set your targets. Get seven days of meals and the list to shop them.
           </p>
           {/* The one time claim the whole site is held to. Every other mention
             * of how long this takes is a restatement of this sentence. */}
@@ -155,11 +137,7 @@ export default function Hero({ onStartPlan, budget, onBudgetChange }) {
         </div>
 
         <div className="mt-8">
-          <PlannerForm
-            onStartPlan={onStartPlan}
-            budget={budget}
-            onBudgetChange={onBudgetChange}
-          />
+          <PlannerForm onStartPlan={onStartPlan} budget={budget} />
         </div>
       </div>
 
