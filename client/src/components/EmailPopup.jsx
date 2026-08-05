@@ -85,7 +85,7 @@ export default function EmailPopup() {
             <Button full size="lg" onClick={submit}>Build My Free Plan</Button>
           </div>
           {error && (
-            <div id="popupEmailError" role="alert" className="mt-2 text-sm font-medium text-[#fda4af]">
+            <div id="popupEmailError" role="alert" className="mt-2 text-sm font-medium text-[var(--color-error-light)]">
               Please enter a valid email.
             </div>
           )}

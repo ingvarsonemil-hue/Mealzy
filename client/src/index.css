@@ -8,6 +8,7 @@
   --color-green:       #3d8b5e;
   --color-green-light: #4ade80;
   --color-green-muted: #a8d5ba;
+  --color-error-light: #fda4af;
 
   --color-foreground:  #1a1a1a;
   /* Darker than the shared #6b7280 token: that value is 4.31:1 on parchment,
