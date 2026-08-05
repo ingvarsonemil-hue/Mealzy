@@ -41,7 +41,11 @@ export default function Faq() {
             aria-label="Frequently Asked Questions"
             className="mx-auto max-w-3xl rounded-lg border border-border-warm bg-cream px-6 shadow-card sm:px-8"
           >
-            <Accordion type="single" collapsible>
+            {/* The first answer is open on arrival. Fully collapsed, the section
+              * reads as a heading over three thin rows with no answer in sight —
+              * it looks unpopulated rather than tidy, and the pricing answer is
+              * the one most people came here for. The rest stay closed. */}
+            <Accordion type="single" collapsible defaultValue="faq-1">
               {FAQS.map((f, i) => (
                 <AccordionItem key={i} value={`faq-${i + 1}`}>
                   <AccordionTrigger>{f.q}</AccordionTrigger>
