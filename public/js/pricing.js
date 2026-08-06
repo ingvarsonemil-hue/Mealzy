@@ -8,8 +8,12 @@
   var billingMode = 'monthly';
   var STRIPE_MONTHLY = window.STRIPE_MONTHLY || 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
   var STRIPE_YEARLY = window.STRIPE_ANNUAL || STRIPE_MONTHLY;
-  var STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY || STRIPE_MONTHLY;
-  var STRIPE_FAMILY_YEARLY = window.STRIPE_FAMILY_ANNUAL || STRIPE_MONTHLY;
+  /* Family must never silently fall back to Pro's checkout link — that would
+   * charge the Pro price for a plan marketed at a different price. If the
+   * dedicated Family link isn't configured, route to support instead. */
+  var FAMILY_FALLBACK = 'mailto:support@mealzy.org?subject=Family%20Plan';
+  var STRIPE_FAMILY_MONTHLY = window.STRIPE_FAMILY_MONTHLY_READY ? window.STRIPE_FAMILY_MONTHLY : FAMILY_FALLBACK;
+  var STRIPE_FAMILY_YEARLY = window.STRIPE_FAMILY_ANNUAL_READY ? window.STRIPE_FAMILY_ANNUAL : FAMILY_FALLBACK;
 
   /* Source of truth: monthly price and total annual price, in dollars.
    * Everything else (yearly/month figure, savings text, "Save X%" badge)
@@ -83,21 +87,6 @@
     familyCta.textContent = mode === 'yearly' ? 'Start Family Annual' : 'Start Family';
   }
 
-  /* Deciding popup */
-  var popupTrigger = null;
-  function closeDecidingPopup() {
-    document.getElementById('decidingPopup').classList.remove('show');
-    sessionStorage.setItem('pricing_popup_seen', '1');
-    if (popupTrigger) { popupTrigger.focus(); popupTrigger = null; }
-  }
-  function showDecidingPopup() {
-    popupTrigger = document.activeElement;
-    var popup = document.getElementById('decidingPopup');
-    popup.classList.add('show');
-    var first = popup.querySelector('a[href],button:not([disabled])');
-    if (first) first.focus();
-  }
-
   function init() {
     document.getElementById('themeToggle').addEventListener('click', function () {
       var next = (document.documentElement.getAttribute('data-theme') || 'light') === 'dark' ? 'light' : 'dark';
@@ -106,7 +95,6 @@
     });
 
     document.getElementById('proCta').href = STRIPE_MONTHLY;
-    document.getElementById('popupCta').href = STRIPE_MONTHLY;
     document.getElementById('familyCta').href = STRIPE_FAMILY_MONTHLY;
     document.getElementById('yearlySavePct').textContent = String(premiumSavePct);
 
@@ -114,22 +102,6 @@
     document.getElementById('btnYearly').addEventListener('click', function () { setBilling('yearly'); });
     document.getElementById('proCta').addEventListener('click', function () { trackUpgradeClick('pro'); });
     document.getElementById('familyCta').addEventListener('click', function () { trackUpgradeClick('family'); });
-    document.getElementById('popupCta').addEventListener('click', function () { trackUpgradeClick('pro'); closeDecidingPopup(); });
-    document.getElementById('popupClose').addEventListener('click', closeDecidingPopup);
-
-    if (!sessionStorage.getItem('pricing_popup_seen')) setTimeout(showDecidingPopup, 30000);
-
-    /* Focus trap + Escape for deciding popup */
-    document.addEventListener('keydown', function (e) {
-      var popup = document.getElementById('decidingPopup');
-      if (!popup.classList.contains('show')) return;
-      if (e.key === 'Escape') { closeDecidingPopup(); return; }
-      if (e.key !== 'Tab') return;
-      var focusable = popup.querySelectorAll('a[href], button:not([disabled])');
-      var first = focusable[0], last = focusable[focusable.length - 1];
-      if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
-      else if (document.activeElement === last) { e.preventDefault(); first.focus(); }
-    });
 
     /* Mobile nav */
     var hamburger = document.getElementById('hamburger');

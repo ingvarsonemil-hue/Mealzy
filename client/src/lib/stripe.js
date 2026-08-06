@@ -12,14 +12,21 @@ const FALLBACK_MONTHLY = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
 export const stripeUrls = {
   get monthly() { return window.STRIPE_MONTHLY || FALLBACK_MONTHLY; },
   get annual() { return window.STRIPE_ANNUAL || this.monthly; },
-  get familyMonthly() { return window.STRIPE_FAMILY_MONTHLY || this.monthly; },
-  get familyAnnual() { return window.STRIPE_FAMILY_ANNUAL || this.monthly; },
-  get discount() { return window.STRIPE_DISCOUNT || this.monthly; },
+  /* Family and the abandonment discount must never fall back to the Pro
+   * monthly link — that would charge (or promise) the wrong price. null
+   * means "not configured"; callers must check the matching *Ready flag
+   * before using these. */
+  get familyMonthly() { return window.STRIPE_FAMILY_MONTHLY || null; },
+  get familyAnnual() { return window.STRIPE_FAMILY_ANNUAL || null; },
+  get discount() { return window.STRIPE_DISCOUNT || null; },
   /* True only when STRIPE_ANNUAL_URL is actually configured server-side.
    * When false, "annual" would silently resolve to the monthly link and charge
    * the wrong amount, so the billing toggle renders with its annual segment
    * disabled rather than routing a visitor to a price they weren't shown. */
-  get annualReady() { return !!window.STRIPE_ANNUAL_READY; }
+  get annualReady() { return !!window.STRIPE_ANNUAL_READY; },
+  get familyMonthlyReady() { return !!window.STRIPE_FAMILY_MONTHLY_READY; },
+  get familyAnnualReady() { return !!window.STRIPE_FAMILY_ANNUAL_READY; },
+  get discountReady() { return !!window.STRIPE_DISCOUNT; }
 };
 
 /* Single source of truth for what each plan costs. The monthly and annual

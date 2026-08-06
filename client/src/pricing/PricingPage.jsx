@@ -5,7 +5,6 @@ import Reveal from '@/components/Reveal';
 import BillingToggle from '@/components/BillingToggle';
 import CompareCell from '@/components/CompareCell';
 import PlanCards from './PlanCards';
-import DecidingPopup from './DecidingPopup';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Lock } from '@/components/icons';
@@ -202,7 +201,6 @@ export default function PricingPage() {
           </Reveal>
         </section>
       </main>
-      <DecidingPopup />
       <Footer />
     </>
   );

@@ -95,26 +95,6 @@
 .comp-table td.pro-val { color: var(--color-green); font-weight: 600; }
 .comp-table tr:last-child td { border-bottom: none; }
 
-/* ---------- Pricing: deciding popup ---------- */
-.deciding-popup {
-  display: none; position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 600;
-  background: var(--color-forest-deep); color: var(--clr-on-forest-strong);
-  border: 1px solid var(--clr-forest-line); border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-modal); padding: 1.4rem var(--space-6); max-width: 330px;
-}
-.deciding-popup.show { display: block; animation: rise 0.35s var(--ease-out); }
-.deciding-popup .popup-close {
-  position: absolute; top: 0.55rem; right: 0.7rem; background: none; border: none;
-  cursor: pointer; font-size: 1.3rem; line-height: 1; color: var(--clr-on-forest-muted); padding: 0.25rem;
-}
-.deciding-popup .popup-close:hover { color: var(--clr-on-forest); }
-.deciding-popup h2 { font-weight: 700; font-size: 1.15rem; color: var(--clr-on-forest); margin-bottom: 0.35rem; }
-.deciding-popup p { font-size: 0.85rem; color: var(--clr-on-forest-body); margin-bottom: var(--space-4); }
-.deciding-popup .fine { font-size: 0.74rem; color: var(--clr-on-forest-muted); text-align: center; margin: var(--space-2) auto 0; }
-@media (max-width: 480px) {
-  .deciding-popup { bottom: 0; right: 0; left: 0; max-width: 100%; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
-}
-
 /* ---------- Login: split layout ---------- */
 .login-wrap { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 100vh; min-height: 100dvh; }
 @media (min-width: 820px) { .login-wrap { grid-template-columns: 45% 55%; } }

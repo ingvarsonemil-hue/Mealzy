@@ -141,7 +141,7 @@
         <p class="plan-tag">For households that eat together.</p>
         <div class="plan-price"><span class="amount" id="priceFamilyMo">$16</span><span class="period" id="periodFamily">/month</span></div>
         <div class="plan-billed" id="billedFamily"></div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="familyCta">Start Family</a>
+        <a href="mailto:support@mealzy.org?subject=Family%20Plan" class="btn btn-primary btn-full" id="familyCta">Start Family</a>
         <!-- The 7-day trial runs on Pro, not on Family, so this says how to get
              the trial rather than claiming Family itself starts free. -->
         <p class="plan-cta-note">Try Pro 7 days free, upgrade to Family anytime.</p>
@@ -245,20 +245,12 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Mealzy &mdash; Built by Emil, 16, Sweden.</p>
+      <p>&copy; 2026 Mealzy &mdash; Sweden.</p>
       <p>Mealzy is an AI tool and does not provide medical or nutritional advice.</p>
     </div>
   </div>
 </footer>
 
-<!-- STILL DECIDING? POPUP -->
-<div class="deciding-popup on-forest" id="decidingPopup" role="dialog" aria-modal="true" aria-labelledby="decidingPopupTitle">
-  <button class="popup-close" id="popupClose" aria-label="Close">&times;</button>
-  <h2 id="decidingPopupTitle">Still deciding?</h2>
-  <p>Try Pro <strong>free for 7 days</strong> — $0 due today. Cancel with one click if it's not for you.</p>
-  <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="popupCta" target="_blank" rel="noopener" class="btn btn-primary btn-full">Start 7-day free trial</a>
-  <p class="fine">No charge for 7 days. Cancel any time.</p>
-</div>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});</script>
 </body>
 </html>

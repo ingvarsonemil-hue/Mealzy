@@ -90,10 +90,17 @@ function PlanCard({ name, tag, price, period = '/month', billed, cta, note, feat
   );
 }
 
+/* If the dedicated Family Stripe link isn't configured, the CTA must not fall
+ * back to Pro's checkout link — that would charge the Pro price for a plan
+ * marketed at a different price. Route to support instead. */
+const FAMILY_FALLBACK_HREF = 'mailto:support@mealzy.org?subject=Family%20Plan';
+
 export default function PlanCards({ mode }) {
   const yearly = mode === 'yearly';
   const pro = planDisplay('pro', mode);
   const family = planDisplay('family', mode);
+  const familyReady = yearly ? stripeUrls.familyAnnualReady : stripeUrls.familyMonthlyReady;
+  const familyHref = familyReady ? (yearly ? stripeUrls.familyAnnual : stripeUrls.familyMonthly) : FAMILY_FALLBACK_HREF;
   const trackClick = (plan) => track('upgrade_click', { source: 'pricing_page', plan });
 
   return (
@@ -147,9 +154,9 @@ export default function PlanCards({ mode }) {
         note="Try Pro 7 days free, upgrade to Family anytime."
         cta={
           <Button
-            href={yearly ? stripeUrls.familyAnnual : stripeUrls.familyMonthly}
-            target="_blank"
-            rel="noopener"
+            href={familyHref}
+            target={familyReady ? '_blank' : undefined}
+            rel={familyReady ? 'noopener' : undefined}
             full
             data-testid="family-cta"
             onClick={() => trackClick('family')}

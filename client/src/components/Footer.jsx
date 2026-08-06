@@ -99,7 +99,7 @@ export default function Footer() {
           ))}
         </ul>
         <div className="mt-6 text-xs leading-[1.6] text-on-forest-muted">
-          <p>&copy; 2026 Mealzy &mdash; Sweden</p>
+          <p>&copy; 2026 Mealzy &mdash; Sweden.</p>
           <p className="mt-1">Nutritional calculations aligned with USDA dietary guidelines.</p>
           <p className="mt-1">Mealzy is an AI tool and does not provide medical or nutritional advice.</p>
         </div>

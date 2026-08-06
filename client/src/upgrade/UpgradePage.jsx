@@ -94,7 +94,7 @@ export default function UpgradePage() {
             >
               {theme === 'dark' ? <Sun /> : <Moon />}
             </button>
-            <Button href="/dashboard.html" variant="quiet" size="sm" className="whitespace-nowrap text-on-forest-body hover:text-on-forest">
+            <Button href="/" variant="quiet" size="sm" className="whitespace-nowrap text-on-forest-body hover:text-on-forest">
               Stay on Free Plan
             </Button>
           </div>
@@ -178,7 +178,7 @@ export default function UpgradePage() {
             >
               Start Pro 7-Day Free Trial
             </Button>
-            <Button href="/dashboard.html" variant="quiet" full data-testid="stay-free">
+            <Button href="/" variant="quiet" full data-testid="stay-free">
               Not ready? Keep your free plan
             </Button>
           </div>

@@ -93,7 +93,7 @@
         <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <a href="/dashboard.html" class="btn btn-quiet btn-sm nav-stay-free">Stay on Free Plan</a>
+      <a href="/" class="btn btn-quiet btn-sm nav-stay-free">Stay on Free Plan</a>
     </div>
   </div>
 </nav>
@@ -160,7 +160,7 @@
 
     <div class="cta-stack">
       <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-full" onclick="trackUpgrade()">Start Pro 7-Day Free Trial</a>
-      <a href="dashboard.html" class="btn btn-quiet btn-full" id="stayFreeBtn">Stay on Free Plan</a>
+      <a href="/" class="btn btn-quiet btn-full" id="stayFreeBtn">Stay on Free Plan</a>
     </div>
     <p class="guarantee-line">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -199,7 +199,7 @@
     <span class="badge badge-green">First month offer</span>
     <div id="abandonOfferId" style="font-weight:700;font-size:1rem;margin:0.4rem 0;color:var(--clr-on-forest);">Get your first month for $4</div>
     <p style="font-size:0.84rem;margin:0 auto 0.85rem;">Still not sure? Try Pro at half price this month. No commitment beyond that.</p>
-    <a id="discountOfferBtn" href="#" class="btn btn-primary" onclick="window.location.href=window.STRIPE_DISCOUNT||window.STRIPE_MONTHLY;trackUpgrade('abandon_offer');return false;">Get first month for $4</a>
+    <a id="discountOfferBtn" href="#" class="btn btn-primary" onclick="if(window.STRIPE_DISCOUNT){window.location.href=window.STRIPE_DISCOUNT;trackUpgrade('abandon_offer');}return false;">Get first month for $4</a>
   </div>
 
   <div class="back-row on-forest">
@@ -207,6 +207,46 @@
   </div>
 
 </main>
+
+<!-- FOOTER -->
+<footer class="on-forest">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="footer-logo" aria-label="Mealzy home">Mealzy</a>
+        <p>AI meal planning that fits your budget, your diet, and your week — in 30 seconds flat.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul role="list">
+          <li><a href="index.html#how-it-works">How it works</a></li>
+          <li><a href="pricing.html">Pricing</a></li>
+          <li><a href="/dashboard.html">My plans</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <ul role="list">
+          <li><a href="login.html">Sign in</a></li>
+          <li><a href="login.html?signup=1">Start Planning Free</a></li>
+          <li><a href="reset-password.html">Reset password</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul role="list">
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="mailto:support@mealzy.org">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Mealzy &mdash; Sweden.</p>
+      <p>Mealzy is an AI tool and does not provide medical or nutritional advice.</p>
+    </div>
+  </div>
+</footer>
 
 <script>
   document.getElementById('themeToggle').addEventListener('click', function () {
@@ -269,18 +309,28 @@
     document.getElementById('upgradeCtaBtn').focus();
   }
 
-  // Show abandonment offer after 45s if user hasn't clicked
+  // Abandonment offer — only wired up when a real discount link is configured
+  // (never falls back to the full-price monthly link while advertising $4).
+  // Triggered by exit-intent or reaching the bottom of the page, not a fixed
+  // timer, so it doesn't interrupt someone still reading.
   let _clicked = false;
+  let _offerTriggered = false;
   document.getElementById('upgradeCtaBtn').addEventListener('click', () => { _clicked = true; });
-  setTimeout(() => {
-    if (!_clicked) {
+  if (window.STRIPE_DISCOUNT) {
+    const showOffer = () => {
+      if (_offerTriggered || _clicked) return;
+      _offerTriggered = true;
       const ao = document.getElementById('abandonOffer');
       ao.style.display = 'block';
       ao.removeAttribute('aria-hidden');
       const first = ao.querySelector('button,a[href]');
       if (first) first.focus();
-    }
-  }, 45000);
+    };
+    document.addEventListener('mouseout', (e) => { if (e.clientY <= 0) showOffer(); });
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 40) showOffer();
+    }, { passive: true });
+  }
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {

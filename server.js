@@ -801,14 +801,19 @@ const STRIPE_MONTHLY_FALLBACK = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00'
 app.get('/stripe-config.js', async (req, res) => {
   const monthly        = process.env.STRIPE_MONTHLY_URL        || STRIPE_MONTHLY_FALLBACK;
   const annual         = process.env.STRIPE_ANNUAL_URL         || monthly; // falls back to monthly if annual not set
-  const familyMonthly  = process.env.STRIPE_FAMILY_MONTHLY_URL || monthly;
-  const familyAnnual   = process.env.STRIPE_FAMILY_ANNUAL_URL  || monthly;
-  const discount       = process.env.STRIPE_DISCOUNT_URL       || monthly;
+  // Family and the abandonment discount must never silently resolve to the Pro
+  // monthly link — that would charge (or promise) the wrong price. null here
+  // means "not configured"; callers must check the *_READY flag before using it.
+  const familyMonthly  = process.env.STRIPE_FAMILY_MONTHLY_URL || null;
+  const familyAnnual   = process.env.STRIPE_FAMILY_ANNUAL_URL  || null;
+  const discount        = process.env.STRIPE_DISCOUNT_URL      || null;
   res.type('js').send(
     `window.STRIPE_MONTHLY=${JSON.stringify(monthly)};` +
     `window.STRIPE_ANNUAL=${JSON.stringify(annual)};` +
     `window.STRIPE_FAMILY_MONTHLY=${JSON.stringify(familyMonthly)};` +
     `window.STRIPE_FAMILY_ANNUAL=${JSON.stringify(familyAnnual)};` +
+    `window.STRIPE_FAMILY_MONTHLY_READY=${JSON.stringify(!!process.env.STRIPE_FAMILY_MONTHLY_URL)};` +
+    `window.STRIPE_FAMILY_ANNUAL_READY=${JSON.stringify(!!process.env.STRIPE_FAMILY_ANNUAL_URL)};` +
     `window.STRIPE_DISCOUNT=${JSON.stringify(discount)};` +
     `window.STRIPE_ANNUAL_READY=${JSON.stringify(!!process.env.STRIPE_ANNUAL_URL)};`
   );

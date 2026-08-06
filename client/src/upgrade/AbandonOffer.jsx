@@ -4,20 +4,37 @@ import { buttonVariants } from '@/components/ui/button';
 import { stripeUrls } from '@/lib/stripe';
 import { cn } from '@/lib/utils';
 
-/* Abandonment offer — same contract as the legacy upgrade.html inline script:
- * appears in-flow after 45s if the main CTA hasn't been clicked, takes focus,
- * closes on Escape (returning focus to the CTA), and checks out at the
- * discount link (fallback: monthly). */
+/* Abandonment offer — shown only when a real discount link is configured
+ * (never falls back to the full-price monthly link while advertising $4:
+ * see stripeUrls.discountReady). Triggered by exit-intent (cursor leaves
+ * toward the browser chrome) or reaching the bottom of the page, not a
+ * fixed timer, so it doesn't interrupt someone still reading. Takes focus
+ * and closes on Escape, returning focus to the main CTA. */
 export default function AbandonOffer({ clickedRef, onCheckout }) {
   const [visible, setVisible] = React.useState(false);
   const boxRef = React.useRef(null);
+  const discountReady = stripeUrls.discountReady;
 
   React.useEffect(() => {
-    const t = setTimeout(() => {
-      if (!clickedRef.current) setVisible(true);
-    }, 45000);
-    return () => clearTimeout(t);
-  }, [clickedRef]);
+    if (!discountReady) return;
+    let triggered = false;
+    const trigger = () => {
+      if (triggered || clickedRef.current) return;
+      triggered = true;
+      setVisible(true);
+    };
+    const onMouseOut = (e) => { if (e.clientY <= 0) trigger(); };
+    const onScroll = () => {
+      const atBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 40;
+      if (atBottom) trigger();
+    };
+    document.addEventListener('mouseout', onMouseOut);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      document.removeEventListener('mouseout', onMouseOut);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [clickedRef, discountReady]);
 
   React.useEffect(() => {
     if (!visible) return;
