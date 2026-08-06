@@ -8,13 +8,17 @@
  * so every figure presented as a claim is rendered through range() rather than
  * money(). Only the budget the visitor typed themselves is shown exactly.
  *
- * Cost scales linearly with the budget (a bigger basket buys more and better
- * ingredients). Calories scale far more gently — cheap calories are easy, so
- * tripling the budget must not triple the plate. */
+ * Cost scales linearly with the budget, and so do the quantities beside it: a
+ * $300 week is a bigger household's shop — 2 kg of salmon — not the same 400 g
+ * at five times the price. Calories scale far more gently, because cheap
+ * calories are easy and a fifteen-fold budget is more mouths, not a bigger
+ * plate. */
 
 export const BASE_BUDGET = 60;
-export const MIN_BUDGET = 40;
-export const MAX_BUDGET = 120;
+/* The slider spans one person eating cheaply to a family of four or five. The
+ * old $40–$120 band had no answer for either end of that. */
+export const MIN_BUDGET = 20;
+export const MAX_BUDGET = 300;
 export const BUDGET_STEP = 5;
 
 /**
@@ -64,31 +68,39 @@ const DAYS = [
   ]]
 ];
 
-/* What actually goes in the trolley this week, in cents at the baseline
- * budget. Quantities are what the 21 meals above consume, not round pack
- * sizes — the list is meant to be shoppable, not illustrative. */
+/* What actually goes in the trolley this week: [item, quantity, unit, cents],
+ * both figures at the baseline budget. Quantities are what the 21 meals above
+ * consume, not round pack sizes — the list is meant to be shoppable, not
+ * illustrative — and they are stored as a number and a unit rather than as
+ * "400 g" so they can scale with the budget alongside the price.
+ *
+ * A unit of '' is a plain count (3 avocados). 'g' is weight. Anything else is a
+ * noun that reads on the shelf: "1 bulb", "3 tins". */
 const FRESH = [
   ['Produce', [
-    ['Cherry tomatoes', '400 g', 340], ['Baby spinach', '200 g', 230],
-    ['Avocados', '3', 390], ['Lemons', '4', 190], ['Garlic', '1 bulb', 70],
-    ['Broccoli', '500 g', 210], ['Bananas', '6', 190]
+    ['Cherry tomatoes', 400, 'g', 340], ['Baby spinach', 200, 'g', 230],
+    ['Avocados', 3, '', 390], ['Lemons', 4, '', 190], ['Garlic', 1, 'bulb', 85],
+    ['Broccoli', 500, 'g', 210], ['Bananas', 6, '', 190]
   ]],
   ['Protein', [
-    ['Chicken breast', '600 g', 790], ['Salmon fillet', '400 g', 960],
-    ['Greek yogurt', '500 g', 320], ['Free-range eggs', '12', 340],
-    ['Tinned tuna', '3 tins', 420]
+    ['Chicken breast', 600, 'g', 790], ['Salmon fillet', 400, 'g', 960],
+    ['Greek yogurt', 500, 'g', 320], ['Free-range eggs', 12, '', 340],
+    ['Tinned tuna', 3, 'tin', 420]
   ]]
 ];
 
 /* Cupboard items the week draws on rather than buys outright. Priced at the
  * share this week's meals actually use, so a $5 bottle of olive oil doesn't
- * land on the receipt as a weekly grocery cost. */
+ * land on the receipt as a weekly grocery cost — 4 tbsp of it does. The floor
+ * under every one of these is a real shelf price for the amount named: 350 g of
+ * oats is not 70 cents, and pricing it that way is what made the list read as
+ * invented rather than as cheap. */
 const PANTRY = [
-  ['Rolled oats', '350 g', 72],
-  ['Pasta', '400 g', 160],
-  ['Quinoa', '180 g', 209],
-  ['Red lentils', '200 g', 105],
-  ['Olive oil', '4 tbsp', 62]
+  ['Rolled oats', 350, 'g', 145],
+  ['Pasta', 400, 'g', 160],
+  ['Quinoa', 180, 'g', 209],
+  ['Red lentils', 200, 'g', 105],
+  ['Olive oil', 4, 'tbsp', 75]
 ];
 
 /* The dietary styles the product can actually preview end to end. `signup` is
@@ -134,22 +146,73 @@ export const money = (cents) => `$${(cents / 100).toFixed(2)}`;
 /* Whole dollars, no cents — used for the budget the visitor set themselves. */
 export const dollars = (cents) => `$${Math.round(cents / 100)}`;
 
+/* Nothing in a shop is free, so no price on this page is allowed to start at
+ * zero. Rounded to whole dollars a 70-cent bulb of garlic reads "$0–$1", and a
+ * line that starts at nothing reads as a broken estimate rather than as a cheap
+ * ingredient — it undermines every other figure beside it. Any band whose lower
+ * bound lands under a dollar is therefore quoted to the nearest 5 cents
+ * instead, and floored at 50 cents. */
+const MIN_LOW_CENTS = 50;
+const MIN_SPAN_CENTS = 25;
+
 /**
- * A price band around a modelled figure, in whole dollars: `$52–$64`.
- * Groceries vary by store, city and week, so every figure the page presents as
- * a claim goes through here instead of quoting a cent-exact total we cannot
- * stand behind. The band always spans at least one dollar so tiny figures
- * still read as a range.
+ * A price band around a modelled figure: `$52–$64`, or `$0.65–$0.75` for the
+ * sub-dollar lines. Groceries vary by store, city and week, so every figure the
+ * page presents as a claim goes through here instead of quoting a cent-exact
+ * total we cannot stand behind. The band always spans at least one step, so
+ * tiny figures still read as a range.
  */
 export function range(cents, spread = 0.1) {
-  const low = Math.floor((cents * (1 - spread)) / 100);
-  const high = Math.max(Math.ceil((cents * (1 + spread)) / 100), low + 1);
-  return `$${low}–$${high}`;
+  const low = Math.max(Math.round((cents * (1 - spread)) / 5) * 5, MIN_LOW_CENTS);
+  const high = Math.max(Math.round((cents * (1 + spread)) / 5) * 5, low + MIN_SPAN_CENTS);
+
+  if (low < 100) return `$${(low / 100).toFixed(2)}–$${(high / 100).toFixed(2)}`;
+
+  const dollarsLow = Math.floor(low / 100);
+  return `$${dollarsLow}–$${Math.max(Math.ceil(high / 100), dollarsLow + 1)}`;
 }
 
-/* Daily calorie target: +12 kcal per extra dollar, so $40 → 1,860 and
- * $60 → 2,100 exactly. */
-const kcalTargetFor = (budget) => 1860 + (budget - MIN_BUDGET) * 12;
+/* Units that read the same whether there is one or twenty. */
+const INVARIANT_UNITS = new Set(['g', 'kg', 'ml', 'tbsp', 'tsp']);
+
+/**
+ * A shopping quantity at a given budget ratio, rounded to something you could
+ * actually take off a shelf. Quantities scale with the budget alongside the
+ * prices, so the top of the slider buys a family 2 kg of salmon rather than
+ * charging one person $48 for the same 400 g.
+ */
+export function quantity(qty, unit, ratio) {
+  const scaled = qty * ratio;
+
+  if (unit === 'g') {
+    if (scaled >= 1000) return `${(Math.round(scaled / 100) / 10).toFixed(1)} kg`;
+    /* Finer steps at the bottom: 180 g of quinoa must not round to 175. */
+    const step = scaled < 200 ? 10 : 25;
+    return `${Math.max(Math.round(scaled / step) * step, step)} g`;
+  }
+
+  /* Counts never go to zero — the week either needs the ingredient or the row
+   * would not be on the list. */
+  const n = Math.max(Math.round(scaled), 1);
+  if (!unit) return String(n);
+  return `${n} ${unit}${n === 1 || INVARIANT_UNITS.has(unit) ? '' : 's'}`;
+}
+
+/* Daily calorie target. It rises with the budget but nowhere near as fast as
+ * the basket does: across a 15x slider, a linear rate would put $300 at nearly
+ * 5,000 kcal a day. A log curve anchored on the $60 default spans about 1,770
+ * kcal at $20 to 2,585 at $300 — the extra money buys a bigger household and
+ * better ingredients, not a bigger plate — and it is clamped either side so no
+ * position on the slider produces a target we would not stand behind. */
+const KCAL_AT_BASE = 2100;
+const KCAL_PER_LOG = 300;
+const KCAL_FLOOR = 1600;
+const KCAL_CEILING = 3000;
+
+const kcalTargetFor = (budget) => {
+  const raw = KCAL_AT_BASE + KCAL_PER_LOG * Math.log(budget / BASE_BUDGET);
+  return Math.min(Math.max(Math.round(raw / 5) * 5, KCAL_FLOOR), KCAL_CEILING);
+};
 
 /* Real weeks are not flat. A plan that hits the same number seven days running
  * reads as a spreadsheet, not as food, so each day carries a fixed shift as a
@@ -207,8 +270,15 @@ export function planFor(budget) {
     };
   });
 
+  /* Quantity and price come off the same ratio, so a line can never say 400 g
+   * next to a price that bought two kilos. Rounding the quantity for display
+   * costs nothing arithmetically: no total on the page is derived from it. */
   const scale = (items) =>
-    items.map(([item, qty, cents]) => [item, qty, Math.round(cents * costRatio)]);
+    items.map(([item, qty, unit, cents]) => [
+      item,
+      quantity(qty, unit, costRatio),
+      Math.round(cents * costRatio)
+    ]);
 
   const fresh = FRESH.map(([aisle, items]) => [aisle, scale(items)]);
   const pantry = scale(PANTRY);

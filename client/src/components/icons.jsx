@@ -14,6 +14,23 @@ export const Shield = (props) => (
   </svg>
 );
 
+/* Three-quarter ring, spun by CSS. The gap is what makes the rotation legible —
+ * a full circle turning looks like a circle standing still. */
+export const Spinner = ({ className, ...props }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width="13"
+    height="13"
+    {...base}
+    strokeWidth="2.5"
+    aria-hidden="true"
+    className={`animate-spin motion-reduce:animate-none${className ? ` ${className}` : ''}`}
+    {...props}
+  >
+    <path d="M12 3a9 9 0 1 1-6.36 2.64" />
+  </svg>
+);
+
 export const ArrowDown = (props) => (
   <svg viewBox="0 0 24 24" width="16" height="16" {...base} strokeWidth="1.5" aria-hidden="true" {...props}>
     <path d="M12 5v14" />

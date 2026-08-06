@@ -12,15 +12,18 @@ import { captureReferral } from '@/lib/api';
 import { BASE_BUDGET } from '@/components/showcase-plan';
 
 export default function App() {
-  /* One budget for the page, and now one control for it: the showcase slider.
-   * The hero form used to carry a second slider onto the same number, which
-   * meant two handles a visitor could disagree with themselves on.
+  /* One budget for the page, reachable from two places: the hero field and the
+   * showcase slider. They are handles on this single piece of state rather than
+   * two numbers kept in step, so a visitor cannot end up disagreeing with
+   * themselves — typing $90 up top moves the slider below, and dragging the
+   * slider rewrites the field.
    *
    * `budget` follows the handle keystroke by keystroke — the slider and the
    * dollar figure beside it have to stay live under the thumb. `planBudget`
-   * lags it by 250ms, and it is the one the plan is rebuilt from: a drag from
-   * $40 to $120 is 17 steps, and re-planning seven days, 21 meals and a priced
-   * grocery list on every one of them is what made dragging feel like sand. */
+   * lags it by 250ms, and it is the one the plan is rebuilt from: a drag across
+   * the full $20–$300 slider is 56 steps, and re-planning seven days, 21 meals
+   * and a priced grocery list on every one of them is what made dragging feel
+   * like sand. */
   const [budget, setBudget] = React.useState(BASE_BUDGET);
   const [planBudget, setPlanBudget] = React.useState(BASE_BUDGET);
 
@@ -52,8 +55,7 @@ export default function App() {
       <a href="#main" className="skip-link">Skip to main content</a>
       <Header />
       <main id="main">
-        {/* The hero reads the budget for the modal seed; it no longer sets it. */}
-        <Hero onStartPlan={startPlan} budget={budget} />
+        <Hero onStartPlan={startPlan} budget={budget} onBudgetChange={setBudget} />
         {/* The sample plan is the demo. There is no second, separately generated
           * preview to keep in step with it — one week, one set of numbers. */}
         <Showcase

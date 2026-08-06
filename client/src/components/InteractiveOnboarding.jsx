@@ -13,7 +13,9 @@ import { cn } from '@/lib/utils';
  * derived from the selections by planPreview() below — nothing here is
  * a placeholder, and the same selections always produce the same plan. */
 
-const BUDGETS = [40, 60, 80, 120];
+/* Four rungs spanning the same ground the showcase slider now covers ($20–$300),
+ * so a visitor who dragged it to the top is not silently handed a $120 week. */
+const BUDGETS = [30, 60, 150, 300];
 const HOUSEHOLDS = [1, 2, 3, 4];
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -35,10 +37,10 @@ const LOADING_STEPS = [
 /* 500 ms per line, three lines — 1.5 s total. */
 const STEP_MS = 500;
 
-/* A planned week lands under budget, the same 84.3% ratio the Showcase sample
- * uses ($50.58 of a $60 cap, pantry staples counted at the share the week
+/* A planned week lands under budget, the same 86% ratio the Showcase sample
+ * uses ($51.59 of a $60 cap, pantry staples counted at the share the week
  * actually uses), so the two previews never contradict each other. */
-const SPEND_RATIO = 0.843;
+const SPEND_RATIO = 0.86;
 
 /* Fixed per-day weights (sum exactly 1) so the seven rows always add up to the
  * week total — no rounding drift between the table and the figure above it. */

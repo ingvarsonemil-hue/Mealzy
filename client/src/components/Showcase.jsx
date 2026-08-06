@@ -2,7 +2,7 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { RangeSlider } from '@/components/ui/field';
-import { Sunrise, Bowl, Cutlery, ChevronDown, Swap } from '@/components/icons';
+import { Sunrise, Bowl, Cutlery, ChevronDown, Swap, Spinner } from '@/components/icons';
 import GroceryList from '@/components/GroceryList';
 import { cn } from '@/lib/utils';
 import {
@@ -200,7 +200,7 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
 
       {/* Dimmed while the debounce is still holding the last drag, so the
         * figures visibly belong to a budget that has settled rather than
-        * flickering through every step between $40 and $120. */}
+        * flickering through all 56 steps of the slider on the way past. */}
       <div
         aria-live="polite"
         aria-busy={pending}
@@ -233,10 +233,16 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
   );
 }
 
-/* How many days show before the toggle. All seven render identically — Thu–Sun
- * used to collapse to text-only summary rows, which put a visible cliff halfway
- * through the week and made the back half look like a lesser plan than the
- * front half. Same card, same photography, same swap button, all seven days. */
+/* How many days show before the toggle. Mon–Wed are enough to prove what a day
+ * looks like; seven full photo cards on arrival is roughly three screens of
+ * scrolling before the grocery list, and the sections below it were being
+ * reached by fewer people than the week was worth.
+ *
+ * Thu–Sun are hidden, never downgraded: when the toggle opens them they are the
+ * same card, the same photography and the same swap button as the first three.
+ * A collapsed back half rendered as text-only summary rows put a visible cliff
+ * through the middle of the week and made the plan look like it ran out of
+ * effort on Thursday. */
 const PREVIEW_DAYS = 3;
 
 export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChange }) {
@@ -244,10 +250,9 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
    * debounced one, so a drag rebuilds the week once rather than on every step. */
   const plan = React.useMemo(() => planFor(planBudget), [planBudget]);
   const pending = budget !== planBudget;
-  /* Open by default: the claim is a full seven-day plan, so all seven days are
-   * on screen without asking. The toggle stays so the page can be collapsed
-   * back down to the first three days. */
-  const [fullWeek, setFullWeek] = React.useState(true);
+  /* Closed by default: the first three days carry the proof, and the button
+   * under them says plainly that the other four are there for the asking. */
+  const [fullWeek, setFullWeek] = React.useState(false);
 
   /* Seeded with the budget the visitor has already set here, so the modal opens
    * on their week rather than on the default one. */
@@ -277,6 +282,24 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
         <Reveal className="rounded-lg border border-green/40 bg-cream p-6 shadow-card sm:p-8">
           <BudgetPanel plan={plan} budget={budget} onChange={onBudgetChange} pending={pending} />
         </Reveal>
+
+        {/* Says what the fade means. Dimming alone reads as a rendering hiccup;
+          * a visitor who has just dragged the slider needs to know the week is
+          * being rebuilt around their number rather than failing to. The height
+          * is reserved either way so nothing under it moves, and it is hidden
+          * from screen readers because the figures below already announce
+          * themselves through aria-live and aria-busy. */}
+        <div aria-hidden="true" className="mt-4 flex h-6 items-center justify-center">
+          <span
+            className={cn(
+              'inline-flex items-center gap-2 rounded-full border border-green/40 bg-green/10 px-3 py-1 text-[13px] font-semibold text-green-deep transition-opacity duration-200 motion-reduce:transition-none dark:text-green-light',
+              pending ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            <Spinner />
+            Re-planning your week
+          </span>
+        </div>
 
         {/* The plan itself. min-h holds the space open so the section below it
           * doesn't walk up and down the page while the week is re-planned, and
@@ -318,7 +341,7 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
                 aria-controls="showcase-rest-of-week"
                 className="border border-border-warm bg-cream hover:bg-muted-bg"
               >
-                {fullWeek ? 'Show fewer days' : 'Show full week'}
+                {fullWeek ? 'Show fewer days' : 'Show full 7-day week'}
                 <ChevronDown
                   width="16"
                   height="16"
@@ -339,8 +362,9 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
         </Reveal>
 
         <Reveal delay={200} as="p" className="mt-6 text-center text-sm text-muted-fg">
-          Sample 7-day plan generated from preferences. Prices are estimates and scale with the
-          budget you set.
+          Sample 7-day plan generated from preferences. Prices are estimates. Both prices and
+          quantities scale with the budget you set, so a bigger week shops for a bigger household
+          rather than paying more for the same food.
         </Reveal>
       </div>
 
