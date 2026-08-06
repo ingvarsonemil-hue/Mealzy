@@ -68,13 +68,15 @@
     });
     var cta = document.getElementById('proCta');
     var ctaNote = document.getElementById('proCtaNote');
-    cta.textContent = 'Start 7-day free trial';
+    /* The button carries "$0 due today", so the note states only what happens
+     * after the trial ends — no duplicated "$0 due today" on the same card. */
+    cta.textContent = 'Start 7-day free trial — $0 due today';
     if (mode === 'yearly') {
       cta.href = STRIPE_YEARLY;
-      ctaNote.textContent = '$0 due today, then ' + money(ANNUAL_TOTAL.premium) + '/year — cancel anytime.';
+      ctaNote.textContent = 'Then ' + money(ANNUAL_TOTAL.premium) + '/year — cancel anytime.';
     } else {
       cta.href = STRIPE_MONTHLY;
-      ctaNote.textContent = '$0 due today, then ' + money(MONTHLY_PRICE.premium) + '/mo — cancel anytime.';
+      ctaNote.textContent = 'Then ' + money(MONTHLY_PRICE.premium) + '/mo — cancel anytime.';
     }
     var familyCta = document.getElementById('familyCta');
     familyCta.href = mode === 'yearly' ? STRIPE_FAMILY_YEARLY : STRIPE_FAMILY_MONTHLY;

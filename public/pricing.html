@@ -119,15 +119,16 @@
         <p class="plan-tag">For people who plan every week.</p>
         <div class="plan-price"><span class="amount" id="pricePremiumMo">$8</span><span class="period" id="periodPremium">/month</span></div>
         <div class="plan-billed" id="billedPremium"></div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="proCta">Start 7-day free trial</a>
-        <p class="plan-cta-note" id="proCtaNote">$0 due today — cancel anytime.</p>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="proCta">Start 7-day free trial — $0 due today</a>
+        <!-- The button already carries "$0 due today", so the note states only
+             what happens after the trial ends (matches PlanCards.jsx). -->
+        <p class="plan-cta-note" id="proCtaNote">Then $8/mo — cancel anytime.</p>
         <ul class="plan-feats">
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Unlimited</strong> AI Meal Plans</span></li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Automatic grocery list</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Budget tracking</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Calorie &amp; Macro Targets</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Mia — AI Nutrition Coach, <strong>unlimited</strong></span></li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>11 languages</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Priority queue — plans generate first</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>PDF meal plan export</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Advanced macro splits per meal</li>
@@ -141,11 +142,13 @@
         <div class="plan-price"><span class="amount" id="priceFamilyMo">$16</span><span class="period" id="periodFamily">/month</span></div>
         <div class="plan-billed" id="billedFamily"></div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="familyCta">Start Family</a>
-        <p class="plan-cta-note">Perfect for couples, parents, or anyone cooking for more than one person.</p>
+        <!-- The 7-day trial runs on Pro, not on Family, so this says how to get
+             the trial rather than claiming Family itself starts free. -->
+        <p class="plan-cta-note">Try Pro 7 days free, upgrade to Family anytime.</p>
         <ul class="plan-feats">
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Everything in Pro</strong></span></li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Up to <strong>4 individual profiles</strong></span></li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Separate calorie &amp; macro goals per person</li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Separate Calorie &amp; Macro Targets per person</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Allergen management per profile</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Combined grocery list (one shop, everyone covered)</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI Meal Plans for all profiles</li>

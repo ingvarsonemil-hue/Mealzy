@@ -18,7 +18,10 @@
 <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<script src="/stripe-config.js" defer></script>
+<!-- MUST stay blocking (no defer): the inline script at the end of <body> reads
+     window.STRIPE_ANNUAL synchronously. With defer this file ran too late, the
+     toggle was hidden and the page fell back to monthly $8. -->
+<script src="/stripe-config.js"></script>
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/css/landing.css">
@@ -32,7 +35,15 @@
   .upgrade-hero p { font-size: 1rem; color: var(--clr-on-forest-body); max-width: 44ch; margin: 0 auto; }
   .toggle-row { display: flex; justify-content: center; margin: 1.75rem 0; }
   .save-badge { background: var(--clr-forest-raise); color: var(--color-green-light); font-size: 0.72rem; font-weight: 700; padding: 0.1rem 0.5rem; border-radius: var(--radius-full); margin-left: 0.3rem; }
-  .upgrade-card { background: var(--clr-surface); color: var(--color-foreground); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-modal); }
+  .upgrade-card { background: var(--clr-surface); color: var(--color-foreground); border: 2px solid var(--color-green); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-modal); }
+  /* "Most popular" rides on the card's own top edge — never a pill floating in
+     the body above the price. Mirrors .plan-card-header on pricing.html. */
+  .upgrade-card-header {
+    margin: -2rem -2rem 1.5rem; padding: 0.55rem 2rem;
+    background: var(--color-green); border-radius: calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px) 0 0;
+    text-align: center;
+  }
+  .upgrade-card-header .badge { margin: 0; background: transparent; color: var(--clr-on-primary); font-weight: 700; }
   .price-display { text-align: center; margin-bottom: 1.5rem; }
   .price-amount { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 3rem; line-height: 1; }
   .price-period { font-size: 1rem; color: var(--color-muted-fg); }
@@ -101,7 +112,7 @@
   </div>
 
   <div class="upgrade-card">
-    <div style="text-align:center;margin-bottom:1rem;"><span class="badge badge-green">Most popular</span></div>
+    <div class="upgrade-card-header"><span class="badge badge-green">Most popular</span></div>
     <div class="price-display">
       <div>
         <span class="price-amount" id="upgrPrice">$62</span>
