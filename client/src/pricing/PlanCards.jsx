@@ -150,8 +150,8 @@ export default function PlanCards({ mode }) {
         billed={family.billed}
         features={FAMILY_FEATURES}
         /* The 7-day trial runs on Pro, not on Family, so this says how to get
-         * the trial rather than claiming Family itself starts free. */
-        note="Try Pro free for 7 days, then upgrade to Family anytime. Cancel anytime."
+         * to Family rather than claiming Family itself starts free. */
+        note="Start with Pro, upgrade to Family anytime."
         cta={
           <Button
             href={familyHref}
