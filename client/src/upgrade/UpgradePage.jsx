@@ -1,11 +1,12 @@
 import * as React from 'react';
 import BillingToggle from '@/components/BillingToggle';
+import Footer from '@/components/Footer';
 import AbandonOffer from './AbandonOffer';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/Header';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Sun, Moon, Check, HelpCircle, Lock, Bowl, Cutlery } from '@/components/icons';
-import { stripeUrls } from '@/lib/stripe';
+import { stripeUrls, PLAN_PRICING, planDisplay } from '@/lib/stripe';
 import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -57,12 +58,21 @@ function Panel({ children, className }) {
 
 export default function UpgradePage() {
   const [theme, toggleTheme] = useTheme();
-  /* Legacy contract: no configured annual link -> monthly only, toggle hidden.
-   * When annual exists the page defaults to yearly (best value). */
-  const annualAvailable = stripeUrls.annualReady;
-  const [mode, setMode] = React.useState(annualAvailable ? 'yearly' : 'monthly');
+  /* Annual is the page default (best value). Assume it is sellable for the
+   * first paint so the server-rendered markup and the first client render
+   * agree, then correct from the Stripe config: without STRIPE_ANNUAL_URL the
+   * annual segment is disabled and the page falls back to monthly, instead of
+   * showing a yearly price and checking out at the monthly link. */
+  const [annualAvailable, setAnnualAvailable] = React.useState(true);
+  const [mode, setMode] = React.useState('yearly');
+  React.useEffect(() => {
+    const ready = stripeUrls.annualReady;
+    setAnnualAvailable(ready);
+    if (!ready) setMode('monthly');
+  }, []);
   const clickedRef = React.useRef(false);
   const yearly = mode === 'yearly';
+  const pro = planDisplay('pro', mode);
 
   const onCtaClick = (source) => {
     clickedRef.current = true;
@@ -100,35 +110,36 @@ export default function UpgradePage() {
             You&rsquo;ve seen how fast it works. Pro removes all limits — and adds features that make it
             genuinely better every week.
           </p>
-          {annualAvailable && (
-            <div className="mt-7 flex justify-center">
-              <BillingToggle
-                mode={mode}
-                onChange={setMode}
-                annualLabel={
-                  <>
-                    Annual
-                    <span className="rounded-full bg-green px-2 py-0.5 text-xs font-bold text-white">
-                      Save 35%
-                    </span>
-                  </>
-                }
-              />
-            </div>
-          )}
+          <div className="mt-7 flex justify-center">
+            <BillingToggle
+              mode={mode}
+              onChange={setMode}
+              annualDisabled={!annualAvailable}
+              annualLabel={
+                <>
+                  Annual
+                  <span className="rounded-full bg-green px-2 py-0.5 text-xs font-bold text-white">
+                    Save {PLAN_PRICING.pro.savePct}%
+                  </span>
+                </>
+              }
+            />
+          </div>
         </header>
 
-        {/* Decision card */}
-        <Panel className="mt-8 p-8">
+        {/* Decision card — badge is part of the card's own top edge, not a
+            pill floating in the body above the price. */}
+        <Panel className="mt-8 overflow-hidden border-2 border-green p-0">
+          <div className="bg-green px-6 py-2 text-center">
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-white">Most popular</span>
+          </div>
+          <div className="p-8">
           <p className="text-center">
-            <span className="rounded-full bg-green px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white">Most popular</span>
-          </p>
-          <p className="mt-4 text-center">
-            <span className="font-display text-5xl font-bold italic leading-none tracking-[-0.02em]">{yearly ? '$62' : '$8'}</span>
-            <span className="text-base text-muted-fg">{yearly ? '/year' : '/month'}</span>
+            <span className="font-display text-5xl font-bold italic leading-none tracking-[-0.02em]">{pro.price}</span>
+            <span className="text-base text-muted-fg">{pro.period}</span>
           </p>
           <p className="mt-1.5 min-h-[1.3em] text-center text-sm text-muted-fg" aria-live="polite">
-            {yearly ? 'Save 35% — $34 less than monthly' : ''}
+            {pro.billed}
           </p>
 
           <div className="mt-6 flex flex-col gap-3.5">
@@ -167,8 +178,8 @@ export default function UpgradePage() {
             >
               Start Pro 7-Day Free Trial
             </Button>
-            <Button href="dashboard.html" variant="quiet" full data-testid="stay-free">
-              Stay on Free Plan
+            <Button href="/dashboard.html" variant="quiet" full data-testid="stay-free">
+              Not ready? Keep your free plan
             </Button>
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[13px] leading-normal text-muted-fg">
@@ -177,10 +188,11 @@ export default function UpgradePage() {
           </p>
           <p className="mt-4 text-center text-sm text-muted-fg">
             Cooking for a household?{' '}
-            <a href="pricing.html" className="font-semibold text-green-deep no-underline hover:underline dark:text-green-light">
+            <a href="/pricing.html" className="font-semibold text-green-deep no-underline hover:underline dark:text-green-light">
               Check Family plan
             </a>
           </p>
+          </div>
         </Panel>
 
         {/* Objections */}
@@ -216,6 +228,7 @@ export default function UpgradePage() {
           </p>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

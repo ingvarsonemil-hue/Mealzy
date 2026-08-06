@@ -16,7 +16,39 @@ export const stripeUrls = {
   get familyAnnual() { return window.STRIPE_FAMILY_ANNUAL || this.monthly; },
   get discount() { return window.STRIPE_DISCOUNT || this.monthly; },
   /* True only when STRIPE_ANNUAL_URL is actually configured server-side.
-   * When false, "annual" would silently resolve to the monthly link, so the
-   * upgrade page hides the billing toggle entirely (legacy contract). */
+   * When false, "annual" would silently resolve to the monthly link and charge
+   * the wrong amount, so the billing toggle renders with its annual segment
+   * disabled rather than routing a visitor to a price they weren't shown. */
   get annualReady() { return !!window.STRIPE_ANNUAL_READY; }
 };
+
+/* Single source of truth for what each plan costs. The monthly and annual
+ * totals are the only figures typed by hand — the "Save X%" badge and the
+ * "$N less than monthly" line are derived, so a price edit can never leave a
+ * stale percentage behind on one page and not another. (Pro annual has been
+ * written as both $62 and $130 in past commits; deriving stops the drift.) */
+const plan = (monthly, annualTotal) => ({
+  monthly,
+  annualTotal,
+  monthlyLabel: `$${monthly}`,
+  annualLabel: `$${annualTotal}`,
+  savePct: Math.round((1 - annualTotal / (monthly * 12)) * 100),
+  saveAmount: monthly * 12 - annualTotal
+});
+
+export const PLAN_PRICING = {
+  pro: plan(8, 62),
+  family: plan(16, 128)
+};
+
+/* Price + period + savings line for one plan in one billing mode, so every
+ * card reads the same three values from the same place. */
+export function planDisplay(key, mode) {
+  const p = PLAN_PRICING[key];
+  const yearly = mode === 'yearly';
+  return {
+    price: yearly ? p.annualLabel : p.monthlyLabel,
+    period: yearly ? '/year' : '/month',
+    billed: yearly ? `Save ${p.savePct}% — $${p.saveAmount} less than monthly` : ''
+  };
+}

@@ -3,12 +3,13 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Reveal from '@/components/Reveal';
 import BillingToggle from '@/components/BillingToggle';
+import CompareCell from '@/components/CompareCell';
 import PlanCards from './PlanCards';
 import DecidingPopup from './DecidingPopup';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Lock } from '@/components/icons';
-import { stripeUrls } from '@/lib/stripe';
+import { stripeUrls, PLAN_PRICING } from '@/lib/stripe';
 
 const NAV_LINKS = [
   { href: 'index.html#how-it-works', label: 'How it works' },
@@ -36,11 +37,30 @@ const FAQS = [
   }
 ];
 
+/* Four rows, one decision each — the shortest table that still answers "which
+ * plan do I need?". Profile counts match what the server actually enforces
+ * (server.js rejects a 5th family profile), so the table can't promise a seat
+ * the app then refuses to create. */
+const COMPARE_ROWS = [
+  { feature: 'Meal plans per month', free: '3', pro: 'Unlimited', family: 'Unlimited' },
+  { feature: 'Mia AI Coach', free: '10 messages/day', pro: 'Unlimited', family: 'Unlimited' },
+  { feature: 'Profiles', free: '1', pro: '1', family: 'Up to 4' },
+  { feature: 'PDF & grocery list export', free: false, pro: true, family: true }
+];
+
 export default function PricingPage() {
   const [mode, setMode] = React.useState('monthly');
-  /* Without a configured annual Stripe link, a "yearly" click would silently
-   * check out at the monthly URL (the known wrong-URL bug) — hide the toggle. */
-  const annualAvailable = stripeUrls.annualReady;
+  /* Assume annual is sellable for the first paint — it is a real, advertised
+   * product, and this keeps the server-rendered markup and the first client
+   * render identical (no hydration mismatch). The effect then corrects it from
+   * the Stripe config, so a missing STRIPE_ANNUAL_URL disables the annual
+   * segment rather than checking someone out at the monthly price. */
+  const [annualAvailable, setAnnualAvailable] = React.useState(true);
+  React.useEffect(() => {
+    const ready = stripeUrls.annualReady;
+    setAnnualAvailable(ready);
+    if (!ready) setMode('monthly');
+  }, []);
 
   return (
     <>
@@ -57,9 +77,13 @@ export default function PricingPage() {
               3 meal plans a month, free forever. No credit card required. Paid plans are $8 or $16
               a month — the full figures are below.
             </p>
-            {annualAvailable && (
-              <BillingToggle mode={mode} onChange={setMode} annualLabel="Annual — Save 35%" className="mt-8" />
-            )}
+            <BillingToggle
+              mode={mode}
+              onChange={setMode}
+              annualDisabled={!annualAvailable}
+              annualLabel={`Annual — Save ${PLAN_PRICING.pro.savePct}%`}
+              className="mt-8"
+            />
           </div>
         </header>
 
@@ -79,7 +103,45 @@ export default function PricingPage() {
           </div>
         </section>
 
-        {/* Billing FAQ — the cards carry the feature detail, so no table here */}
+        {/* Side-by-side comparison — the four differences that decide the plan */}
+        <section aria-labelledby="compare-heading" className="pb-16 sm:pb-20">
+          <div className="mx-auto max-w-container px-4 sm:px-5">
+            <Reveal className="mb-8 text-center">
+              <h2 id="compare-heading" className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]">
+                Compare the plans.
+              </h2>
+            </Reveal>
+            {/* The scroll container is the Reveal element itself. Nesting it
+                inside would put an overflowing box inside Reveal's transform,
+                which leaks the table's min-width out to the page and gives the
+                whole document a horizontal scrollbar on mobile. */}
+            <Reveal delay={80} className="mx-auto max-w-3xl overflow-x-auto rounded-lg border border-border-warm bg-cream shadow-card">
+              <table className="w-full min-w-[520px] border-collapse text-left">
+                <caption className="sr-only">Feature comparison of the Free, Pro, and Family plans</caption>
+                <thead>
+                  <tr className="border-b border-border-warm">
+                    <th scope="col" className="px-4 py-3.5 text-[15px] font-semibold">Feature</th>
+                    <th scope="col" className="px-3 py-3.5 text-center text-[15px] font-semibold">Free</th>
+                    <th scope="col" className="bg-green/5 px-3 py-3.5 text-center text-[15px] font-semibold">Pro</th>
+                    <th scope="col" className="px-3 py-3.5 text-center text-[15px] font-semibold">Family</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARE_ROWS.map((row) => (
+                    <tr key={row.feature} className="border-b border-border-warm last:border-b-0">
+                      <th scope="row" className="px-4 py-3 text-[15px] font-normal">{row.feature}</th>
+                      <CompareCell value={row.free} />
+                      <CompareCell value={row.pro} pro />
+                      <CompareCell value={row.family} />
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Billing FAQ */}
         <section id="faq" aria-labelledby="faq-heading" className="bg-parchment py-16 sm:py-20">
           <div className="mx-auto max-w-container px-4 sm:px-5">
             <Reveal className="mb-10 text-center">

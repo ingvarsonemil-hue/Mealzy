@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Check, X } from '@/components/icons';
-import { stripeUrls } from '@/lib/stripe';
+import { stripeUrls, PLAN_PRICING, planDisplay } from '@/lib/stripe';
 import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
@@ -92,6 +92,8 @@ function PlanCard({ name, tag, price, period = '/month', billed, cta, note, feat
 
 export default function PlanCards({ mode }) {
   const yearly = mode === 'yearly';
+  const pro = planDisplay('pro', mode);
+  const family = planDisplay('family', mode);
   const trackClick = (plan) => track('upgrade_click', { source: 'pricing_page', plan });
 
   return (
@@ -108,12 +110,18 @@ export default function PlanCards({ mode }) {
       <PlanCard
         name="Pro"
         tag="For people who plan every week."
-        price={yearly ? '$62' : '$8'}
-        period={yearly ? '/year' : '/month'}
-        billed={yearly ? 'Save 35% — $34 less than monthly' : ''}
+        price={pro.price}
+        period={pro.period}
+        billed={pro.billed}
         popular
         features={PRO_FEATURES}
-        note={yearly ? '$0 due today, then $62/year — cancel anytime.' : '$0 due today, then $8/mo — cancel anytime.'}
+        /* The button already carries "$0 due today", so the note states only
+         * what happens after the trial ends. */
+        note={
+          yearly
+            ? `Then $${PLAN_PRICING.pro.annualTotal}/year — cancel anytime.`
+            : `Then $${PLAN_PRICING.pro.monthly}/mo — cancel anytime.`
+        }
         cta={
           <Button
             href={yearly ? stripeUrls.annual : stripeUrls.monthly}
@@ -123,18 +131,20 @@ export default function PlanCards({ mode }) {
             data-testid="pro-cta"
             onClick={() => trackClick('pro')}
           >
-            Start 7-day free trial
+            Start 7-day free trial — $0 due today
           </Button>
         }
       />
       <PlanCard
         name="Family"
         tag="For households that eat together."
-        price={yearly ? '$128' : '$16'}
-        period={yearly ? '/year' : '/month'}
-        billed={yearly ? 'Save 33% — $64 less than monthly' : ''}
+        price={family.price}
+        period={family.period}
+        billed={family.billed}
         features={FAMILY_FEATURES}
-        note="Perfect for couples, parents, or anyone cooking for more than one person."
+        /* The 7-day trial runs on Pro, not on Family, so this says how to get
+         * the trial rather than claiming Family itself starts free. */
+        note="Try Pro 7 days free, upgrade to Family anytime."
         cta={
           <Button
             href={yearly ? stripeUrls.familyAnnual : stripeUrls.familyMonthly}
