@@ -126,7 +126,7 @@ export default function PlanCards({ mode }) {
          * what happens after the trial ends. */
         note={
           yearly
-            ? `Then $${PLAN_PRICING.pro.annualTotal}/year — cancel anytime.`
+            ? `Then $${PLAN_PRICING.pro.annualTotal}/yr — cancel anytime.`
             : `Then $${PLAN_PRICING.pro.monthly}/mo — cancel anytime.`
         }
         cta={
@@ -151,7 +151,7 @@ export default function PlanCards({ mode }) {
         features={FAMILY_FEATURES}
         /* The 7-day trial runs on Pro, not on Family, so this says how to get
          * the trial rather than claiming Family itself starts free. */
-        note="Try Pro 7 days free, upgrade to Family anytime."
+        note="Try Pro free for 7 days, then upgrade to Family anytime. Cancel anytime."
         cta={
           <Button
             href={familyHref}
@@ -161,7 +161,7 @@ export default function PlanCards({ mode }) {
             data-testid="family-cta"
             onClick={() => trackClick('family')}
           >
-            {yearly ? 'Start Family Annual' : 'Start Family'}
+            Start Family Plan
           </Button>
         }
       />
