@@ -7,9 +7,8 @@ import PlanCards from './PlanCards';
 import DecidingPopup from './DecidingPopup';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import CompareCell from '@/components/CompareCell';
+import { Lock } from '@/components/icons';
 import { stripeUrls } from '@/lib/stripe';
-import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
   { href: 'index.html#how-it-works', label: 'How it works' },
@@ -17,35 +16,23 @@ const NAV_LINKS = [
   { href: 'index.html#faq', label: 'FAQ' }
 ];
 
-const COMPARISON = [
-  ['AI meal plans', '3/month', 'Unlimited', 'Unlimited'],
-  ['AI coach messages', '10/day', 'Unlimited', 'Unlimited'],
-  ['Auto grocery lists', true, true, true],
-  ['Analytics dashboard', 'Basic', 'Advanced', 'Advanced'],
-  ['Profiles', '1', '1', 'Up to 4'],
-  ['Priority support', false, 'Email', 'Priority']
-];
-
 const FAQS = [
   {
-    q: 'What does Mealzy cost, exactly?',
-    a: 'Free is $0 for 3 meal plans a month, with no credit card. Pro is $8 a month or $62 a year. Family is $16 a month or $130 a year and covers up to 4 profiles. Those are the only prices — no setup fee, no per-plan charge, and nothing else added at checkout.'
+    q: 'How does the 7-day free trial work?',
+    a: 'You get 7 full days of Pro with $0 due today. If you cancel before day 7 you are never charged. If you stay, billing starts on day 8 at the price you picked — $8 a month or $62 a year.'
   },
   {
-    q: 'Can I cancel at any time?',
-    a: 'Yes — cancel in one click from your Stripe billing portal. You keep Pro access until the end of your current billing period. No penalties, no fine print.'
+    q: 'Can I switch or cancel my plan anytime?',
+    a: 'Yes. Cancel in one click from your account settings — no email, no questions. You can also move between monthly and annual, or between Pro and Family, at any time. Access continues until the end of the period you have already paid for.'
   },
   {
-    q: 'What happens to my free plan when it runs out?',
-    a: 'Your 3 free generations reset automatically every 30 days. You never lose access to plans you have already generated.'
+    q: 'What payment methods are supported?',
+    a: 'All major credit and debit cards, plus Apple Pay and Google Pay where your device supports them. Card details go straight to Stripe — we never see or store your card number.',
+    badge: 'Secure payment via Stripe'
   },
   {
-    q: 'Is my data safe?',
-    a: 'Yes. Passwords are hashed with bcrypt and never stored in plain text. All traffic is served over HTTPS. We do not sell your data to third parties. Payments are handled entirely by Stripe — we never see your card number.'
-  },
-  {
-    q: 'Do you store my meal plans?',
-    a: "Your meal plans and profile preferences are stored securely on our servers, tied to your account. You can access them from any device as long as you're signed in. We do not sell your data."
+    q: 'What happens when my 3 free monthly plans run out?',
+    a: 'Nothing is lost. Every plan you have already generated stays in your account, and your grocery lists stay with them. Your 3 free generations reset automatically every 30 days. Upgrade to Pro whenever you want them sooner.'
   }
 ];
 
@@ -82,64 +69,39 @@ export default function PricingPage() {
             <PlanCards mode={mode} />
             <Reveal className="mx-auto mt-12 max-w-2xl text-center">
               <h3 className="font-display text-2xl font-bold italic tracking-[-0.01em]">
-                7-day free trial on Pro. No credit card to start.
+                7-day free trial on Pro. $0 due today.
               </h3>
               <p className="mt-3 text-[17px] leading-[1.7] text-muted-fg">
-                Try Pro free for 7 days. If you don&rsquo;t love it, you won&rsquo;t be charged.
-                Cancel any time — no questions, one click.
+                Try Pro free for 7 days. Cancel before day 7 and you are never charged.
+                Cancel anytime — 1-click in account settings.
               </p>
             </Reveal>
           </div>
         </section>
 
-        {/* Comparison — immediately after the cards, per the design skill */}
-        <section aria-labelledby="compare-heading" className="bg-parchment py-16 sm:py-20">
-          <div className="mx-auto max-w-container px-4 sm:px-5">
-            <Reveal className="mb-10 text-center">
-              <h2 id="compare-heading" className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]">
-                Compare plans.
-              </h2>
-            </Reveal>
-            <Reveal className="mx-auto max-w-3xl overflow-x-auto rounded-lg border border-border-warm bg-cream shadow-card">
-              <table className="w-full min-w-[520px] border-collapse" aria-label="Feature comparison">
-                <thead>
-                  <tr className="border-b border-border-warm">
-                    <th scope="col" className="px-4 py-3.5 text-left text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Feature</th>
-                    <th scope="col" className="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Free</th>
-                    <th scope="col" className="bg-green/5 px-4 py-3.5 text-center text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">Pro</th>
-                    <th scope="col" className="px-4 py-3.5 text-center text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Family</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARISON.map(([feature, free, pro, family], i) => (
-                    <tr key={feature} className={cn(i < COMPARISON.length - 1 && 'border-b border-hairline')}>
-                      <td className="px-4 py-3.5 text-[15px] font-medium">{feature}</td>
-                      <CompareCell value={free} className="px-4 py-3.5" />
-                      <CompareCell value={pro} pro className="px-4 py-3.5" />
-                      <CompareCell value={family} className="px-4 py-3.5" />
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section id="faq" aria-labelledby="faq-heading" className="py-16 sm:py-20">
+        {/* Billing FAQ — the cards carry the feature detail, so no table here */}
+        <section id="faq" aria-labelledby="faq-heading" className="bg-parchment py-16 sm:py-20">
           <div className="mx-auto max-w-container px-4 sm:px-5">
             <Reveal className="mb-10 text-center">
               <h2 id="faq-heading" className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]">
-                Common questions.
+                Billing questions.
               </h2>
             </Reveal>
             <Reveal delay={80}>
-              <div role="region" aria-label="Frequently Asked Questions" className="mx-auto max-w-3xl rounded-lg border border-border-warm bg-cream px-6 shadow-card sm:px-8">
+              <div role="region" aria-label="Billing questions" className="mx-auto max-w-3xl rounded-lg border border-border-warm bg-cream px-6 shadow-card sm:px-8">
                 <Accordion type="single" collapsible>
                   {FAQS.map((f, i) => (
                     <AccordionItem key={i} value={`faq-${i + 1}`}>
                       <AccordionTrigger>{f.q}</AccordionTrigger>
-                      <AccordionContent>{f.a}</AccordionContent>
+                      <AccordionContent>
+                        {f.a}
+                        {f.badge && (
+                          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border-warm bg-parchment px-3 py-1.5 text-sm font-semibold text-muted-fg">
+                            <Lock width="14" height="14" className="shrink-0 text-green" />
+                            {f.badge}
+                          </span>
+                        )}
+                      </AccordionContent>
                     </AccordionItem>
                   ))}
                 </Accordion>
@@ -167,11 +129,14 @@ export default function PricingPage() {
               Stop planning meals by hand.
             </h2>
             <p className="mx-auto mt-4 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-              Mealzy builds the full week in 30 seconds. Free to start — no credit card.
+              Mealzy builds the full week in about 30 seconds. Free to start — no credit card.
             </p>
             <div className="mt-8">
               <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
             </div>
+            <p className="mt-4 text-sm leading-[1.6] text-on-forest-muted">
+              Cancel anytime — 1-click in account settings.
+            </p>
           </Reveal>
         </section>
       </main>

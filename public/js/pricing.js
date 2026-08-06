@@ -15,25 +15,32 @@
    * Everything else (yearly/month figure, savings text, "Save X%" badge)
    * is derived from these two numbers so a price change can't leave a
    * stale percentage behind. */
-  var MONTHLY_PRICE = { premium: 12, family: 16 };
-  var ANNUAL_TOTAL = { premium: 62, family: 130 };
+  var MONTHLY_PRICE = { premium: 8, family: 16 };
+  var ANNUAL_TOTAL = { premium: 62, family: 128 };
 
   function money(n) { return '$' + (Number.isInteger(n) ? n : n.toFixed(2)); }
   function savePct(monthly, annualTotal) { return Math.round((1 - annualTotal / (monthly * 12)) * 100); }
   function saveAmount(monthly, annualTotal) { return monthly * 12 - annualTotal; }
 
   var premiumSavePct = savePct(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium);
+  var familySavePct = savePct(MONTHLY_PRICE.family, ANNUAL_TOTAL.family);
 
+  /* Annual mode shows the yearly total, not a per-month equivalent, so the
+   * number on the card is the number Stripe charges. */
   var prices = {
     monthly: { free: '$0', premium: money(MONTHLY_PRICE.premium), family: money(MONTHLY_PRICE.family) },
-    yearly: { free: '$0', premium: money(ANNUAL_TOTAL.premium / 12), family: money(Math.round(ANNUAL_TOTAL.family / 12)) }
+    yearly: { free: '$0', premium: money(ANNUAL_TOTAL.premium), family: money(ANNUAL_TOTAL.family) }
+  };
+  var periods = {
+    monthly: { free: '/month', premium: '/month', family: '/month' },
+    yearly: { free: '/month', premium: '/year', family: '/year' }
   };
   var billedTxt = {
     monthly: { free: '', premium: '', family: '' },
     yearly: {
       free: '',
-      premium: 'Billed ' + money(ANNUAL_TOTAL.premium) + '/year — save ' + money(saveAmount(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium)) + ' vs monthly',
-      family: 'Billed ' + money(ANNUAL_TOTAL.family) + '/year — save ' + money(saveAmount(MONTHLY_PRICE.family, ANNUAL_TOTAL.family)) + ' vs monthly'
+      premium: 'Save ' + premiumSavePct + '% — ' + money(saveAmount(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium)) + ' less than monthly',
+      family: 'Save ' + familySavePct + '% — ' + money(saveAmount(MONTHLY_PRICE.family, ANNUAL_TOTAL.family)) + ' less than monthly'
     }
   };
 
@@ -49,19 +56,25 @@
       el.classList.toggle('active', active);
       el.setAttribute('aria-pressed', String(active));
     });
-    var p = prices[mode], b = billedTxt[mode];
-    [['priceFreeMo', 'billedFree', p.free, b.free], ['pricePremiumMo', 'billedPremium', p.premium, b.premium], ['priceFamilyMo', 'billedFamily', p.family, b.family]].forEach(function (row) {
-      document.getElementById(row[0]).textContent = row[2];
-      document.getElementById(row[1]).textContent = row[3];
+    var p = prices[mode], b = billedTxt[mode], per = periods[mode];
+    [
+      ['priceFreeMo', 'billedFree', 'periodFree', p.free, b.free, per.free],
+      ['pricePremiumMo', 'billedPremium', 'periodPremium', p.premium, b.premium, per.premium],
+      ['priceFamilyMo', 'billedFamily', 'periodFamily', p.family, b.family, per.family]
+    ].forEach(function (row) {
+      document.getElementById(row[0]).textContent = row[3];
+      document.getElementById(row[1]).textContent = row[4];
+      document.getElementById(row[2]).textContent = row[5];
     });
     var cta = document.getElementById('proCta');
     var ctaNote = document.getElementById('proCtaNote');
+    cta.textContent = 'Start 7-day free trial';
     if (mode === 'yearly') {
-      cta.href = STRIPE_YEARLY; cta.textContent = 'Start Pro Annual — 7 Days Free';
-      ctaNote.textContent = 'Best value — ' + money(ANNUAL_TOTAL.premium) + '/year saves you ' + money(saveAmount(MONTHLY_PRICE.premium, ANNUAL_TOTAL.premium)) + ' vs monthly.';
+      cta.href = STRIPE_YEARLY;
+      ctaNote.textContent = '$0 due today, then ' + money(ANNUAL_TOTAL.premium) + '/year — cancel anytime.';
     } else {
-      cta.href = STRIPE_MONTHLY; cta.textContent = 'Start Pro — 7 Days Free';
-      ctaNote.textContent = '$12/mo — cancel any time.';
+      cta.href = STRIPE_MONTHLY;
+      ctaNote.textContent = '$0 due today, then ' + money(MONTHLY_PRICE.premium) + '/mo — cancel anytime.';
     }
     var familyCta = document.getElementById('familyCta');
     familyCta.href = mode === 'yearly' ? STRIPE_FAMILY_YEARLY : STRIPE_FAMILY_MONTHLY;

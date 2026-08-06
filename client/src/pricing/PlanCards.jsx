@@ -5,26 +5,24 @@ import { stripeUrls } from '@/lib/stripe';
 import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
-/* Plan copy is identical to the legacy pricing.html; only presentation moved
- * to React. `included: false` renders the crossed-out variant. */
+/* Plan copy is kept in sync with the legacy public/pricing.html; only
+ * presentation moved to React. Free lists what Free actually includes and
+ * stops there — no crossed-out Pro features padding it out. */
 const FREE_FEATURES = [
-  { text: '3 meal plans per month' },
+  { text: 'AI Meal Plans — 3 per month' },
   { text: 'Automatic grocery list' },
   { text: 'Budget tracking' },
-  { text: 'Calorie and macro targets' },
-  { text: 'AI Coach — 10 messages/day' },
-  { text: 'Unlimited plan generation', included: false },
-  { text: 'Unlimited AI coach', included: false },
-  { text: 'PDF export', included: false }
+  { text: 'Calorie & Macro Targets' },
+  { text: 'AI Coach — 10 messages/day' }
 ];
 
 const PRO_FEATURES = [
-  { text: <><strong>Unlimited</strong> meal plans</> },
+  { text: <><strong>Unlimited</strong> AI Meal Plans</> },
   { text: 'Automatic grocery list' },
   { text: 'Budget tracking' },
-  { text: 'Calorie and macro targets' },
-  { text: <><strong>Unlimited</strong> AI Coach</> },
-  { text: 'Priority generation — 2x faster' },
+  { text: 'Calorie & Macro Targets' },
+  { text: <>Mia — AI Nutrition Coach, <strong>unlimited</strong></> },
+  { text: 'Priority queue — plans generate first' },
   { text: 'PDF meal plan export' },
   { text: 'Advanced macro splits per meal' },
   { text: 'Cancel anytime' }
@@ -33,10 +31,10 @@ const PRO_FEATURES = [
 const FAMILY_FEATURES = [
   { text: <strong>Everything in Pro</strong> },
   { text: <>Up to <strong>4 individual profiles</strong></> },
-  { text: 'Separate calorie & macro goals per person' },
+  { text: 'Separate Calorie & Macro Targets per person' },
   { text: 'Allergen management per profile' },
   { text: 'Combined grocery list (one shop, everyone covered)' },
-  { text: 'Unlimited meal plans for all profiles' },
+  { text: 'Unlimited AI Meal Plans for all profiles' },
   { text: 'Priority support' },
   { text: 'Cancel anytime' }
 ];
@@ -61,30 +59,33 @@ function FeatureList({ features }) {
   );
 }
 
-function PlanCard({ name, tag, price, billed, cta, note, features, popular }) {
+function PlanCard({ name, tag, price, period = '/month', billed, cta, note, features, popular }) {
   return (
     <article
       aria-label={`${name} plan`}
       className={cn(
-        'relative flex flex-col rounded-lg bg-cream p-6 shadow-card',
+        'relative flex flex-col overflow-hidden rounded-lg bg-cream shadow-card',
         popular ? 'border-2 border-green shadow-lg' : 'border border-border-warm'
       )}
     >
+      {/* Badge is part of the card's own top edge — never floats between cards. */}
       {popular && (
-        <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-green px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-white">
-          Most popular
-        </span>
+        <div className="bg-green px-6 py-2 text-center">
+          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-white">Most popular</span>
+        </div>
       )}
+      <div className="flex flex-col p-6">
       <h2 className="font-display text-2xl font-bold italic leading-tight tracking-[-0.01em]">{name}</h2>
       <p className="mt-1 text-[15px] leading-relaxed text-muted-fg">{tag}</p>
       <p className="mt-5">
         <span className="font-display text-[2.6rem] font-bold italic leading-none tracking-[-0.02em]">{price}</span>
-        <span className="text-[15px] text-muted-fg">/month</span>
+        <span className="text-[15px] text-muted-fg">{period}</span>
       </p>
       <p className="mt-1 min-h-[1.4em] text-sm leading-normal text-muted-fg" aria-live="polite">{billed}</p>
       <div className="mt-5">{cta}</div>
       {note && <p className="mt-2.5 text-center text-sm leading-normal text-muted-fg" aria-live="polite">{note}</p>}
       <FeatureList features={features} />
+      </div>
     </article>
   );
 }
@@ -101,16 +102,18 @@ export default function PlanCards({ mode }) {
         price="$0"
         billed=""
         features={FREE_FEATURES}
+        note="Plans generate in about 30 seconds on the standard queue."
         cta={<Button href="login.html?signup=1" full>Plan My Week Free</Button>}
       />
       <PlanCard
         name="Pro"
         tag="For people who plan every week."
-        price={yearly ? '$5' : '$8'}
-        billed={yearly ? 'Billed $62/year — save $34 vs monthly' : ''}
+        price={yearly ? '$62' : '$8'}
+        period={yearly ? '/year' : '/month'}
+        billed={yearly ? 'Save 35% — $34 less than monthly' : ''}
         popular
         features={PRO_FEATURES}
-        note={yearly ? 'Best value — $62/year saves you $34 vs monthly.' : '$8/mo — cancel any time.'}
+        note={yearly ? '$0 due today, then $62/year — cancel anytime.' : '$0 due today, then $8/mo — cancel anytime.'}
         cta={
           <Button
             href={yearly ? stripeUrls.annual : stripeUrls.monthly}
@@ -120,15 +123,16 @@ export default function PlanCards({ mode }) {
             data-testid="pro-cta"
             onClick={() => trackClick('pro')}
           >
-            {yearly ? 'Start Pro Annual — 7 Days Free' : 'Start Pro — 7 Days Free'}
+            Start 7-day free trial
           </Button>
         }
       />
       <PlanCard
         name="Family"
         tag="For households that eat together."
-        price={yearly ? '$11' : '$16'}
-        billed={yearly ? 'Billed $130/year — save $62 vs monthly' : ''}
+        price={yearly ? '$128' : '$16'}
+        period={yearly ? '/year' : '/month'}
+        billed={yearly ? 'Save 33% — $64 less than monthly' : ''}
         features={FAMILY_FEATURES}
         note="Perfect for couples, parents, or anyone cooking for more than one person."
         cta={

@@ -7,9 +7,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pricing | Mealzy — Meal Plans That Stay Inside Your Grocery Budget</title>
-<meta name="description" content="Start free with 3 meal plans a month, no credit card. Pro is $8/month or $62/year. Family is $16/month or $130/year and covers up to 4 profiles. Cancel any time.">
+<meta name="description" content="Start free with 3 meal plans a month, no credit card. Pro is $8/month or $62/year. Family is $16/month or $128/year and covers up to 4 profiles. Cancel any time.">
 <meta property="og:title" content="Pricing | Mealzy — Meal Plans That Stay Inside Your Grocery Budget">
-<meta property="og:description" content="Start free with 3 meal plans a month, no credit card. Pro is $8/month or $62/year. Family is $16/month or $130/year. Cancel any time.">
+<meta property="og:description" content="Start free with 3 meal plans a month, no credit card. Pro is $8/month or $62/year. Family is $16/month or $128/year. Cancel any time.">
 <meta property="og:image" content="https://mealzy.org/card-cta.svg">
 <meta property="og:url" content="https://mealzy.org/pricing.html">
 <meta property="og:type" content="website">
@@ -19,8 +19,10 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "Is Mealzy free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The free plan gives you 3 meal plans per month, a full grocery list, and AI coach messages. No credit card required and no sign up needed to try the demo." } },
-    { "@type": "Question", "name": "Do I need a credit card to sign up?", "acceptedAnswer": { "@type": "Answer", "text": "No. The free plan requires no credit card. You only need a card if you upgrade to Pro ($8/month monthly, or $62/year billed yearly) or Family ($16/month)." } }
+    { "@type": "Question", "name": "How does the 7-day free trial work?", "acceptedAnswer": { "@type": "Answer", "text": "You get 7 full days of Pro with $0 due today. If you cancel before day 7 you are never charged. If you stay, billing starts on day 8 at the price you picked — $8/month or $62/year." } },
+    { "@type": "Question", "name": "Can I switch or cancel my plan anytime?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Cancel in one click from your account settings. You can also move between monthly and annual, or between Pro and Family, at any time. Access continues until the end of the period you have already paid for." } },
+    { "@type": "Question", "name": "What payment methods are supported?", "acceptedAnswer": { "@type": "Answer", "text": "All major credit and debit cards, plus Apple Pay and Google Pay where your device supports them. Payment is processed securely by Stripe — we never see or store your card number." } },
+    { "@type": "Question", "name": "What happens when my 3 free monthly plans run out?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing is lost. Every plan you have already generated stays in your account. Your 3 free generations reset automatically every 30 days. Upgrade to Pro whenever you want them sooner." } }
   ]
 }
 </script>
@@ -85,7 +87,7 @@
     <p class="lede">3 meal plans a month, free forever. No credit card required.</p>
     <div class="billing-toggle" id="billingToggle" role="group" aria-label="Billing period">
       <button class="active" id="btnMonthly" aria-pressed="true">Monthly</button>
-      <button id="btnYearly" aria-pressed="false">Annual — Save <span id="yearlySavePct">57</span>%</button>
+      <button id="btnYearly" aria-pressed="false">Annual — Save <span id="yearlySavePct">35</span>%</button>
     </div>
   </div>
 </header>
@@ -98,38 +100,35 @@
       <div class="plan-card" id="cardFree">
         <div class="plan-name">Free</div>
         <p class="plan-tag">Try it. No credit card, no expiry.</p>
-        <div class="plan-price"><span class="amount" id="priceFreeMo">$0</span><span class="period">/month</span></div>
+        <div class="plan-price"><span class="amount" id="priceFreeMo">$0</span><span class="period" id="periodFree">/month</span></div>
         <div class="plan-billed" id="billedFree"></div>
         <a href="login.html?signup=1" class="btn btn-primary btn-full">Start Planning Free</a>
+        <p class="plan-cta-note">Plans generate in about 30 seconds on the standard queue.</p>
         <ul class="plan-feats">
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>3 meal plans per month</li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>AI Meal Plans — 3 per month</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Automatic grocery list</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Budget tracking</li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Calorie and macro targets</li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Calorie &amp; Macro Targets</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>AI Coach — 10 messages/day</li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>11 languages</li>
-          <li><svg class="no" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="feat-off">Unlimited plan generation</span></li>
-          <li><svg class="no" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="feat-off">Unlimited AI coach</span></li>
-          <li><svg class="no" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="feat-off">PDF export</span></li>
         </ul>
       </div>
 
       <div class="plan-card popular" id="cardPremium">
-        <span class="badge badge-green">Most popular</span>
+        <div class="plan-card-header"><span class="badge badge-green">Most popular</span></div>
         <div class="plan-name">Pro</div>
         <p class="plan-tag">For people who plan every week.</p>
-        <div class="plan-price"><span class="amount" id="pricePremiumMo">$8</span><span class="period">/month</span></div>
+        <div class="plan-price"><span class="amount" id="pricePremiumMo">$8</span><span class="period" id="periodPremium">/month</span></div>
         <div class="plan-billed" id="billedPremium"></div>
-        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="proCta">Start Pro — 7 Days Free</a>
-        <p class="plan-cta-note" id="proCtaNote">$8/mo — cancel any time.</p>
+        <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="proCta">Start 7-day free trial</a>
+        <p class="plan-cta-note" id="proCtaNote">$0 due today — cancel anytime.</p>
         <ul class="plan-feats">
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Unlimited</strong> meal plans</span></li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Unlimited</strong> AI Meal Plans</span></li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Automatic grocery list</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Budget tracking</li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Calorie and macro targets</li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span><strong>Unlimited</strong> AI Coach</span></li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Calorie &amp; Macro Targets</li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><span>Mia — AI Nutrition Coach, <strong>unlimited</strong></span></li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>11 languages</li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Priority generation — 2x faster</li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Priority queue — plans generate first</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>PDF meal plan export</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Advanced macro splits per meal</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime</li>
@@ -139,7 +138,7 @@
       <div class="plan-card" id="cardFamily">
         <div class="plan-name">Family</div>
         <p class="plan-tag">For households that eat together.</p>
-        <div class="plan-price"><span class="amount" id="priceFamilyMo">$16</span><span class="period">/month</span></div>
+        <div class="plan-price"><span class="amount" id="priceFamilyMo">$16</span><span class="period" id="periodFamily">/month</span></div>
         <div class="plan-billed" id="billedFamily"></div>
         <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" target="_blank" rel="noopener" class="btn btn-primary btn-full" id="familyCta">Start Family</a>
         <p class="plan-cta-note">Perfect for couples, parents, or anyone cooking for more than one person.</p>
@@ -149,7 +148,7 @@
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Separate calorie &amp; macro goals per person</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Allergen management per profile</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Combined grocery list (one shop, everyone covered)</li>
-          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Unlimited meal plans for all profiles</li>
+          <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Unlimited AI Meal Plans for all profiles</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li>
           <li><svg class="tick" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime</li>
         </ul>
@@ -158,58 +157,34 @@
     </div>
 
     <div class="guarantee reveal">
-      <h3>7-day free trial on Pro. No credit card to start.</h3>
-      <p>Try Pro free for 7 days. If you don't love it, you won't be charged. Cancel any time — no questions, one click.</p>
+      <h3>7-day free trial on Pro. $0 due today.</h3>
+      <p>Try Pro free for 7 days. Cancel before day 7 and you are never charged. Cancel anytime — 1-click in account settings.</p>
     </div>
   </div>
 </section>
 
-<!-- COMPARISON -->
-<section class="section section-alt" aria-labelledby="compare-heading">
-  <div class="container">
-    <div class="section-head reveal">
-      <h2 id="compare-heading" class="section-title">Compare plans.</h2>
-    </div>
-    <div class="comp-scroll reveal">
-      <table class="comp-table" aria-label="Feature comparison">
-        <thead>
-          <tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col" class="pro-col">Pro</th><th scope="col">Family</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>AI meal plans</td><td>3/month</td><td class="pro-val">Unlimited</td><td>Unlimited</td></tr>
-          <tr><td>AI coach messages</td><td>10/day</td><td class="pro-val">Unlimited</td><td>Unlimited</td></tr>
-          <tr><td>Auto grocery lists</td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td class="pro-val"><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
-          <tr><td>Analytics dashboard</td><td>Basic</td><td class="pro-val">Advanced</td><td>Advanced</td></tr>
-          <tr><td>Profiles</td><td>1</td><td class="pro-val">1</td><td>Up to 4</td></tr>
-          <tr><td>Priority support</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td class="pro-val">Email</td><td>Priority</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- FAQ -->
+<!-- BILLING FAQ -->
 <section class="section" id="faq" aria-labelledby="faq-heading">
   <div class="container">
     <div class="section-head reveal">
-      <h2 id="faq-heading" class="section-title">Common questions.</h2>
+      <h2 id="faq-heading" class="section-title">Billing questions.</h2>
     </div>
-    <div class="faq-wrap reveal" data-delay="80" role="region" aria-label="Frequently Asked Questions">
+    <div class="faq-wrap reveal" data-delay="80" role="region" aria-label="Billing questions">
       <div class="faq-item">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-1">Can I cancel at any time?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-1" role="region" aria-hidden="true"><p class="faq-body-inner">Yes — cancel in one click from your Stripe billing portal. You keep Pro access until the end of your current billing period. No penalties, no fine print.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-1">How does the 7-day free trial work?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-1" role="region" aria-hidden="true"><p class="faq-body-inner">You get 7 full days of Pro with $0 due today. If you cancel before day 7 you are never charged. If you stay, billing starts on day 8 at the price you picked — $8/month or $62/year.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-2">What happens to my free plan when it runs out?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-2" role="region" aria-hidden="true"><p class="faq-body-inner">Your 3 free generations reset automatically every 30 days. You never lose access to plans you have already generated.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-2">Can I switch or cancel my plan anytime?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-2" role="region" aria-hidden="true"><p class="faq-body-inner">Yes. Cancel in one click from your account settings — no email, no questions. You can also move between monthly and annual, or between Pro and Family, at any time. Access continues until the end of the period you have already paid for.</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-3">Is my data safe?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-3" role="region" aria-hidden="true"><p class="faq-body-inner">Yes. Passwords are hashed with bcrypt and never stored in plain text. All traffic is served over HTTPS. We do not sell your data to third parties. Payments are handled entirely by Stripe — we never see your card number.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-3">What payment methods are supported?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-3" role="region" aria-hidden="true"><p class="faq-body-inner">All major credit and debit cards, plus Apple Pay and Google Pay where your device supports them. Card details go straight to Stripe — we never see or store your card number.</p><p class="stripe-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Secure payment via Stripe</p></div>
       </div>
       <div class="faq-item">
-        <button class="faq-question" aria-expanded="false" aria-controls="faq-4">Do you store my meal plans?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-answer" id="faq-4" role="region" aria-hidden="true"><p class="faq-body-inner">Your meal plans and profile preferences are stored securely on our servers, tied to your account. You can access them from any device as long as you're signed in. We do not sell your data.</p></div>
+        <button class="faq-question" aria-expanded="false" aria-controls="faq-4">What happens when my 3 free monthly plans run out?<svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></button>
+        <div class="faq-answer" id="faq-4" role="region" aria-hidden="true"><p class="faq-body-inner">Nothing is lost. Every plan you have already generated stays in your account, and your grocery lists stay with them. Your 3 free generations reset automatically every 30 days. Upgrade to Pro whenever you want them sooner.</p></div>
       </div>
     </div>
     <p class="reveal" style="margin-top:2rem;font-size:0.9rem;color:var(--color-muted-fg);">
@@ -223,10 +198,11 @@
 <section class="section close-band on-forest" aria-labelledby="cta-heading">
   <div class="container reveal">
     <h2 id="cta-heading" class="section-title">Stop planning meals by hand.</h2>
-    <p class="close-lede">Mealzy builds the full week in 30 seconds. Free to start — no credit card.</p>
+    <p class="close-lede">Mealzy builds the full week in about 30 seconds. Free to start — no credit card.</p>
     <div class="close-actions">
       <a href="login.html?signup=1" class="btn btn-primary btn-lg">Start Planning Free</a>
     </div>
+    <p class="close-reassurance">Cancel anytime — 1-click in account settings.</p>
   </div>
 </section>
 
@@ -276,8 +252,8 @@
 <div class="deciding-popup on-forest" id="decidingPopup" role="dialog" aria-modal="true" aria-labelledby="decidingPopupTitle">
   <button class="popup-close" id="popupClose" aria-label="Close">&times;</button>
   <h2 id="decidingPopupTitle">Still deciding?</h2>
-  <p>Try Pro <strong>free for 7 days</strong> — no credit card required. Cancel with one click if it's not for you.</p>
-  <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="popupCta" target="_blank" rel="noopener" class="btn btn-primary btn-full">Start Pro — 7 Days Free</a>
+  <p>Try Pro <strong>free for 7 days</strong> — $0 due today. Cancel with one click if it's not for you.</p>
+  <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="popupCta" target="_blank" rel="noopener" class="btn btn-primary btn-full">Start 7-day free trial</a>
   <p class="fine">No charge for 7 days. Cancel any time.</p>
 </div>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});</script>

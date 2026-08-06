@@ -22,7 +22,7 @@ const FAQS = [
   },
   {
     q: 'What happens after 3 free plans?',
-    a: 'Nothing is taken away. Free covers 3 meal plans a month; once they are used the plans you already made stay in your account, and the count resets at the start of the next month. Pro is $8 a month or $62 a year and removes the limit, and Family is $16 a month or $130 a year and adds up to 4 profiles.',
+    a: 'Nothing is taken away. Free covers 3 meal plans a month; once they are used the plans you already made stay in your account, and the count resets at the start of the next month. Pro is $8 a month or $62 a year and removes the limit, and Family is $16 a month or $128 a year and adds up to 4 profiles.',
     /* The link is separate from the answer text so the string above stays
       * identical to the FAQPage JSON-LD in client/index.html. */
     href: '/pricing.html',

@@ -6,12 +6,12 @@
 <script src="/js/consent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upgrade to Mealzy Pro — Unlimited Meal Plans, PDF Export &amp; More</title>
-<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI meal plans, PDF export, and AI coaching. $12/month or $62/year (about $5.17/month). Cancel anytime.">
+<title>Upgrade to Mealzy Pro — Unlimited AI Meal Plans, PDF Export &amp; More</title>
+<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI Meal Plans, PDF export, and unlimited Mia AI Nutrition Coach. $8/month or $62/year, save 35%. 7-day free trial, cancel anytime.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
 <meta property="og:title" content="Upgrade to Mealzy Pro">
-<meta property="og:description" content="Unlimited meal plans, PDF export, and AI coaching. $62/year (about $5.17/month). Cancel anytime.">
+<meta property="og:description" content="Unlimited AI Meal Plans, PDF export, and unlimited Mia AI Nutrition Coach. $8/month or $62/year — save 35%. Cancel anytime.">
 <link rel="canonical" href="https://mealzy.org/upgrade.html">
 <meta property="og:url" content="https://mealzy.org/upgrade.html">
 <meta property="og:type" content="website">
@@ -26,7 +26,7 @@
 <style>
   /* Upgrade page — forest drench with a single decision card */
   body.upgrade-page { background: var(--color-forest); background-image: linear-gradient(175deg, var(--color-forest) 55%, var(--color-forest-deep) 100%); }
-  .upgrade-wrap { max-width: 580px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+  .upgrade-wrap { max-width: 620px; margin: 0 auto; padding: 0 1.5rem 3rem; }
   .upgrade-hero { text-align: center; padding: 2.5rem 0 2rem; color: var(--clr-on-forest-strong); }
   .upgrade-hero h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.12; color: var(--clr-on-forest); margin-bottom: 0.75rem; }
   .upgrade-hero p { font-size: 1rem; color: var(--clr-on-forest-body); max-width: 44ch; margin: 0 auto; }
@@ -37,12 +37,26 @@
   .price-amount { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 3rem; line-height: 1; }
   .price-period { font-size: 1rem; color: var(--color-muted-fg); }
   .price-annual { font-size: 0.85rem; color: var(--color-muted-fg); margin-top: 0.35rem; min-height: 1.2em; }
-  .features-list { list-style: none; margin: 0 0 1.5rem; padding: 0; display: flex; flex-direction: column; gap: 0.85rem; }
-  .features-list li { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; }
-  .features-list svg { color: var(--color-green); flex-shrink: 0; margin-top: 0.1rem; }
-  .features-list .label { font-weight: 600; }
-  .features-list .desc { color: var(--color-muted-fg); font-size: 0.83rem; margin-top: 0.1rem; }
+  /* Three scannable benefit groups: MORE PLANS / MORE INSIGHT / MORE SUPPORT */
+  .benefit-cards { display: grid; gap: 0.9rem; margin-bottom: 1.5rem; }
+  .benefit-card { border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.1rem 1.15rem; }
+  .benefit-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.7rem; }
+  .benefit-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; flex-shrink: 0; border-radius: var(--radius-full);
+    background: var(--color-parchment); color: var(--color-green);
+  }
+  .benefit-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: var(--color-muted-fg); }
+  .benefit-card ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
+  .benefit-card li { display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.9rem; }
+  .benefit-card li svg { color: var(--color-green); flex-shrink: 0; margin-top: 0.2rem; }
+  .benefit-card .desc { color: var(--color-muted-fg); font-size: 0.82rem; margin-top: 0.1rem; }
+  .cta-stack { display: flex; flex-direction: column; gap: 0.6rem; }
   .guarantee-line { font-size: 0.8rem; color: var(--color-muted-fg); text-align: center; margin-top: 0.7rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+  .family-upsell { text-align: center; margin-top: 1.1rem; font-size: 0.85rem; color: var(--color-muted-fg); }
+  .family-upsell a { color: var(--color-green); font-weight: 600; text-decoration: none; }
+  .family-upsell a:hover { text-decoration: underline; }
+  .nav-stay-free { white-space: nowrap; }
   .objections { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
   .objection { font-size: 0.88rem; display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.85rem 1rem; background: var(--clr-forest-raise); border: 1px solid var(--clr-forest-line); border-radius: var(--radius-md); color: var(--clr-on-forest-body); }
   .objection svg { color: var(--color-green-light); flex-shrink: 0; margin-top: 0.15rem; }
@@ -68,7 +82,7 @@
         <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <a href="/dashboard.html" class="btn btn-quiet btn-sm">Back to dashboard</a>
+      <a href="/dashboard.html" class="btn btn-quiet btn-sm nav-stay-free">Stay on Free Plan</a>
     </div>
   </div>
 </nav>
@@ -81,7 +95,7 @@
     <div class="toggle-row">
       <div class="billing-toggle" id="billingToggleWrap" role="group" aria-label="Billing period">
         <button type="button" id="lblMonthly" onclick="setMode('monthly')" aria-pressed="false">Monthly</button>
-        <button type="button" class="active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Yearly<span class="save-badge">Save <span id="yearlySavePct">57</span>%</span></button>
+        <button type="button" class="active" id="lblYearly" onclick="setMode('yearly')" aria-pressed="true">Annual<span class="save-badge">Save <span id="yearlySavePct">35</span>%</span></button>
       </div>
     </div>
   </div>
@@ -90,49 +104,64 @@
     <div style="text-align:center;margin-bottom:1rem;"><span class="badge badge-green">Most popular</span></div>
     <div class="price-display">
       <div>
-        <span class="price-amount" id="upgrPrice">$5.17</span>
-        <span class="price-period">/month</span>
+        <span class="price-amount" id="upgrPrice">$62</span>
+        <span class="price-period" id="upgrPeriod">/year</span>
       </div>
-      <div class="price-annual" id="upgrBilled">Billed $62/year — saves $82</div>
+      <div class="price-annual" id="upgrBilled">Save 35% — $34 less than monthly</div>
     </div>
 
-    <ul class="features-list">
-      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Unlimited AI meal plans</div><div class="desc">Generate as many times as you want. Every week, every diet change, every goal shift.</div></div></li>
-      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">PDF export — download &amp; print</div><div class="desc">Export your full meal plan and grocery list as a clean PDF. Print it, share it, save it.</div></div></li>
-      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Unlimited AI coaching with Mia</div><div class="desc">Ask anything, any time. Recipe help, macro questions, what to do with leftovers.</div></div></li>
-      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Priority generation — 2x faster</div><div class="desc">Pro requests jump the queue. Your plan is ready in about 15 seconds.</div></div></li>
-      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Advanced macros per meal</div><div class="desc">See protein, carbs, and fat broken down for every individual meal — not just daily totals.</div></div></li>
-      <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg><div><div class="label">Cancel any time, instantly</div><div class="desc">One click in your billing portal. No emails, no questions. Pro access continues until period end.</div></div></li>
-    </ul>
+    <div class="benefit-cards">
 
-    <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-full" onclick="trackUpgrade()">Start Pro Annual — 7 Days Free</a>
+      <div class="benefit-card">
+        <div class="benefit-head">
+          <span class="benefit-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <h2 class="benefit-title">More plans</h2>
+        </div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Unlimited AI Meal Plans</div><div class="desc">Generate as many times as you want. Every week, every diet change, every goal shift.</div></div></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Priority queue — plans generate first</div><div class="desc">Free plans run on the standard queue at about 30 seconds. Pro requests are processed ahead of them.</div></div></li>
+        </ul>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-head">
+          <span class="benefit-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+          <h2 class="benefit-title">More insight</h2>
+        </div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>PDF export — download &amp; print</div><div class="desc">Export your full meal plan and grocery list as a clean PDF. Print it, share it, save it.</div></div></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Advanced Calorie &amp; Macro Targets per meal</div><div class="desc">See protein, carbs, and fat broken down for every individual meal — not just daily totals.</div></div></li>
+        </ul>
+      </div>
+
+      <div class="benefit-card">
+        <div class="benefit-head">
+          <span class="benefit-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+          <h2 class="benefit-title">More support</h2>
+        </div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Unlimited Mia — AI Nutrition Coach</div><div class="desc">Ask anything, any time. Recipe help, macro questions, what to do with leftovers.</div></div></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>1-click cancellation</div><div class="desc">One click in your account settings. No emails, no questions. Pro access continues until period end.</div></div></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="cta-stack">
+      <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-full" onclick="trackUpgrade()">Start Pro 7-Day Free Trial</a>
+      <a href="dashboard.html" class="btn btn-quiet btn-full" id="stayFreeBtn">Stay on Free Plan</a>
+    </div>
     <p class="guarantee-line">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      7-day free trial. No charge for 7 days. Cancel before then and you owe nothing.
+      $0 due today. Cancel before day 7 and you owe nothing.
     </p>
+    <p class="family-upsell">Cooking for a household? <a href="pricing.html#cardFamily">Check Family plan</a></p>
   </div>
 
   <div class="objections on-forest">
     <div class="objection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>What if I don't like it?</strong> Cancel in one click from your billing portal. You keep Pro until your period ends. We've made it as easy to cancel as it is to sign up.</div></div>
     <div class="objection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Is my card safe?</strong> All payments go through Stripe — the same processor used by Amazon and Google. We never see your card number.</div></div>
     <div class="objection"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Will the price go up?</strong> Not for you — current subscribers lock in today's price. We may raise prices for new users as we grow.</div></div>
-  </div>
-
-  <div class="upgrade-panel">
-    <h3>Compare plans</h3>
-    <div class="comp-scroll">
-      <table class="comp-table" aria-label="Feature comparison" style="min-width:480px;">
-        <thead><tr><th scope="col">Feature</th><th scope="col">Free</th><th scope="col" class="pro-col">Pro</th><th scope="col">Family</th></tr></thead>
-        <tbody>
-          <tr><td>Meal plans/month</td><td>3</td><td class="pro-val">Unlimited</td><td>Unlimited</td></tr>
-          <tr><td>AI Coach messages/day</td><td>10</td><td class="pro-val">Unlimited</td><td>Unlimited</td></tr>
-          <tr><td>PDF export</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td class="pro-val"><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td><td><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
-          <tr><td>Individual profiles</td><td>1</td><td class="pro-val">1</td><td>Up to 4</td></tr>
-          <tr><td>Combined grocery list</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td class="pro-val"><span aria-hidden="true">&#10003;</span><span class="sr-only">Yes</span></td></tr>
-          <tr><td>Priority support</td><td><span aria-hidden="true">&#10005;</span><span class="sr-only">No</span></td><td>Email</td><td class="pro-val">Priority</td></tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
   <div class="upgrade-panel">
@@ -163,8 +192,7 @@
   </div>
 
   <div class="back-row on-forest">
-    <a href="dashboard.html">Stay on free plan</a>
-    <p style="margin-top:0.75rem;font-size:0.82rem;">Questions? <a href="mailto:support@mealzy.org">support@mealzy.org</a> — usually replied to within 24 hours.</p>
+    <p>Questions? <a href="mailto:support@mealzy.org">support@mealzy.org</a> — usually replied to within 24 hours.</p>
   </div>
 
 </main>
@@ -181,9 +209,8 @@
 
   // Source of truth for the Pro price — everything shown (yearly $/month,
   // savings text, "Save X%" badge) is derived from these two numbers.
-  const MONTHLY_PRICE = 12;
+  const MONTHLY_PRICE = 8;
   const ANNUAL_TOTAL = 62;
-  const ANNUAL_PER_MONTH = '$' + (ANNUAL_TOTAL / 12).toFixed(2);
   const ANNUAL_SAVE_PCT = Math.round((1 - ANNUAL_TOTAL / (MONTHLY_PRICE * 12)) * 100);
   const ANNUAL_SAVE_AMOUNT = MONTHLY_PRICE * 12 - ANNUAL_TOTAL;
   document.getElementById('yearlySavePct').textContent = String(ANNUAL_SAVE_PCT);
@@ -193,9 +220,9 @@
   if (!STRIPE_YEARLY) {
     document.getElementById('billingToggleWrap').style.display = 'none';
     document.getElementById('upgrPrice').textContent = '$' + MONTHLY_PRICE;
+    document.getElementById('upgrPeriod').textContent = '/month';
     document.getElementById('upgrBilled').textContent = '';
     document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
-    document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free';
   } else {
     document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
   }
@@ -208,15 +235,15 @@
     document.getElementById('lblMonthly').setAttribute('aria-pressed', mode === 'monthly' ? 'true' : 'false');
     document.getElementById('lblYearly').setAttribute('aria-pressed', mode === 'yearly' ? 'true' : 'false');
     if (mode === 'yearly') {
-      document.getElementById('upgrPrice').textContent = ANNUAL_PER_MONTH;
-      document.getElementById('upgrBilled').textContent = 'Billed $' + ANNUAL_TOTAL + '/year — saves $' + ANNUAL_SAVE_AMOUNT;
+      document.getElementById('upgrPrice').textContent = '$' + ANNUAL_TOTAL;
+      document.getElementById('upgrPeriod').textContent = '/year';
+      document.getElementById('upgrBilled').textContent = 'Save ' + ANNUAL_SAVE_PCT + '% — $' + ANNUAL_SAVE_AMOUNT + ' less than monthly';
       document.getElementById('upgradeCtaBtn').href = STRIPE_YEARLY;
-      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro Annual — 7 Days Free';
     } else {
       document.getElementById('upgrPrice').textContent = '$' + MONTHLY_PRICE;
+      document.getElementById('upgrPeriod').textContent = '/month';
       document.getElementById('upgrBilled').textContent = '';
       document.getElementById('upgradeCtaBtn').href = STRIPE_MONTHLY;
-      document.getElementById('upgradeCtaBtn').textContent = 'Start Pro — 7 Days Free';
     }
   }
 
