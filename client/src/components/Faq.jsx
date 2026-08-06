@@ -52,11 +52,10 @@ export default function Faq() {
             aria-label="Frequently Asked Questions"
             className="mx-auto max-w-3xl rounded-lg border border-border-warm bg-cream px-6 shadow-card sm:px-8"
           >
-            {/* The first answer is open on arrival. Fully collapsed, the section
-              * reads as a heading over five thin rows with no answer in sight —
-              * it looks unpopulated rather than tidy, and how the budget works
-              * is the thing the whole page is about. The rest stay closed. */}
-            <Accordion type="single" collapsible defaultValue="faq-1">
+            {/* Every answer starts closed, so the section arrives as five even
+              * rows and the first question carries no more weight than the
+              * rest — opening one is the reader's choice, not the default. */}
+            <Accordion type="single" collapsible>
               {FAQS.map((f, i) => (
                 <AccordionItem key={i} value={`faq-${i + 1}`}>
                   <AccordionTrigger>{f.q}</AccordionTrigger>
