@@ -369,14 +369,26 @@
   }
 
   function updateChipsData() {
-    const selected = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.dataset.pref);
-    // Separate dietary prefs from allergies for backward compat
-    const allergyPrefs = ['gluten_free','dairy_free','nut_free','fish_free'];
-    userData.dietaryPrefs = selected.filter(p => !allergyPrefs.includes(p));
-    userData.allergies = selected.filter(p => allergyPrefs.includes(p)).map(p => p.replace('_free', '').replace('no_', ''));
-    // Also merge "no_pork" etc
-    if (selected.includes('no_pork')) userData.allergies.push('pork');
-  }
+  const selected = Array.from(document.querySelectorAll('#dietChips .chip.active')).map(c => c.dataset.pref);
+  // gluten_free / dairy_free must ALSO land in dietaryPrefs (hyphenated) so they match
+  // server.js DIET_RULES['gluten-free'] / ['dairy-free'] — those have explicit banned-ingredient
+  // lists (wheat, barley, soy sauce / milk, whey, casein). Without this they only ever hit the
+  // generic allergyBlock warning and lose the detailed enforcement.
+  const dietRuleChips = { gluten_free: 'gluten-free', dairy_free: 'dairy-free' };
+  // nut_free / fish_free have no DIET_RULES entry server-side — allergy-only is correct for these.
+  const allergyOnlyPrefs = ['nut_free', 'fish_free'];
+
+  userData.dietaryPrefs = selected
+    .filter(p => !allergyOnlyPrefs.includes(p) && !dietRuleChips[p])
+    .concat(Object.keys(dietRuleChips).filter(p => selected.includes(p)).map(p => dietRuleChips[p]));
+
+  userData.allergies = selected
+    .filter(p => allergyOnlyPrefs.includes(p) || dietRuleChips[p])
+    .map(p => p.replace('_free', '').replace('no_', ''));
+
+  // Also merge "no_pork" etc
+  if (selected.includes('no_pork')) userData.allergies.push('pork');
+}
 
   function calcNutrition() {
     // Sensible defaults based on goal
