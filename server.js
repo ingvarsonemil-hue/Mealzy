@@ -1469,6 +1469,7 @@ app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, 
 
     await db.logEvent('cancel_survey', { userId: user.id, reason, detail }, '');
     logger.info(`[cancel] ${user.id} â€” reason: ${reason}`);
+    logger.info(`[cancel] ${user.id} — reason: ${reason}`);
 
     const cancelAt = new Date(sub.current_period_end * 1000).toISOString().split('T')[0];
     res.json({ success: true, cancel_at: cancelAt });
