@@ -537,6 +537,7 @@ function clearFailedLogins(email, ip) {
   // against other accounts from the same IP.
 }
 
+
 // Periodic cleanup so these Maps can't grow unbounded (mirrors the
 // pattern from the original security audit for exactly this concern).
 setInterval(() => {
@@ -550,6 +551,8 @@ setInterval(() => {
   if (failedLoginAttempts.size > 10000) failedLoginAttempts.clear();
   if (ipFailedAttempts.size > 10000) ipFailedAttempts.clear();
 }, 10 * 60 * 1000).unref();
+
+
 
 // Constant-time filler for signin timing — computed once at startup so the
 // no-such-user / wrong-password / legacy-account paths all pay the same
@@ -717,6 +720,7 @@ function emailAccountExists(name) {
   `);
 }
 
+
 function emailVerifyAddress(name, verifyUrl) {
   const safeName = escapeHtml(name || 'there');
   const safeUrl = escapeHtml(verifyUrl);
@@ -727,6 +731,7 @@ function emailVerifyAddress(name, verifyUrl) {
     <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
   `);
 }
+
 
 function emailDay3Nudge(name, plansLeft) {
   const safeName = escapeHtml(name || 'there');
@@ -900,12 +905,14 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
     const user = await db.getUserByEmail(email);
     if (!user) {
       await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
+
       const lockResult = recordFailedLogin(email, ip);
       if (lockResult.accountLocked || lockResult.ipLocked) {
         res.setHeader('Retry-After', 900);
         return res.status(429).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
       }
       res.setHeader('Retry-After', 60);
+      
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
