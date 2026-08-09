@@ -15,75 +15,13 @@
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/css/landing.css">
 <link rel="stylesheet" href="/css/funnel.css">
+<link rel="stylesheet" href="/css/onboarding.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Mealzy">
-<style>
-  /* Onboarding wizard — page-specific pieces on top of the card-page layer */
-  .page-card.ob { max-width: 580px; }
-  .ob-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
-  .ob-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.35rem; color: var(--color-foreground); text-decoration: none; }
-  .ob-stepper { display: flex; align-items: center; }
-  .ob-step {
-    display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 50%;
-    font-size: 0.78rem; font-weight: 700;
-    background: transparent; color: var(--color-muted-fg);
-    border: 2px solid var(--color-border);
-    transition: background var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast);
-  }
-  .ob-step.active { background: var(--color-green); color: var(--clr-on-primary); border-color: var(--color-green); box-shadow: 0 0 0 3px rgba(var(--color-green-rgb), 0.25); }
-  .ob-step.done { background: var(--color-green-muted); color: var(--color-forest); border-color: var(--color-green-muted); }
-  .ob-step-line { width: 24px; height: 2px; background: var(--color-border); transition: background var(--duration-fast); }
-  .ob-step-line.done { background: var(--color-green); }
-  .ob-step-title { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.4rem; }
-  .ob-step-sub { color: var(--color-muted-fg); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.5rem; }
-
-  .goal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
-  @media (max-width: 440px) { .goal-grid { grid-template-columns: minmax(0, 1fr); } }
-  .goal-card {
-    position: relative; display: flex; align-items: center;
-    height: 60px; padding: 0 40px 0 18px; width: 100%;
-    background: var(--clr-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);
-    cursor: pointer; transition: border-color var(--duration-fast), background var(--duration-fast);
-  }
-  .goal-card:hover { border-color: var(--color-green); }
-  .goal-card.selected { border: 2px solid var(--color-green); background: var(--color-parchment); }
-  .goal-label { font-weight: 600; font-size: 0.98rem; }
-  .goal-card.selected .goal-label { font-weight: 700; }
-  .goal-check {
-    position: absolute; top: 50%; right: 14px; transform: translateY(-50%) scale(0.5);
-    width: 20px; height: 20px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--color-green); color: var(--clr-on-primary);
-    opacity: 0; transition: opacity var(--duration-fast), transform var(--duration-fast);
-  }
-  .goal-card.selected .goal-check { opacity: 1; transform: translateY(-50%) scale(1); }
-  .goal-radio-input { opacity: 0; position: absolute; width: 1px; height: 1px; pointer-events: none; }
-  .goal-card:focus-within { outline: 2px solid var(--color-green); outline-offset: 2px; }
-
-  .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-  .chip {
-    display: inline-flex; align-items: center; padding: 0.4rem 0.9rem;
-    border: 1px solid var(--color-border); border-radius: var(--radius-full);
-    font-size: 0.82rem; font-weight: 500; cursor: pointer;
-    background: var(--clr-surface); color: var(--color-foreground);
-    transition: border-color var(--duration-fast), background var(--duration-fast), color var(--duration-fast);
-  }
-  .chip:hover { border-color: var(--color-green); color: var(--color-green); }
-  .chip.active { background: var(--color-green); border-color: var(--color-green); color: var(--clr-on-primary); }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
-  @media (max-width: 440px) { .form-row { grid-template-columns: 1fr; } }
-  .btn-skip { background: none; border: none; color: var(--color-muted-fg); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0.25rem; }
-  .hidden { display: none !important; }
-  @media (prefers-reduced-motion: no-preference) {
-    .page-card.ob { animation: rise 0.45s var(--ease-out) both; }
-  }
-</style>
 </head>
 <body class="card-page">
 <a href="#main" class="skip-link">Skip to main content</a>
@@ -92,10 +30,8 @@
   <div class="ob-top">
     <a href="/" class="ob-logo">Mealzy</a>
     <nav aria-label="Onboarding progress">
-      <div class="ob-stepper" role="progressbar" aria-label="Onboarding step 1 of 2" aria-valuenow="1" aria-valuemin="1" aria-valuemax="2" id="stepProgress">
-        <div class="ob-step active" id="obStep1" aria-label="Step 1 of 2">1</div>
-        <div class="ob-step-line" id="obLine1"></div>
-        <div class="ob-step" id="obStep2" aria-label="Step 2 of 2">2</div>
+      <div class="ob-progress" role="progressbar" aria-label="Onboarding step 1 of 4" aria-valuenow="1" aria-valuemin="1" aria-valuemax="4" id="stepProgress">
+        <div class="ob-progress-fill" id="obProgressFill" style="width: 25%;"></div>
       </div>
     </nav>
   </div>
@@ -147,8 +83,50 @@
     </div>
   </div>
 
-  <!-- STEP 2: Budget + Dietary -->
+  <!-- STEP 2: Sex -->
   <div class="step-content hidden" id="step2">
+    <h1 class="ob-step-title">What's your sex?</h1>
+    <div class="ob-step-sub">Used to personalize your calorie and macro targets.</div>
+    <div class="goal-grid" role="radiogroup" aria-label="Select your sex" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+      <button type="button" class="sex-card" data-sex="male" onclick="selectSex(this)">Male</button>
+      <button type="button" class="sex-card" data-sex="female" onclick="selectSex(this)">Female</button>
+      <button type="button" class="sex-card" data-sex="other" onclick="selectSex(this)">Other</button>
+    </div>
+    <div id="sexRefineRow" class="sex-refine-row hidden">
+      <div style="width:100%;">
+        <label class="form-label" style="margin-bottom:0.4rem;display:block;">We'll estimate using:</label>
+        <div class="chips-group">
+          <button type="button" class="chip" data-refine="male" onclick="selectSexRefine(this)">Male average</button>
+          <button type="button" class="chip" data-refine="female" onclick="selectSexRefine(this)">Female average</button>
+          <button type="button" class="chip" data-refine="split" onclick="selectSexRefine(this)">Split the difference</button>
+        </div>
+        <p style="font-size:0.78rem;color:var(--color-muted-fg);margin-top:0.5rem;">You can change this anytime in Settings.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Birthdate -->
+  <div class="step-content hidden" id="step3">
+    <h1 class="ob-step-title">When were you born?</h1>
+    <div class="ob-step-sub">This is used to calculate your daily nutrition targets.</div>
+    <div class="form-row" style="grid-template-columns: 1fr 0.7fr 1fr;">
+      <div class="form-group">
+        <label class="form-label" for="dobMonth">Month</label>
+        <select class="form-select" id="dobMonth"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="dobDay">Day</label>
+        <select class="form-select" id="dobDay"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="dobYear">Year</label>
+        <select class="form-select" id="dobYear"></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Budget + Dietary -->
+  <div class="step-content hidden" id="step4">
     <div class="ob-step-title">Budget &amp; dietary needs</div>
     <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
     <div class="form-row">
@@ -247,7 +225,7 @@
   }
 
   let currentStep = 1;
-  const totalSteps = 2;
+  const totalSteps = 4;
 
   const userData = {
     name: '',
@@ -257,8 +235,9 @@
     budget: 100,
     currency: 'USD',
     // Sensible defaults — user can refine in Settings
-    age: 28,
-    gender: 'other',
+    sex: '',
+    sexRefine: '',
+    dateOfBirth: '',
     weight: 70,
     height: 170,
     activityLevel: 'moderately_active',
@@ -282,22 +261,9 @@
     nextBtn.innerHTML = step === totalSteps
       ? `Create My Plan`
       : `Continue <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
-    // Update stepper visuals
-    for (let s = 1; s <= totalSteps; s++) {
-      const el = document.getElementById('obStep' + s);
-      if (!el) continue;
-      el.classList.remove('active', 'done');
-      el.removeAttribute('aria-current');
-      if (s < step) { el.classList.add('done'); el.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`; }
-      else if (s === step) { el.classList.add('active'); el.textContent = s; el.setAttribute('aria-current', 'step'); }
-      else { el.textContent = s; }
-    }
-    for (let l = 1; l < totalSteps; l++) {
-      const line = document.getElementById('obLine' + l);
-      if (line) line.classList.toggle('done', l < step);
-    }
-    document.getElementById('stepProgress').setAttribute('aria-valuenow', currentStep);
-    document.getElementById('stepProgress').setAttribute('aria-label', 'Onboarding step ' + currentStep + ' of ' + totalSteps);
+    document.getElementById('obProgressFill').style.width = ((step / totalSteps) * 100) + '%';
+    document.getElementById('stepProgress').setAttribute('aria-valuenow', step);
+    document.getElementById('stepProgress').setAttribute('aria-label', 'Onboarding step ' + step + ' of ' + totalSteps);
   }
 
   function nextStep() {
@@ -332,6 +298,17 @@
       if (!userData.goal) { showStepError('Please pick a goal to continue.'); return false; }
     }
     if (step === 2) {
+      if (!userData.sex) { showStepError('Please select an option to continue.'); return false; }
+      if (userData.sex === 'other' && !userData.sexRefine) { showStepError('Please choose how we should estimate your targets.'); return false; }
+    }
+    if (step === 3) {
+      const m = document.getElementById('dobMonth').value;
+      const d = document.getElementById('dobDay').value;
+      const y = document.getElementById('dobYear').value;
+      if (!m || !d || !y) { showStepError('Please enter your birthdate.'); return false; }
+      userData.dateOfBirth = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    }
+    if (step === 4) {
       userData.budget = parseFloat(document.getElementById('inputBudget').value) || 100;
       userData.currency = document.getElementById('selectCurrency').value;
       updateChipsData();
@@ -351,6 +328,40 @@
     userData.goal = el.dataset.goal;
     hideStepError();
   }
+
+  function selectSex(el) {
+    document.querySelectorAll('.sex-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    userData.sex = el.dataset.sex;
+    const refineRow = document.getElementById('sexRefineRow');
+    if (userData.sex === 'other') {
+      refineRow.classList.remove('hidden');
+    } else {
+      refineRow.classList.add('hidden');
+      userData.sexRefine = '';
+    }
+    hideStepError();
+  }
+
+  function selectSexRefine(el) {
+    document.querySelectorAll('[data-refine]').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    el.setAttribute('aria-pressed', 'true');
+    userData.sexRefine = el.dataset.refine;
+    hideStepError();
+  }
+
+  function populateDobDropdowns() {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const monthSel = document.getElementById('dobMonth');
+    months.forEach((m, i) => monthSel.appendChild(new Option(m, i + 1)));
+    const daySel = document.getElementById('dobDay');
+    for (let d = 1; d <= 31; d++) daySel.appendChild(new Option(d, d));
+    const yearSel = document.getElementById('dobYear');
+    const thisYear = new Date().getFullYear();
+    for (let y = thisYear - 13; y >= thisYear - 100; y--) yearSel.appendChild(new Option(y, y));
+  }
+  populateDobDropdowns();
 
   document.querySelectorAll('.goal-card').forEach(card => {
     card.addEventListener('keydown', (e) => {

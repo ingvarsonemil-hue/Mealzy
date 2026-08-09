@@ -1,0 +1,55 @@
+  /* Onboarding wizard — page-specific pieces on top of the card-page layer */
+  .page-card.ob { max-width: 580px; }
+  .ob-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+  .ob-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.35rem; color: var(--color-foreground); text-decoration: none; }
+  .ob-progress { width: 100%; height: 4px; background: var(--color-border); border-radius: var(--radius-full); overflow: hidden; }
+  .ob-progress-fill { height: 100%; background: var(--color-green); border-radius: var(--radius-full); transition: width var(--duration-fast) var(--ease-out); }
+
+  .sex-card { position: relative; display: flex; align-items: center; justify-content: center; height: 60px; padding: 0 18px; width: 100%; background: var(--clr-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; transition: border-color var(--duration-fast), background var(--duration-fast); font-weight: 600; }
+  .sex-card:hover { border-color: var(--color-green); }
+  .sex-card.selected { border: 2px solid var(--color-green); background: var(--color-parchment); font-weight: 700; }
+  .sex-refine-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .ob-step-title { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.4rem; }
+  .ob-step-sub { color: var(--color-muted-fg); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1.5rem; }
+
+  .goal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+  @media (max-width: 440px) { .goal-grid { grid-template-columns: minmax(0, 1fr); } }
+  .goal-card {
+    position: relative; display: flex; align-items: center;
+    height: 60px; padding: 0 40px 0 18px; width: 100%;
+    background: var(--clr-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    cursor: pointer; transition: border-color var(--duration-fast), background var(--duration-fast);
+  }
+  .goal-card:hover { border-color: var(--color-green); }
+  .goal-card.selected { border: 2px solid var(--color-green); background: var(--color-parchment); }
+  .goal-label { font-weight: 600; font-size: 0.98rem; }
+  .goal-card.selected .goal-label { font-weight: 700; }
+  .goal-check {
+    position: absolute; top: 50%; right: 14px; transform: translateY(-50%) scale(0.5);
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--color-green); color: var(--clr-on-primary);
+    opacity: 0; transition: opacity var(--duration-fast), transform var(--duration-fast);
+  }
+  .goal-card.selected .goal-check { opacity: 1; transform: translateY(-50%) scale(1); }
+  .goal-radio-input { opacity: 0; position: absolute; width: 1px; height: 1px; pointer-events: none; }
+  .goal-card:focus-within { outline: 2px solid var(--color-green); outline-offset: 2px; }
+
+  .chips-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .chip {
+    display: inline-flex; align-items: center; padding: 0.4rem 0.9rem;
+    border: 1px solid var(--color-border); border-radius: var(--radius-full);
+    font-size: 0.82rem; font-weight: 500; cursor: pointer;
+    background: var(--clr-surface); color: var(--color-foreground);
+    transition: border-color var(--duration-fast), background var(--duration-fast), color var(--duration-fast);
+  }
+  .chip:hover { border-color: var(--color-green); color: var(--color-green); }
+  .chip.active { background: var(--color-green); border-color: var(--color-green); color: var(--clr-on-primary); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+  @media (max-width: 440px) { .form-row { grid-template-columns: 1fr; } }
+  .btn-skip { background: none; border: none; color: var(--color-muted-fg); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0.25rem; }
+  .hidden { display: none !important; }
+  @media (prefers-reduced-motion: no-preference) {
+    .page-card.ob { animation: rise 0.45s var(--ease-out) both; }
+  }
