@@ -266,19 +266,55 @@
 }
 
   function calcNutrition() {
-    // Sensible defaults based on goal
-    const caloriesByGoal = {
-      lose_weight: 1700,
-      build_muscle: 2500,
-      gain_weight: 2800,
-      maintain_weight: 2000,
-      eat_healthier: 2000,
-      improve_energy: 2000
+    // Age from DOB. If DOB was skipped ("Prefer not to say"), fall back to 30 —
+    // matches the existing default already used elsewhere in this codebase
+    // (server.js AI coach profile destructure uses the same age:30 fallback).
+    let age = 30;
+    if (userData.dateOfBirth) {
+      const dob = new Date(userData.dateOfBirth + 'T00:00:00');
+      const now = new Date();
+      age = now.getFullYear() - dob.getFullYear();
+      const hadBirthdayThisYear = (now.getMonth() > dob.getMonth()) ||
+        (now.getMonth() === dob.getMonth() && now.getDate() >= dob.getDate());
+      if (!hadBirthdayThisYear) age--;
+    }
+
+    // Mifflin-St Jeor sex term: +5 male, -161 female. -78 (the midpoint) is used
+    // for "prefer not to say", or "Other" without a specific refine choice —
+    // this is a disclosed estimate, not a guess, consistent with the sexRefine
+    // UI built on step 2.
+    let sexOffset = -78;
+    if (userData.sex === 'male') sexOffset = 5;
+    else if (userData.sex === 'female') sexOffset = -161;
+    else if (userData.sex === 'other') {
+      if (userData.sexRefine === 'male') sexOffset = 5;
+      else if (userData.sexRefine === 'female') sexOffset = -161;
+      // else stays -78 (split the difference)
+    }
+    // userData.sex === 'unspecified' also falls through to -78
+
+    const weightKg = userData.weightKg || 70;
+    const heightCm = userData.heightCm || 170;
+
+    const bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + sexOffset;
+
+    const multiplier = ACTIVITY_MULTIPLIERS[userData.activityLevel] || 1.55;
+    const tdee = bmr * multiplier;
+
+    const goalAdjustment = {
+      lose_weight: -500,
+      build_muscle: 300,
+      gain_weight: 500,
+      maintain_weight: 0,
+      eat_healthier: 0,
+      improve_energy: 0
     };
-    const calories = caloriesByGoal[userData.goal] || 2000;
-    const protein  = Math.round(calories * 0.30 / 4);
-    const carbs    = Math.round(calories * 0.40 / 4);
-    const fat      = Math.round(calories * 0.30 / 9);
+    let calories = Math.round(tdee + (goalAdjustment[userData.goal] || 0));
+    calories = Math.min(4000, Math.max(1200, calories)); // same safety clamp used server-side
+
+    const protein = Math.round(calories * 0.30 / 4);
+    const carbs   = Math.round(calories * 0.40 / 4);
+    const fat     = Math.round(calories * 0.30 / 9);
     userData.dailyCalories = calories;
     userData.macros = { protein, carbs, fat };
     return { calories, protein, carbs, fat };
