@@ -85,12 +85,13 @@
 
   <!-- STEP 2: Sex -->
   <div class="step-content hidden" id="step2">
-    <h1 class="ob-step-title">What's your sex?</h1>
+    <h1 class="ob-step-title">What's your gender?</h1>
     <div class="ob-step-sub">Used to personalize your calorie and macro targets.</div>
-    <div class="goal-grid" role="radiogroup" aria-label="Select your sex" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+    <div class="goal-grid" role="radiogroup" aria-label="Select your sex" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
       <button type="button" class="sex-card" data-sex="male" onclick="selectSex(this)">Male</button>
       <button type="button" class="sex-card" data-sex="female" onclick="selectSex(this)">Female</button>
       <button type="button" class="sex-card" data-sex="other" onclick="selectSex(this)">Other</button>
+      <button type="button" class="sex-card" data-sex="unspecified" onclick="selectSex(this)">Prefer not to say</button>
     </div>
     <div id="sexRefineRow" class="sex-refine-row hidden">
       <div style="width:100%;">
@@ -179,6 +180,7 @@
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <button id="btnSkip" class="btn-skip" onclick="skipStep()">Skip</button>
+        <button type="button" id="btnSkipDob" class="btn-skip hidden" onclick="skipDob()">Prefer not to say</button>
         <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()">
           Continue
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
@@ -255,6 +257,7 @@
     document.getElementById('step' + step).classList.remove('hidden');
     document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
     document.getElementById('btnSkip').style.display = step < totalSteps ? 'inline-block' : 'none';
+    document.getElementById('btnSkipDob').classList.toggle('hidden', step !== 3);
     const skipNote = document.getElementById('skipNote');
     if (skipNote) skipNote.style.display = step < totalSteps ? 'block' : 'none';
     const nextBtn = document.getElementById('btnNext');
@@ -287,6 +290,12 @@
       const nameInput = document.getElementById('inputName');
       if (!nameInput.value.trim()) { nameInput.focus(); return; }
     }
+    if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
+  }
+
+  function skipDob() {
+    userData.dateOfBirth = '';
+    hideStepError();
     if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
   }
 
@@ -359,7 +368,12 @@
     for (let d = 1; d <= 31; d++) daySel.appendChild(new Option(d, d));
     const yearSel = document.getElementById('dobYear');
     const thisYear = new Date().getFullYear();
+    yearSel.appendChild(new Option('Year', ''));
     for (let y = thisYear - 13; y >= thisYear - 100; y--) yearSel.appendChild(new Option(y, y));
+
+    const today = new Date();
+    monthSel.value = today.getMonth() + 1;
+    daySel.value = today.getDate();
   }
   populateDobDropdowns();
 
