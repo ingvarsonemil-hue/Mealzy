@@ -965,7 +965,17 @@ app.get('/api/auth/me', requireSession, async (req, res) => {
   setJwtCookie(res, buildSessionPayload(user, session.loginAt));
 
   const profile = await db.getProfile(user.id);
-  res.json(OutputShapes.UserWithProfile(user, profile));
+  const shape = OutputShapes.UserWithProfile(user, profile);
+
+  // Free-plan usage, surfaced so the dashboard can show "X of Y used" and
+  // disable Generate before the user hits the 402 instead of after.
+  if (!shape.pro) {
+    const genMonth = new Date().toISOString().slice(0, 7);
+    shape.plans_used = await db.getPlanGenerationCount(user.id, genMonth);
+    shape.plans_limit = await getEffectiveLimit(user.email);
+  }
+
+  res.json(shape);
 });
 
 // POST /api/auth/signout
