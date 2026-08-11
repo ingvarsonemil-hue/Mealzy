@@ -25,7 +25,7 @@ export function useTheme() {
   return [theme, toggle];
 }
 
-export default function Header({ links = NAV_LINKS, activeHref }) {
+export default function Header({ links = NAV_LINKS, activeHref, ctaHref = '/login.html?signup=1' }) {
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [theme, toggleTheme] = useTheme();
@@ -110,7 +110,7 @@ export default function Header({ links = NAV_LINKS, activeHref }) {
           </Button>
           {/* Short variant: the full "Build My Free Plan" wraps to two lines in the
             * nav bar at the md breakpoint, where space is tightest. */}
-          <Button href="/login.html?signup=1" size="sm" className="hidden md:inline-flex">
+          <Button href={ctaHref} size="sm" className="hidden md:inline-flex">
             Build My Plan
           </Button>
 
@@ -162,7 +162,7 @@ export default function Header({ links = NAV_LINKS, activeHref }) {
                     </a>
                   </li>
                   <li className="mt-4">
-                    <Button href="/login.html?signup=1" full>Build My Free Plan</Button>
+                    <Button href={ctaHref} full>Build My Free Plan</Button>
                   </li>
                 </ul>
               </Dialog.Content>

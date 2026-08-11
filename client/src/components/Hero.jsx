@@ -26,9 +26,8 @@ const TRUST_ITEMS = [
  * whole product is built around. It is not a second copy of that number: the
  * field and the slider are two handles on one piece of page state, so moving
  * either moves the other and they cannot drift apart. */
-function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
+function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange }) {
   const [cals, setCals] = React.useState('2000');
-  const [dietId, setDietId] = React.useState(DIETS[0].id);
   const [budgetText, setBudgetText] = React.useState(() => String(budget));
 
   /* The slider is the other handle on this number; when it moves, the field
@@ -129,7 +128,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
 
         <div className="sm:col-span-2 lg:col-span-1">
           <Label htmlFor="heroDiet">Dietary style</Label>
-          <Select id="heroDiet" value={dietId} onChange={(e) => setDietId(e.target.value)}>
+          <Select id="heroDiet" value={dietId} onChange={(e) => onDietChange && onDietChange(e.target.value)}>
             {DIETS.map((d) => (
               <option key={d.id} value={d.id}>{d.label}</option>
             ))}
@@ -164,13 +163,13 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange }) {
         Free for 3 plans/month. Pro from $8/mo.
       </p>
       <p className="mt-1.5 text-center text-sm text-muted-fg">
-        No email. No sign-up. Your plan saves to your browser.
+        Free account. No credit card required. Generate your personalized 7-day plan in seconds.
       </p>
     </div>
   );
 }
 
-export default function Hero({ onStartPlan, budget, onBudgetChange }) {
+export default function Hero({ onStartPlan, budget, onBudgetChange, dietId, onDietChange }) {
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative bg-forest text-on-forest">
       {/* Radial depth in the hero background */}
@@ -203,7 +202,13 @@ export default function Hero({ onStartPlan, budget, onBudgetChange }) {
         </div>
 
         <div className="mt-8">
-          <PlannerForm onStartPlan={onStartPlan} budget={budget} onBudgetChange={onBudgetChange} />
+          <PlannerForm
+            onStartPlan={onStartPlan}
+            budget={budget}
+            onBudgetChange={onBudgetChange}
+            dietId={dietId}
+            onDietChange={onDietChange}
+          />
         </div>
       </div>
 

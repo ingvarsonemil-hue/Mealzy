@@ -235,7 +235,7 @@ function RevealStep({ plan, household, onClaim, onBack }) {
         Claim This Exact Plan (Free Signup)
       </Button>
       <p className="mt-3 text-center text-[13px] leading-[1.6] text-muted-fg">
-        Your plan saves to your browser — optional free account to sync across devices.
+        Free account. No credit card required. Generate your personalized 7-day plan in seconds.
       </p>
       <p className="mt-1.5 text-center text-[13px] text-muted-fg">
         3 free plans a month &middot; No credit card
@@ -273,8 +273,7 @@ export default function InteractiveOnboarding({ open, onOpenChange, seed }) {
   );
 
   /* The plan is a pure function of these three values, so storing them is
-   * enough to bring the exact same week back on the next visit — which is what
-   * the hero promises when it says the plan saves to your browser. Read in an
+   * enough to bring the exact same week back on the next visit. Read in an
    * effect rather than a state initializer so the prerendered markup and the
    * first client render always agree. */
   const hasSaved = React.useRef(false);

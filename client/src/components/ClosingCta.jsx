@@ -2,7 +2,7 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 
-export default function ClosingCta() {
+export default function ClosingCta({ ctaHref = 'login.html?signup=1' }) {
   return (
     <section aria-labelledby="cta-heading" className="bg-forest py-16 text-on-forest sm:py-20">
       <Reveal className="mx-auto max-w-container px-4 text-center sm:px-5">
@@ -17,7 +17,7 @@ export default function ClosingCta() {
           Free to start — no credit card.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <Button href="login.html?signup=1" size="lg">Build My Free Plan</Button>
+          <Button href={ctaHref} size="lg">Build My Free Plan</Button>
           <Button href="pricing.html" variant="veil" size="lg">See pricing</Button>
         </div>
       </Reveal>

@@ -9,7 +9,12 @@ import ClosingCta from '@/components/ClosingCta';
 import InteractiveOnboarding from '@/components/InteractiveOnboarding';
 import Footer from '@/components/Footer';
 import { captureReferral } from '@/lib/api';
-import { BASE_BUDGET } from '@/components/showcase-plan';
+import { BASE_BUDGET, DIETS } from '@/components/showcase-plan';
+
+/* Household isn't asked anywhere above the modal — the hero form deliberately
+ * leaves it out (see InteractiveOnboarding) — so secondary CTAs that skip the
+ * modal fall back to this rather than inventing a value nobody chose. */
+const DEFAULT_HOUSEHOLD = 2;
 
 export default function App() {
   /* One budget for the page, reachable from two places: the hero field and the
@@ -26,12 +31,31 @@ export default function App() {
    * like sand. */
   const [budget, setBudget] = React.useState(BASE_BUDGET);
   const [planBudget, setPlanBudget] = React.useState(BASE_BUDGET);
+  /* Diet lives here too, not just inside the hero form, so the secondary CTAs
+   * below (nav, footer, closing band) can carry the same choice into the URL
+   * without duplicating the hero's state. */
+  const [dietId, setDietId] = React.useState(DIETS[0].id);
 
   React.useEffect(() => {
     if (budget === planBudget) return undefined;
     const t = setTimeout(() => setPlanBudget(budget), 250);
     return () => clearTimeout(t);
   }, [budget, planBudget]);
+
+  /* Secondary "Build My Plan" buttons (nav, footer, closing band) don't run
+   * the interactive modal — it needs a household size the visitor hasn't been
+   * asked for yet up there. They still carry whatever the hero form already
+   * knows, so the login page isn't starting from zero. */
+  const secondaryCtaHref = React.useMemo(() => {
+    const diet = DIETS.find((d) => d.id === dietId) || DIETS[0];
+    const params = new URLSearchParams({
+      signup: '1',
+      budget: String(budget),
+      dietary: diet.signup,
+      household: String(DEFAULT_HOUSEHOLD)
+    });
+    return `login.html?${params}`;
+  }, [budget, dietId]);
   /* Owned here because the two CTAs that open it — the hero's and the mobile
    * sticky bar inside Showcase — sit in different subtrees. The hero passes
    * the targets it collected; the mobile bar has none to pass. */
@@ -53,9 +77,15 @@ export default function App() {
   return (
     <>
       <a href="#main" className="skip-link">Skip to main content</a>
-      <Header />
+      <Header ctaHref={secondaryCtaHref} />
       <main id="main">
-        <Hero onStartPlan={startPlan} budget={budget} onBudgetChange={setBudget} />
+        <Hero
+          onStartPlan={startPlan}
+          budget={budget}
+          onBudgetChange={setBudget}
+          dietId={dietId}
+          onDietChange={setDietId}
+        />
         {/* The sample plan is the demo. There is no second, separately generated
           * preview to keep in step with it — one week, one set of numbers. */}
         <Showcase
@@ -67,10 +97,10 @@ export default function App() {
         <HowItWorks />
         <FeaturesGrid />
         <Faq />
-        <ClosingCta />
+        <ClosingCta ctaHref={secondaryCtaHref} />
       </main>
       <InteractiveOnboarding open={onboarding} onOpenChange={setOnboarding} seed={seed} />
-      <Footer />
+      <Footer ctaHref={secondaryCtaHref} />
     </>
   );
 }

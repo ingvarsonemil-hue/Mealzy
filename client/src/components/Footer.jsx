@@ -1,32 +1,34 @@
 import * as React from 'react';
 import { scrollToHash } from '@/lib/utils';
 
-const COLUMNS = [
-  {
-    heading: 'Product',
-    links: [
-      { href: '#how-it-works', label: 'How it works' },
-      { href: '/pricing.html', label: 'Pricing' },
-      { href: '/dashboard.html', label: 'My plans' }
-    ]
-  },
-  {
-    heading: 'Account',
-    links: [
-      { href: '/login.html', label: 'Sign in' },
-      { href: '/login.html?signup=1', label: 'Build My Free Plan' },
-      { href: '/reset-password.html', label: 'Reset password' }
-    ]
-  },
-  {
-    heading: 'Legal',
-    links: [
-      { href: '/privacy-policy.html', label: 'Privacy Policy' },
-      { href: '/terms.html', label: 'Terms' },
-      { href: 'mailto:support@mealzy.org', label: 'Contact' }
-    ]
-  }
-];
+function columnsFor(ctaHref) {
+  return [
+    {
+      heading: 'Product',
+      links: [
+        { href: '#how-it-works', label: 'How it works' },
+        { href: '/pricing.html', label: 'Pricing' },
+        { href: '/dashboard.html', label: 'My plans' }
+      ]
+    },
+    {
+      heading: 'Account',
+      links: [
+        { href: '/login.html', label: 'Sign in' },
+        { href: ctaHref, label: 'Build My Free Plan' },
+        { href: '/reset-password.html', label: 'Reset password' }
+      ]
+    },
+    {
+      heading: 'Legal',
+      links: [
+        { href: '/privacy-policy.html', label: 'Privacy Policy' },
+        { href: '/terms.html', label: 'Terms' },
+        { href: 'mailto:support@mealzy.org', label: 'Contact' }
+      ]
+    }
+  ];
+}
 
 /* Plain statements of what the numbers are, in place of the engineering-sounding
  * labels that used to sit here ("Deterministic Grocery Engine", "Powered by USDA
@@ -37,7 +39,8 @@ const TRUST_BADGES = [
   'Every price calculated, not guessed'
 ];
 
-export default function Footer() {
+export default function Footer({ ctaHref = '/login.html?signup=1' }) {
+  const COLUMNS = columnsFor(ctaHref);
   return (
     <footer className="border-t border-forest-line bg-forest-deep py-14 text-on-forest">
       <div className="mx-auto max-w-container px-4 sm:px-5">

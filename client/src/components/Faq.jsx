@@ -18,7 +18,7 @@ const FAQS = [
   },
   {
     q: 'Can I use Mealzy without signing up?',
-    a: 'Yes. The sample week on this page re-plans itself as you move the budget, and the preview builds a full week from your own targets without an email address. A free account is what saves your plans and generates new ones — it takes about two minutes and asks for no card.'
+    a: 'The sample week on this page re-plans itself as you move the budget, so you can try it before committing to anything. A free account is what generates and saves your personalized 7-day plan — no credit card required, and it takes about two minutes.'
   },
   {
     q: 'What happens after 3 free plans?',

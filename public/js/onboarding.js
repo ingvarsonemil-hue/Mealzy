@@ -261,17 +261,74 @@
   }
   initBudgetCurrency();
 
+  // Region -> currency, read from the browser's own locale rather than IP
+  // lookup. Countries sharing the euro map to EUR explicitly since their
+  // region codes don't share a pattern to detect.
+  const REGION_CURRENCY = {
+    JP: 'JPY', KR: 'KRW', ID: 'IDR', HU: 'HUF',
+    GB: 'GBP', CA: 'CAD', AU: 'AUD', US: 'USD',
+    SE: 'SEK', NO: 'NOK', DK: 'DKK', CH: 'CHF',
+    CN: 'CNY', IN: 'INR', BR: 'BRL', MX: 'MXN', AR: 'ARS', ZA: 'ZAR',
+    AE: 'AED', SA: 'SAR', SG: 'SGD', HK: 'HKD', PL: 'PLN', CZ: 'CZK',
+    TR: 'TRY', TH: 'THB', MY: 'MYR', PH: 'PHP', NZ: 'NZD'
+  };
+  const EU_REGIONS = ['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'IE', 'PT', 'FI', 'GR', 'LU', 'SK', 'SI', 'EE', 'LV', 'LT', 'CY', 'MT'];
+  // Timezone fallback for locales like "en" with no region subtag.
+  const TZ_CURRENCY = [
+    [/^Asia\/Tokyo/, 'JPY'], [/^Asia\/Seoul/, 'KRW'], [/^Asia\/Jakarta/, 'IDR'],
+    [/^Europe\/Budapest/, 'HUF'], [/^Europe\/London/, 'GBP'], [/^Europe\//, 'EUR']
+  ];
+  function detectCurrencyFromLocale() {
+    try {
+      const region = (navigator.language || '').split('-')[1];
+      if (region) {
+        const code = region.toUpperCase();
+        if (REGION_CURRENCY[code]) return REGION_CURRENCY[code];
+        if (EU_REGIONS.includes(code)) return 'EUR';
+      }
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      const match = TZ_CURRENCY.find(([re]) => re.test(tz));
+      return match ? match[1] : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Only auto-detect when there's no explicit signal already: a budget
+  // handed off from the homepage demo is always a dollar figure (the hero
+  // slider is USD-only), so it implies USD rather than the visitor's locale.
+  function initCurrencyAutoDetect(hasBudgetParam) {
+    if (hasBudgetParam) return;
+    const currencySelect = document.getElementById('selectCurrency');
+    const detected = detectCurrencyFromLocale();
+    if (!detected || detected === currencySelect.value) return;
+    const hasOption = Array.from(currencySelect.options).some(o => o.value === detected);
+    if (!hasOption) return;
+    currencySelect.value = detected;
+    const budgetInput = document.getElementById('inputBudget');
+    const bounds = budgetBoundsFor(detected);
+    budgetInput.min = bounds.min;
+    budgetInput.max = bounds.max;
+    if (!budgetTouched) {
+      budgetInput.value = bounds.def;
+      budgetInput.placeholder = String(bounds.def);
+    }
+    userData.currency = detected;
+  }
+
   // Pre-fill from the homepage demo's handoff (?budget=&diet=/&dietary=), set
   // on login.html by InteractiveOnboarding.jsx and forwarded here by login.js.
   // Untrusted input: the diet value is only accepted if it matches a real chip.
   function prefillFromQueryParams() {
     const qs = new URLSearchParams(window.location.search);
     const budgetParam = parseFloat(qs.get('budget'));
-    if (Number.isFinite(budgetParam) && budgetParam > 0) {
+    const hasBudgetParam = Number.isFinite(budgetParam) && budgetParam > 0;
+    if (hasBudgetParam) {
       const clamped = Math.min(Math.max(Math.round(budgetParam), 20), 1000);
       document.getElementById('inputBudget').value = clamped;
       budgetTouched = true;
     }
+    initCurrencyAutoDetect(hasBudgetParam);
     const dietParam = qs.get('diet') || qs.get('dietary');
     if (dietParam) {
       const chip = Array.from(document.querySelectorAll('#dietChips .chip'))
