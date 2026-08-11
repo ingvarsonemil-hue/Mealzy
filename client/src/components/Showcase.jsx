@@ -117,7 +117,7 @@ function DayCard({ day, onSwap }) {
 
 /* Floating bar for small screens, revealed once the hero has scrolled away and
  * pulled back before the footer so it never sits on top of it. */
-function MobileCta({ onStartPlan }) {
+function MobileCta({ onStartPlan, ctaHref }) {
   const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
@@ -151,7 +151,7 @@ function MobileCta({ onStartPlan }) {
     >
       {/* Same as the hero CTA: opens the 3-step preview, href is the no-JS fallback. */}
       <Button
-        href="login.html?signup=1"
+        href={ctaHref}
         full
         size="lg"
         tabIndex={show ? undefined : -1}
@@ -245,7 +245,7 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
  * effort on Thursday. */
 const PREVIEW_DAYS = 3;
 
-export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChange }) {
+export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChange, ctaHref = 'login.html?signup=1' }) {
   /* Built from the settled budget, not the live handle: `planBudget` is the
    * debounced one, so a drag rebuilds the week once rather than on every step. */
   const plan = React.useMemo(() => planFor(planBudget), [planBudget]);
@@ -368,7 +368,7 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
         </Reveal>
       </div>
 
-      <MobileCta onStartPlan={onStartPlan} />
+      <MobileCta onStartPlan={onStartPlan} ctaHref={ctaHref} />
     </section>
   );
 }

@@ -26,7 +26,7 @@ const TRUST_ITEMS = [
  * whole product is built around. It is not a second copy of that number: the
  * field and the slider are two handles on one piece of page state, so moving
  * either moves the other and they cannot drift apart. */
-function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange }) {
+function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange, ctaHref }) {
   const [cals, setCals] = React.useState('2000');
   const [budgetText, setBudgetText] = React.useState(() => String(budget));
 
@@ -144,7 +144,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange
         * A second button here used to run a separate live sample, which meant
         * two demos quoting two sets of numbers — there is now one. */}
       <Button
-        href="login.html?signup=1"
+        href={ctaHref}
         full
         size="lg"
         className="mt-5 text-lg font-bold"
@@ -169,7 +169,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange
   );
 }
 
-export default function Hero({ onStartPlan, budget, onBudgetChange, dietId, onDietChange }) {
+export default function Hero({ onStartPlan, budget, onBudgetChange, dietId, onDietChange, ctaHref = 'login.html?signup=1' }) {
   return (
     <section id="hero" aria-labelledby="hero-heading" className="relative bg-forest text-on-forest">
       {/* Radial depth in the hero background */}
@@ -208,6 +208,7 @@ export default function Hero({ onStartPlan, budget, onBudgetChange, dietId, onDi
             onBudgetChange={onBudgetChange}
             dietId={dietId}
             onDietChange={onDietChange}
+            ctaHref={ctaHref}
           />
         </div>
       </div>

@@ -85,6 +85,7 @@ export default function App() {
           onBudgetChange={setBudget}
           dietId={dietId}
           onDietChange={setDietId}
+          ctaHref={secondaryCtaHref}
         />
         {/* The sample plan is the demo. There is no second, separately generated
           * preview to keep in step with it — one week, one set of numbers. */}
@@ -93,6 +94,7 @@ export default function App() {
           budget={budget}
           planBudget={planBudget}
           onBudgetChange={setBudget}
+          ctaHref={secondaryCtaHref}
         />
         <HowItWorks />
         <FeaturesGrid />
