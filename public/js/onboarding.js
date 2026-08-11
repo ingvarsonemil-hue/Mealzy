@@ -472,6 +472,6 @@
       });
     } catch(e) {}
 
-    // Redirect to dashboard with autoGenerate flag
-    window.location.href = 'dashboard.html?autoGenerate=1';
+    // Redirect straight to the meal planner with autoGenerate flag
+    window.location.href = 'meal-planner.html?autoGenerate=1';
   }

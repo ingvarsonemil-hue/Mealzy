@@ -530,6 +530,16 @@
       </div>
     </div>
 
+    <!-- POST-ONBOARDING COMPLETION BANNER -->
+    <div id="completionBanner" class="hidden" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:12px;padding:0.85rem 1rem;margin-bottom:1rem;">
+      <p style="margin:0;font-size:0.9rem;">Your plan is ready.</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm" onclick="setView('week'); dismissCompletionBanner();">View Your Week</button>
+        <a class="btn btn-outline btn-sm" href="grocery-list.html">Shop Grocery List</a>
+      </div>
+    </div>
+    <style>#completionBanner.hidden{display:none!important;}</style>
+
     <!-- DATE NAVIGATOR (day view only) -->
     <div class="date-navigator" id="dateNavigator">
       <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;" aria-label="Previous week">&#8592; Prev</button>
@@ -880,8 +890,8 @@
         localStorage.setItem('mealzy_user', JSON.stringify({ name: u.name, email: u.email }));
         if (u.pro) localStorage.setItem('mealzy_pro', 'true'); else localStorage.removeItem('mealzy_pro');
         if (u.profile) { const lp = JSON.parse(localStorage.getItem('mealzy_profile')||'{}'); localStorage.setItem('mealzy_profile', JSON.stringify({ ...u.profile, ...lp })); }
-      } else { localStorage.removeItem('mealzy_user'); window.location.href = 'login.html'; return; }
-    } catch(e) { if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html'; return; } }
+      } else { localStorage.removeItem('mealzy_user'); window.location.href = 'login.html?signup=1'; return; }
+    } catch(e) { if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html?signup=1'; return; } }
     const profileData = localStorage.getItem('mealzy_profile');
     if (!profileData) { window.location.href = 'onboarding.html'; return; }
     profile = JSON.parse(profileData);
@@ -902,6 +912,23 @@
     loadMeals();
     checkPlanLimitBanner();
     checkPendingRecipe();
+
+    // Auto-generate right after onboarding (value in 15 seconds)
+    const autoParams = new URLSearchParams(window.location.search);
+    if (autoParams.get('autoGenerate') === '1') {
+      window.history.replaceState({}, '', 'meal-planner.html');
+      setTimeout(async () => { await generateMealPlan(); showCompletionBanner(); }, 800);
+    }
+  }
+
+  function showCompletionBanner() {
+    const banner = document.getElementById('completionBanner');
+    if (banner) banner.classList.remove('hidden');
+  }
+
+  function dismissCompletionBanner() {
+    const banner = document.getElementById('completionBanner');
+    if (banner) banner.classList.add('hidden');
   }
 
   function setHouseholdSize(value) {
