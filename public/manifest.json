@@ -2,7 +2,7 @@
   "name": "Mealzy — AI Meal Planner",
   "short_name": "Mealzy",
   "description": "Your personal AI nutritionist — meal plans, macros, and grocery lists in 30 seconds.",
-  "start_url": "/dashboard.html",
+  "start_url": "/meal-planner.html",
   "display": "standalone",
   "background_color": "#f5fbf7",
   "theme_color": "#4a8a6f",
@@ -15,8 +15,8 @@
     {
       "name": "Generate Meal Plan",
       "short_name": "Generate",
-      "description": "Open the dashboard and generate your week",
-      "url": "/dashboard.html",
+      "description": "Open the meal planner and generate your week",
+      "url": "/meal-planner.html",
       "icons": [{ "src": "/icon-192.svg", "sizes": "192x192" }]
     }
   ]
