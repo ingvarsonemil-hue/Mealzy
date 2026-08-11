@@ -39,6 +39,19 @@ function storeUser(user) {
   ls('set', 'mealzy_user', JSON.stringify({ name: user.name, email: user.email }));
 }
 
+/* Forwards the homepage demo's targets (?budget=&diet=/&dietary=&household=)
+ * on to onboarding.html so the wizard can pre-fill them — otherwise they're
+ * dropped the moment this page finishes and the user starts over. */
+function onboardingUrl(qs) {
+  const keep = new URLSearchParams();
+  ['budget', 'diet', 'dietary', 'household'].forEach((k) => {
+    const v = qs.get(k);
+    if (v) keep.set(k, v);
+  });
+  const s = keep.toString();
+  return 'onboarding.html' + (s ? '?' + s : '');
+}
+
 export default function LoginPage() {
   const qs = React.useMemo(() => new URLSearchParams(window.location.search), []);
   const [view, setView] = React.useState(qs.get('signup') === '1' ? 'signup' : 'signin');
@@ -66,10 +79,10 @@ export default function LoginPage() {
         storeUser(data);
         if (data.pro) ls('set', 'mealzy_pro', 'true');
         if (data.profile) ls('set', 'mealzy_profile', JSON.stringify(data.profile));
-        window.location.href = data.profile ? 'dashboard.html' : 'onboarding.html';
+        window.location.href = data.profile ? 'dashboard.html' : onboardingUrl(qs);
       } catch (e) {
         if (ls('get', 'mealzy_user')) {
-          window.location.href = ls('get', 'mealzy_profile') ? 'dashboard.html' : 'onboarding.html';
+          window.location.href = ls('get', 'mealzy_profile') ? 'dashboard.html' : onboardingUrl(qs);
         }
       }
     })();
@@ -104,10 +117,10 @@ export default function LoginPage() {
           ls('set', 'mealzy_profile', JSON.stringify(pd.profile));
           window.location.href = 'dashboard.html';
         } else {
-          window.location.href = 'onboarding.html';
+          window.location.href = onboardingUrl(qs);
         }
       } catch (err) {
-        window.location.href = ls('get', 'mealzy_profile') ? 'dashboard.html' : 'onboarding.html';
+        window.location.href = ls('get', 'mealzy_profile') ? 'dashboard.html' : onboardingUrl(qs);
       }
     } catch (err) {
       showError('Could not connect. Please check your connection and try again.');
@@ -149,7 +162,7 @@ export default function LoginPage() {
         ls('remove', 'mealzy_pending_ref');
       }
       ls('set', 'mealzy_is_new_user', '1');
-      window.location.href = 'onboarding.html';
+      window.location.href = onboardingUrl(qs);
     } catch (err) {
       showError('Could not connect. Please check your connection and try again.');
       setBusy(false);

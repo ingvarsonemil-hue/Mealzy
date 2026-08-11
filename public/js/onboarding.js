@@ -94,8 +94,7 @@
   function skipStep() {
     hideStepError();
     if (currentStep === 1) {
-      const nameInput = document.getElementById('inputName');
-      if (!nameInput.value.trim()) { nameInput.focus(); return; }
+      userData.name = document.getElementById('inputName').value.trim();
     }
     if (currentStep < totalSteps) { currentStep++; showStep(currentStep); }
   }
@@ -122,7 +121,16 @@
       const d = document.getElementById('dobDay').value;
       const y = document.getElementById('dobYear').value;
       if (!m || !d || !y) { showStepError('Please enter your birthdate.'); return false; }
-      userData.dateOfBirth = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dobStr = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dobDate = new Date(dobStr + 'T00:00:00');
+      if (Number.isNaN(dobDate.getTime())) { showStepError('Please enter a valid birthdate.'); return false; }
+      const now = new Date();
+      let age = now.getFullYear() - dobDate.getFullYear();
+      const hadBirthdayThisYear = (now.getMonth() > dobDate.getMonth()) ||
+        (now.getMonth() === dobDate.getMonth() && now.getDate() >= dobDate.getDate());
+      if (!hadBirthdayThisYear) age--;
+      if (age < 13 || age > 120) { showStepError('Please enter a valid birthdate (ages 13+).'); return false; }
+      userData.dateOfBirth = dobStr;
     }
     if (step === 4) {
       if (userData.heightUnit === 'cm') {
@@ -145,7 +153,8 @@
       if (!userData.activityLevel) { showStepError('Please select your activity level.'); return false; }
     }
     if (step === 7) {
-      userData.budget = Math.min(Math.max(parseFloat(document.getElementById('inputBudget').value) || 100, 20), 1000);
+      const bounds = budgetBoundsFor(document.getElementById('selectCurrency').value);
+      userData.budget = Math.min(Math.max(parseFloat(document.getElementById('inputBudget').value) || bounds.def, bounds.min), bounds.max);
       userData.currency = document.getElementById('selectCurrency').value;
       updateChipsData();
     }
@@ -213,19 +222,66 @@
   function populateDobDropdowns() {
     const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     const monthSel = document.getElementById('dobMonth');
+    monthSel.appendChild(new Option('Month', ''));
     months.forEach((m, i) => monthSel.appendChild(new Option(m, i + 1)));
     const daySel = document.getElementById('dobDay');
+    daySel.appendChild(new Option('Day', ''));
     for (let d = 1; d <= 31; d++) daySel.appendChild(new Option(d, d));
     const yearSel = document.getElementById('dobYear');
     const thisYear = new Date().getFullYear();
     yearSel.appendChild(new Option('Year', ''));
     for (let y = thisYear - 13; y >= thisYear - 100; y--) yearSel.appendChild(new Option(y, y));
-
-    const today = new Date();
-    monthSel.value = today.getMonth() + 1;
-    daySel.value = today.getDate();
   }
   populateDobDropdowns();
+
+  // Currencies whose common unit is worth far less than $1 (JPY, IDR, etc.) —
+  // a "100" budget default in those units is not a plausible weekly grocery
+  // spend and gets fed straight into the AI prompt as a literal budget figure.
+  const LOW_VALUE_CURRENCIES = ['JPY', 'IDR', 'KRW', 'HUF'];
+  function budgetBoundsFor(currency) {
+    return LOW_VALUE_CURRENCIES.includes(currency)
+      ? { min: 2000, max: 100000, def: 10000 }
+      : { min: 20, max: 1000, def: 100 };
+  }
+
+  let budgetTouched = false;
+  function initBudgetCurrency() {
+    const budgetInput = document.getElementById('inputBudget');
+    const currencySelect = document.getElementById('selectCurrency');
+    budgetInput.addEventListener('input', () => { budgetTouched = true; });
+    currencySelect.addEventListener('change', () => {
+      const bounds = budgetBoundsFor(currencySelect.value);
+      budgetInput.min = bounds.min;
+      budgetInput.max = bounds.max;
+      if (!budgetTouched) {
+        budgetInput.value = bounds.def;
+        budgetInput.placeholder = String(bounds.def);
+      }
+    });
+  }
+  initBudgetCurrency();
+
+  // Pre-fill from the homepage demo's handoff (?budget=&diet=/&dietary=), set
+  // on login.html by InteractiveOnboarding.jsx and forwarded here by login.js.
+  // Untrusted input: the diet value is only accepted if it matches a real chip.
+  function prefillFromQueryParams() {
+    const qs = new URLSearchParams(window.location.search);
+    const budgetParam = parseFloat(qs.get('budget'));
+    if (Number.isFinite(budgetParam) && budgetParam > 0) {
+      const clamped = Math.min(Math.max(Math.round(budgetParam), 20), 1000);
+      document.getElementById('inputBudget').value = clamped;
+      budgetTouched = true;
+    }
+    const dietParam = qs.get('diet') || qs.get('dietary');
+    if (dietParam) {
+      const chip = Array.from(document.querySelectorAll('#dietChips .chip'))
+        .find(c => c.dataset.pref === dietParam);
+      if (chip && !chip.classList.contains('active')) toggleChip(chip);
+    }
+  }
+  prefillFromQueryParams();
+
+  showStep(currentStep);
 
   document.querySelectorAll('.goal-card').forEach(card => {
     card.addEventListener('keydown', (e) => {
