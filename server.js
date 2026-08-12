@@ -95,10 +95,13 @@ const OutputShapes = {
 };
 
 // â”€â”€ Security headers on every response â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-app.use((req, res, next) => {
+// Shared by the global fallback middleware below and the express.static
+// setHeaders() callbacks, so static assets (.html/.js/.css/.json) carry the
+// same headers as every other route even if middleware ordering ever changes.
+function setSecurityHeaders(res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
-res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
@@ -115,6 +118,10 @@ res.setHeader('X-XSS-Protection', '1; mode=block');
     "form-action 'self'; " +
     "frame-ancestors 'none';"
   );
+}
+
+app.use((req, res, next) => {
+  setSecurityHeaders(res);
   next();
 });
 
@@ -177,6 +184,7 @@ const hasDistBuild = fs.existsSync(path.join(distDir, 'index.html'));
 if (hasDistBuild) {
   app.use(express.static(distDir, {
     setHeaders: (res, filePath) => {
+      setSecurityHeaders(res);
       // Vite assets are content-hashed â€” safe to cache forever
       if (filePath.includes(`${path.sep}assets${path.sep}`)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
@@ -187,7 +195,9 @@ if (hasDistBuild) {
   logger.error('[startup] dist/ build missing â€” serving legacy public/ pages. Run npm run build.');
 }
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: setSecurityHeaders
+}));
 
 // TikTok domain verification
 app.get('/tiktok5D5PTssMk9TzIVSQAXCcHPlwQwQ52nQc.txt', async (req, res) => {
@@ -3119,7 +3129,9 @@ require('./routes/favorites')(app, { requireSession, db });
 app.get('/blog', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blog', 'index.html'));
 });
-app.use('/blog', express.static(path.join(__dirname, 'public', 'blog')));
+app.use('/blog', express.static(path.join(__dirname, 'public', 'blog'), {
+  setHeaders: setSecurityHeaders
+}));
 
 // â”€â”€ React build pages: serve the matching dist/*.html instead of index.html â”€â”€
 if (hasDistBuild) {
