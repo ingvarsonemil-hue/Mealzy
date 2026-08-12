@@ -11,6 +11,9 @@
   <meta property="og:title" content="Meal Planner — Mealzy" />
   <meta property="og:description" content="Plan your weekly meals with Mealzy — personalized meal plans that hit your calorie and macro targets while staying within your budget." />
   <!-- Mealzy Design System -->
+<link rel="preload" href="/css/app-theme.css" as="style">
+<link rel="preload" href="/js/utils.js" as="script">
+<link rel="preload" href="/translations.js" as="script">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="style.css" />
 <link rel="stylesheet" href="/css/app-theme.css">
@@ -159,25 +162,6 @@
     [data-theme="dark"] .day-view-container {
       background: var(--clr-muted-bg);
     }
-
-    /* ── Stats card wrapper ─────────────────────────────── */
-    .stats-card {
-      background: var(--clr-surface);
-      border: 1px solid var(--clr-border);
-      border-radius: 10px;
-      padding: 0.75rem 1.25rem;
-      display: flex;
-      gap: 1.5rem;
-      align-items: center;
-    }
-    .stats-card .total-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      border-left: none;
-      padding: 0;
-    }
-    .stats-card .total-item + .total-item { border-left: none; }
 
     @media (max-width: 600px) {
       .totals-bar { grid-template-columns: repeat(2, 1fr); gap: 0.5rem 0; }
@@ -509,9 +493,9 @@
 
     <!-- VIEW TOGGLE & PRINT -->
     <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap;">
-      <div class="view-toggle">
-        <button class="view-toggle-btn active" id="dayViewBtn" onclick="setView('day')">Day View</button>
-        <button class="view-toggle-btn" id="weekViewBtn" onclick="setView('week')">Week View</button>
+      <div class="view-toggle" role="tablist" aria-label="Meal plan view">
+        <button class="view-toggle-btn active" id="dayViewBtn" role="tab" aria-selected="true" aria-controls="mealsContainer" onclick="setView('day')">Day View</button>
+        <button class="view-toggle-btn" id="weekViewBtn" role="tab" aria-selected="false" aria-controls="weekViewContainer" onclick="setView('week')">Week View</button>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
         <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:var(--clr-muted-fg);" for="householdSizeSelect">
@@ -549,11 +533,11 @@
       <button class="btn btn-outline btn-sm" onclick="changeDate(-1)" style="min-height:44px;" aria-label="Previous week">&#8592; Prev</button>
       <div class="date-display" id="dateDisplay">Today</div>
       <button class="btn btn-outline btn-sm" onclick="changeDate(1)" style="min-height:44px;" aria-label="Next week">Next &#8594;</button>
-      <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" style="display:flex;align-items:center;gap:0.4rem;">
+      <button class="btn btn-primary" id="generateBtn" aria-label="Generate AI meal plan for this day" onclick="generateMealPlan()" style="display:flex;align-items:center;gap:0.4rem;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Generate AI Plan
       </button>
-      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" style="min-height:44px;display:flex;align-items:center;gap:0.4rem;" title="Generate a completely different plan">
+      <button class="btn btn-outline btn-sm" onclick="regenerateMealPlan()" aria-label="Regenerate meal plan with different meals" style="min-height:44px;display:flex;align-items:center;gap:0.4rem;" title="Generate a completely different plan">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
     </div>
@@ -1340,6 +1324,8 @@
     currentView = view;
     document.getElementById('dayViewBtn').classList.toggle('active', view === 'day');
     document.getElementById('weekViewBtn').classList.toggle('active', view === 'week');
+    document.getElementById('dayViewBtn').setAttribute('aria-selected', String(view === 'day'));
+    document.getElementById('weekViewBtn').setAttribute('aria-selected', String(view === 'week'));
     document.getElementById('dateNavigator').style.display = view === 'day' ? 'flex' : 'none';
     document.getElementById('mealsContainer').style.display = view === 'day' ? 'block' : 'none';
     document.getElementById('weekViewContainer').style.display = view === 'week' ? 'block' : 'none';

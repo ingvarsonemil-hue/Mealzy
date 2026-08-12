@@ -13,8 +13,7 @@
 <meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
 <link rel="stylesheet" href="/css/fonts.css">
 <link rel="stylesheet" href="/css/tokens.css">
-<link rel="stylesheet" href="/css/landing.css">
-<link rel="stylesheet" href="/css/funnel.css">
+<link rel="stylesheet" href="/css/app-theme.css">
 <link rel="stylesheet" href="/css/onboarding.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -48,33 +47,33 @@
       <fieldset style="border:none;padding:0;margin:0;">
         <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
         <div class="goal-grid" role="radiogroup" aria-label="Select your goal">
-          <label class="goal-card" data-goal="build_muscle">
-            <input type="radio" name="goal" value="build_muscle" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+          <label class="goal-card" data-goal="build_muscle" for="goalBuildMuscle">
+            <input type="radio" name="goal" id="goalBuildMuscle" value="build_muscle" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Build Muscle</span>
             <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </label>
-          <label class="goal-card" data-goal="lose_weight">
-            <input type="radio" name="goal" value="lose_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+          <label class="goal-card" data-goal="lose_weight" for="goalLoseWeight">
+            <input type="radio" name="goal" id="goalLoseWeight" value="lose_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Lose Weight</span>
             <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </label>
-          <label class="goal-card" data-goal="maintain_weight">
-            <input type="radio" name="goal" value="maintain_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+          <label class="goal-card" data-goal="maintain_weight" for="goalMaintainWeight">
+            <input type="radio" name="goal" id="goalMaintainWeight" value="maintain_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Maintain Weight</span>
             <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </label>
-          <label class="goal-card" data-goal="eat_healthier">
-            <input type="radio" name="goal" value="eat_healthier" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+          <label class="goal-card" data-goal="eat_healthier" for="goalEatHealthier">
+            <input type="radio" name="goal" id="goalEatHealthier" value="eat_healthier" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Eat Healthier</span>
             <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </label>
-          <label class="goal-card" data-goal="gain_weight">
-            <input type="radio" name="goal" value="gain_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+          <label class="goal-card" data-goal="gain_weight" for="goalGainWeight">
+            <input type="radio" name="goal" id="goalGainWeight" value="gain_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Gain Weight</span>
             <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </label>
-          <label class="goal-card" data-goal="improve_energy">
-            <input type="radio" name="goal" value="improve_energy" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+          <label class="goal-card" data-goal="improve_energy" for="goalImproveEnergy">
+            <input type="radio" name="goal" id="goalImproveEnergy" value="improve_energy" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Improve Energy</span>
             <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
           </label>
