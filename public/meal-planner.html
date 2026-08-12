@@ -759,7 +759,7 @@
   async function cloudLoad(uid) { /* no-op */ }
   async function cloudSave() { /* no-op — data saved server-side */ }
   async function signOut() {
-    try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) {}
+    try { await fetch('/api/auth/signout', { method: 'POST' }); } catch(e) { console.error('[Auth] Signout error:', e); }
     localStorage.clear(); window.location.href = 'login.html';
   }
   // ─────────────────────────
@@ -1182,7 +1182,7 @@
 
       try {
         await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
-      } catch(e) {}
+      } catch(e) { console.error('[XP] Award error:', e); }
 
     } catch(err) {
       showErrorState('Connection lost. Check your internet and try again.');

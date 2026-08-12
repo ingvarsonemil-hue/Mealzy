@@ -470,7 +470,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'onboarding' })
       });
-    } catch(e) {}
+    } catch(e) { console.error('[Onboarding] XP award error:', e); }
 
     // Redirect straight to the meal planner with autoGenerate flag
     window.location.href = 'meal-planner.html?autoGenerate=1';
