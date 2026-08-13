@@ -62,8 +62,8 @@ function MealRow({ meal, onSwap }) {
         </p>
         <p className="mt-1 text-[15px] font-medium leading-snug">{meal.name}</p>
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <Badge>{num(meal.kcal)} kcal</Badge>
           <Badge accent>Est. {meal.cost}</Badge>
+          <Badge>{num(meal.kcal)} kcal</Badge>
           {/* The page claims any meal can be swapped in one click; this is that
             * claim made touchable. It opens the same preview modal the hero CTA
             * does, seeded with the budget already on screen — the swap itself
@@ -224,7 +224,7 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
         />
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Left in budget</p>
-          <p className="mt-2 font-display text-[clamp(2.25rem,5vw,3rem)] font-black italic leading-none tabular-nums text-green dark:text-green-light">
+          <p className="mt-2 font-display text-[clamp(2.25rem,5vw,3rem)] font-black italic leading-none tabular-nums">
             {range(plan.saved)}
           </p>
         </div>
@@ -341,7 +341,7 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
                 aria-controls="showcase-rest-of-week"
                 className="border border-border-warm bg-cream hover:bg-muted-bg"
               >
-                {fullWeek ? 'Show fewer days' : 'Show full 7-day week'}
+                {fullWeek ? 'Show fewer days' : 'Show Thursday–Sunday'}
                 <ChevronDown
                   width="16"
                   height="16"
@@ -352,19 +352,13 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
             </div>
           </Reveal>
 
-          <GroceryList plan={plan} />
+          <GroceryList plan={plan} ctaHref={ctaHref} />
         </div>
 
         {/* Replaces the Mealzy-vs-ChatGPT table that used to sit below this
          * section: one line of positioning instead of a five-row teardown. */}
         <Reveal delay={160} as="p" className="mx-auto mt-10 max-w-prose text-center text-[17px] leading-[1.7]">
           Unlike generic recipe sites, every plan balances to your budget target before you shop.
-        </Reveal>
-
-        <Reveal delay={200} as="p" className="mt-6 text-center text-sm text-muted-fg">
-          Sample 7-day plan generated from preferences. Prices are estimates. Both prices and
-          quantities scale with the budget you set, so a bigger week shops for a bigger household
-          rather than paying more for the same food.
         </Reveal>
       </div>
 

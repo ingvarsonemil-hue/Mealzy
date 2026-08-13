@@ -4,7 +4,7 @@ import Reveal from '@/components/Reveal';
 const STEPS = [
   {
     title: 'Tell Mealzy about you',
-    body: "Calories, weekly budget, diet, and anything you can't eat. A 2-minute setup, once — it remembers."
+    body: "Calories, weekly budget, diet, and anything you can't eat. A 3-minute setup, once — it remembers."
   },
   {
     title: 'Get your week in 30 seconds',
@@ -30,7 +30,7 @@ export default function HowItWorks() {
           {/* Same sentence as the hero, word for word — the two places a
             * visitor meets the time claim must not quote different numbers. */}
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            2-minute setup. 30 seconds every week after. Every swap stays inside your budget.
+            3-minute setup. 30 seconds every week after. Every swap stays inside your budget.
           </p>
         </Reveal>
         <div className="mx-auto max-w-3xl">
@@ -42,7 +42,7 @@ export default function HowItWorks() {
             >
               <span
                 aria-hidden="true"
-                className="w-14 shrink-0 select-none font-display text-[clamp(2.5rem,4vw,3.5rem)] font-black italic leading-none text-green-muted sm:w-20"
+                className="w-14 shrink-0 select-none font-display text-[clamp(2.5rem,4vw,3.5rem)] font-black italic leading-none text-green-deep dark:text-green-light sm:w-20"
               >
                 {i + 1}
               </span>

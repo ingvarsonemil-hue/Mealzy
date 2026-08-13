@@ -62,7 +62,7 @@ export default function FeaturesGrid() {
             Plan. Shop. Save.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            Three things, done properly. Nothing else to learn.
+            Three things, done properly.
           </p>
         </Reveal>
 
@@ -80,7 +80,10 @@ export default function FeaturesGrid() {
               style={!reduced ? { transitionDelay: `${i * 150}ms` } : undefined}
             >
             <article
-              className="relative h-full overflow-hidden rounded-lg border border-border-warm bg-cream p-6 shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className={cn(
+                'relative h-full overflow-hidden rounded-lg border bg-cream p-6 shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+                i === 0 ? 'border-green/40 shadow-md' : 'border-border-warm'
+              )}
             >
               <span
                 aria-hidden="true"
@@ -89,7 +92,12 @@ export default function FeaturesGrid() {
                 {String(i + 1).padStart(2, '0')}
               </span>
               <p className="text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">{f.label}</p>
-              <h3 className="relative mt-3 font-display text-2xl font-bold leading-[1.15] tracking-[-0.01em]">
+              <h3
+                className={cn(
+                  'relative mt-3 font-display font-bold leading-[1.15] tracking-[-0.01em]',
+                  i === 0 ? 'text-[26px]' : 'text-2xl'
+                )}
+              >
                 {f.title}
               </h3>
               <p className="relative mt-3 text-[15px] leading-[1.6] text-muted-fg">{f.body}</p>

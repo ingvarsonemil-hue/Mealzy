@@ -18,11 +18,15 @@ const FAQS = [
   },
   {
     q: 'Can I use Mealzy without signing up?',
-    a: 'The sample week on this page re-plans itself as you move the budget, so you can try it before committing to anything. A free account is what generates and saves your personalized 7-day plan — no credit card required, and it takes about two minutes.'
+    a: 'No — but the sample week above lets you try it instantly. A free account (no credit card) generates your personalized plan in about three minutes.'
   },
   {
     q: 'What happens after 3 free plans?',
-    a: 'Nothing is taken away. Free covers 3 meal plans a month; once they are used the plans you already made stay in your account, and the count resets at the start of the next month. Pro is $8 a month or $62 a year and removes the limit, and Family is $16 a month or $128 a year and adds up to 4 profiles.',
+    a: 'Nothing is taken away. Free covers 3 meal plans a month; once they are used the plans you already made stay in your account, and the count resets at the start of the next month.',
+    plans: [
+      { name: 'Pro', price: '$8/month or $62/year' },
+      { name: 'Family', price: '$16/month or $128/year' }
+    ],
     /* The link is separate from the answer text so the string above stays
       * identical to the FAQPage JSON-LD in client/index.html. */
     href: '/pricing.html',
@@ -61,6 +65,15 @@ export default function Faq() {
                   <AccordionTrigger>{f.q}</AccordionTrigger>
                   <AccordionContent>
                     {f.a}
+                    {f.plans && (
+                      <ul role="list" className="mt-2 flex flex-col gap-1">
+                        {f.plans.map((p) => (
+                          <li key={p.name}>
+                            <strong className="font-semibold text-foreground">{p.name}:</strong> {p.price}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     {f.href && (
                       <>
                         {' '}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { scrollToHash } from '@/lib/utils';
+import { scrollToHash, cn } from '@/lib/utils';
 
 function columnsFor(ctaHref) {
   return [
@@ -8,7 +8,7 @@ function columnsFor(ctaHref) {
       links: [
         { href: '#how-it-works', label: 'How it works' },
         { href: '/pricing.html', label: 'Pricing' },
-        { href: '/dashboard.html', label: 'My plans' }
+        { href: '/dashboard.html', label: 'Your plans (sign in)', muted: true }
       ]
     },
     {
@@ -55,7 +55,7 @@ export default function Footer({ ctaHref = '/login.html?signup=1' }) {
             {/* The one time claim the site is held to, stated the same way in
               * the hero and in How it works. */}
             <p className="mt-2 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              2-minute setup. 30 seconds every week after.
+              3-minute setup. 30 seconds every week after.
             </p>
             {/* The prices in full, where someone looking for them last will
               * look. No tier is named here that the pricing page doesn't
@@ -79,7 +79,10 @@ export default function Footer({ ctaHref = '/login.html?signup=1' }) {
                     <a
                       href={l.href}
                       onClick={l.href.startsWith('#') ? (e) => scrollToHash(e, l.href) : undefined}
-                      className="text-[15px] text-on-forest-body no-underline transition-colors duration-200 hover:text-on-forest"
+                      className={cn(
+                        'text-[15px] no-underline transition-colors duration-200 hover:text-on-forest',
+                        l.muted ? 'text-on-forest-muted' : 'text-on-forest-body'
+                      )}
                     >
                       {l.label}
                     </a>

@@ -16,9 +16,14 @@ export default function ClosingCta({ ctaHref = 'login.html?signup=1' }) {
           Mealzy builds the week, holds your budget, and writes the grocery list in 30 seconds.
           Free to start — no credit card.
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-8 flex flex-col items-center gap-3">
           <Button href={ctaHref} size="lg">Build My Free Plan</Button>
-          <Button href="pricing.html" variant="veil" size="lg">See pricing</Button>
+          <a
+            href="pricing.html"
+            className="text-sm text-on-forest-muted underline decoration-from-font underline-offset-2 hover:text-on-forest"
+          >
+            See pricing
+          </a>
         </div>
       </Reveal>
     </section>

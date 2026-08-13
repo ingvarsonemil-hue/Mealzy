@@ -1,19 +1,15 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input, Select, Label } from '@/components/ui/field';
-import { Check, Shield } from '@/components/icons';
+import { Check } from '@/components/icons';
 import { DIETS, MIN_BUDGET, MAX_BUDGET } from '@/components/showcase-plan';
-
-const MIN_KCAL = 1200;
-const MAX_KCAL = 4000;
 
 const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
 const TRUST_ITEMS = [
   { icon: Check, label: '3 free plans/month' },
   { icon: Check, label: 'No credit card' },
-  { icon: Check, label: '2-minute setup' },
-  { icon: Shield, label: 'Nothing to install' }
+  { icon: Check, label: '3-minute setup' }
 ];
 
 /* The planner form itself, sitting in the hero rather than beside it: the
@@ -27,17 +23,15 @@ const TRUST_ITEMS = [
  * field and the slider are two handles on one piece of page state, so moving
  * either moves the other and they cannot drift apart. */
 function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange, ctaHref }) {
-  const [cals, setCals] = React.useState('2000');
   const [budgetText, setBudgetText] = React.useState(() => String(budget));
 
   /* The slider is the other handle on this number; when it moves, the field
    * follows it. */
   React.useEffect(() => setBudgetText(String(budget)), [budget]);
 
-  /* Both number fields accept any keystroke while typing and are clamped here
-   * rather than on change — a half-typed "20" must not snap to 1200, and a
-   * half-typed "2" on its way to "200" must not snap the slider to $20. */
-  const kcal = clamp(parseInt(cals, 10) || 2000, MIN_KCAL, MAX_KCAL);
+  /* Accepts any keystroke while typing and is clamped here rather than on
+   * change — a half-typed "20" must not snap to 1200, and a half-typed "2" on
+   * its way to "200" must not snap the slider to $20. */
   const dollars = clamp(parseInt(budgetText, 10) || budget, MIN_BUDGET, MAX_BUDGET);
 
   /* Only in-range keystrokes are pushed to the page, so the week below re-plans
@@ -57,7 +51,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange
     if (dollars !== budget && onBudgetChange) onBudgetChange(dollars);
   };
 
-  const build = () => onStartPlan && onStartPlan({ budget: dollars, dietId, kcal });
+  const build = () => onStartPlan && onStartPlan({ budget: dollars, dietId });
 
   return (
     <div
@@ -74,26 +68,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange
         * border boxing the fields off from the button that submits them. The
         * contrast that matters is the card against the forest hero behind it,
         * and that is already the strongest edge on the page. */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-        <div>
-          <Label htmlFor="heroCals">Daily calorie target</Label>
-          <Input
-            id="heroCals"
-            type="number"
-            inputMode="numeric"
-            min={MIN_KCAL}
-            max={MAX_KCAL}
-            step="50"
-            placeholder="2000"
-            value={cals}
-            onChange={(e) => setCals(e.target.value)}
-            aria-describedby="heroCalsHint"
-          />
-          <p id="heroCalsHint" className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
-            Anything from {MIN_KCAL.toLocaleString('en-US')} to {MAX_KCAL.toLocaleString('en-US')} kcal.
-          </p>
-        </div>
-
+      <div className="grid gap-6 sm:grid-cols-2 lg:gap-8">
         <div>
           <Label htmlFor="heroBudget">Weekly budget ($)</Label>
           {/* The dollar sign sits in the field rather than only in the label, so
@@ -126,7 +101,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange
           </p>
         </div>
 
-        <div className="sm:col-span-2 lg:col-span-1">
+        <div>
           <Label htmlFor="heroDiet">Dietary style</Label>
           <Select id="heroDiet" value={dietId} onChange={(e) => onDietChange && onDietChange(e.target.value)}>
             {DIETS.map((d) => (
@@ -154,7 +129,7 @@ function PlannerForm({ onStartPlan, budget, onBudgetChange, dietId, onDietChange
           build();
         }}
       >
-        Build My Free Plan
+        Get Started — Free
       </Button>
       {/* What it costs, said at the point of commitment rather than left for the
         * pricing page to reveal. A visitor who suspects a paywall behind the
@@ -197,7 +172,7 @@ export default function Hero({ onStartPlan, budget, onBudgetChange, dietId, onDi
           {/* The one time claim the whole site is held to. Every other mention
             * of how long this takes is a restatement of this sentence. */}
           <p className="mt-2 text-[17px] font-semibold leading-[1.55] text-on-forest-strong">
-            2-minute setup. 30 seconds every week after.
+            3-minute setup. 30 seconds every week after.
           </p>
         </div>
 
