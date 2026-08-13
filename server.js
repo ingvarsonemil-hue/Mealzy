@@ -181,6 +181,8 @@ app.get('/privacy.html', (req, res) => {
 // Without a build (local dev before `npm run build`) we fall back to public/.
 const distDir = path.join(__dirname, 'dist');
 const hasDistBuild = fs.existsSync(path.join(distDir, 'index.html'));
+app.use(express.static('public'));
+
 if (hasDistBuild) {
   app.use(express.static(distDir, {
     setHeaders: (res, filePath) => {
