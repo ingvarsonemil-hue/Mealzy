@@ -1408,6 +1408,20 @@ app.get('/api/plans', requireSession, async (req, res) => {
   res.json({ success: true, plans });
 });
 
+// GET /api/plans/today
+app.get('/api/plans/today', requireSession, async (req, res) => {
+  const session = req.session;
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const recent = await db.getRecentPlans(session.userId, 30);
+    const plan = recent.find(p => p && p.date === today) || null;
+    res.json({ success: true, plan });
+  } catch (err) {
+    console.error('Plan today fetch error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // PRO ACTIVATION
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•

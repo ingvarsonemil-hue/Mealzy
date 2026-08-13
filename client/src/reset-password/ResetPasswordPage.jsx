@@ -2,8 +2,61 @@ import * as React from 'react';
 import PasswordField from '@/components/PasswordField';
 import { Button } from '@/components/ui/button';
 import { Label, Input } from '@/components/ui/field';
-import { confirmPasswordReset } from '@/lib/auth';
-import { cn } from '@/lib/utils';
+import { confirmPasswordReset, requestPasswordReset } from '@/lib/auth';
+import { cn, isValidEmail } from '@/lib/utils';
+
+function RequestNewLinkForm() {
+  const [email, setEmail] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isValidEmail(email)) { setMsg({ kind: 'error', text: 'Enter a valid email address.' }); return; }
+    setBusy(true);
+    setMsg(null);
+    try {
+      await requestPasswordReset(email);
+      setMsg({ kind: 'success', text: 'If that email has an account, a reset link is on its way. Check your inbox.' });
+    } catch (err) {
+      setMsg({ kind: 'error', text: 'Could not connect. Email support@mealzy.org if this persists.' });
+    }
+    setBusy(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
+      <div>
+        <Label htmlFor="resend-email">Email</Label>
+        <Input
+          id="resend-email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+      {msg && (
+        <p
+          role="status"
+          className={cn(
+            'rounded-md border px-3.5 py-3 text-sm leading-normal',
+            msg.kind === 'success'
+              ? 'border-green/30 bg-green/10 text-green-deep dark:text-green-light'
+              : 'border-error/30 bg-error/10 text-brick dark:text-red-300'
+          )}
+        >
+          {msg.text}
+        </p>
+      )}
+      <Button type="submit" full disabled={busy}>
+        {busy ? 'Sending...' : 'Send new reset link'}
+      </Button>
+    </form>
+  );
+}
 
 /* POST /api/auth/reset-confirm { token, newPassword } — token arrives in the
  * URL from the email link (see server.js reset-request). States mirror the
@@ -65,9 +118,15 @@ export default function ResetPasswordPage() {
               </p>
               <p className="mt-4 text-[15px] leading-[1.65] text-muted-fg">
                 It may have expired or already been used. Reset links only work once and expire after
-                1 hour — just request a new one below.
+                1 hour — request a new one below.
               </p>
-              <Button href="login.html" full className="mt-6">Back to sign in</Button>
+              <RequestNewLinkForm />
+              <a
+                href="login.html"
+                className="mt-5 block text-center text-sm text-muted-fg underline decoration-from-font underline-offset-2 hover:text-foreground"
+              >
+                Back to sign in
+              </a>
             </div>
           )}
 

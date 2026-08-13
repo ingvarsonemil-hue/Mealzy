@@ -24,7 +24,7 @@ const AccordionTrigger = React.forwardRef(function AccordionTrigger(
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cn(
-          'flex flex-1 cursor-pointer items-center justify-between gap-4 py-5 text-left font-body text-[17px] font-semibold text-foreground transition-colors duration-200 hover:text-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green [&[data-state=open]>svg]:rotate-180',
+          'flex flex-1 cursor-pointer items-center justify-between gap-4 py-5 text-left font-body text-[17px] font-medium text-foreground transition-colors duration-200 hover:text-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green data-[state=open]:font-bold [&[data-state=open]>svg]:rotate-180',
           className
         )}
         {...props}
@@ -43,10 +43,10 @@ const AccordionContent = React.forwardRef(function AccordionContent(
   return (
     <AccordionPrimitive.Content
       ref={ref}
-      className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:bg-muted-bg"
       {...props}
     >
-      <div className={cn('pb-5 pr-9 text-[15px] leading-relaxed text-muted-fg', className)}>{children}</div>
+      <div className={cn('px-1 pb-5 pr-9 text-[15px] leading-relaxed text-muted-fg', className)}>{children}</div>
     </AccordionPrimitive.Content>
   );
 });

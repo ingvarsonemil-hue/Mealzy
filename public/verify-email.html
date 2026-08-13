@@ -29,8 +29,10 @@
   <!-- Invalid / expired token -->
   <div id="invalidState" style="display:none;">
     <div class="auth-msg show" id="invalidMsg" role="alert">This link doesn't work anymore</div>
-    <p class="h-sub">It may have expired or already been used. You can request a new verification link from your account settings.</p>
-    <a href="login.html" class="btn btn-primary btn-full">Back to sign in</a>
+    <p class="h-sub">It may have expired or already been used. Request a new one below.</p>
+    <button type="button" id="resendBtn" class="btn btn-primary btn-full" onclick="resendVerification()">Resend verification email</button>
+    <div id="resendMsg" class="auth-msg" role="status" style="margin-top:0.75rem;"></div>
+    <a href="login.html" class="btn btn-outline btn-full" style="margin-top:0.75rem;">Back to sign in</a>
   </div>
 
   <!-- Success state -->
@@ -78,6 +80,33 @@
     } catch(err) {
       show('invalidState');
       document.getElementById('invalidMsg').textContent = 'Could not connect. Please check your connection and try again.';
+    }
+  }
+
+  async function resendVerification() {
+    const btn = document.getElementById('resendBtn');
+    const msg = document.getElementById('resendMsg');
+    btn.disabled = true;
+    msg.className = 'auth-msg';
+    msg.textContent = '';
+    try {
+      const res = await fetch('/api/auth/resend-verification', { method: 'POST' });
+      const data = await res.json();
+      if (res.status === 401) {
+        msg.className = 'auth-msg show';
+        msg.textContent = 'Sign in first, then try again.';
+      } else if (!res.ok) {
+        msg.className = 'auth-msg show';
+        msg.textContent = data.error || 'Something went wrong. Please try again.';
+      } else {
+        msg.className = 'auth-msg success show';
+        msg.textContent = data.message || 'Verification email sent — check your inbox.';
+      }
+    } catch (err) {
+      msg.className = 'auth-msg show';
+      msg.textContent = 'Could not connect. Please check your connection and try again.';
+    } finally {
+      btn.disabled = false;
     }
   }
 

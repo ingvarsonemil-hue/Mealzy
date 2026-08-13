@@ -472,6 +472,6 @@
       });
     } catch(e) { console.error('[Onboarding] XP award error:', e); }
 
-    // Redirect straight to the meal planner with autoGenerate flag
-    window.location.href = 'meal-planner.html?autoGenerate=1';
+    // Redirect to the dashboard, which handles the empty/first-plan state
+    window.location.href = 'dashboard.html';
   }
