@@ -28,25 +28,32 @@
 <main id="main" class="page-card ob">
   <div class="ob-top">
     <a href="/" class="ob-logo">Mealzy</a>
-    <nav aria-label="Onboarding progress">
-      <div class="ob-progress" role="progressbar" aria-label="Onboarding step 1 of 7" aria-valuenow="1" aria-valuemin="1" aria-valuemax="7" id="stepProgress">
-        <div class="ob-progress-fill" id="obProgressFill"></div>
-      </div>
-    </nav>
   </div>
+  <nav aria-label="Onboarding progress" class="ob-progress-nav">
+    <p class="ob-progress-label" id="stepLabel">Step 1 of 7 — Goals</p>
+    <div class="ob-progress" role="progressbar" aria-labelledby="stepLabel" aria-valuenow="1" aria-valuemin="1" aria-valuemax="7" aria-valuetext="Step 1 of 7: Goals" id="stepProgress">
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+    </div>
+  </nav>
 
   <!-- STEP 1: Name + Goal -->
   <div class="step-content" id="step1">
-    <h1 class="ob-step-title">Let's personalise your plan</h1>
+    <h1 class="ob-step-title" tabindex="-1">Let's personalise your plan</h1>
     <div class="ob-step-sub">A few quick steps and we'll generate your first meal plan — automatically.</div>
     <div class="form-group">
       <label class="form-label" for="inputName">Your first name</label>
-      <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name">
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name" aria-describedby="stepError">
     </div>
     <div class="form-group" style="margin-top:1.25rem;">
       <fieldset style="border:none;padding:0;margin:0;">
         <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
-        <div class="goal-grid" role="radiogroup" aria-label="Select your fitness goal">
+        <div class="goal-grid" role="radiogroup" aria-label="Select your fitness goal" aria-describedby="stepError">
           <label class="goal-card" data-goal="build_muscle" for="goalBuildMuscle">
             <input type="radio" name="goal" id="goalBuildMuscle" value="build_muscle" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
             <span class="goal-label">Build Muscle</span>
@@ -84,9 +91,9 @@
 
   <!-- STEP 2: Sex -->
   <div class="step-content hidden" id="step2">
-    <h1 class="ob-step-title">What's your gender?</h1>
+    <h1 class="ob-step-title" tabindex="-1">What's your gender?</h1>
     <div class="ob-step-sub">Used to personalize your calorie and macro targets.</div>
-    <div class="goal-grid" role="radiogroup" aria-label="Select your sex" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+    <div class="goal-grid" role="radiogroup" aria-label="Select your sex" aria-describedby="stepError" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
       <button type="button" class="sex-card" data-sex="male" onclick="selectSex(this)">Male</button>
       <button type="button" class="sex-card" data-sex="female" onclick="selectSex(this)">Female</button>
       <button type="button" class="sex-card" data-sex="other" onclick="selectSex(this)">Other</button>
@@ -107,67 +114,70 @@
 
   <!-- STEP 3: Birthdate -->
   <div class="step-content hidden" id="step3">
-    <h1 class="ob-step-title">When were you born?</h1>
+    <h1 class="ob-step-title" tabindex="-1">When were you born?</h1>
     <div class="ob-step-sub">This is used to calculate your daily nutrition targets.</div>
-    <div class="form-row" style="grid-template-columns: 1fr 0.7fr 1fr;">
-      <div class="form-group">
-        <label class="form-label" for="dobMonth">Month</label>
-        <select class="form-select" id="dobMonth"></select>
+    <fieldset style="border:none;padding:0;margin:0;" aria-describedby="stepError">
+      <legend class="sr-only">Date of birth</legend>
+      <div class="form-row" style="grid-template-columns: 1fr 0.7fr 1fr;">
+        <div class="form-group">
+          <label class="form-label" for="dobMonth">Month</label>
+          <select class="form-select" id="dobMonth"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dobDay">Day</label>
+          <select class="form-select" id="dobDay"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dobYear">Year</label>
+          <select class="form-select" id="dobYear"></select>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="dobDay">Day</label>
-        <select class="form-select" id="dobDay"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="dobYear">Year</label>
-        <select class="form-select" id="dobYear"></select>
-      </div>
-    </div>
+    </fieldset>
   </div>
 
   <!-- STEP 4: Height -->
   <div class="step-content hidden" id="step4">
-    <h1 class="ob-step-title">What's your height?</h1>
+    <h1 class="ob-step-title" tabindex="-1">What's your height?</h1>
     <div class="ob-step-sub">Used to calculate your daily nutrition targets.</div>
-    <div class="chips-group" style="margin-bottom:1rem;">
-      <button type="button" class="chip active" data-unit="cm" onclick="setHeightUnit('cm')">cm</button>
-      <button type="button" class="chip" data-unit="ftin" onclick="setHeightUnit('ftin')">ft, in</button>
+    <div class="chips-group" role="group" aria-label="Height unit" style="margin-bottom:1rem;">
+      <button type="button" class="chip active" data-unit="cm" aria-pressed="true" onclick="setHeightUnit('cm')">cm</button>
+      <button type="button" class="chip" data-unit="ftin" aria-pressed="false" onclick="setHeightUnit('ftin')">ft, in</button>
     </div>
     <div id="heightCmRow" class="form-group">
       <label class="form-label" for="heightCm">Height (cm)</label>
-      <input type="number" class="form-input" id="heightCm" min="100" max="250" placeholder="170">
+      <input type="number" class="form-input" id="heightCm" min="100" max="250" placeholder="170" aria-describedby="stepError">
     </div>
     <div id="heightFtInRow" class="form-row hidden">
       <div class="form-group">
-        <label class="form-label" for="heightFt">Feet</label>
-        <input type="number" class="form-input" id="heightFt" min="3" max="8" placeholder="5">
+        <label class="form-label" for="heightFt">Height (ft)</label>
+        <input type="number" class="form-input" id="heightFt" min="3" max="8" placeholder="5" aria-describedby="stepError">
       </div>
       <div class="form-group">
-        <label class="form-label" for="heightIn">Inches</label>
-        <input type="number" class="form-input" id="heightIn" min="0" max="11" placeholder="8">
+        <label class="form-label" for="heightIn">Height (in)</label>
+        <input type="number" class="form-input" id="heightIn" min="0" max="11" placeholder="8" aria-describedby="stepError">
       </div>
     </div>
   </div>
 
   <!-- STEP 5: Weight -->
   <div class="step-content hidden" id="step5">
-    <h1 class="ob-step-title">What's your weight?</h1>
+    <h1 class="ob-step-title" tabindex="-1">What's your weight?</h1>
     <div class="ob-step-sub">Used to calculate your daily nutrition targets.</div>
-    <div class="chips-group" style="margin-bottom:1rem;">
-      <button type="button" class="chip active" data-unit="kg" onclick="setWeightUnit('kg')">kg</button>
-      <button type="button" class="chip" data-unit="lbs" onclick="setWeightUnit('lbs')">lbs</button>
+    <div class="chips-group" role="group" aria-label="Weight unit" style="margin-bottom:1rem;">
+      <button type="button" class="chip active" data-unit="kg" aria-pressed="true" onclick="setWeightUnit('kg')">kg</button>
+      <button type="button" class="chip" data-unit="lbs" aria-pressed="false" onclick="setWeightUnit('lbs')">lbs</button>
     </div>
     <div class="form-group">
       <label class="form-label" for="weightInput" id="weightLabel">Weight (kg)</label>
-      <input type="number" class="form-input" id="weightInput" min="1" placeholder="70">
+      <input type="number" class="form-input" id="weightInput" min="1" placeholder="70" aria-describedby="stepError">
     </div>
   </div>
 
   <!-- STEP 6: Activity Level -->
   <div class="step-content hidden" id="step6">
-    <h1 class="ob-step-title">How active are you?</h1>
+    <h1 class="ob-step-title" tabindex="-1">How active are you?</h1>
     <div class="ob-step-sub">Used to calculate your daily calorie needs.</div>
-    <div class="goal-grid" role="radiogroup" aria-label="Select your activity level" style="grid-template-columns: 1fr;">
+    <div class="goal-grid" role="radiogroup" aria-label="Select your activity level" aria-describedby="stepError" style="grid-template-columns: 1fr;">
       <label class="goal-card" data-activity="sedentary" onclick="selectActivity(this)">
         <span class="goal-label">Sedentary<br><small style="font-weight:400;color:var(--color-muted-fg);">Little to no exercise</small></span>
         <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
@@ -193,12 +203,12 @@
 
   <!-- STEP 7: Budget + Dietary -->
   <div class="step-content hidden" id="step7">
-    <div class="ob-step-title">Budget &amp; dietary needs</div>
+    <h1 class="ob-step-title" tabindex="-1">Budget &amp; dietary needs</h1>
     <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label" for="inputBudget">Weekly Food Budget</label>
-        <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100">
+        <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100" aria-describedby="stepError">
       </div>
       <div class="form-group">
         <label class="form-label" for="selectCurrency">Currency</label>

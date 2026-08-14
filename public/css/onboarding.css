@@ -1,10 +1,14 @@
   /* Onboarding wizard — page-specific pieces on top of the card-page layer */
-  .page-card.ob { max-width: 580px; }
-  .ob-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
-  .ob-top nav { flex: 1; margin-left: 1.5rem; }
-  .ob-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.35rem; color: var(--color-foreground); text-decoration: none; }
-  .ob-progress { width: 100%; height: 4px; background: var(--color-border); border-radius: var(--radius-full); overflow: hidden; }
-  .ob-progress-fill { width: 0; height: 100%; background: var(--color-green); border-radius: var(--radius-full); transition: width var(--duration-fast) var(--ease-out); }
+  .page-card.ob { max-width: 640px; }
+  .ob-top { display: flex; align-items: center; margin-bottom: 1.25rem; }
+  .ob-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; font-size: 1.75rem; line-height: 1; color: var(--color-foreground); text-decoration: none; }
+  .ob-progress-nav { margin-bottom: 2rem; }
+  .ob-progress-label { font-size: 0.85rem; font-weight: 600; color: var(--color-foreground); margin-bottom: 0.5rem; }
+  .ob-progress { display: flex; gap: 0.35rem; width: 100%; }
+  .ob-progress-seg { flex: 1; height: 8px; border-radius: var(--radius-full); background: var(--color-border); transition: background var(--duration-fast) var(--ease-out); }
+  .ob-progress-seg.done { background: var(--color-green); }
+  .ob-progress-seg.current { background: var(--color-green); box-shadow: 0 0 0 2px var(--clr-surface), 0 0 0 4px var(--color-green); }
+  @media (prefers-reduced-motion: reduce) { .ob-progress-seg { transition: none; } }
 
   .sex-card { position: relative; display: flex; align-items: center; justify-content: center; height: 60px; padding: 0 18px; width: 100%; background: var(--clr-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; transition: border-color var(--duration-fast), background var(--duration-fast); font-weight: 600; box-shadow: var(--shadow-sm); }
   .sex-card:hover { border-color: var(--color-green); }
@@ -52,8 +56,10 @@
 
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
   @media (max-width: 440px) { .form-row { grid-template-columns: 1fr; } }
-  .btn-skip { background: none; border: none; color: var(--color-muted-fg); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0.25rem; }
+  .btn-skip { display: inline-flex; align-items: center; min-height: 44px; background: none; border: none; color: var(--color-muted-fg); font-size: 0.85rem; cursor: pointer; text-decoration: underline; padding: 0.25rem 0.4rem; }
+  .ob-step-title:focus-visible { outline: 2px solid var(--color-green); outline-offset: 3px; border-radius: var(--radius-sm); }
   .hidden { display: none !important; }
   @media (prefers-reduced-motion: no-preference) {
     .page-card.ob { animation: rise 0.45s var(--ease-out) both; }
+    .step-content { animation: rise 0.25s var(--ease-out) both; }
   }

@@ -34,6 +34,7 @@
 
   let currentStep = 1;
   const totalSteps = 7;
+  const STEP_LABELS = ['Goals', 'Gender', 'Birth', 'Height', 'Weight', 'Activity', 'Budget'];
 
   const userData = {
     name: '',
@@ -61,19 +62,30 @@
 
   function showStep(step) {
     document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById('step' + step).classList.remove('hidden');
+    const stepEl = document.getElementById('step' + step);
+    stepEl.classList.remove('hidden');
     document.getElementById('btnBack').style.visibility = step > 1 ? 'visible' : 'hidden';
     document.getElementById('btnSkip').style.display = step < totalSteps ? 'inline-block' : 'none';
     document.getElementById('btnSkipDob').classList.toggle('hidden', step !== 3);
     const skipNote = document.getElementById('skipNote');
-    if (skipNote) skipNote.style.display = step < totalSteps ? 'block' : 'none';
+    if (skipNote) skipNote.style.display = step === 1 ? 'block' : 'none';
     const nextBtn = document.getElementById('btnNext');
     nextBtn.innerHTML = step === totalSteps
       ? `Create My Plan`
       : `Continue <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>`;
-    document.getElementById('obProgressFill').style.width = ((step / totalSteps) * 100) + '%';
-    document.getElementById('stepProgress').setAttribute('aria-valuenow', step);
-    document.getElementById('stepProgress').setAttribute('aria-label', 'Onboarding step ' + step + ' of ' + totalSteps);
+
+    const stepName = STEP_LABELS[step - 1];
+    document.getElementById('stepLabel').textContent = `Step ${step} of ${totalSteps} — ${stepName}`;
+    const progressEl = document.getElementById('stepProgress');
+    progressEl.setAttribute('aria-valuenow', step);
+    progressEl.setAttribute('aria-valuetext', `Step ${step} of ${totalSteps}: ${stepName}`);
+    document.querySelectorAll('.ob-progress-seg').forEach((seg, i) => {
+      seg.classList.toggle('done', i + 1 < step);
+      seg.classList.toggle('current', i + 1 === step);
+    });
+
+    const heading = stepEl.querySelector('.ob-step-title');
+    if (heading) heading.focus({ preventScroll: false });
   }
 
   function nextStep() {
