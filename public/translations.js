@@ -6,7 +6,7 @@ window.MEALZY_TRANSLATIONS = {
     sign_out: 'Sign Out', free_plan: 'Free Plan',
     // Header buttons
     btn_download_pdf: 'Print Plan', btn_share_card: 'Share Card',
-    btn_generate: "Generate Today's Plan", btn_regenerate: 'Regenerate Plan',
+    btn_generate: "Generate This Week's Plan", btn_regenerate: 'Regenerate Plan',
     btn_grocery: 'Generate Grocery List', btn_send: 'Send',
     // Greetings
     greeting_morning: 'Good morning', greeting_afternoon: 'Good afternoon', greeting_evening: 'Good evening',

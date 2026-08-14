@@ -22,7 +22,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Mealzy">
   <script src="/translations.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
   <style>
     /* ── Dashboard redesign ─────────────────────────────── */
     .main-content {
@@ -48,7 +47,7 @@
       background: var(--clr-card);
       border: 1px solid var(--clr-border);
       border-radius: 0.75rem;
-      padding: 1.1rem 1.25rem;
+      padding: 0.9rem 1rem;
       transition: box-shadow 0.2s, border-color 0.2s;
       position: relative;
     }
@@ -56,7 +55,7 @@
     .meal-card-v2.completed { opacity: 0.55; }
     .meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
 
-    .mcv2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.45rem; }
+    .mcv2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
     .mcv2-name {
       font-family: var(--font-display);
       font-style: italic;
@@ -64,22 +63,52 @@
       font-weight: 700;
       letter-spacing: -0.025em;
       line-height: 1.2;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.25rem;
       color: var(--clr-foreground);
     }
-    .mcv2-desc { font-size: 0.85rem; color: var(--clr-muted-fg); line-height: 1.5; margin-bottom: 0.75rem; }
+    .mcv2-desc { font-size: 0.85rem; color: var(--clr-muted-fg); line-height: 1.4; margin-bottom: 0.6rem; }
     .mcv2-stats {
       display: flex; align-items: center; gap: 1rem;
       font-size: 0.8rem; font-weight: 600; color: var(--clr-muted-fg);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.6rem;
     }
     .mcv2-stat { display: flex; align-items: center; gap: 0.25rem; }
     .mcv2-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
     .mcv2-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--clr-muted-fg); }
     .mcv2-check input { accent-color: var(--clr-primary); width: 16px; height: 16px; cursor: pointer; }
+    [data-theme="dark"] .mcv2-check input { outline: 1.5px solid var(--clr-muted-fg); outline-offset: 1px; border-radius: 3px; }
     .mcv2-btns { display: flex; gap: 0.4rem; }
-    .mcv2-rate { display: flex; align-items: center; gap: 0.5rem; padding-top: 0.6rem; margin-top: 0.6rem; border-top: 1px solid var(--clr-border); }
-    .mcv2-rate-lbl { font-size: 0.78rem; color: var(--clr-muted-fg); }
+
+    /* Empty states */
+    .macro-empty { text-align: center; padding: 1.25rem 1rem; }
+    .macro-empty p { margin: 0; font-size: 0.9rem; color: var(--clr-foreground); }
+    .macro-empty .hint { margin-top: 0.35rem; font-size: 0.82rem; color: var(--clr-muted-fg); }
+    .today-progress-empty { text-align: center; padding: 1.5rem 1.25rem; background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.85rem; box-shadow: 0 1px 4px rgba(26,61,43,0.08); }
+    [data-theme="dark"] .today-progress-empty { background: rgba(255,255,255,0.06); }
+    .today-progress-empty h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .today-progress-empty p { font-size: 0.88rem; color: var(--clr-muted-fg); margin: 0.25rem 0; }
+    .today-progress-empty .goals { font-size: 0.82rem; }
+
+    /* Recent plans */
+    .recent-plan { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 0; }
+    .recent-plan strong { font-size: 0.88rem; }
+    .recent-plan-link { font-size: 0.85rem; font-weight: 600; color: var(--clr-primary); text-decoration: none; white-space: nowrap; }
+    .recent-plan-link:hover { text-decoration: underline; }
+
+    /* Quick links row */
+    .quick-links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .quick-links a, .quick-links button {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 0.85rem;
+      border: 1px solid var(--clr-border);
+      border-radius: 2rem;
+      background: var(--clr-surface);
+      color: var(--clr-muted-fg);
+      font-size: 0.82rem; font-weight: 600;
+      text-decoration: none; cursor: pointer; font-family: inherit;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .quick-links a:hover, .quick-links button:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
 
     /* Page greeting */
     .dash-greeting { font-family: var(--font-display); font-style: italic; font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--clr-foreground); }
@@ -107,21 +136,7 @@
       .ring-card-v2 svg { width: 80px !important; height: 80px !important; }
     }
 
-    /* Quick action cards */
-    .quick-action-card {
-      border: 1px solid var(--clr-border);
-      box-shadow: 0 1px 4px rgba(26,61,43,0.07);
-    }
-    .quick-action-card:hover,
-    .quick-action-card:focus-visible {
-      border-color: var(--clr-primary);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(26,61,43,0.3);
-    }
-    [data-theme="dark"] .quick-action-card {
-      border-color: rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.05);
-    }
+    [data-theme="dark"] .macro-ring-track { stroke: var(--clr-muted-fg); stroke-opacity: 0.35; }
 
     /* Stat cards */
     .stat-card {
@@ -199,6 +214,10 @@
         <div>
           <div style="font-weight:700;font-size:0.88rem;" id="userName">Your account</div>
           <div class="text-muted text-sm" id="planLabel">Free Plan</div>
+          <div style="display:flex;gap:0.35rem;margin-top:0.3rem;">
+            <span class="badge badge-accent" id="streakBadge" style="font-size:0.68rem;display:none;"></span>
+            <span id="proBadge" style="display:none;background:var(--clr-primary);color:var(--clr-on-primary);font-size:0.62rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
+          </div>
         </div>
       </div>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 21V3H13C13.5 3 14 3.5 14 4V20C14 20.5 13.5 21 13 21H3.5Z"/><path d="M9 3.5V20.5"/><path d="M17 12H22"/><path d="M19.5 9L22 12L19.5 15"/></svg> Sign Out</button>
@@ -216,12 +235,10 @@
         <div class="dash-greeting-sub" id="greetingSub">Loading your plan...</div>
       </div>
       <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-        <span class="badge badge-accent" id="streakBadge" style="font-size:0.78rem;display:none;"></span>
-        <span id="proBadge" style="display:none;background:var(--clr-primary);color:var(--clr-on-primary);font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
         <button class="btn btn-outline btn-sm" id="printBtn" onclick="printMealPlan()" title="Print your meal plan" style="display:inline-flex;align-items:center;gap:0.35rem;"><span data-i18n="btn_download_pdf">Print Plan</span></button>
         <button class="btn btn-outline btn-sm" onclick="generateShareCard()" title="Download shareable image card" style="display:inline-flex;align-items:center;gap:0.35rem;"><span data-i18n="btn_share_card">Share Card</span></button>
 <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;">
-          <span id="generateBtnLabel">Generate Today's Plan</span>
+          <span id="generateBtnLabel">Generate This Week's Plan</span>
         </button>
       </div>
     </div>
@@ -257,7 +274,7 @@
         <div class="ring-card-v2">
           <div class="ring-label-v2" data-i18n="stat_protein">Protein</div>
           <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" class="macro-ring-track" stroke="var(--clr-border)" stroke-width="10"/>
             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-warning)" stroke-width="10"
               stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
               transform="rotate(-90 50 50)" id="ringProtein"/>
@@ -269,7 +286,7 @@
         <div class="ring-card-v2">
           <div class="ring-label-v2" data-i18n="macro_carbs">Carbs</div>
           <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" class="macro-ring-track" stroke="var(--clr-border)" stroke-width="10"/>
             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-info)" stroke-width="10"
               stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
               transform="rotate(-90 50 50)" id="ringCarbs"/>
@@ -281,7 +298,7 @@
         <div class="ring-card-v2">
           <div class="ring-label-v2" data-i18n="macro_fat">Fat</div>
           <svg width="100" height="100" viewBox="0 0 100 100" aria-hidden="true">
-            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-border)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="40" fill="none" class="macro-ring-track" stroke="var(--clr-border)" stroke-width="10"/>
             <circle cx="50" cy="50" r="40" fill="none" stroke="var(--clr-accent)" stroke-width="10"
               stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round"
               transform="rotate(-90 50 50)" id="ringFat"/>
@@ -291,11 +308,15 @@
           <div class="ring-target-v2" id="ringFatTarget">Goal: 0g</div>
         </div>
       </div>
+      <div class="macro-empty" id="macroEmptyState" style="display:none;">
+        <p>Your daily target: <strong id="macroEmptyTargets">0g protein · 0g carbs · 0g fat</strong></p>
+        <p class="hint">Mark a meal as done to see your progress.</p>
+      </div>
     </div>
 
 
     <!-- STAT CARDS -->
-    <div class="grid-4" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
+    <div class="grid-3" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
       <div class="stat-card">
         <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
         <div class="stat-value" id="statCalories">0</div>
@@ -317,12 +338,11 @@
         <div class="stat-value" id="statMealsDone">0/0</div>
         <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label" data-i18n="stat_water">Water</div>
-        <div class="stat-value" id="statWater" style="font-size:2rem;font-weight:700;">0</div>
-        <div class="stat-sub" id="statWaterSub">of 8 goal</div>
-        <div id="waterGlasses" style="margin-top:0.5rem;font-size:0.88rem;color:var(--clr-muted-fg);"></div>
-      </div>
+    </div>
+    <div class="today-progress-empty" id="statCardsEmpty" style="display:none;">
+      <h3>Today's Progress</h3>
+      <p>Mark your first meal as done to track calories, protein, and carbs.</p>
+      <p class="goals" id="statCardsEmptyGoals">Goals: ~0 kcal · 0g protein · 0g carbs · 0g fat</p>
     </div>
 
 
@@ -330,9 +350,12 @@
     <div id="gKeyTooltip" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(0,0,0,0.75);color:white;font-size:0.8rem;padding:0.5rem 0.9rem;border-radius:0.5rem;z-index:100;pointer-events:none;">Press <kbd style="background:rgba(255,255,255,0.2);border-radius:3px;padding:0.1rem 0.3rem;">G</kbd> to generate</div>
 
     <!-- RETENTION BANNERS -->
-    <div id="retentionBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:var(--clr-primary);color:#fff;font-size:0.9rem;align-items:center;justify-content:space-between;gap:1rem;">
+    <div id="retentionBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:var(--clr-primary);color:#fff;font-size:0.9rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
       <span id="retentionBannerText"></span>
-      <button onclick="document.getElementById('retentionBanner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:0.5rem;padding:0.3rem 0.75rem;cursor:pointer;font-size:0.8rem;white-space:nowrap;" data-i18n="btn_dismiss">Dismiss</button>
+      <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
+        <button onclick="generateMealPlan()" style="background:var(--clr-on-primary);color:var(--clr-primary);border:none;border-radius:0.5rem;padding:0.4rem 0.85rem;cursor:pointer;font-size:0.82rem;font-weight:700;">Generate New Plan</button>
+        <button onclick="document.getElementById('retentionBanner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;cursor:pointer;font-size:0.82rem;" data-i18n="btn_dismiss">Dismiss</button>
+      </div>
     </div>
 
     <!-- REFERRAL BANNER (after first plan) -->
@@ -360,40 +383,24 @@
 
     <!-- QUICK ACTIONS -->
     <div style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.35s both;">
-      <h2 style="margin-bottom:1rem;font-size:1rem;font-weight:700;" data-i18n="quick_actions">Quick Actions</h2>
-      <div class="grid-4" style="grid-template-columns:repeat(4,1fr);">
-        <a href="ai-coach.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M3.5 5.5C3.5 4.2 4.5 3.5 5.5 3.5H18.5C19.5 3.5 20.5 4.2 20.5 5.5V13.5C20.5 14.8 19.5 15.5 18.5 15.5H9.5L5.5 19.5V15.5C4.5 15.5 3.5 14.8 3.5 13.5V5.5Z"/><path d="M12 7.5L12.4 9L13.8 9.5L12.4 10L12 11.5L11.6 10L10.2 9.5L11.6 9L12 7.5Z"/></svg>
-          <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="ask_coach">Ask Mia</div>
-          <p class="text-muted text-sm" style="margin-top:0.3rem;">Get instant nutrition advice</p>
+      <h2 style="margin-bottom:0.75rem;font-size:0.85rem;font-weight:700;color:var(--clr-muted-fg);text-transform:uppercase;letter-spacing:0.05em;" data-i18n="quick_actions">Quick Actions</h2>
+      <div class="quick-links">
+        <a href="ai-coach.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5C3.5 4.2 4.5 3.5 5.5 3.5H18.5C19.5 3.5 20.5 4.2 20.5 5.5V13.5C20.5 14.8 19.5 15.5 18.5 15.5H9.5L5.5 19.5V15.5C4.5 15.5 3.5 14.8 3.5 13.5V5.5Z"/><path d="M12 7.5L12.4 9L13.8 9.5L12.4 10L12 11.5L11.6 10L10.2 9.5L11.6 9L12 7.5Z"/></svg>
+          <span data-i18n="ask_coach">AI Coach</span>
         </a>
-        <a href="grocery-list.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="grocery_list">Grocery List</div>
-          <p class="text-muted text-sm" style="margin-top:0.3rem;">Build this week's shopping list</p>
+        <a href="grocery-list.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span data-i18n="grocery_list">Grocery List</span>
         </a>
-        <a href="analytics.html" class="quick-action-card" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-decoration:none;display:block;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M4.5 20V13C4.5 12.5 4.8 12 5.3 12H8.2C8.7 12 9 12.5 9 13V20"/><path d="M10.5 20V7C10.5 6.5 10.8 6 11.3 6H14.2C14.7 6 15 6.5 15 7V20"/><path d="M16.5 20V16C16.5 15.5 16.8 15 17.3 15H20.2C20.7 15 21 15.5 21 16V20"/><path d="M3 20H21.5"/></svg>
-          <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="view_progress">View Progress</div>
-          <p class="text-muted text-sm" style="margin-top:0.3rem;">Track calories and macros</p>
+        <a href="analytics.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 20V13C4.5 12.5 4.8 12 5.3 12H8.2C8.7 12 9 12.5 9 13V20"/><path d="M10.5 20V7C10.5 6.5 10.8 6 11.3 6H14.2C14.7 6 15 6.5 15 7V20"/><path d="M16.5 20V16C16.5 15.5 16.8 15 17.3 15H20.2C20.7 15 21 15.5 21 16V20"/><path d="M3 20H21.5"/></svg>
+          <span data-i18n="view_progress">Analytics</span>
         </a>
-        <button class="quick-action-card" onclick="openImportRecipeModal()" style="background:var(--clr-surface);border-radius:10px;padding:1.25rem;cursor:pointer;transition:transform 0.15s ease,box-shadow 0.15s ease;text-align:left;font-family:inherit;width:100%;">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:0.6rem;display:block;" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-          <div class="quick-action-title" style="font-size:1rem;font-weight:700;font-family:var(--font-display);" data-i18n="import_recipe">Import Recipe</div>
-          <p class="text-muted text-sm" style="margin-top:0.3rem;">Scan or paste a recipe</p>
+        <button onclick="openImportRecipeModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <span data-i18n="import_recipe">Import Recipe</span>
         </button>
-      </div>
-    </div>
-
-
-    <!-- 7-DAY CALORIE HISTORY -->
-    <div class="card" style="margin-bottom:1.5rem;">
-      <div class="card-header">
-        <div class="card-title" data-i18n="calorie_history">7-Day Calorie History</div>
-        <span class="text-muted text-sm" data-i18n="calorie_history_sub">vs your daily goal</span>
-      </div>
-      <div style="height:180px;position:relative;">
-        <canvas id="calorieHistoryChart" role="img" aria-label="7-day calorie history bar chart showing daily intake versus daily goal"></canvas>
       </div>
     </div>
   </div><!-- /#dashboardContent -->
@@ -473,8 +480,6 @@
     grain: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4V21"/><path d="M12 8.5C11 7.5 9.5 7 9 5.5C10.5 5.5 12 7 12 8.5Z"/><path d="M12 13C11 12 9.5 11.5 9 10C10.5 10 12 11.5 12 13Z"/><path d="M12 8.5C13 7.5 14.5 7 15 5.5C13.5 5.5 12 7 12 8.5Z"/><path d="M12 13C13 12 14.5 11.5 15 10C13.5 10 12 11.5 12 13Z"/></svg>`,
     drop:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L5.5 13C5.5 17 8.5 20.5 12 20.5C15.5 20.5 18.5 17 18.5 13L12 3.5Z"/></svg>`,
     clock: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.5C8 4.5 4.5 8 4.5 12C4.5 16 8 19.5 12 19.5C16 19.5 19.5 16 19.5 12C19.5 8 16 4.5 12 4.5Z"/><path d="M12 8V12.5L15.5 14.5"/></svg>`,
-    thumbUp: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 22V11L12 3L13.5 3.5C14 3.7 14.5 4.3 14.5 5V9H20C20.8 9 21.5 9.7 21.5 10.5L20 18C19.8 19 19 19.5 18.2 19.5H7"/><path d="M7 11H3.5C3 11 2.5 11.5 2.5 12V21.5C2.5 22 3 22.5 3.5 22.5H7"/></svg>`,
-    thumbDn: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2V13L12 21L10.5 20.5C10 20.3 9.5 19.7 9.5 19V15H4C3.2 15 2.5 14.3 2.5 13.5L4 6C4.2 5 5 4.5 5.8 4.5H17"/><path d="M17 13H20.5C21 13 21.5 12.5 21.5 12V2.5C21.5 2 21 1.5 20.5 1.5H17"/></svg>`,
     fire: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3C12 3 10 7 9 9.5C8 8 8 6 9 4C6.5 6.5 6 9 6 11.5C6 15.8 8.7 19 12 19C15.3 19 18 15.8 18 11.5C18 9 17.5 7.5 16 6C16.5 7.5 16.5 9 16 10.5C15 8.5 14.5 6.5 12 3Z"/></svg>`,
     medal: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="6.5"/><path d="M8.5 3.5L6 8H10L12 5L14 8H18L15.5 3.5C15 2.7 14.2 2.5 13.5 2.5H10.5C9.8 2.5 9 2.7 8.5 3.5Z"/></svg>`,
     starOutline: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5L14.9 9.4L21.4 10.4L16.7 15L17.8 21.5L12 18.4L6.2 21.5L7.3 15L2.6 10.4L9.1 9.4L12 3.5Z"/></svg>`,
@@ -532,9 +537,7 @@
 
   let serverUser = null;
   let todayMeals = [];
-  let waterCount = 0;
   const today = new Date().toISOString().split('T')[0];
-  let calorieChart = null;
   let favoriteKeys = new Set();
 
   async function loadFavorites() {
@@ -624,8 +627,6 @@
     await loadTodayData();
     renderRecentPlans();
     checkRetentionBanners();
-    renderWaterGlasses();
-    buildCalorieHistoryChart();
     initPwaBanner();
     applyNavTranslations();
     checkProStatus();
@@ -690,9 +691,6 @@
   }
 
   async function loadTodayData() {
-    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
-    waterCount = water[today] || 0;
-
     let plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
 
     if (!plans[today] || !plans[today].meals || plans[today].meals.length === 0) {
@@ -833,13 +831,9 @@
       return meal.image_url || mealFallbacks[meal.type] || mealFallbacks.lunch;
     }
 
-    const ratings = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
-
-    const dayCompleteKey = 'mealzy_day_complete_' + today;
     const mealOrder = ['breakfast', 'lunch', 'snack', 'dinner'];
     todayMeals.sort((a, b) => mealOrder.indexOf(a.type) - mealOrder.indexOf(b.type));
     container.innerHTML = `<div class="grid-2" role="list">${todayMeals.map((meal, i) => {
-      const r = ratings[meal.name] || 0;
       const typeLabel = meal.type.charAt(0).toUpperCase() + meal.type.slice(1);
       const isFav = favoriteKeys.has((meal.name || '').trim().toLowerCase());
       return `
@@ -865,53 +859,14 @@
             <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i})" aria-label="Swap meal">Swap</button>
           </div>
         </div>
-        <div class="mcv2-rate">
-          <span class="mcv2-rate-lbl">Rate:</span>
-          <button onclick="rateMeal(${i}, 1)" style="background:${r===1?'hsl(152,52%,92%)':'var(--clr-muted-bg)'};border:1px solid ${r===1?'hsl(152,52%,70%)':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.55rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===1?'var(--clr-primary)':'var(--clr-muted-fg)'};" title="Like — more like this" aria-label="Like this meal">${ICO.thumbUp}</button>
-          <button onclick="rateMeal(${i}, -1)" style="background:${r===-1?'hsl(0,72%,95%)':'var(--clr-muted-bg)'};border:1px solid ${r===-1?'hsl(0,72%,80%)':'var(--clr-border)'};border-radius:0.5rem;padding:0.3rem 0.55rem;cursor:pointer;display:inline-flex;align-items:center;color:${r===-1?'var(--clr-destructive)':'var(--clr-muted-fg)'};" title="Dislike — avoid next time" aria-label="Dislike this meal">${ICO.thumbDn}</button>
-          ${r===1?'<span style="font-size:0.78rem;color:var(--clr-primary);">More like this</span>':''}
-          ${r===-1?'<span style="font-size:0.78rem;color:var(--clr-destructive);">Will be avoided</span>':''}
-        </div>
       </div>`;
     }).join('')}</div>`;
-
-    if (!localStorage.getItem(dayCompleteKey)) {
-      const wrap = document.createElement('div');
-      wrap.style.cssText = 'margin-top:1rem;text-align:center;';
-      wrap.innerHTML = '<button id="markDayCompleteBtn" class="btn btn-outline" onclick="markDayComplete(this)">Mark day complete</button>';
-      container.appendChild(wrap);
-    }
-  }
-
-  function markDayComplete(btn) {
-    const dayKey = 'mealzy_day_complete_' + today;
-    if (localStorage.getItem(dayKey)) return;
-    localStorage.setItem(dayKey, '1');
-    btn.disabled = true;
-    btn.textContent = 'Day complete!';
-    showToast('Day complete!', 'success');
   }
 
   function updateStats() {
-    const noPlan = !todayMeals || todayMeals.length === 0;
-    const ringsGrid = document.querySelector('.rings-grid-v2');
-    let macroEmpty = document.getElementById('macroEmptyState');
-    if (noPlan) {
-      if (ringsGrid) ringsGrid.style.display = 'none';
-      if (!macroEmpty) {
-        macroEmpty = document.createElement('p');
-        macroEmpty.id = 'macroEmptyState';
-        macroEmpty.style.cssText = 'text-align:center;color:var(--clr-muted-fg);font-size:0.88rem;padding:1.25rem 0;margin:0;';
-        macroEmpty.textContent = "Generate today's plan to see your macros.";
-        if (ringsGrid) ringsGrid.parentNode.insertBefore(macroEmpty, ringsGrid.nextSibling);
-      }
-      if (macroEmpty) macroEmpty.style.display = '';
-    } else {
-      if (ringsGrid) ringsGrid.style.display = '';
-      if (macroEmpty) macroEmpty.style.display = 'none';
-    }
-
     const completedMeals = todayMeals.filter(m => m.completed);
+    const hasCompleted = completedMeals.length > 0;
+
     const totalCals = completedMeals.reduce((s, m) => s + (m.calories || 0), 0);
     const totalProtein = completedMeals.reduce((s, m) => s + (m.protein || 0), 0);
     const totalCarbs = completedMeals.reduce((s, m) => s + (m.carbs || 0), 0);
@@ -922,6 +877,24 @@
     const goalCarbs = profile?.macros?.carbs || 200;
     const goalFat = profile?.macros?.fat || 67;
 
+    const ringsGrid = document.querySelector('.rings-grid-v2');
+    const macroEmpty = document.getElementById('macroEmptyState');
+    if (ringsGrid) ringsGrid.style.display = hasCompleted ? '' : 'none';
+    if (macroEmpty) {
+      macroEmpty.style.display = hasCompleted ? 'none' : '';
+      const targetsEl = document.getElementById('macroEmptyTargets');
+      if (targetsEl) targetsEl.textContent = `${goalProtein}g protein · ${goalCarbs}g carbs · ${goalFat}g fat`;
+    }
+
+    const statCards = document.getElementById('statCards');
+    const statCardsEmpty = document.getElementById('statCardsEmpty');
+    if (statCards) statCards.style.display = hasCompleted ? '' : 'none';
+    if (statCardsEmpty) {
+      statCardsEmpty.style.display = hasCompleted ? 'none' : '';
+      const goalsEl = document.getElementById('statCardsEmptyGoals');
+      if (goalsEl) goalsEl.textContent = `Goals: ~${goalCals} kcal · ${goalProtein}g protein · ${goalCarbs}g carbs · ${goalFat}g fat`;
+    }
+
     document.getElementById('statCalories').textContent = totalCals;
     document.getElementById('statCaloriesSub').textContent = `of ${goalCals} kcal goal`;
     document.getElementById('caloriesProgress').style.width = Math.min(100, (totalCals / goalCals) * 100) + '%';
@@ -931,9 +904,6 @@
     document.getElementById('proteinProgress').style.width = Math.min(100, (totalProtein / goalProtein) * 100) + '%';
 
     document.getElementById('statMealsDone').textContent = `${completedMeals.length}/${todayMeals.length}`;
-
-    const waterGoal = calcWaterGoal(profile);
-    document.getElementById('statWaterSub').textContent = `of ${waterGoal} glasses (8oz each)`;
 
     // Update rings
     updateRing('ringProtein', totalProtein, goalProtein, totalProtein + 'g');
@@ -963,72 +933,6 @@
     const offset = circumference - (pct * circumference);
     const el = document.getElementById(id);
     if (el) el.style.strokeDashoffset = offset;
-  }
-
-  // Water target per National Academy of Medicine Dietary Reference Intake (via Harvard T.H. Chan
-  // School of Public Health, Nutrition Source: nutritionsource.hsph.harvard.edu/water/).
-  // Formula: weight_kg × 32.5 ml (midpoint of 30–35 ml/kg range) ÷ 236.588 ml per 8 oz cup.
-  // Sex-based floors: ≥9 cups (women) / ≥13 cups (men) per NAM guidance.
-  // Fallback (no weight/sex): 11 cups (average of 13 male / 9 female NAM DRI).
-  function calcWaterGoal(p) {
-    const weight = p?.weight;
-    const gender = (p?.gender || '').toLowerCase();
-    let cups;
-    if (weight) {
-      cups = (weight * 32.5) / 236.588;
-      const floor = gender === 'female' ? 9 : gender === 'male' ? 13 : 0;
-      if (floor) cups = Math.max(cups, floor);
-    } else {
-      cups = 11;
-    }
-    return Math.round(cups);
-  }
-
-  function renderWaterGlasses() {
-    const waterGoal = calcWaterGoal(profile);
-    const container = document.getElementById('waterGlasses');
-    const hasWeight = !!(profile?.weight);
-    const note = hasWeight
-      ? 'Based on National Academy of Medicine guidelines, adjusted for your body weight'
-      : 'Add your weight in Settings for a personalized target';
-    container.innerHTML =
-      `<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.3rem;">` +
-      `<button onclick="removeWater()" aria-label="Remove a glass" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--clr-border);background:var(--clr-muted-bg);color:var(--clr-foreground);font-size:1rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;">−</button>` +
-      `<button onclick="addWater()" aria-label="Add a glass" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--clr-primary);background:var(--clr-primary);color:var(--clr-on-primary);font-size:1rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;font-family:inherit;">+</button>` +
-      `</div>` +
-      `<span style="font-size:0.78rem;color:var(--clr-muted-fg);">${note} · ` +
-      `<a href="https://nutritionsource.hsph.harvard.edu/water/" target="_blank" rel="noopener" ` +
-      `style="color:var(--clr-primary);text-decoration:none;">Harvard T.H. Chan</a></span>`;
-    const statWater = document.getElementById('statWater');
-    if (statWater) statWater.textContent = waterCount;
-  }
-
-  function addWater() {
-    waterCount += 1;
-    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
-    water[today] = waterCount;
-    localStorage.setItem('mealzy_water', JSON.stringify(water));
-    renderWaterGlasses();
-    updateStats();
-  }
-
-  function removeWater() {
-    if (waterCount <= 0) return;
-    waterCount -= 1;
-    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
-    water[today] = waterCount;
-    localStorage.setItem('mealzy_water', JSON.stringify(water));
-    renderWaterGlasses();
-    updateStats();
-  }
-
-  function toggleWater(index) {
-    waterCount = index + 1 <= waterCount ? index : index + 1;
-    const water = JSON.parse(localStorage.getItem('mealzy_water') || '{}');
-    water[today] = waterCount;
-    localStorage.setItem('mealzy_water', JSON.stringify(water));
-    renderWaterGlasses();
-    updateStats();
   }
 
   function toggleMealDone(index, checked) {
@@ -1326,13 +1230,15 @@
     list.innerHTML = recent.map((entry, i) => {
       const d = new Date(entry.generatedAt);
       const label = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-      const preview = (entry.meals || []).slice(0, 2).map(m => m.name || m.type).filter(Boolean).join(', ');
-      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 0;${i < recent.length - 1 ? 'border-bottom:1px solid var(--clr-border);' : ''}">
+      const meals = entry.meals || [];
+      const mealCount = meals.length;
+      const totalCals = meals.reduce((s, m) => s + (m.calories || 0), 0);
+      return `<div class="recent-plan" style="${i < recent.length - 1 ? 'border-bottom:1px solid var(--clr-border);' : ''}">
         <div>
-          <div style="font-weight:600;font-size:0.88rem;">${label}</div>
-          ${preview ? `<div style="font-size:0.8rem;color:var(--clr-muted);margin-top:0.15rem;">${preview}…</div>` : ''}
+          <strong>${label}</strong>
+          <span class="text-muted text-sm">${mealCount} meal${mealCount === 1 ? '' : 's'}${totalCals ? ` · ~${totalCals} kcal` : ''}</span>
         </div>
-        <button onclick="loadRecentPlan(${i})" class="btn btn-outline btn-sm" style="white-space:nowrap;">Load plan</button>
+        <a href="#" class="recent-plan-link" onclick="loadRecentPlan(${i});return false;">Load plan →</a>
       </div>`;
     }).join('');
   }
@@ -1363,7 +1269,10 @@
       bannerText.textContent = 'Sunday evening — a great time to plan your meals for the week ahead.';
       banner.style.display = 'flex';
     } else if (daysSinceLast >= 7 && isFinite(daysSinceLast)) {
-      bannerText.textContent = `Welcome back! It's been ${Math.floor(daysSinceLast)} days since your last meal plan. Generate a fresh one?`;
+      const daysFloor = Math.floor(daysSinceLast);
+      const weeksSince = Math.floor(daysFloor / 7);
+      const timeLabel = weeksSince >= 1 ? `${weeksSince} week${weeksSince === 1 ? '' : 's'}` : `${daysFloor} days`;
+      bannerText.textContent = `Your last plan was ${timeLabel} ago. Ready for a fresh week?`;
       banner.style.display = 'flex';
     }
   }
@@ -1446,76 +1355,6 @@
       btn.textContent = '↺ Swap';
       card.style.opacity = '';
     }
-  }
-
-  // === STAR RATINGS ===
-  function rateMeal(mealIndex, rating) {
-    const meal = todayMeals[mealIndex];
-    if (!meal) return;
-    const ratings = JSON.parse(localStorage.getItem('mealzy_ratings') || '{}');
-    ratings[meal.name] = rating;
-    localStorage.setItem('mealzy_ratings', JSON.stringify(ratings));
-    renderMeals();
-    const rLabel = rating === 1 ? '👍 Liked! More like this next time' : '👎 Got it — will avoid next time';
-    showToast(rLabel, 'success');
-  }
-
-  // === 7-DAY CALORIE HISTORY CHART ===
-  function buildCalorieHistoryChart() {
-    const ctx = document.getElementById('calorieHistoryChart');
-    if (!ctx) return;
-    const logs = JSON.parse(localStorage.getItem('mealzy_nutrition_logs') || '{}');
-    const goalCals = profile?.dailyCalories || 2000;
-    const days = [];
-    const labels = [];
-    const data = [];
-
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      days.push(dateStr);
-      labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
-      data.push(logs[dateStr] ? logs[dateStr].calories : 0);
-    }
-
-    if (calorieChart) calorieChart.destroy();
-    calorieChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Calories',
-            data,
-            backgroundColor: data.map(v => v > 0 ? 'hsl(152,52%,50%)' : 'hsl(152,52%,85%)'),
-            borderRadius: 6,
-            borderSkipped: false
-          },
-          {
-            label: 'Goal',
-            data: Array(7).fill(goalCals),
-            type: 'line',
-            borderColor: 'hsl(32,88%,54%)',
-            borderDash: [5, 4],
-            borderWidth: 2,
-            pointRadius: 0,
-            fill: false
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top', labels: { font: { family: 'Inter', size: 11 }, boxWidth: 12 } }
-        },
-        scales: {
-          y: { beginAtZero: true, grid: { color: 'hsl(40,20%,92%)' }, ticks: { font: { size: 11 } } },
-          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
-        }
-      }
-    });
   }
 
   // === PWA INSTALL BANNER ===
