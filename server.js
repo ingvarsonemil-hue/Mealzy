@@ -175,13 +175,14 @@ app.get('/privacy.html', (req, res) => {
   res.redirect(301, '/privacy-policy.html');
 });
 
-// â”€â”€ Homepage React build (Phase 1 redesign) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// vite build outputs dist/ (index.html + hashed assets). When present it wins
-// for "/" and "/index.html"; every other page still comes from public/.
-// Without a build (local dev before `npm run build`) we fall back to public/.
+// â”€â”€ React marketing pages (see vite.config.mjs for the full page list) â”€â”€â”€â”€â”€â”€
+// vite build outputs dist/ (index.html, pricing.html, login.html, etc. +
+// hashed assets). When present, dist/ wins for every page it builds; app
+// pages with no React version (dashboard, meal-planner, settings, ...)
+// always come from public/. Without a build (local dev before `npm run
+// build`) everything falls back to public/.
 const distDir = path.join(__dirname, 'dist');
 const hasDistBuild = fs.existsSync(path.join(distDir, 'index.html'));
-app.use(express.static('public'));
 
 if (hasDistBuild) {
   app.use(express.static(distDir, {
