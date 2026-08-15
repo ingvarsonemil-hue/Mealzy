@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Header from '@/components/Header';
+import FounderStory from '@/components/FounderStory';
 import Hero from '@/components/Hero';
 import Showcase from '@/components/Showcase';
 import TrustBar from '@/components/TrustBar';
@@ -75,21 +76,12 @@ export default function App() {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   }, []);
 
-  return (
+    return (
     <>
       <a href="#main" className="skip-link">Skip to main content</a>
       <Header ctaHref={secondaryCtaHref} />
       <main id="main">
-        <Hero
-          onStartPlan={startPlan}
-          budget={budget}
-          onBudgetChange={setBudget}
-          dietId={dietId}
-          onDietChange={setDietId}
-          ctaHref={secondaryCtaHref}
-        />
-        {/* The sample plan is the demo. There is no second, separately generated
-          * preview to keep in step with it — one week, one set of numbers. */}
+        <Hero onStartPlan={startPlan} ctaHref={secondaryCtaHref} />
         <Showcase
           onStartPlan={startPlan}
           budget={budget}
@@ -98,6 +90,7 @@ export default function App() {
           ctaHref={secondaryCtaHref}
         />
         <TrustBar />
+        <FounderStory />
         <HowItWorks />
         <FeaturesGrid />
         <Faq />

@@ -5,6 +5,14 @@ import { Phone, Check } from '@/components/icons';
 import { cn } from '@/lib/utils';
 import { range, dollars } from '@/components/showcase-plan';
 
+/* Turns "$1–$3" into "$2". If already a single number, leaves it alone. */
+function singleEstimate(rangeStr) {
+  if (!rangeStr || typeof rangeStr !== 'string') return rangeStr;
+  const match = rangeStr.match(/\$?([\d.]+)\s*[-–—]\s*\$?([\d.]+)/);
+  if (!match) return rangeStr;
+  const avg = (parseFloat(match[1]) + parseFloat(match[2])) / 2;
+  return `$${avg.toFixed(0)}`;
+}
 /* The shoppable half of the Showcase: the priced list the week produces, its
  * tick state, and the clipboard copy. Split out of Showcase.jsx when the three-
  * column rewrite pushed that file past the 500-line limit; the seam is a real
@@ -43,7 +51,7 @@ function GroceryLine({ item, qty, cents, checked, onToggle }) {
           <span className={cn('min-w-0', struck)}>{item}</span>
         </span>
         <span className={cn('text-right tabular-nums text-muted-fg', struck)}>{qty}</span>
-        <span className={cn('text-right font-medium tabular-nums', struck)}>{range(cents)}</span>
+       <span className={cn('text-right font-medium tabular-nums', struck)}>{singleEstimate(range(cents))}</span>
       </label>
     </li>
   );
@@ -81,7 +89,7 @@ function GroceryGroup({ title, muted, items, prefix, ticked, onToggle, children 
 
 /* The list as plain text, in the order it is rendered, for the clipboard. */
 function groceryText(plan) {
-  const line = ([item, qty, cents]) => `- ${item} (${qty}) — Est. ${range(cents)}`;
+  const line = ([item, qty, cents]) => `- ${item} (${qty}) — Est. ${singleEstimate(range(cents))}`;
   const blocks = plan.fresh.map(([aisle, items]) => [aisle, ...items.map(line)].join('\n'));
 
   blocks.push(['Pantry staples', ...plan.pantry.map(line)].join('\n'));
@@ -89,7 +97,7 @@ function groceryText(plan) {
   return [
     `Mealzy grocery list — ${dollars(plan.budget * 100)} week`,
     ...blocks,
-    `Week total: Est. ${range(plan.spend)}`
+    `Week total: Est. ${singleEstimate(range(plan.spend))}`
   ].join('\n\n');
 }
 
@@ -195,7 +203,7 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
 
       <div className="mt-5 flex items-baseline justify-between border-t border-border-warm pt-4 text-base font-bold">
         <span>Week total</span>
-        <span className="tabular-nums">Est. {range(plan.spend)}</span>
+        <span className="tabular-nums">Est. {singleEstimate(range(plan.spend))}</span>
       </div>
 
       <Button href={ctaHref} full size="lg" className="mt-6">

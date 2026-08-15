@@ -13,6 +13,16 @@ const COURSE_ICON = { Breakfast: Sunrise, Lunch: Bowl, Dinner: Cutlery };
 
 const num = (n) => n.toLocaleString('en-US');
 
+/* Turns "$1–$3" into "$2". Turns "$46–$57" into "$52".
+ * If it's already a single number, leaves it alone. */
+function singleEstimate(rangeStr) {
+  if (!rangeStr || typeof rangeStr !== 'string') return rangeStr;
+  const match = rangeStr.match(/\$?([\d.]+)\s*[-–—]\s*\$?([\d.]+)/);
+  if (!match) return rangeStr;
+  const avg = (parseFloat(match[1]) + parseFloat(match[2])) / 2;
+  return `$${avg.toFixed(0)}`;
+}
+
 function Figure({ label, value, className }) {
   return (
     <div>
@@ -22,8 +32,6 @@ function Figure({ label, value, className }) {
   );
 }
 
-/* Calories and cost read as two separate chips rather than one run-on line, so
- * the week can be scanned down either column. */
 function Badge({ children, accent }) {
   return (
     <span
@@ -43,8 +51,6 @@ function MealRow({ meal, onSwap }) {
   const Icon = COURSE_ICON[meal.course];
   return (
     <li className="flex gap-3.5 py-3 first:pt-0 last:pb-0">
-      {/* Decorative: the dish is named in the text beside it, so an alt here
-        * would only repeat what a screen reader has already read out. */}
       <img
         src={photo(meal.img)}
         srcSet={`${photo(meal.img)} 1x, ${photo(meal.img, 800)} 2x`}
@@ -62,21 +68,12 @@ function MealRow({ meal, onSwap }) {
         </p>
         <p className="mt-1 text-[15px] font-medium leading-snug">{meal.name}</p>
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
-          <Badge accent>Est. {meal.cost}</Badge>
+          <Badge accent>Est. {singleEstimate(meal.cost)}</Badge>
           <Badge>{num(meal.kcal)} kcal</Badge>
-          {/* The page claims any meal can be swapped in one click; this is that
-            * claim made touchable. It opens the same preview modal the hero CTA
-            * does, seeded with the budget already on screen — the swap itself
-            * belongs to the real planner, behind it. The dish name is in the
-            * accessible name because there are 9 of these on the page. */}
           <button
             type="button"
             onClick={onSwap}
             aria-label={`Swap ${meal.name}`}
-            /* Green edge and green label, where the two badges beside it are
-              * warm-bordered and muted: this is the only thing in the row you
-              * can press, and a border-border-warm chip sits at 1.26:1 against
-              * the card — under the 3:1 WCAG 1.4.11 asks of a control boundary. */
             className="inline-flex min-h-[32px] cursor-pointer items-center gap-1.5 rounded-full border border-green px-2.5 text-xs font-semibold text-green-deep transition-colors duration-200 hover:bg-green hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green motion-reduce:transition-none dark:text-green-light"
           >
             <Swap width="12" height="12" />
@@ -91,9 +88,6 @@ function MealRow({ meal, onSwap }) {
 const cardClasses =
   'flex flex-col overflow-hidden rounded-md border border-border-warm bg-cream shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0';
 
-/* The day header carries the day and nothing else. The calorie figure that used
- * to sit here repeated on all seven cards and invited the reader to audit the
- * arithmetic; the week's average is stated once, above. */
 function DayHeader({ day }) {
   return (
     <header className="bg-forest px-4 py-2.5 text-on-forest">
@@ -115,8 +109,6 @@ function DayCard({ day, onSwap }) {
   );
 }
 
-/* Floating bar for small screens, revealed once the hero has scrolled away and
- * pulled back before the footer so it never sits on top of it. */
 function MobileCta({ onStartPlan, ctaHref }) {
   const [show, setShow] = React.useState(false);
 
@@ -149,7 +141,6 @@ function MobileCta({ onStartPlan, ctaHref }) {
         show ? 'translate-y-0' : 'translate-y-full'
       )}
     >
-      {/* Same as the hero CTA: opens the 3-step preview, href is the no-JS fallback. */}
       <Button
         href={ctaHref}
         full
@@ -193,14 +184,11 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
         />
         <div className="mt-2 flex justify-between text-[13px] tabular-nums text-muted-fg">
           <span>{dollars(MIN_BUDGET * 100)}</span>
-          <span id="showcase-budget-hint">Drag to re-plan the week</span>
+          <span id="showcase-budget-hint">Adjust your budget</span>
           <span>{dollars(MAX_BUDGET * 100)}</span>
         </div>
       </div>
 
-      {/* Dimmed while the debounce is still holding the last drag, so the
-        * figures visibly belong to a budget that has settled rather than
-        * flickering through all 56 steps of the slider on the way past. */}
       <div
         aria-live="polite"
         aria-busy={pending}
@@ -210,22 +198,19 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
         )}
       >
         <Figure
-          label="Estimated spend"
-          value={range(plan.spend)}
+          label="Est. total spend"
+          value={singleEstimate(range(plan.spend))}
           className="mt-2 font-display text-3xl font-bold italic tabular-nums"
         />
-        {/* Stated once for the whole week. Individual days run above and below
-          * it — a real week is not seven identical totals — so this is the
-          * figure the plan is built to average onto. */}
         <Figure
           label="Avg. daily calories"
           value={num(plan.kcalAvg)}
           className="mt-2 font-display text-3xl font-bold italic tabular-nums"
         />
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Left in budget</p>
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Budget left</p>
           <p className="mt-2 font-display text-[clamp(2.25rem,5vw,3rem)] font-black italic leading-none tabular-nums">
-            {range(plan.saved)}
+            {singleEstimate(range(plan.saved))}
           </p>
         </div>
       </div>
@@ -233,29 +218,13 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
   );
 }
 
-/* How many days show before the toggle. Mon–Wed are enough to prove what a day
- * looks like; seven full photo cards on arrival is roughly three screens of
- * scrolling before the grocery list, and the sections below it were being
- * reached by fewer people than the week was worth.
- *
- * Thu–Sun are hidden, never downgraded: when the toggle opens them they are the
- * same card, the same photography and the same swap button as the first three.
- * A collapsed back half rendered as text-only summary rows put a visible cliff
- * through the middle of the week and made the plan look like it ran out of
- * effort on Thursday. */
 const PREVIEW_DAYS = 3;
 
 export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChange, ctaHref = 'login.html?signup=1' }) {
-  /* Built from the settled budget, not the live handle: `planBudget` is the
-   * debounced one, so a drag rebuilds the week once rather than on every step. */
   const plan = React.useMemo(() => planFor(planBudget), [planBudget]);
   const pending = budget !== planBudget;
-  /* Closed by default: the first three days carry the proof, and the button
-   * under them says plainly that the other four are there for the asking. */
   const [fullWeek, setFullWeek] = React.useState(false);
 
-  /* Seeded with the budget the visitor has already set here, so the modal opens
-   * on their week rather than on the default one. */
   const swapMeal = () => onStartPlan && onStartPlan({ budget });
 
   const shown = plan.days.slice(0, PREVIEW_DAYS);
@@ -277,18 +246,10 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
           </p>
         </Reveal>
 
-        {/* The only budget control on the page, and it sits directly above the
-          * week it re-plans. */}
         <Reveal className="rounded-lg border border-green/40 bg-cream p-6 shadow-card sm:p-8">
           <BudgetPanel plan={plan} budget={budget} onChange={onBudgetChange} pending={pending} />
         </Reveal>
 
-        {/* Says what the fade means. Dimming alone reads as a rendering hiccup;
-          * a visitor who has just dragged the slider needs to know the week is
-          * being rebuilt around their number rather than failing to. The height
-          * is reserved either way so nothing under it moves, and it is hidden
-          * from screen readers because the figures below already announce
-          * themselves through aria-live and aria-busy. */}
         <div aria-hidden="true" className="mt-4 flex h-6 items-center justify-center">
           <span
             className={cn(
@@ -301,9 +262,6 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
           </span>
         </div>
 
-        {/* The plan itself. min-h holds the space open so the section below it
-          * doesn't walk up and down the page while the week is re-planned, and
-          * the whole block fades rather than swapping numbers mid-drag. */}
         <div
           aria-busy={pending}
           className={cn(
@@ -318,11 +276,6 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
               ))}
             </ul>
 
-            {/* mt-4 matches the grid's own gap-4, so the back half of the week
-              * continues the same grid rather than starting a second one. The
-              * toggle sits after all seven cards for the same reason — between
-              * them it split the week in two, which is the cliff this section
-              * was trying to lose. */}
             <div id="showcase-rest-of-week">
               {fullWeek && (
                 <ul role="list" className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -355,8 +308,6 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
           <GroceryList plan={plan} ctaHref={ctaHref} />
         </div>
 
-        {/* Replaces the Mealzy-vs-ChatGPT table that used to sit below this
-         * section: one line of positioning instead of a five-row teardown. */}
         <Reveal delay={160} as="p" className="mx-auto mt-10 max-w-prose text-center text-[17px] leading-[1.7]">
           Unlike generic recipe sites, every plan balances to your budget target before you shop.
         </Reveal>

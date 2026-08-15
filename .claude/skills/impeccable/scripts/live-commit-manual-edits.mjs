@@ -240,7 +240,10 @@ function sourceHintWindowFailure(cwd, op) {
   if (!hint?.file || !hint.line) return null;
   const relative = normalizeRelativeFile(cwd, hint.file);
   if (!relative) return null;
-  const absolute = path.resolve(cwd, relative);
+  const base = path.resolve(cwd);
+  const absolute = path.resolve(base, relative);
+  const rel = path.relative(base, absolute);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) return null;
   let content;
   try { content = fs.readFileSync(absolute, 'utf-8'); } catch { return null; }
   const lines = content.split('\n');
