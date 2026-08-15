@@ -2,6 +2,7 @@ import * as React from 'react';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Showcase from '@/components/Showcase';
+import TrustBar from '@/components/TrustBar';
 import HowItWorks from '@/components/HowItWorks';
 import FeaturesGrid from '@/components/FeaturesGrid';
 import Faq from '@/components/Faq';
@@ -96,6 +97,7 @@ export default function App() {
           onBudgetChange={setBudget}
           ctaHref={secondaryCtaHref}
         />
+        <TrustBar />
         <HowItWorks />
         <FeaturesGrid />
         <Faq />

@@ -17,7 +17,7 @@ window.MEALZY_TRANSLATIONS = {
     // Macros
     macro_overview: 'Macro Overview', macro_carbs: 'Carbs', macro_fat: 'Fat',
     // Meals
-    todays_meals: "Today's Meals", view_planner: 'View Planner →',
+    todays_meals: "Today's Meals", view_planner: 'Open Full Planner →',
     no_meals: 'No meals planned yet', generate_prompt: 'Generate your personalized AI meal plan to get started.',
     // Quick actions
     where_to_shop: 'Where to Shop', quick_actions: 'Quick Actions',

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/theme-init.js"></script>
+<!-- Cookie consent gate (must load before analytics) -->
+<script src="/js/consent.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mealzy — Get Started</title>
+<meta name="description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan.">
+<meta property="og:title" content="Get Started — Mealzy">
+<meta property="og:description" content="Set up your Mealzy profile — tell us your goals, dietary preferences, and budget to get your first personalized meal plan.">
+<meta property="og:image" content="https://mealzy.org/images/og-image.jpg">
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/app-theme.css">
+<link rel="stylesheet" href="/css/onboarding.css">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1a3d2b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mealzy">
+</head>
+<body class="card-page">
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<main id="main" class="page-card ob">
+  <div class="ob-top">
+    <a href="/" class="ob-logo">Mealzy</a>
+  </div>
+  <nav aria-label="Onboarding progress" class="ob-progress-nav">
+    <p class="ob-progress-label" id="stepLabel">Step 1 of 7 — Goals</p>
+    <div class="ob-progress" role="progressbar" aria-labelledby="stepLabel" aria-valuenow="1" aria-valuemin="1" aria-valuemax="7" aria-valuetext="Step 1 of 7: Goals" id="stepProgress">
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+      <span class="ob-progress-seg" aria-hidden="true"></span>
+    </div>
+  </nav>
+
+  <!-- STEP 1: Name + Goal -->
+  <div class="step-content" id="step1">
+    <h1 class="ob-step-title" tabindex="-1">Let's personalise your plan</h1>
+    <div class="ob-step-sub">A few quick steps and we'll generate your first meal plan — automatically.</div>
+    <div class="form-group">
+      <label class="form-label" for="inputName">Your first name</label>
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Alex" autocomplete="given-name" aria-describedby="stepError">
+    </div>
+    <div class="form-group" style="margin-top:1.25rem;">
+      <fieldset style="border:none;padding:0;margin:0;">
+        <legend class="form-label" style="float:none;display:block;margin-bottom:0.5rem;">What's your main goal?</legend>
+        <div class="goal-grid" role="radiogroup" aria-label="Select your fitness goal" aria-describedby="stepError">
+          <label class="goal-card" data-goal="build_muscle" for="goalBuildMuscle">
+            <input type="radio" name="goal" id="goalBuildMuscle" value="build_muscle" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Build Muscle</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="lose_weight" for="goalLoseWeight">
+            <input type="radio" name="goal" id="goalLoseWeight" value="lose_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Lose Weight</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="maintain_weight" for="goalMaintainWeight">
+            <input type="radio" name="goal" id="goalMaintainWeight" value="maintain_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Maintain Weight</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="eat_healthier" for="goalEatHealthier">
+            <input type="radio" name="goal" id="goalEatHealthier" value="eat_healthier" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Eat Healthier</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="gain_weight" for="goalGainWeight">
+            <input type="radio" name="goal" id="goalGainWeight" value="gain_weight" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Gain Weight</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+          <label class="goal-card" data-goal="improve_energy" for="goalImproveEnergy">
+            <input type="radio" name="goal" id="goalImproveEnergy" value="improve_energy" class="goal-radio-input" aria-checked="false" onchange="selectGoal(this.closest('label'))">
+            <span class="goal-label">Improve Energy</span>
+            <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </label>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+
+  <!-- STEP 2: Sex -->
+  <div class="step-content hidden" id="step2">
+    <h1 class="ob-step-title" tabindex="-1">What's your gender?</h1>
+    <div class="ob-step-sub">Used to personalize your calorie and macro targets.</div>
+    <div class="goal-grid" role="radiogroup" aria-label="Select your sex" aria-describedby="stepError" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+      <button type="button" class="sex-card" data-sex="male" onclick="selectSex(this)">Male</button>
+      <button type="button" class="sex-card" data-sex="female" onclick="selectSex(this)">Female</button>
+      <button type="button" class="sex-card" data-sex="other" onclick="selectSex(this)">Other</button>
+      <button type="button" class="sex-card" data-sex="unspecified" onclick="selectSex(this)">Prefer not to say</button>
+    </div>
+    <div id="sexRefineRow" class="sex-refine-row hidden">
+      <div style="width:100%;">
+        <label class="form-label" style="margin-bottom:0.4rem;display:block;">We'll estimate using:</label>
+        <div class="chips-group">
+          <button type="button" class="chip" data-refine="male" onclick="selectSexRefine(this)">Male average</button>
+          <button type="button" class="chip" data-refine="female" onclick="selectSexRefine(this)">Female average</button>
+          <button type="button" class="chip" data-refine="split" onclick="selectSexRefine(this)">Split the difference</button>
+        </div>
+        <p style="font-size:0.78rem;color:var(--color-muted-fg);margin-top:0.5rem;">We'll use sensible defaults — you can fine-tune these anytime.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Birthdate -->
+  <div class="step-content hidden" id="step3">
+    <h1 class="ob-step-title" tabindex="-1">When were you born?</h1>
+    <div class="ob-step-sub">This is used to calculate your daily nutrition targets.</div>
+    <fieldset style="border:none;padding:0;margin:0;" aria-describedby="stepError">
+      <legend class="sr-only">Date of birth</legend>
+      <div class="form-row" style="grid-template-columns: 1fr 0.7fr 1fr;">
+        <div class="form-group">
+          <label class="form-label" for="dobMonth">Month</label>
+          <select class="form-select" id="dobMonth"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dobDay">Day</label>
+          <select class="form-select" id="dobDay"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dobYear">Year</label>
+          <select class="form-select" id="dobYear"></select>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <!-- STEP 4: Height -->
+  <div class="step-content hidden" id="step4">
+    <h1 class="ob-step-title" tabindex="-1">What's your height?</h1>
+    <div class="ob-step-sub">Used to calculate your daily nutrition targets.</div>
+    <div class="chips-group" role="group" aria-label="Height unit" style="margin-bottom:1rem;">
+      <button type="button" class="chip active" data-unit="cm" aria-pressed="true" onclick="setHeightUnit('cm')">cm</button>
+      <button type="button" class="chip" data-unit="ftin" aria-pressed="false" onclick="setHeightUnit('ftin')">ft, in</button>
+    </div>
+    <div id="heightCmRow" class="form-group">
+      <label class="form-label" for="heightCm">Height (cm)</label>
+      <input type="number" class="form-input" id="heightCm" min="100" max="250" placeholder="170" aria-describedby="stepError">
+    </div>
+    <div id="heightFtInRow" class="form-row hidden">
+      <div class="form-group">
+        <label class="form-label" for="heightFt">Height (ft)</label>
+        <input type="number" class="form-input" id="heightFt" min="3" max="8" placeholder="5" aria-describedby="stepError">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="heightIn">Height (in)</label>
+        <input type="number" class="form-input" id="heightIn" min="0" max="11" placeholder="8" aria-describedby="stepError">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: Weight -->
+  <div class="step-content hidden" id="step5">
+    <h1 class="ob-step-title" tabindex="-1">What's your weight?</h1>
+    <div class="ob-step-sub">Used to calculate your daily nutrition targets.</div>
+    <div class="chips-group" role="group" aria-label="Weight unit" style="margin-bottom:1rem;">
+      <button type="button" class="chip active" data-unit="kg" aria-pressed="true" onclick="setWeightUnit('kg')">kg</button>
+      <button type="button" class="chip" data-unit="lbs" aria-pressed="false" onclick="setWeightUnit('lbs')">lbs</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="weightInput" id="weightLabel">Weight (kg)</label>
+      <input type="number" class="form-input" id="weightInput" min="1" placeholder="70" aria-describedby="stepError">
+    </div>
+  </div>
+
+  <!-- STEP 6: Activity Level -->
+  <div class="step-content hidden" id="step6">
+    <h1 class="ob-step-title" tabindex="-1">How active are you?</h1>
+    <div class="ob-step-sub">Used to calculate your daily calorie needs.</div>
+    <div class="goal-grid" role="radiogroup" aria-label="Select your activity level" aria-describedby="stepError" style="grid-template-columns: 1fr;">
+      <label class="goal-card" data-activity="sedentary" onclick="selectActivity(this)">
+        <span class="goal-label">Sedentary<br><small style="font-weight:400;color:var(--color-muted-fg);">Little to no exercise</small></span>
+        <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </label>
+      <label class="goal-card" data-activity="light" onclick="selectActivity(this)">
+        <span class="goal-label">Lightly active<br><small style="font-weight:400;color:var(--color-muted-fg);">Light exercise 1-3 days/week</small></span>
+        <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </label>
+      <label class="goal-card" data-activity="moderate" onclick="selectActivity(this)">
+        <span class="goal-label">Moderately active<br><small style="font-weight:400;color:var(--color-muted-fg);">Moderate exercise 3-5 days/week</small></span>
+        <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </label>
+      <label class="goal-card" data-activity="very" onclick="selectActivity(this)">
+        <span class="goal-label">Very active<br><small style="font-weight:400;color:var(--color-muted-fg);">Hard exercise 6-7 days/week</small></span>
+        <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </label>
+      <label class="goal-card" data-activity="extra" onclick="selectActivity(this)">
+        <span class="goal-label">Extra active<br><small style="font-weight:400;color:var(--color-muted-fg);">Physical job or training twice a day</small></span>
+        <span class="goal-check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- STEP 7: Budget + Dietary -->
+  <div class="step-content hidden" id="step7">
+    <h1 class="ob-step-title" tabindex="-1">Budget &amp; dietary needs</h1>
+    <div class="ob-step-sub">We'll keep your meals affordable and safe to eat.</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="inputBudget">Weekly Food Budget</label>
+        <input type="number" class="form-input" id="inputBudget" placeholder="100" min="20" max="1000" value="100" aria-describedby="stepError">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="selectCurrency">Currency</label>
+        <select class="form-select" id="selectCurrency">
+          <option value="USD">$ USD</option><option value="EUR">&euro; EUR</option><option value="GBP">&pound; GBP</option>
+          <option value="SEK">kr SEK</option><option value="NOK">kr NOK</option><option value="DKK">kr DKK</option>
+          <option value="CAD">$ CAD</option><option value="AUD">$ AUD</option><option value="NZD">$ NZD</option>
+          <option value="CHF">Fr CHF</option><option value="JPY">&yen; JPY</option><option value="CNY">&yen; CNY</option>
+          <option value="KRW">&#8361; KRW</option><option value="INR">&#8377; INR</option><option value="BRL">R$ BRL</option>
+          <option value="MXN">$ MXN</option><option value="ARS">$ ARS</option><option value="ZAR">R ZAR</option>
+          <option value="AED">&#1583;.&#1573; AED</option><option value="SAR">&#65020; SAR</option><option value="SGD">$ SGD</option>
+          <option value="HKD">$ HKD</option><option value="PLN">z&#322; PLN</option><option value="CZK">K&#269; CZK</option>
+          <option value="HUF">Ft HUF</option><option value="TRY">&#8378; TRY</option><option value="THB">&#3647; THB</option>
+          <option value="MYR">RM MYR</option><option value="IDR">Rp IDR</option><option value="PHP">&#8369; PHP</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:0.75rem;">
+      <label class="form-label">Any dietary restrictions? <span style="font-weight:400;color:var(--color-muted-fg);">(optional)</span></label>
+      <div class="chips-group" id="dietChips">
+        <button class="chip" data-pref="vegetarian" onclick="toggleChip(this)" aria-pressed="false">Vegetarian</button>
+        <button class="chip" data-pref="vegan" onclick="toggleChip(this)" aria-pressed="false">Vegan</button>
+        <button class="chip" data-pref="keto" onclick="toggleChip(this)" aria-pressed="false">Keto</button>
+        <button class="chip" data-pref="paleo" onclick="toggleChip(this)" aria-pressed="false">Paleo</button>
+        <button class="chip" data-pref="mediterranean" onclick="toggleChip(this)" aria-pressed="false">Mediterranean</button>
+        <button class="chip" data-pref="halal" onclick="toggleChip(this)" aria-pressed="false">Halal</button>
+        <button class="chip" data-pref="kosher" onclick="toggleChip(this)" aria-pressed="false">Kosher</button>
+        <button class="chip" data-pref="gluten_free" onclick="toggleChip(this)" aria-pressed="false">Gluten-Free</button>
+        <button class="chip" data-pref="dairy_free" onclick="toggleChip(this)" aria-pressed="false">Dairy-Free</button>
+        <button class="chip" data-pref="nut_free" onclick="toggleChip(this)" aria-pressed="false">Nut &amp; Peanut-Free</button>
+        <button class="chip" data-pref="no_pork" onclick="toggleChip(this)" aria-pressed="false">No Pork</button>
+        <button class="chip" data-pref="fish_free" onclick="toggleChip(this)" aria-pressed="false">Fish-Free</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="stepError" class="auth-msg" role="alert" aria-live="assertive" style="margin-top:0.75rem;"></div>
+
+  <div style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+    <button class="btn btn-outline" id="btnBack" onclick="prevStep()" style="visibility:hidden;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
+    </button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;">
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button id="btnSkip" class="btn-skip" onclick="skipStep()">Skip</button>
+        <button type="button" id="btnSkipDob" class="btn-skip hidden" onclick="skipDob()">Prefer not to say</button>
+        <button class="btn btn-primary btn-lg" id="btnNext" onclick="nextStep()">
+          Continue
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <p id="skipNote" style="font-size:0.75rem;color:var(--color-muted-fg);margin:0;text-align:right;">We'll use sensible defaults — you can fine-tune these anytime.</p>
+    </div>
+  </div>
+</main>
+
+<script src="/js/onboarding.js" defer></script>
+</body>
+</html>

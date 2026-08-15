@@ -73,7 +73,7 @@
       margin-bottom: 0.6rem;
     }
     .mcv2-stat { display: flex; align-items: center; gap: 0.25rem; }
-    .mcv2-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+    .mcv2-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
     .mcv2-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--clr-muted-fg); }
     .mcv2-check input { accent-color: var(--clr-primary); width: 16px; height: 16px; cursor: pointer; }
     [data-theme="dark"] .mcv2-check input { outline: 1.5px solid var(--clr-muted-fg); outline-offset: 1px; border-radius: 3px; }
@@ -250,7 +250,7 @@
           <div class="card-title" data-i18n="todays_meals" style="font-family:var(--font-display);font-style:italic;font-size:1.1rem;">Today's Meals</div>
           <div class="card-subtitle" id="mealDateSub"></div>
         </div>
-        <a href="meal-planner.html" class="btn btn-ghost btn-sm" data-i18n="view_planner">View Planner →</a>
+        <a href="meal-planner.html" class="btn btn-outline btn-sm" data-i18n="view_planner">Open Full Planner →</a>
       </div>
       <div id="mealsContainer">
       </div>
@@ -672,7 +672,8 @@
     if (hour < 12) greeting = 'Good morning';
     else if (hour < 17) greeting = 'Good afternoon';
 
-    document.getElementById('greeting').textContent = `${greeting}, ${profile.name || 'there'}!`;
+    const firstName = (profile.name || '').trim().split(' ')[0];
+    document.getElementById('greeting').textContent = firstName ? `${greeting}, ${firstName}!` : `${greeting}!`;
     const streakBadge = document.getElementById('streakBadge');
     if (streakBadge) streakBadge.textContent = `${profile.streak || 1} day streak`;
     const dateStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
@@ -850,10 +851,6 @@
         <div class="mcv2-name">${escHtml(meal.name)}</div>
         <p class="mcv2-desc">${escHtml(meal.description || '')}</p>
         <div class="mcv2-actions">
-          <label class="mcv2-check">
-            <input type="checkbox" ${meal.completed ? 'checked' : ''} onchange="toggleMealDone(${i}, this.checked)" aria-label="Mark ${escHtml(meal.name)} as done" />
-            Mark as done
-          </label>
           <div class="mcv2-btns">
             <button class="btn btn-outline btn-sm" onclick="openRecipeModal(${i})">Recipe</button>
             <button class="btn btn-outline btn-sm" id="swapBtn${i}" onclick="swapMeal(${i})" aria-label="Swap meal">Swap</button>
