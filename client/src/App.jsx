@@ -6,6 +6,7 @@ import Showcase from '@/components/Showcase';
 import TrustBar from '@/components/TrustBar';
 import HowItWorks from '@/components/HowItWorks';
 import FeaturesGrid from '@/components/FeaturesGrid';
+import WhyMealzy from '@/components/WhyMealzy';
 import Faq from '@/components/Faq';
 import ClosingCta from '@/components/ClosingCta';
 import InteractiveOnboarding from '@/components/InteractiveOnboarding';
@@ -93,6 +94,7 @@ export default function App() {
         <FounderStory />
         <HowItWorks />
         <FeaturesGrid />
+        <WhyMealzy />
         <Faq />
         <ClosingCta ctaHref={secondaryCtaHref} />
       </main>

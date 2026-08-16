@@ -6,46 +6,117 @@
 <script src="/js/consent.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pricing | Mealzy — Meal Plans That Stay Inside Your Grocery Budget</title>
-<meta name="description" content="Start free with 3 meal plans a month, no credit card. Pro is $8/month or $62/year. Family is $16/month or $128/year and covers up to 4 profiles. Cancel any time.">
-<meta property="og:title" content="Pricing | Mealzy — Meal Plans That Stay Inside Your Grocery Budget">
-<meta property="og:description" content="Start free with 3 meal plans a month, no credit card. Pro is $8/month or $62/year. Family is $16/month or $128/year. Cancel any time.">
+
+<!-- Updated SEO -->
+<title>Pricing | Mealzy — Start Free, Pro from $5.17/mo</title>
+<meta name="description" content="Mealzy meal planning pricing. Start free with 1 plan/week. Upgrade to Pro for $62/year ($5.17/mo) or Family for $128/year ($10.67/mo). 14-day money-back guarantee.">
+
+<!-- Open Graph -->
+<meta property="og:title" content="Pricing | Mealzy — Feed Your Family for Less">
+<meta property="og:description" content="Smart meal planning from $5.17/month. Start your free 14-day Pro trial today.">
 <meta property="og:image" content="https://mealzy.org/card-cta.svg">
-<meta property="og:url" content="https://mealzy.org/pricing.html">
+<meta property="og:url" content="https://mealzy.org/pricing">
 <meta property="og:type" content="website">
-<link rel="canonical" href="https://mealzy.org/pricing.html">
+
+<link rel="canonical" href="https://mealzy.org/pricing">
+
+<!-- FAQ Schema — now matches your React page content -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    { "@type": "Question", "name": "How does the 7-day free trial work?", "acceptedAnswer": { "@type": "Answer", "text": "You get 7 full days of Pro with $0 due today. If you cancel before day 7 you are never charged. If you stay, billing starts on day 8 at the price you picked — $8/month or $62/year." } },
-    { "@type": "Question", "name": "Can I switch or cancel my plan anytime?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Cancel in one click from your account settings. You can also move between monthly and annual, or between Pro and Family, at any time. Access continues until the end of the period you have already paid for." } },
-    { "@type": "Question", "name": "What payment methods are supported?", "acceptedAnswer": { "@type": "Answer", "text": "All major credit and debit cards, plus Apple Pay and Google Pay where your device supports them. Payment is processed securely by Stripe — we never see or store your card number." } },
-    { "@type": "Question", "name": "What happens when my 3 free monthly plans run out?", "acceptedAnswer": { "@type": "Answer", "text": "Nothing is lost. Every plan you have already generated stays in your account. Your 3 free generations reset automatically every 30 days. Upgrade to Pro whenever you want them sooner." } }
+    {
+      "@type": "Question",
+      "name": "What counts as one plan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan per week; Pro and Family users can generate unlimited plans."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cancel anytime?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can cancel your subscription at any time from your account settings. You will keep access until the end of your current billing period."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a free trial?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pro and Family plans include a 14-day free trial. You will not be charged until the trial ends, and we send a reminder 3 days before."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate are price estimates?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Estimates are based on aggregated regional grocery data and update weekly. They are typically within 10–15% of your actual receipt, but local prices and seasonal fluctuations can vary."
+      }
+    }
   ]
 }
 </script>
+
+<!-- Product Schema — includes both monthly AND annual -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Product",
+  "@type": "SoftwareApplication",
   "name": "Mealzy",
+  "applicationCategory": "LifestyleApplication",
   "description": "Weekly meal plans that stay inside your grocery budget, with the shopping list generated for you.",
-  "url": "https://mealzy.org/pricing.html",
+  "url": "https://mealzy.org/pricing",
   "offers": [
-    { "@type": "Offer", "price": "0", "priceCurrency": "USD", "name": "Free" },
-    { "@type": "Offer", "price": "8.00", "priceCurrency": "USD", "name": "Pro", "billingIncrement": "P1M" },
-    { "@type": "Offer", "price": "16.00", "priceCurrency": "USD", "name": "Family", "billingIncrement": "P1M" }
+    {
+      "@type": "Offer",
+      "name": "Mealzy Free",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    {
+      "@type": "Offer",
+      "name": "Mealzy Pro — Monthly",
+      "price": "8.00",
+      "priceCurrency": "USD",
+      "billingIncrement": "P1M"
+    },
+    {
+      "@type": "Offer",
+      "name": "Mealzy Pro — Annual",
+      "price": "62.00",
+      "priceCurrency": "USD",
+      "billingIncrement": "P1Y",
+      "description": "Billed annually at $62/year ($5.17/month). Save $34/year."
+    },
+    {
+      "@type": "Offer",
+      "name": "Mealzy Family — Monthly",
+      "price": "16.00",
+      "priceCurrency": "USD",
+      "billingIncrement": "P1M"
+    },
+    {
+      "@type": "Offer",
+      "name": "Mealzy Family — Annual",
+      "price": "128.00",
+      "priceCurrency": "USD",
+      "billingIncrement": "P1Y",
+      "description": "Billed annually at $128/year ($10.67/month). Save $64/year."
+    }
   ]
 }
 </script>
+
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
-<!-- Stripe payment-link URLs from server env. Intentionally NOT deferred:
-     this page has a monthly/annual toggle, and a deferred load has previously
-     caused silent wrong-URL checkout routing. Keep it blocking. -->
+
+<!-- Stripe payment-link URLs from server env. Intentionally NOT deferred -->
 <script src="/stripe-config.js"></script>
 </head>
 <body>

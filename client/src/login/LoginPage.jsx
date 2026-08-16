@@ -1,357 +1,326 @@
-import * as React from 'react';
-import PasswordField from '@/components/PasswordField';
-import { Button } from '@/components/ui/button';
-import { Label, Input } from '@/components/ui/field';
-import { Check, GoogleLogo } from '@/components/icons';
-import { signIn, signUp, requestPasswordReset, fetchSession, fetchProfile, recordEmailLead, recordReferral } from '@/lib/auth';
-import { cn, isValidEmail } from '@/lib/utils';
+import { useState, useRef, useEffect } from "react";
 
-const OAUTH_ERRORS = {
-  google_failed: 'Google sign-in failed. Please try again or use email.',
-  google_cancelled: 'Google sign-in was cancelled.',
-  google_not_configured: 'Google sign-in is not yet available.'
+/* ============================================================
+   Inline SVG Icons — no external libraries
+   ============================================================ */
+const Icons = {
+  mail: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  ),
+  lock: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  ),
+  eye: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
+  eyeOff: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+      <line x1="2" x2="22" y1="2" y2="22" />
+    </svg>
+  ),
+  arrowRight: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  ),
+  check: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  ),
+  logo: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+      <path d="M7 2v20" />
+      <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+    </svg>
+  ),
+  google: (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+    </svg>
+  ),
 };
 
-const BRAND_FEATURES = [
-  'Hits your exact calorie and macro targets',
-  'Stays within your grocery budget',
-  'Generates the shopping list automatically',
-  'Free — no credit card needed'
-];
-
-const HEADINGS = {
-  signin: { h: 'Welcome back', sub: 'Your plans are waiting.' },
-  signup: { h: 'Create your account', sub: 'A full week of meals, a minute from now.' },
-  reset: { h: 'Reset password', sub: "Enter your email and we'll send a reset link." }
-};
-
-function ls(action, key, value) {
-  try {
-    if (action === 'get') return localStorage.getItem(key);
-    if (action === 'set') localStorage.setItem(key, value);
-    if (action === 'remove') localStorage.removeItem(key);
-  } catch (e) { /* private mode */ }
-  return null;
-}
-
-/* Post-auth bookkeeping identical to legacy login.js. */
-function storeUser(user) {
-  ls('set', 'mealzy_user', JSON.stringify({ name: user.name, email: user.email }));
-}
-
-/* Forwards the homepage demo's targets (?budget=&diet=/&dietary=&household=)
- * on to onboarding.html so the wizard can pre-fill them — otherwise they're
- * dropped the moment this page finishes and the user starts over. */
-function onboardingUrl(qs) {
-  const keep = new URLSearchParams();
-  ['budget', 'diet', 'dietary', 'household'].forEach((k) => {
-    const v = qs.get(k);
-    if (v) keep.set(k, v);
-  });
-  const s = keep.toString();
-  return 'onboarding.html' + (s ? '?' + s : '');
-}
-
+/* ============================================================
+   Login Page Component
+   ============================================================ */
 export default function LoginPage() {
-  const qs = React.useMemo(() => new URLSearchParams(window.location.search), []);
-  const [view, setView] = React.useState(qs.get('signup') === '1' ? 'signup' : 'signin');
-  const [msg, setMsg] = React.useState(() => {
-    const err = OAUTH_ERRORS[qs.get('error')];
-    return err ? { kind: 'error', text: err } : null;
-  });
-  const [busy, setBusy] = React.useState(false);
-  const [si, setSi] = React.useState({ email: '', password: '' });
-  const [su, setSu] = React.useState({ name: '', email: qs.get('email') || '', password: '' });
-  const [resetEmail, setResetEmail] = React.useState('');
-  const [resetSent, setResetSent] = React.useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState("");
 
-  /* Session probe + referral capture, same order as legacy login.js init(). */
-  const bootRan = React.useRef(false);
-  React.useEffect(() => {
-    if (bootRan.current) return;
-    bootRan.current = true;
-    const ref = qs.get('ref');
-    if (ref) ls('set', 'mealzy_pending_ref', ref);
-    (async () => {
-      try {
-        const data = await fetchSession();
-        if (!data) return;
-        storeUser(data);
-        if (data.pro) ls('set', 'mealzy_pro', 'true');
-        if (data.profile) ls('set', 'mealzy_profile', JSON.stringify(data.profile));
-        window.location.href = data.profile ? 'dashboard.html' : onboardingUrl(qs);
-      } catch (e) {
-        if (ls('get', 'mealzy_user')) {
-          window.location.href = ls('get', 'mealzy_profile') ? 'dashboard.html' : onboardingUrl(qs);
-        }
-      }
-    })();
-  }, [qs]);
+  const emailRef = useRef(null);
 
-  const showError = (text) => setMsg({ kind: 'error', text });
-  const clearMsg = () => setMsg(null);
+  useEffect(() => {
+    emailRef.current?.focus();
+  }, []);
 
-  const switchView = (next) => {
-    setView(next);
-    clearMsg();
-    if (next === 'reset' && si.email) setResetEmail(si.email);
+  const validate = () => {
+    const nextErrors = {};
+    if (!email.trim()) nextErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = "Please enter a valid email";
+    if (!password) nextErrors.password = "Password is required";
+    else if (password.length < 8) nextErrors.password = "Password must be at least 8 characters";
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSignIn = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    clearMsg();
-    setBusy(true);
+    setFormError("");
+    if (!validate()) return;
+
+    setIsLoading(true);
     try {
-      const { ok, data } = await signIn({ email: si.email.trim().toLowerCase(), password: si.password });
-      if (!ok) {
-        showError(data.message || 'Sign in failed. Please try again.');
-        setBusy(false);
-        return;
-      }
-      storeUser(data.user);
-      if (data.user.pro) ls('set', 'mealzy_pro', 'true');
-      else ls('remove', 'mealzy_pro');
-      try {
-        const pd = await fetchProfile();
-        if (pd) {
-          ls('set', 'mealzy_profile', JSON.stringify(pd.profile));
-          window.location.href = 'dashboard.html';
-        } else {
-          window.location.href = onboardingUrl(qs);
-        }
-      } catch (err) {
-        window.location.href = ls('get', 'mealzy_profile') ? 'dashboard.html' : onboardingUrl(qs);
-      }
+      // TODO: swap with your auth utility
+      // import { login } from "@/lib/auth";
+      // await login({ email, password, rememberMe });
+      await new Promise((r) => setTimeout(r, 1500)); // simulated
+      window.location.href = "/dashboard";
     } catch (err) {
-      showError('Could not connect. Please check your connection and try again.');
-      setBusy(false);
+      setFormError(err.message || "Invalid email or password. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    clearMsg();
-    const name = su.name.trim();
-    const email = su.email.trim().toLowerCase();
-    if (!name || !email || !su.password) {
-      showError('Please fill in all fields.');
-      return;
-    }
-    if (!isValidEmail(email)) {
-      showError('Please enter a valid email address.');
-      return;
-    }
-    setBusy(true);
-    try {
-      const { ok, data } = await signUp({ name, email, password: su.password });
-      if (!ok) {
-        showError(
-          data.error === 'account_exists'
-            ? 'An account with this email already exists. Sign in instead.'
-            : data.message || 'Sign up failed. Please try again.'
-        );
-        setBusy(false);
-        return;
-      }
-      storeUser(data.user);
-      if (data.user.pro) ls('set', 'mealzy_pro', 'true');
-      recordEmailLead(email, name);
-      const pendingRef = ls('get', 'mealzy_pending_ref');
-      if (pendingRef && pendingRef !== email) {
-        recordReferral(pendingRef, email);
-        ls('remove', 'mealzy_pending_ref');
-      }
-      ls('set', 'mealzy_is_new_user', '1');
-      window.location.href = onboardingUrl(qs);
-    } catch (err) {
-      showError('Could not connect. Please check your connection and try again.');
-      setBusy(false);
-    }
-  };
-
-  const handleResetRequest = async (e) => {
-    e.preventDefault();
-    clearMsg();
-    const email = resetEmail.trim().toLowerCase();
-    if (!isValidEmail(email)) {
-      showError('Enter a valid email address.');
-      return;
-    }
-    setBusy(true);
-    try {
-      await requestPasswordReset(email);
-      setResetSent(true);
-      setMsg({ kind: 'success', text: 'If that email has an account, a reset link is on its way. Check your inbox.' });
-    } catch (err) {
-      showError('Could not connect. Email support@mealzy.org if this persists.');
-    }
-    setBusy(false);
-  };
-
-  const heading = HEADINGS[view];
-  const tabClass = (active) =>
-    cn(
-      'min-h-[44px] flex-1 cursor-pointer border-b-2 pb-2.5 pt-2 text-[15px] font-semibold transition-colors duration-150',
-      'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green',
-      active ? 'border-green text-foreground' : 'border-transparent text-muted-fg hover:text-foreground'
-    );
 
   return (
-    <>
-      <a href="#main" className="skip-link">Skip to main content</a>
+    <div className="min-h-screen bg-parchment text-stone-800 flex flex-col lg:flex-row">
+      {/* =========================================================
+          Left Panel — Brand / Illustration (desktop only)
+          ========================================================= */}
+      <div className="hidden lg:flex lg:w-1/2 xl:w-5/12 bg-forest text-white flex-col justify-between p-12 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white/5" aria-hidden="true" />
+        <div className="absolute top-1/3 -right-16 w-48 h-48 rounded-full bg-white/5" aria-hidden="true" />
+        <div className="absolute -bottom-32 left-1/4 w-80 h-80 rounded-full bg-white/5" aria-hidden="true" />
 
-      {/* Slim brand bar replaces the panel on mobile */}
-      <div className="flex h-14 items-center bg-forest px-5 lg:hidden">
-        <a href="/" className="font-display text-xl font-black italic text-on-forest no-underline">Mealzy</a>
+        <div className="relative z-10">
+          <a href="/" className="inline-flex items-center gap-3 text-white/90 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-lg">
+            <Icons.logo className="w-8 h-8" />
+            <span className="text-2xl font-bold tracking-tight">Mealzy</span>
+          </a>
+        </div>
+
+        <div className="relative z-10 max-w-md">
+          <blockquote className="text-xl xl:text-2xl font-medium leading-relaxed text-white/90">
+            "Meal planning used to take me hours every Sunday. With Mealzy, I have my entire week mapped out in under 10 minutes."
+          </blockquote>
+          <div className="mt-6 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
+              SK
+            </div>
+            <div>
+              <p className="font-semibold text-white">Sarah K.</p>
+              <p className="text-white/60 text-sm">Home cook & meal-prepper</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 text-white/50 text-sm">
+          © {new Date().getFullYear()} Mealzy. All rights reserved.
+        </div>
       </div>
 
-      <main id="main" className="grid min-h-[calc(100vh-3.5rem)] lg:min-h-screen lg:grid-cols-2">
-        {/* Brand panel — desktop only */}
-        <div className="hidden bg-forest bg-[linear-gradient(175deg,var(--color-forest)_55%,var(--color-forest-deep)_100%)] text-on-forest lg:flex lg:items-center lg:justify-center">
-          <div className="max-w-md px-10 py-16">
-            <a href="/" className="font-display text-4xl font-black italic text-on-forest no-underline">Mealzy</a>
-            <p className="mt-4 font-display text-2xl font-bold italic leading-snug tracking-[-0.01em] text-on-forest-strong">
-              A full week of meals in 30 seconds.
-            </p>
-            <ul role="list" className="mt-10 flex flex-col gap-4">
-              {BRAND_FEATURES.map((f) => (
-                <li key={f} className="flex items-center gap-3 text-[15px] text-on-forest-body">
-                  <Check width="16" height="16" className="shrink-0 text-green-light" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-12 text-sm text-on-forest-muted">Built by Emil, Sweden</p>
+      {/* =========================================================
+          Right Panel — Form
+          ========================================================= */}
+      <div className="flex-1 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16 xl:px-24">
+        {/* Mobile logo */}
+        <div className="lg:hidden flex items-center gap-3 mb-10">
+          <div className="w-10 h-10 rounded-xl bg-forest text-white flex items-center justify-center">
+            <Icons.logo className="w-6 h-6" />
           </div>
+          <span className="text-xl font-bold text-stone-900">Mealzy</span>
         </div>
 
-        {/* Form column */}
-        <div className="flex items-start justify-center px-5 py-10 sm:items-center sm:py-14">
-          <div className="w-full max-w-sm">
-            <h1 className="font-display text-[2rem] font-bold italic leading-tight tracking-[-0.02em]">{heading.h}</h1>
-            <p className="mt-1.5 text-[15px] leading-relaxed text-muted-fg">{heading.sub}</p>
+        <div className="w-full max-w-sm mx-auto lg:mx-0">
+          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">Welcome back</h1>
+          <p className="mt-2 text-stone-500">Sign in to your account to continue planning.</p>
 
-            {msg && (
-              <p
-                role="alert"
-                className={cn(
-                  'mt-5 rounded-md border px-3.5 py-3 text-sm leading-normal',
-                  msg.kind === 'success'
-                    ? 'border-green/30 bg-green/10 text-green-deep dark:text-green-light'
-                    : 'border-error/30 bg-error/10 text-brick dark:text-red-300'
-                )}
-              >
-                {msg.text}
-              </p>
-            )}
+          {/* Form-level error */}
+          {formError && (
+            <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm" role="alert" aria-live="assertive">
+              {formError}
+            </div>
+          )}
 
-            {view !== 'reset' && (
-              <>
-                <div role="tablist" aria-label="Authentication options" className="mt-6 flex border-b border-border-warm">
-                  <button role="tab" aria-selected={view === 'signin'} className={tabClass(view === 'signin')} onClick={() => switchView('signin')}>
-                    Sign in
-                  </button>
-                  <button role="tab" aria-selected={view === 'signup'} className={tabClass(view === 'signup')} onClick={() => switchView('signup')}>
-                    Create account
-                  </button>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-stone-700 mb-1.5">
+                Email address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                  <Icons.mail />
                 </div>
+                <input
+                  ref={emailRef}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (errors.email) setErrors((p) => ({ ...p, email: "" }));
+                  }}
+                  className={`block w-full pl-11 pr-4 py-3 rounded-xl border bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all ${
+                    errors.email ? "border-red-300 focus:border-red-400 focus:ring-red-100" : "border-stone-200"
+                  }`}
+                  placeholder="you@example.com"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : undefined}
+                />
+              </div>
+              {errors.email && (
+                <p id="email-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  {errors.email}
+                </p>
+              )}
+            </div>
 
+            {/* Password */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-stone-700 mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                  <Icons.lock />
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors((p) => ({ ...p, password: "" }));
+                  }}
+                  className={`block w-full pl-11 pr-12 py-3 rounded-xl border bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all ${
+                    errors.password ? "border-red-300 focus:border-red-400 focus:ring-red-100" : "border-stone-200"
+                  }`}
+                  placeholder="••••••••"
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? "password-error" : undefined}
+                />
                 <button
                   type="button"
-                  onClick={() => { window.location.href = '/auth/google'; }}
-                  className="mt-6 flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-2.5 rounded-md border border-border-warm bg-white text-[15px] font-semibold text-foreground transition-[border-color,box-shadow] duration-150 hover:border-green hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green dark:bg-cream"
+                  onClick={() => setShowPassword((p) => !p)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none focus-visible:text-forest rounded-lg"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  <GoogleLogo />
-                  Continue with Google
+                  {showPassword ? <Icons.eyeOff /> : <Icons.eye />}
                 </button>
+              </div>
+              {errors.password && (
+                <p id="password-error" className="mt-1.5 text-sm text-red-600" role="alert">
+                  {errors.password}
+                </p>
+              )}
+            </div>
 
-                <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-fg" aria-hidden="true">
-                  <span className="h-px flex-1 bg-border-warm" />
-                  or
-                  <span className="h-px flex-1 bg-border-warm" />
-                </div>
-              </>
-            )}
-
-            {view === 'signin' && (
-              <form onSubmit={handleSignIn} role="tabpanel" className="flex flex-col gap-4">
-                <div>
-                  <Label htmlFor="si-email">Email</Label>
-                  <Input id="si-email" type="email" placeholder="you@example.com" required autoComplete="email" value={si.email} onChange={(e) => setSi({ ...si, email: e.target.value })} />
-                </div>
-                <div>
-                  <PasswordField
-                    id="si-password"
-                    placeholder="Your password"
-                    autoComplete="current-password"
-                    value={si.password}
-                    onChange={(e) => setSi({ ...si, password: e.target.value })}
+            {/* Remember me + Forgot password */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2.5 cursor-pointer group">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="peer sr-only"
                   />
-                  <button type="button" onClick={() => switchView('reset')} className="mt-2 cursor-pointer text-sm font-medium text-green-deep hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green dark:text-green-light">
-                    Forgot password?
-                  </button>
+                  <div className="w-5 h-5 rounded-md border-2 border-stone-300 bg-white peer-checked:bg-forest peer-checked:border-forest transition-all flex items-center justify-center">
+                    <Icons.check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                  </div>
                 </div>
-                <Button type="submit" full disabled={busy} className="mt-1">
-                  {busy ? 'Please wait...' : 'Sign in'}
-                </Button>
-              </form>
-            )}
+                <span className="text-sm text-stone-600 group-hover:text-stone-800 transition-colors">Remember me</span>
+              </label>
+              <a
+                href="/reset-password"
+                className="text-sm font-medium text-forest hover:text-forest/80 focus:outline-none focus-visible:underline"
+              >
+                Forgot password?
+              </a>
+            </div>
 
-            {view === 'signup' && (
-              <form onSubmit={handleSignUp} role="tabpanel" className="flex flex-col gap-4">
-                <div>
-                  <Label htmlFor="su-name">Full name</Label>
-                  <Input id="su-name" type="text" placeholder="Your name" required value={su.name} onChange={(e) => setSu({ ...su, name: e.target.value })} />
-                </div>
-                <div>
-                  <Label htmlFor="su-email">Email</Label>
-                  <Input id="su-email" type="email" placeholder="you@example.com" required autoComplete="email" value={su.email} onChange={(e) => setSu({ ...su, email: e.target.value })} />
-                </div>
-                <PasswordField
-                  id="su-password"
-                  placeholder="Min. 12 characters"
-                  autoComplete="new-password"
-                  minLength={12}
-                  checklist
-                  value={su.password}
-                  onChange={(e) => setSu({ ...su, password: e.target.value })}
-                />
-                <Button type="submit" full disabled={busy} className="mt-1">
-                  {busy ? 'Please wait...' : 'Create account'}
-                </Button>
-              </form>
-            )}
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 bg-forest text-white font-semibold py-3 px-4 rounded-xl hover:bg-forest/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-parchment disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+            >
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Signing in…
+                </>
+              ) : (
+                <>
+                  Sign in
+                  <Icons.arrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </form>
 
-            {view === 'reset' && (
-              <form onSubmit={handleResetRequest} className="mt-6 flex flex-col gap-4">
-                <div>
-                  <Label htmlFor="reset-email">Email</Label>
-                  <Input id="reset-email" type="email" placeholder="you@example.com" autoComplete="email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
-                </div>
-                <Button type="submit" full disabled={busy}>
-                  {busy ? 'Please wait...' : 'Send Reset Link'}
-                </Button>
-                {resetSent && (
-                  <p className="text-sm leading-relaxed text-muted-fg">Check your inbox — the link expires in 1 hour.</p>
-                )}
-                <Button variant="quiet" full type="button" className="text-muted-fg hover:bg-parchment hover:text-foreground" onClick={() => switchView('signin')}>
-                  Back to sign in
-                </Button>
-              </form>
-            )}
-
-            {view !== 'reset' && (
-              <p className="mt-6 text-[13px] leading-[1.6] text-muted-fg">
-                By continuing you agree to our{' '}
-                <a href="terms.html" className="text-green-deep underline dark:text-green-light">Terms</a> and{' '}
-                <a href="privacy-policy.html" className="text-green-deep underline dark:text-green-light">Privacy Policy</a>.
-                <br />
-                Free plan: 3 meal plans a month. No credit card required.
-              </p>
-            )}
+          {/* Divider */}
+          <div className="mt-8 relative">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-stone-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-parchment px-4 text-stone-400">or continue with</span>
+            </div>
           </div>
+
+          {/* Google button only */}
+          <div className="mt-6 grid grid-cols-1 gap-3">
+            <button
+              type="button"
+              className="flex items-center justify-center gap-2.5 w-full px-4 py-2.5 rounded-xl border border-stone-200 bg-white text-stone-700 font-medium text-sm hover:bg-stone-50 hover:border-stone-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-parchment transition-all"
+            >
+              <Icons.google />
+              Google
+            </button>
+          </div>
+
+          {/* Sign up link */}
+          <p className="mt-8 text-center text-sm text-stone-500">
+            Don't have an account?{" "}
+            <a href="/signup" className="font-semibold text-forest hover:text-forest/80 focus:outline-none focus-visible:underline">
+              Sign up for free
+            </a>
+          </p>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }

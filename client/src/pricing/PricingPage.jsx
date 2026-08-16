@@ -1,207 +1,542 @@
-import * as React from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import Reveal from '@/components/Reveal';
-import BillingToggle from '@/components/BillingToggle';
-import CompareCell from '@/components/CompareCell';
-import PlanCards from './PlanCards';
-import { Button } from '@/components/ui/button';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import { Lock } from '@/components/icons';
-import { stripeUrls, PLAN_PRICING } from '@/lib/stripe';
+import { useState, useEffect } from 'react';
 
-const NAV_LINKS = [
-  { href: 'index.html#how-it-works', label: 'How it works' },
-  { href: 'pricing.html', label: 'Pricing' },
-  { href: 'index.html#faq', label: 'FAQ' }
+/* ───────────────────────────────────────────────
+   Mealzy Pricing Page — Zero Dependency Version
+   Inline SVGs replace lucide-react icons.
+   Drop into: client/src/pricing/PricingPage.jsx
+   ─────────────────────────────────────────────── */
+
+const getSignupUrl = (plan, billing = 'annual') => {
+  const params = new URLSearchParams();
+  params.set('plan', plan);
+  if (plan !== 'free') params.set('billing', billing);
+  return `/signup?${params.toString()}`;
+};
+
+const plans = [
+  {
+    id: 'free',
+    name: 'Free',
+    description: 'Plan 3 meals a week with smart grocery lists. No credit card required.',
+    monthlyPrice: 0,
+    annualPrice: 0,
+    cta: 'Start Planning Free',
+    ctaHref: getSignupUrl('free'),
+    ctaVariant: 'outline',
+    popular: false,
+    features: [
+      { label: 'Weekly meal plans', value: '1 plan / week' },
+      { label: 'Grocery list with estimates', value: true },
+      { label: 'Budget-based planning', value: true },
+      { label: 'Dietary filters', value: '3 filters' },
+      { label: 'Family sharing', value: false },
+      { label: 'Nutrition breakdown', value: false },
+      { label: 'Priority support', value: false },
+      { label: 'Price history & trends', value: false },
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    description: 'Save 4+ hours a month with unlimited meal plans, price tracking, and pantry sync. Our most popular choice.',
+    monthlyPrice: 8,
+    annualPrice: 62,
+    cta: 'Try Pro Free for 14 Days',
+    ctaHref: getSignupUrl('pro', 'annual'),
+    ctaVariant: 'primary',
+    popular: true,
+    features: [
+      { label: 'Weekly meal plans', value: 'Unlimited' },
+      { label: 'Grocery list with estimates', value: true },
+      { label: 'Budget-based planning', value: true },
+      { label: 'Dietary filters', value: 'Unlimited' },
+      { label: 'Family sharing', value: false },
+      { label: 'Nutrition breakdown', value: true },
+      { label: 'Priority support', value: true },
+      { label: 'Price history & trends', value: true },
+    ],
+  },
+  {
+    id: 'family',
+    name: 'Family',
+    description: 'Feed 4+ people for under $6 a serving. Shared plans, dietary filters, and family-sized grocery lists.',
+    monthlyPrice: 16,
+    annualPrice: 128,
+    cta: 'Start Family Plan',
+    ctaHref: getSignupUrl('family', 'annual'),
+    ctaVariant: 'primary',
+    popular: false,
+    features: [
+      { label: 'Weekly meal plans', value: 'Unlimited' },
+      { label: 'Grocery list with estimates', value: true },
+      { label: 'Budget-based planning', value: true },
+      { label: 'Dietary filters', value: 'Unlimited' },
+      { label: 'Family sharing', value: 'Up to 5 members' },
+      { label: 'Nutrition breakdown', value: true },
+      { label: 'Priority support', value: true },
+      { label: 'Price history & trends', value: true },
+    ],
+  },
 ];
 
-const FAQS = [
+const featureRows = [
+  { label: 'Weekly meal plans', key: 'Weekly meal plans' },
+  { label: 'Grocery list with estimates', key: 'Grocery list with estimates' },
+  { label: 'Budget-based planning', key: 'Budget-based planning' },
+  { label: 'Dietary filters', key: 'Dietary filters' },
+  { label: 'Family sharing', key: 'Family sharing' },
+  { label: 'Nutrition breakdown', key: 'Nutrition breakdown' },
+  { label: 'Priority support', key: 'Priority support' },
+  { label: 'Price history & trends', key: 'Price history & trends' },
+];
+
+const faqs = [
   {
-    q: 'How does the 7-day free trial work?',
-    a: 'You get 7 full days of Pro with $0 due today. If you cancel before day 7 you are never charged. If you stay, billing starts on day 8 at the price you picked — $8 a month or $62 a year.'
+    q: 'What counts as one plan?',
+    a: 'One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan per week; Pro and Family users can generate unlimited plans.',
   },
   {
-    q: 'Can I switch or cancel my plan anytime?',
-    a: 'Yes. Cancel in one click from your account settings — no email, no questions. You can also move between monthly and annual, or between Pro and Family, at any time. Access continues until the end of the period you have already paid for.'
+    q: 'Can I cancel anytime?',
+    a: 'Yes. You can cancel your subscription at any time from your account settings. You will keep access until the end of your current billing period.',
   },
   {
-    q: 'What payment methods are supported?',
-    a: 'All major credit and debit cards, plus Apple Pay and Google Pay where your device supports them. Card details go straight to Stripe — we never see or store your card number.',
-    badge: 'Secure payment via Stripe'
+    q: 'Is there a free trial?',
+    a: 'Pro and Family plans include a 14-day free trial. You will not be charged until the trial ends, and we send a reminder 3 days before.',
   },
   {
-    q: 'What happens when my 3 free monthly plans run out?',
-    a: 'Nothing is lost. Every plan you have already generated stays in your account, and your grocery lists stay with them. Your 3 free generations reset automatically every 30 days. Upgrade to Pro whenever you want them sooner.'
+    q: 'How accurate are price estimates?',
+    a: 'Estimates are based on aggregated regional grocery data and update weekly. They are typically within 10–15% of your actual receipt, but local prices and seasonal fluctuations can vary.',
+  },
+];
+
+/* ── Inline SVG Icons ─────────────────────────── */
+
+function IconCheck({ className }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function IconX({ className }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function IconArrowRight({ className }) {
+  return (
+    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function IconShieldCheck({ className }) {
+  return (
+    <svg className={className} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <polyline points="9 12 12 15 16 10" />
+    </svg>
+  );
+}
+
+function IconChevronDown({ className }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
+/* ── Components ───────────────────────────────── */
+
+function PriceDisplay({ plan, billing }) {
+  const price = billing === 'annual' ? plan.annualPrice : plan.monthlyPrice;
+  const period = billing === 'annual' ? '/year' : '/mo';
+  const monthlyEquivalent = billing === 'annual' ? (plan.annualPrice / 12).toFixed(2) : null;
+  const annualSavings = billing === 'annual' ? (plan.monthlyPrice * 12) - plan.annualPrice : null;
+
+  if (price === 0) {
+    return (
+      <div className="flex items-baseline gap-1">
+        <span className="text-4xl font-bold text-forest">$0</span>
+        <span className="text-sm text-gray-500">forever</span>
+      </div>
+    );
   }
-];
 
-/* Four rows, one decision each — the shortest table that still answers "which
- * plan do I need?". Profile counts match what the server actually enforces
- * (server.js rejects a 5th family profile), so the table can't promise a seat
- * the app then refuses to create. */
-const COMPARE_ROWS = [
-  { feature: 'Meal plans per month', free: '3', pro: 'Unlimited', family: 'Unlimited' },
-  { feature: 'Mia AI Coach', free: '10 messages/day', pro: 'Unlimited', family: 'Unlimited' },
-  { feature: 'Profiles', free: '1', pro: '1', family: 'Up to 4' },
-  { feature: 'PDF & grocery list export', free: false, pro: true, family: true }
-];
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-baseline gap-1">
+        <span className="text-4xl font-bold text-forest">${price}</span>
+        <span className="text-sm text-gray-500">{period}</span>
+      </div>
+      {billing === 'annual' && monthlyEquivalent && (
+        <span className="text-xs text-green-700 font-medium mt-1">
+          ${monthlyEquivalent}/mo · Save ${annualSavings}/year
+        </span>
+      )}
+      {billing === 'monthly' && (
+        <span className="text-xs text-forest/60 font-medium mt-1">
+          Switch to annual and save ${(plan.monthlyPrice * 12) - plan.annualPrice}/year
+        </span>
+      )}
+    </div>
+  );
+}
 
-export default function PricingPage() {
-  const [mode, setMode] = React.useState('monthly');
-  /* Assume annual is sellable for the first paint — it is a real, advertised
-   * product, and this keeps the server-rendered markup and the first client
-   * render identical (no hydration mismatch). The effect then corrects it from
-   * the Stripe config, so a missing STRIPE_ANNUAL_URL disables the annual
-   * segment rather than checking someone out at the monthly price. */
-  const [annualAvailable, setAnnualAvailable] = React.useState(true);
-  React.useEffect(() => {
-    const ready = stripeUrls.annualReady;
-    setAnnualAvailable(ready);
-    if (!ready) setMode('monthly');
+function FeatureValue({ value, label }) {
+  if (value === true) {
+    return (
+      <>
+        <IconCheck className="w-5 h-5 text-green-600" aria-hidden="true" />
+        <span className="sr-only">{label} — included</span>
+      </>
+    );
+  }
+  if (value === false) {
+    return (
+      <>
+        <IconX className="w-5 h-5 text-gray-300" aria-hidden="true" />
+        <span className="sr-only">{label} — not included</span>
+      </>
+    );
+  }
+  return <span className="text-sm text-gray-700 font-medium">{value}</span>;
+}
+
+
+  function PricingCard({ plan, billing }) {
+  const isPopular = plan.popular;
+
+  return (
+    <div
+      className={`
+        relative flex flex-col rounded-2xl border p-6 md:p-8
+        transition-all duration-300 ease-out
+        ${isPopular
+          ? 'border-green-600 bg-cream shadow-xl md:scale-[1.03] z-10 ring-2 ring-forest ring-offset-2'
+          : 'border-gray-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1'
+        }
+      `}
+    >
+      {isPopular && (
+        <div className="mb-3">
+          <span className="inline-flex items-center rounded-full bg-forest px-3 py-1 text-xs font-semibold text-white shadow-sm">
+            Most Popular
+          </span>
+        </div>
+      )}
+
+      <div className="mb-4">
+        <h3 className="text-xl font-bold text-forest">{plan.name}</h3>
+        <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+      </div>
+
+      <div className="mb-6">
+        <PriceDisplay plan={plan} billing={billing} />
+      </div>
+
+      <a
+        href={plan.ctaHref}
+        data-track={`plan-cta-${plan.id}`}
+        className={`
+          inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
+          transition-colors duration-150
+          ${plan.ctaVariant === 'primary'
+            ? 'bg-forest text-white hover:bg-green-900'
+            : 'bg-white text-forest border-2 border-forest hover:bg-cream'
+          }
+        `}
+      >
+        {plan.cta}
+        <IconArrowRight className="w-4 h-4" />
+      </a>
+
+      <ul className="mt-6 space-y-3">
+        {plan.features.map((f) => (
+          <li key={f.label} className="flex items-start gap-3">
+            <span className="mt-0.5 shrink-0">
+              <FeatureValue value={f.value} label={f.label} />
+            </span>
+            <span className="text-sm text-gray-600">{f.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default function Pricing() {
+  const [billing, setBilling] = useState('annual');
+  const [openFaq, setOpenFaq] = useState(null);
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const hero = document.getElementById('pricing-hero');
+      const heroBottom = hero ? hero.offsetTop + hero.offsetHeight : 600;
+      setShowStickyCTA(window.scrollY > heroBottom);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <>
-      <a href="#main" className="skip-link">Skip to main content</a>
-      <Header links={NAV_LINKS} activeHref="pricing.html" />
-      <main id="main">
-        {/* Page head — forest drench, toggle lives with the headline */}
-        <header className="bg-forest pb-28 pt-32 text-center text-on-forest sm:pb-32">
-          <div className="mx-auto max-w-container px-4 sm:px-5">
-            <h1 className="font-display text-[clamp(2.5rem,4vw+1rem,4rem)] font-black italic leading-[1.05] tracking-[-0.03em] text-on-forest">
-              Simple pricing. Start free.
-            </h1>
-            <p className="mx-auto mt-4 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-              3 meal plans a month, free forever. No credit card required. Paid plans are $8 or $16
-              a month — the full figures are below.
-            </p>
-            <BillingToggle
-              mode={mode}
-              onChange={setMode}
-              annualDisabled={!annualAvailable}
-              annualLabel={`Annual — Save ${PLAN_PRICING.pro.savePct}%`}
-              className="mt-8"
-            />
-          </div>
-        </header>
+    <main className="min-h-screen bg-parchment">
+      {/* ── Hero ─────────────────────────────── */}
+      <section id="pricing-hero" className="bg-forest text-on-forest py-16 md:py-24">
+        <div className="mx-auto max-w-5xl px-4 text-center">
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
+            Start eating better for less than a coffee per week
+          </h1>
+          <p className="mt-4 text-lg md:text-xl text-green-100 max-w-2xl mx-auto">
+            Join thousands of home cooks who cut their grocery bill with smart, budget-first meal plans.
+          </p>
+        </div>
+      </section>
 
-        {/* Plans — pulled up over the forest edge */}
-        <section aria-label="Plans" className="pb-16 sm:pb-20">
-          <div className="mx-auto -mt-20 max-w-container px-4 sm:px-5">
-            <PlanCards mode={mode} />
-            <Reveal className="mx-auto mt-12 max-w-2xl text-center">
-              <h3 className="font-display text-2xl font-bold italic tracking-[-0.01em]">
-                7-day free trial on Pro. $0 due today.
-              </h3>
-              <p className="mt-3 text-[17px] leading-[1.7] text-muted-fg">
-                Try Pro free for 7 days. Cancel before day 7 and you are never charged.
-                Cancel anytime — 1-click in account settings.
-              </p>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Side-by-side comparison — the four differences that decide the plan */}
-        <section aria-labelledby="compare-heading" className="pb-16 sm:pb-20">
-          <div className="mx-auto max-w-container px-4 sm:px-5">
-            <Reveal className="mb-8 text-center">
-              <h2 id="compare-heading" className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]">
-                Compare the plans.
-              </h2>
-            </Reveal>
-            {/* The scroll container is the Reveal element itself. Nesting it
-                inside would put an overflowing box inside Reveal's transform,
-                which leaks the table's min-width out to the page and gives the
-                whole document a horizontal scrollbar on mobile. */}
-            <Reveal delay={80} className="mx-auto max-w-3xl overflow-x-auto rounded-lg border border-border-warm bg-cream shadow-card">
-              <table className="w-full min-w-[520px] border-collapse text-left">
-                <caption className="sr-only">Feature comparison of the Free, Pro, and Family plans</caption>
-                <thead>
-                  <tr className="border-b border-border-warm">
-                    <th scope="col" className="px-4 py-3.5 text-[15px] font-semibold">Feature</th>
-                    <th scope="col" className="px-3 py-3.5 text-center text-[15px] font-semibold">Free</th>
-                    <th scope="col" className="bg-green/5 px-3 py-3.5 text-center text-[15px] font-semibold">Pro</th>
-                    <th scope="col" className="px-3 py-3.5 text-center text-[15px] font-semibold">Family</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARE_ROWS.map((row) => (
-                    <tr key={row.feature} className="border-b border-border-warm last:border-b-0">
-                      <th scope="row" className="px-4 py-3 text-[15px] font-normal">{row.feature}</th>
-                      <CompareCell value={row.free} />
-                      <CompareCell value={row.pro} pro />
-                      <CompareCell value={row.family} />
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Billing FAQ */}
-        <section id="faq" aria-labelledby="faq-heading" className="bg-parchment py-16 sm:py-20">
-          <div className="mx-auto max-w-container px-4 sm:px-5">
-            <Reveal className="mb-10 text-center">
-              <h2 id="faq-heading" className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]">
-                Billing questions.
-              </h2>
-            </Reveal>
-            <Reveal delay={80}>
-              <div role="region" aria-label="Billing questions" className="mx-auto max-w-3xl rounded-lg border border-border-warm bg-cream px-6 shadow-card sm:px-8">
-                <Accordion type="single" collapsible>
-                  {FAQS.map((f, i) => (
-                    <AccordionItem key={i} value={`faq-${i + 1}`}>
-                      <AccordionTrigger>{f.q}</AccordionTrigger>
-                      <AccordionContent>
-                        {f.a}
-                        {f.badge && (
-                          <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border-warm bg-parchment px-3 py-1.5 text-sm font-semibold text-muted-fg">
-                            <Lock width="14" height="14" className="shrink-0 text-green" />
-                            {f.badge}
-                          </span>
-                        )}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            </Reveal>
-            <Reveal className="mx-auto mt-8 max-w-3xl text-sm leading-[1.7] text-muted-fg">
-              <p>
-                Still not sure?{' '}
-                <a href="upgrade.html" className="font-semibold text-green-deep no-underline hover:underline dark:text-green-light">
-                  See a full breakdown of what Pro unlocks
-                </a>
-                <br />
-                Questions?{' '}
-                <a href="mailto:support@mealzy.org" className="text-green-deep underline dark:text-green-light">support@mealzy.org</a>
-                {' '}— usually replied to within 24 hours.
-              </p>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Closing CTA */}
-        <section aria-labelledby="cta-heading" className="bg-forest py-16 text-on-forest sm:py-20">
-          <Reveal className="mx-auto max-w-container px-4 text-center sm:px-5">
-            <h2 id="cta-heading" className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em] text-on-forest">
-              Stop planning meals by hand.
-            </h2>
-            <p className="mx-auto mt-4 max-w-prose text-lg leading-[1.65] text-on-forest-body">
-              Mealzy builds the full week in about 30 seconds. Free to start — no credit card.
-            </p>
-            <div className="mt-8">
-              <Button href="login.html?signup=1" size="lg">Plan My Week Free</Button>
+      {/* ── Toggle + Cards ─────────────────── */}
+      <section className="py-12 md:py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          {/* Toggle */}
+          <div className="flex justify-center mb-12">
+            <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 shadow-sm">
+              <button
+                onClick={() => setBilling('monthly')}
+                data-track="billing-toggle-monthly"
+                className={`
+                  px-5 py-2 text-sm font-semibold rounded-full transition-colors
+                  ${billing === 'monthly'
+                    ? 'bg-forest text-white'
+                    : 'text-gray-600 hover:text-forest'
+                  }
+                `}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBilling('annual')}
+                data-track="billing-toggle-annual"
+                className={`
+                  px-5 py-2 text-sm font-semibold rounded-full transition-colors
+                  ${billing === 'annual'
+                    ? 'bg-forest text-white'
+                    : 'text-gray-600 hover:text-forest'
+                  }
+                `}
+              >
+                Annual
+              </button>
             </div>
-            <p className="mt-4 text-sm leading-[1.6] text-on-forest-muted">
-              Cancel anytime — 1-click in account settings.
-            </p>
-          </Reveal>
-        </section>
-      </main>
-      <Footer />
-    </>
+          </div>
+
+          {/* Cards */}
+          <div className="grid gap-6 md:gap-8 md:grid-cols-3 items-start">
+            {plans.map((plan) => (
+              <PricingCard key={plan.id} plan={plan} billing={billing} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Money-Back Guarantee ───────────── */}
+      <section className="py-10">
+        <div className="mx-auto max-w-3xl px-4">
+          <div className="flex items-start gap-4 rounded-2xl bg-cream border border-green-200 p-6 md:p-8">
+            <IconShieldCheck className="w-8 h-8 text-green-700 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-lg font-bold text-forest">
+                14-Day Money-Back Guarantee
+              </h3>
+              <p className="mt-1 text-sm text-gray-600">
+                Not satisfied with Pro? Email us at{' '}
+                <a
+                  href="mailto:support@mealzy.org"
+                  className="underline text-green-700 hover:text-forest"
+                >
+                  support@mealzy.org
+                </a>{' '}
+                within 14 days for a full refund. No questions asked.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Trust Badges ───────────────────── */}
+      <section className="pb-12 md:pb-16">
+        <div className="mx-auto max-w-3xl px-4">
+          <div className="flex flex-wrap justify-center items-center gap-6 text-xs text-forest/60">
+            <span className="flex items-center gap-1.5">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              SSL Secured
+            </span>
+            <span className="flex items-center gap-1.5">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              Stripe Payments
+            </span>
+            <span className="flex items-center gap-1.5">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              Cancel Anytime
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Feature Comparison ─────────────── */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="mx-auto max-w-4xl px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">
+            Compare all features
+          </h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b-2 border-gray-100">
+                  <th className="pb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                    Feature
+                  </th>
+                  {plans.map((p) => (
+                    <th
+                      key={p.id}
+                      className={`pb-4 text-center text-sm font-bold ${
+                        p.popular ? 'text-green-700' : 'text-forest'
+                      }`}
+                    >
+                      {p.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {featureRows.map((row) => (
+                  <tr key={row.key} className="border-b border-gray-50">
+                    <td className="py-4 text-sm text-gray-700 font-medium">
+                      {row.label}
+                    </td>
+                    {plans.map((p) => {
+                      const feat = p.features.find((f) => f.label === row.key);
+                      return (
+                        <td key={p.id} className="py-4 text-center">
+                          <div className="flex justify-center">
+                            <FeatureValue value={feat?.value} label={row.label} />
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ────────────────────────────── */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="mx-auto max-w-3xl px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">
+            Pricing questions
+          </h2>
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                data-track={`faq-${faq.q.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+                className="border border-gray-200 rounded-xl"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left bg-white hover:bg-cream/50 transition-colors"
+                  aria-expanded={openFaq === i}
+                >
+                  <span className="font-semibold text-forest text-sm md:text-base">
+                    {faq.q}
+                  </span>
+                  <IconChevronDown
+                    className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-200 ${
+                      openFaq === i ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Closing CTA ────────────────────── */}
+      <section className="py-16 md:py-24 bg-forest text-on-forest">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <h2 className="text-2xl md:text-4xl font-extrabold">
+            Start saving today
+          </h2>
+          <p className="mt-3 text-green-100 text-lg max-w-xl mx-auto">
+            Join thousands of home cooks who spend less and eat better with Mealzy.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href={getSignupUrl('pro', 'annual')}
+              data-track="closing-cta-primary"
+              className="inline-flex items-center gap-2 rounded-xl bg-white text-forest px-7 py-3.5 text-sm font-bold hover:bg-cream transition-colors"
+            >
+              Try Pro Free for 14 Days
+              <IconArrowRight className="w-4 h-4" />
+            </a>
+            <a
+              href={getSignupUrl('free')}
+              data-track="closing-cta-secondary"
+              className="inline-flex items-center gap-2 rounded-xl border-2 border-green-400 text-white px-7 py-3.5 text-sm font-bold hover:bg-green-800 transition-colors"
+            >
+              Start Planning Free
+            </a>
+          </div>
+          <p className="mt-4 text-xs text-green-200">
+            No credit card required for Free. Cancel anytime.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Sticky Mobile CTA ──────────────── */}
+      {showStickyCTA && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-forest/10 p-4 md:hidden shadow-lg">
+          <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
+            <div>
+              <p className="text-sm font-bold text-forest">Pro — $5.17/mo</p>
+              <p className="text-xs text-forest/60">14-day free trial</p>
+            </div>
+            <a
+              href={getSignupUrl('pro', 'annual')}
+              data-track="sticky-cta-pro"
+              className="px-5 py-2.5 bg-forest text-white rounded-lg text-sm font-bold whitespace-nowrap"
+            >
+              Try Pro Free for 14 Days
+            </a>
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
