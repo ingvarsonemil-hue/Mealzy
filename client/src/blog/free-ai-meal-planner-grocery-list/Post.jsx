@@ -7,11 +7,11 @@ import BlogCta from '@/blog/BlogCta';
  * Do not rewrite, reword, or "improve" any sentence here without sign-off. */
 
 const FAQS = [
-  { q: 'Is Mealzy really free?', a: 'Yes. The free plan includes 3 meal plans per month, grocery list generation, calorie and macro tracking, and full mobile app access. No credit card required to sign up. Pro is $8/month for unlimited plans and an AI nutrition coach.' },
+  { q: 'Is Mealzy really free?', a: 'Yes. Free for your first month — one new meal plan a day, plus grocery list generation, calorie and macro tracking, and full mobile app access. No credit card required to sign up. Pro is $8/month for unlimited plans and an AI nutrition coach.' },
   { q: 'Does it work for keto, vegan, gluten-free, halal?', a: 'Yes. Mealzy enforces strict dietary constraints. Set your preferences once, and every generated plan respects them. You can combine restrictions (e.g., vegan and gluten-free) and Mealzy will still find meals that work.' },
   { q: 'How accurate are the calorie counts?', a: 'Calorie counts are within ±50 calories per day and sourced from standard USDA nutritional databases. Mealzy also asks about your activity level and uses the Mifflin-St Jeor equation to calculate your daily target, so the plan is personalized to your actual maintenance level.' },
   { q: 'Can I use it on my phone?', a: 'Yes. Mealzy is fully mobile-optimized. You can generate plans, view your meals, and access your grocery list on any smartphone. It works as a progressive web app, so there\'s no app store download required.' },
-  { q: 'What happens when I hit the free limit of 3 plans?', a: 'You can either upgrade to Pro to unlock unlimited plans, or wait until the following month when your free allocation resets. Your existing plans stay saved and accessible.' }
+  { q: 'What happens after my first month?', a: 'Upgrade to Pro to unlock unlimited plans and keep generating. Your existing plans stay saved and accessible either way.' }
 ];
 
 export default function Post() {
@@ -41,9 +41,9 @@ export default function Post() {
       <p>The entire process — from onboarding to a finalized, shoppable plan with a grocery list — takes less than 5 minutes total. The hardest part is answering the initial questions honestly about your budget and preferences. After that, the AI does the work.</p>
 
       <h2>Free vs Paid AI Meal Planners: What's the Difference?</h2>
-      <p>Mealzy's free tier gives you three meal plans per month and full access to the grocery list feature, calorie and macro tracking, and the mobile app. No credit card required. You can genuinely use Mealzy's core functionality for free indefinitely.</p>
+      <p>Mealzy's free tier gives you your first month at no cost — one new meal plan a day, plus full access to the grocery list feature, calorie and macro tracking, and the mobile app. No credit card required.</p>
       <p>Pro ($8/month) unlocks unlimited meal plans, advanced macro breakdowns per meal, the ability to export plans as PDFs, and access to Mia — an AI nutrition coach available 24/7 to answer questions about recipes, macros, or what to cook with what's in your fridge. You also get priority support and early access to new features.</p>
-      <p>The free tier is genuinely useful for people who generate a plan every two weeks or once a month. If you plan for a full week, you're using only one of your three free plans. If you want to generate new plans weekly or experiment with different calorie targets or dietary preferences, you'd hit the limit and would benefit from upgrading.</p>
+      <p>The free tier is genuinely useful for trying Mealzy out — a full month of daily plans is enough to see whether it fits your routine. If you want to keep generating past that first month, you'd upgrade.</p>
 
       <h2>Mealzy vs Other Free Meal Planners</h2>
       <p>Mealzy isn't alone in the space, but it occupies a specific niche: free, budget-aware, and fast. Here's how it compares to the most popular alternatives.</p>

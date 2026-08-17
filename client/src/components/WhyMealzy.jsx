@@ -159,7 +159,7 @@ export default function WhyMealzy() {
             <IconArrowRight className="w-4 h-4" />
           </a>
           <p className="mt-3 text-xs text-gray-500">
-            Free forever plan available. No credit card required.
+            Free for your first month. No credit card required.
           </p>
         </div>
       </div>

@@ -64,7 +64,7 @@ export default function Footer({ ctaHref = '/login.html?signup=1' }) {
               3-minute setup. 30 seconds every week after.
             </p>
             <p className="mt-3 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              Free for 3 plans a month. Pro $8/mo or $62/yr. Family $16/mo or $128/yr.{' '}
+              Free for your first month. Pro $8/mo or $62/yr. Family $16/mo or $128/yr.{' '}
               <a
                 href="/pricing.html"
                 className="font-semibold text-on-forest underline decoration-from-font underline-offset-2"

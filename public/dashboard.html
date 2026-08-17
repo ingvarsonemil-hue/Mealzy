@@ -973,10 +973,12 @@
     document.getElementById('recipeModal').classList.remove('open');
   }
 
-  // Generates the full 7-day plan for the current week (1 credit = 1 week —
-  // same weekStart flow as meal-planner.html) and refreshes the "Today's
-  // Meal" widget from it. Also used for regeneration: existing meals for the
-  // week are passed as avoid_meals so a re-click doesn't just repeat itself.
+  // Pro: generates the full 7-day plan for the current week (1 credit = 1 week —
+  // same weekStart flow as meal-planner.html). Free/trial: generates a single
+  // day (today only — the 30-day trial allows exactly 1 plan per calendar day).
+  // Both refresh the "Today's Meal" widget from the result. Also used for
+  // regeneration: existing meals are passed as avoid_meals so a re-click
+  // doesn't just repeat itself.
   async function generateMealPlan() {
     if (!profile) { window.location.href = 'onboarding.html'; return; }
     await refreshProfileFromServer();
@@ -987,19 +989,30 @@
     try {
       const isPro = !!serverUser?.pro;
       const weekStart = getMondayStr(new Date());
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const existingPlans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
       const avoid_meals = Object.values(existingPlans).flatMap(p => (p && p.meals) ? p.meals.map(m => m.name) : []).filter(Boolean);
 
       const response = await fetch('/api/generate-meal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ profile, weekStart, avoid_meals })
+        body: JSON.stringify(
+          isPro
+            ? { profile, weekStart, avoid_meals }
+            : { profile, date: today, timezone, avoid_meals }
+        )
       });
 
       if (response.status === 402) {
         const data = await response.json();
         trackEvent('free_limit_hit', {});
-        showUpgradePrompt(data.message || 'You have used all 3 free plans this month.');
+        showUpgradePrompt(data.message || 'Your first free month has ended. Upgrade to keep generating.');
+        return;
+      }
+
+      if (response.status === 409) {
+        const data = await response.json();
+        showToast(data.message || "You already generated a plan today. Come back tomorrow for your next one.");
         return;
       }
 
@@ -1010,9 +1023,13 @@
       }
 
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-      (data.days || []).forEach(d => {
-        plans[d.date] = { meals: d.meals || [], generatedAt: new Date().toISOString() };
-      });
+      if (isPro) {
+        (data.days || []).forEach(d => {
+          plans[d.date] = { meals: d.meals || [], generatedAt: new Date().toISOString() };
+        });
+      } else if (data.mealPlan) {
+        plans[data.date || today] = { meals: data.mealPlan.meals || [], generatedAt: new Date().toISOString() };
+      }
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
 
       todayMeals = (plans[today] && plans[today].meals) ? plans[today].meals.map(m => ({ ...m, completed: false })) : [];

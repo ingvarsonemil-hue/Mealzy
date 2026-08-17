@@ -24,8 +24,8 @@ const CATEGORIES = [
       },
       {
         q: 'Can I try Mealzy without an account?',
-        a: <>Yes — the homepage has a free demo that generates a 5-day plan with no signup. You get 3 free plans per month. To save plans and generate more, create a free account at <a href="index.html">mealzy.org</a>.</>,
-        search: 'Can I try Mealzy without an account? Yes — the homepage has a free demo that generates a 5-day plan with no signup. You get 3 free plans per month. To save plans and generate more, create a free account at mealzy.org.'
+        a: <>Yes — the homepage has a free demo that generates a 5-day plan with no signup. Free for your first month after that. To save plans and generate more, create a free account at <a href="index.html">mealzy.org</a>.</>,
+        search: 'Can I try Mealzy without an account? Yes — the homepage has a free demo that generates a 5-day plan with no signup. Free for your first month after that. To save plans and generate more, create a free account at mealzy.org.'
       }
     ]
   },

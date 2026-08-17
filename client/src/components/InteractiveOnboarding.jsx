@@ -238,7 +238,7 @@ function RevealStep({ plan, household, onClaim, onBack }) {
         Free account. No credit card required. Generate your personalized 7-day plan in seconds.
       </p>
       <p className="mt-1.5 text-center text-[13px] text-muted-fg">
-        3 free plans a month &middot; No credit card
+        Free for your first month &middot; No credit card
       </p>
       <button
         type="button"

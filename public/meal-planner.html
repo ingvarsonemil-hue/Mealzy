@@ -635,8 +635,8 @@
     <div class="limit-modal-icon">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
     </div>
-    <h2 id="limitModalTitle">You've used your free plans</h2>
-    <p>You've hit the 3 plan limit for this month. Upgrade to Pro for unlimited plans and everything below — or wait until next month.</p>
+    <h2 id="limitModalTitle">Your first month is up</h2>
+    <p>Your free first month has ended. Upgrade to Pro for unlimited plans and everything below.</p>
     <ul class="limit-features">
       <li>Unlimited AI meal plans, every week</li>
       <li>Full grocery list with one click</li>
@@ -647,7 +647,7 @@
     <a href="upgrade.html" class="btn btn-primary" style="display:block;width:100%;text-align:center;font-size:1rem;padding:0.85rem;" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','limit_modal')">
       Start Pro — 7 Days Free
     </a>
-    <button class="limit-modal-dismiss" onclick="closeLimitModal()">Maybe next month</button>
+    <button class="limit-modal-dismiss" onclick="closeLimitModal()">Not now</button>
   </div>
 </div>
 
@@ -1093,10 +1093,12 @@
     return monday.toISOString().split('T')[0];
   }
 
-  // Generates a full 7-day plan (21 meals + snacks) for the week containing
-  // currentDate — 1 generation credit unlocks the whole week. Populates
-  // localStorage per-day so the existing Day View / Week View rendering
-  // (which reads mealzy_meal_plans by date) works unchanged.
+  // Pro: generates a full 7-day plan (21 meals + snacks) for the week containing
+  // currentDate — 1 generation credit unlocks the whole week.
+  // Free/trial: generates a single day (today only — the 30-day trial allows
+  // exactly 1 plan per calendar day). Both populate localStorage per-day so the
+  // existing Day View / Week View rendering (which reads mealzy_meal_plans by
+  // date) works unchanged.
   async function generateMealPlan(isRegenerate) {
     if (!profile) return;
     await refreshProfileFromServer();
@@ -1120,21 +1122,23 @@
     const btn = document.getElementById('generateBtn');
     if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
 
+    const isPro = localStorage.getItem('mealzy_pro') === 'true';
     const weekStart = getMondayStr(currentDate);
     const existingPlans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
     const avoidMeals = isRegenerate
       ? Object.values(existingPlans).flatMap(p => (p && p.meals) ? p.meals.map(m => m.name) : []).filter(Boolean)
       : [];
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     try {
       const res = await fetch('/api/generate-meal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profile,
-          weekStart,
-          avoid_meals: avoidMeals
-        })
+        body: JSON.stringify(
+          isPro
+            ? { profile, weekStart, avoid_meals: avoidMeals }
+            : { profile, date: currentDateStr, timezone, avoid_meals: avoidMeals }
+        )
       });
 
       const data = await res.json();
@@ -1145,22 +1149,32 @@
         return;
       }
 
+      if (res.status === 409 && data.error === 'already_generated_today') {
+        renderMeals();
+        showAlreadyGeneratedTodayState(data.message);
+        return;
+      }
+
       if (!res.ok || !data.success) {
         showErrorState(data.error || 'Generation failed. Please try again.');
         return;
       }
 
       const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
-      (data.days || []).forEach(d => {
-        plans[d.date] = { meals: d.meals || [], generatedAt: new Date().toISOString() };
-      });
+      if (isPro) {
+        (data.days || []).forEach(d => {
+          plans[d.date] = { meals: d.meals || [], generatedAt: new Date().toISOString() };
+        });
+      } else if (data.mealPlan) {
+        plans[data.date || currentDateStr] = { meals: data.mealPlan.meals || [], generatedAt: new Date().toISOString() };
+      }
       localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
 
       currentMeals = (plans[currentDateStr] && plans[currentDateStr].meals) ? plans[currentDateStr].meals : [];
       renderMeals();
       updateTotals();
       checkPlanLimitBanner();
-      if (currentView === 'week') renderWeekView();
+      if (isPro && currentView === 'week') renderWeekView();
       document.getElementById('sharePlanPanel').style.display = 'block';
       generateShareLink(currentMeals);
 
@@ -1189,6 +1203,22 @@
       <h3>Something went wrong</h3>
       <p>${message}</p>
       <button class="btn btn-primary" onclick="generateMealPlan()">Try again</button>
+    </div>`;
+  }
+
+  // Distinct from showErrorState — this isn't a failure, it's the free trial's
+  // 1-plan-per-day rule. No "Try again" button since retrying won't help until
+  // the next calendar day.
+  function showAlreadyGeneratedTodayState(message) {
+    const container = document.getElementById('mealsContainer');
+    container.innerHTML = `
+    <div class="error-state">
+      <div class="error-state-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <h3>Today's plan is ready</h3>
+      <p>${message || "You already generated a plan today. Come back tomorrow for your next one."}</p>
+      <a class="btn btn-primary" href="/pricing.html">Upgrade for unlimited plans</a>
     </div>`;
   }
 

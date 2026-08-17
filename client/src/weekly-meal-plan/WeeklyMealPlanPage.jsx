@@ -84,7 +84,7 @@ export default function WeeklyMealPlanPage() {
           lede="Stop reinventing your meals every week. Set your calorie goal, your budget, and your dietary preferences once. Mealzy generates a full 7-day plan with breakfast, lunch, dinner, and snacks — plus a sorted grocery list — in 30 seconds. Free."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
-          fine="3 plans/month free. No credit card. No catch."
+          fine="Free for your first month. No credit card. No catch."
         />
 
         <div className="mx-auto max-w-container px-4 pt-10 sm:px-5">

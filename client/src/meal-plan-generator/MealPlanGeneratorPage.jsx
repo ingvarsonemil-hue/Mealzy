@@ -182,7 +182,7 @@ export default function MealPlanGeneratorPage() {
           lede="Tell Mealzy your calorie goal, weekly budget, and any dietary preferences. It generates a balanced, practical meal plan and a sorted grocery list — completely free. No credit card, no catch."
           ctaLabel="Plan My Week Free"
           ctaHref="login.html?signup=1"
-          fine="Free to start. 3 plans/month at no cost. No credit card."
+          fine="Free for your first month. No credit card."
         />
 
         <div className="mx-auto max-w-[820px] px-4 sm:px-5">

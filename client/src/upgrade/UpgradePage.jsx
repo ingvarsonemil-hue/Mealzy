@@ -46,7 +46,7 @@ const OBJECTIONS = [
 ];
 
 const FAQS = [
-  { q: 'What happens to my data if I cancel?', a: 'Your account stays. Your meal history stays. You just go back to 3 free plans per month. Nothing is deleted. You can re-upgrade any time.' },
+  { q: 'What happens to my data if I cancel?', a: 'Your account stays. Your meal history stays. You just go back to the free plan. Nothing is deleted. You can re-upgrade any time.' },
   { q: 'Is there a contract or minimum commitment?', a: 'No. Cancel any time from your account settings — one click, no questions asked. You keep Pro access until the end of your current billing period.' },
   { q: 'Do you store my payment details?', a: 'No. Payments go through Stripe — the same processor used by Amazon and Google. We never see your card number, expiry date, or CVV.' }
 ];
