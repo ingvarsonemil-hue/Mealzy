@@ -147,6 +147,13 @@ async function _applySchema() {
       data       TEXT NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )`,
+    `CREATE TABLE IF NOT EXISTS trial_generations (
+      user_id    TEXT NOT NULL,
+      local_date TEXT NOT NULL,
+      plan_id    TEXT NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, local_date)
+    )`,
   ];
 
   for (const sql of tables) {
@@ -165,6 +172,7 @@ async function _applySchema() {
     `ALTER TABLE users ADD COLUMN nps_submitted_at TEXT`,
     `ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0`,
     `ALTER TABLE users ADD COLUMN email_verified INTEGER`,
+    `ALTER TABLE users ADD COLUMN trial_started_at TEXT`,
   ];
   for (const sql of alters) {
     try { await _client.execute(sql); } catch(e) { /* column already exists */ }
@@ -700,6 +708,39 @@ async function incrementPlanGeneration(userId, month) {
   );
 }
 
+// ── Free-tier 30-day daily trial ────────────────────────────────────────────────
+
+/** Sets trial_started_at only if it isn't already set — idempotent so a race
+ * between two near-simultaneous first requests can't push the start later. */
+async function setTrialStart(userId, isoTimestamp) {
+  await run(
+    `UPDATE users SET trial_started_at = ? WHERE id = ? AND trial_started_at IS NULL`,
+    [isoTimestamp, userId]
+  );
+}
+
+async function getTrialGenerationByDate(userId, localDate) {
+  return get(
+    'SELECT user_id, local_date, plan_id, created_at FROM trial_generations WHERE user_id = ? AND local_date = ?',
+    [userId, localDate]
+  );
+}
+
+async function recordTrialGeneration(userId, localDate, planId) {
+  await run(
+    `INSERT INTO trial_generations (user_id, local_date, plan_id) VALUES (?, ?, ?)`,
+    [userId, localDate, planId]
+  );
+}
+
+async function getTrialPlanIdsForUser(userId) {
+  const rows = await all(
+    'SELECT plan_id, local_date FROM trial_generations WHERE user_id = ? ORDER BY local_date ASC',
+    [userId]
+  );
+  return rows.map(r => ({ planId: r.plan_id, localDate: r.local_date }));
+}
+
 // ── Grocery lists ─────────────────────────────────────────────────────────────
 
 async function saveGroceryList(id, userId, planId, day, groceryListObj) {
@@ -728,6 +769,29 @@ async function deleteGroceryListForPlanDay(planId, day, userId) {
     'DELETE FROM grocery_lists WHERE plan_id = ? AND day = ? AND user_id = ?',
     [planId, day, userId]
   );
+}
+
+/** Aggregates grocery lists across every day the user has generated so far in
+ * their trial (each daily generation gets its own plan_id, unlike week-mode
+ * where 7 days share one plan_id) — reuses the same per-row shape as
+ * getGroceryListsForPlan so callers can treat it the same way. */
+async function getGroceryListsForUserTrial(userId) {
+  const planRows = await getTrialPlanIdsForUser(userId);
+  if (planRows.length === 0) return [];
+  const planIds = planRows.map(r => r.planId);
+  const placeholders = planIds.map(() => '?').join(', ');
+  const rows = await all(
+    `SELECT id, user_id, plan_id, day, data, created_at FROM grocery_lists WHERE plan_id IN (${placeholders}) ORDER BY created_at ASC`,
+    planIds
+  );
+  return rows.map(r => ({
+    id:        r.id,
+    userId:    r.user_id,
+    planId:    r.plan_id,
+    day:       r.day,
+    createdAt: r.created_at,
+    ...(() => { try { return JSON.parse(r.data); } catch(e) { return {}; } })(),
+  }));
 }
 
 async function getGroceryListByDay(planId, day) {
@@ -827,6 +891,8 @@ module.exports = {
   getCoachUsage, incrementCoachUsage,
   // plan generation quotas
   getPlanGenerationCount, incrementPlanGeneration,
+  // free-tier 30-day daily trial
+  setTrialStart, getTrialGenerationByDate, recordTrialGeneration, getTrialPlanIdsForUser,
   // daily API spend
   getDailySpend, addDailySpend,
   // ingredient prices
@@ -834,7 +900,7 @@ module.exports = {
   // meal feedback
   saveMealFeedback, getUserDislikedMeals,
   // grocery lists
-  saveGroceryList, getGroceryListsForPlan, getGroceryListByDay, deleteGroceryListForPlanDay,
+  saveGroceryList, getGroceryListsForPlan, getGroceryListsForUserTrial, getGroceryListByDay, deleteGroceryListForPlanDay,
   // health
   ping,
   // webhook idempotency

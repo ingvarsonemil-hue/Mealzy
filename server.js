@@ -483,8 +483,30 @@ function validatePasswordStrength(password) {
 
 // â”€â”€ In-memory usage tracker (free-plan generation cap) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const usageTracker = new Map();
-const FREE_PLAN_LIMIT = 3;
+const FREE_PLAN_LIMIT = 3; // anonymous (no-session) requests only â€” logged-in free users use the 30-day daily trial below
 const referralBonus   = new Map(); // kept for in-session backward compat; SQLite is source of truth
+
+// â”€â”€ Free-tier 30-day daily trial (logged-in users) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+const TRIAL_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** Validates a client-supplied IANA timezone name; falls back to UTC for
+ * anything missing, oversized, or not recognised by Intl. */
+function resolveClientTimezone(rawTimezone) {
+  if (typeof rawTimezone !== 'string' || rawTimezone.length === 0 || rawTimezone.length > 60) return 'UTC';
+  try {
+    new Intl.DateTimeFormat('en-CA', { timeZone: rawTimezone });
+    return rawTimezone;
+  } catch (e) {
+    return 'UTC';
+  }
+}
+
+/** Today's calendar date (YYYY-MM-DD) in the given IANA timezone. */
+function getLocalDateString(timezone) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date());
+}
 
 // â”€â”€ Failed login tracking â€” per-account rate limiting and lockout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const failedLoginAttempts = new Map(); // "email|ip" -> { count, lastAttempt, lockedUntil }
@@ -1984,40 +2006,63 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
       isPro = sessionUser?.pro === 1;
     }
 
-    // â”€â”€ Quota check (read-only) â€” plan_generations table, not an analytics full-scan.
-    // Credits are only *consumed* later, after the plan passes validation (see below).
+    // â”€â”€ Quota check (read-only) â€” credits/trial state are only *consumed* later,
+    // after the plan passes validation (see below).
     const ip = clientIp(req);
-    const genMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
-    let quotaUsedSoFar = 0;
     let anonUsage = null;
+    let trialLocalDate = null;
     if (!swap_meal_type && !isPro) {
-      const effectiveLimit = await getEffectiveLimit(session?.email || user_email || '');
-
       if (session) {
-        quotaUsedSoFar = await db.getPlanGenerationCount(session.userId, genMonth);
-        if (quotaUsedSoFar >= effectiveLimit) {
-          await db.logEvent('free_limit_hit', { userId: session.userId }, '');
+        // â”€â”€ Logged-in free users: 30-day daily trial, 1 plan per local calendar day â”€â”€
+        if (weekStart) {
+          return res.status(400).json({
+            error: 'week_mode_unavailable_on_trial',
+            message: 'Full week generation isn\'t available during your free trial. Generate today\'s plan instead.',
+          });
+        }
+
+        const timezone = resolveClientTimezone(req.body.timezone);
+        trialLocalDate = getLocalDateString(timezone);
+
+        let trialStartedAt = sessionUser?.trial_started_at;
+        if (!trialStartedAt) {
+          trialStartedAt = new Date().toISOString();
+          await db.setTrialStart(session.userId, trialStartedAt);
+        }
+
+        const trialEndsAtMs = new Date(trialStartedAt).getTime() + TRIAL_DAYS_MS;
+        if (Date.now() >= trialEndsAtMs) {
+          await db.logEvent('free_trial_expired', { userId: session.userId }, '');
           return res.status(402).json({
             error: 'free_limit_reached',
-            message: `You've used all ${effectiveLimit} free plans this month.`,
+            message: 'Your 30-day free trial has ended.',
             upgrade_url: '/pricing.html',
-            resets_in: 'Start of next month',
-            used: quotaUsedSoFar,
-            limit: effectiveLimit
+            resets_in: null,
+            used: null,
+            limit: null
+          });
+        }
+
+        const alreadyToday = await db.getTrialGenerationByDate(session.userId, trialLocalDate);
+        if (alreadyToday) {
+          await db.logEvent('trial_already_generated_today', { userId: session.userId }, '');
+          return res.status(409).json({
+            error: 'already_generated_today',
+            message: 'You already generated a plan today. Come back tomorrow for your next one.'
           });
         }
       } else {
         // Anonymous user: track by IP (in-memory, resets on server restart)
         anonUsage = getUsage(ip);
-        if (anonUsage.count >= effectiveLimit) {
+        if (anonUsage.count >= FREE_PLAN_LIMIT) {
           await db.logEvent('free_limit_hit', {}, '');
           return res.status(402).json({
             error: 'free_limit_reached',
-            message: `You've used all ${effectiveLimit} free plans this month.`,
+            message: `You've used all ${FREE_PLAN_LIMIT} free plans this month.`,
             upgrade_url: '/pricing.html',
             resets_in: 'Start of next month',
             used: anonUsage.count,
-            limit: effectiveLimit
+            limit: FREE_PLAN_LIMIT
           });
         }
       }
@@ -2419,8 +2464,9 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       if (isPro) {
         await db.logEvent('generate_plan', { pro: true, weekStart }, '');
       } else if (session) {
-        await db.incrementPlanGeneration(session.userId, genMonth);
-        await db.logEvent('generate_plan', { plan_num: quotaUsedSoFar + 1, userId: session.userId, weekStart }, '');
+        // Unreachable in practice: free/trial sessions are rejected above before
+        // reaching week mode. Logged defensively in case that check ever changes.
+        await db.logEvent('generate_plan', { userId: session.userId, weekStart }, '');
       } else {
         incrementUsage(ip);
         await db.logEvent('generate_plan', { plan_num: (anonUsage?.count || 0) + 1, weekStart }, '');
@@ -2468,14 +2514,19 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       throw err;
     }
 
+    // Save to DB server-side before responding so the plan is persisted even if
+    // the client navigates away while this fetch is in-flight.
+    const planDate = date || new Date().toISOString().split('T')[0];
+    const planId   = randomUUID();
+
     // â”€â”€ Quota consumption â€” only now, after the plan has passed allergy/macro
     // validation and is guaranteed to be returned. Errors and rejects above never reach here.
     if (!swap_meal_type) {
       if (isPro) {
         await db.logEvent('generate_plan', { pro: true }, '');
       } else if (session) {
-        await db.incrementPlanGeneration(session.userId, genMonth);
-        await db.logEvent('generate_plan', { plan_num: quotaUsedSoFar + 1, userId: session.userId }, '');
+        await db.recordTrialGeneration(session.userId, trialLocalDate, planId);
+        await db.logEvent('generate_plan', { userId: session.userId, trialLocalDate }, '');
       } else {
         incrementUsage(ip);
         await db.logEvent('generate_plan', { plan_num: (anonUsage?.count || 0) + 1 }, '');
@@ -2484,10 +2535,6 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
     await attachMealImages(mealPlan.meals);
 
-    // Save to DB server-side before responding so the plan is persisted even if
-    // the client navigates away while this fetch is in-flight.
-    const planDate = date || new Date().toISOString().split('T')[0];
-    const planId   = randomUUID();
     if (session) {
       try {
         await db.savePlan(planId, session.userId, { date: planDate, plan: mealPlan, savedAt: new Date().toISOString() });
@@ -2672,6 +2719,26 @@ app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEma
       });
     }
     console.error('Error generating grocery list:', error);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// GET /api/grocery-list/trial-summary â€” aggregated running total across every day
+// generated so far in a free user's 30-day trial. Unlike week-mode (where 7 days
+// share one plan_id and getGroceryListsForPlan covers them), each trial day gets
+// its own plan_id, so this pulls across all of them via trial_generations.
+app.get('/api/grocery-list/trial-summary', requireSession, async (req, res) => {
+  const session = req.session;
+  try {
+    const lists = await db.getGroceryListsForUserTrial(session.userId);
+    const totalCost = Math.round(lists.reduce((sum, l) => sum + (l.totalCost || 0), 0) * 100) / 100;
+    res.json({
+      success: true,
+      totalCost,
+      days: lists.map(l => ({ planId: l.planId, day: l.day, createdAt: l.createdAt }))
+    });
+  } catch(err) {
+    console.error('[grocery-list] trial summary fetch error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
