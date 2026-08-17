@@ -43,7 +43,7 @@ const DAYS = [
   ]],
   ['Wednesday', [
     ['Breakfast', 'Oat Porridge & Berries', 440, 165, '1610441009633-b6ca9c6d4be2'],
-    ['Lunch', 'Greek Salad & Pitta', 590, 253, '1607532941433-304659e8198a'],
+    ['Lunch', 'Greek Salad & Pita', 590, 253, '1607532941433-304659e8198a'],
     ['Dinner', 'Beef & Black Bean Tacos', 810, 415, '1599974579688-8dbdd335c77f']
   ]],
   ['Thursday', [

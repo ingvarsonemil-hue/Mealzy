@@ -1341,6 +1341,7 @@ Requirements:
 - Weekly grocery budget: $${budget} total. Per-meal budget: max $${perMealBudget} each.
 - Cooking skill: beginner-friendly, everyday supermarket ingredients only.
 - Target 20-40g protein per meal to keep nutrition reasonably consistent across all meals.
+- Use American English spelling throughout (e.g. "pita" not "pitta", "yogurt" not "yoghurt").
 ${dietaryLine}
 
 Generate exactly 21 meals: breakfast, lunch, and dinner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.
@@ -2207,7 +2208,7 @@ Budget: max ${currency} ${perMealBudget} for this meal. Use common supermarket i
 
 ${avoidBlock}
 
-LANGUAGE: All meal name, description, and ingredient names MUST be in ${languageName}. JSON keys stay in English.
+LANGUAGE: All meal name, description, and ingredient names MUST be in ${languageName}. JSON keys stay in English.${languageName === 'English' ? ' Use American English spelling (e.g. "pita" not "pitta", "yogurt" not "yoghurt").' : ''}
 
 Respond ONLY with valid JSON matching this exact schema (no markdown, no extra text):
 ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_meal_type}"`)}`;
@@ -2293,7 +2294,7 @@ ${batchCookingLine ? batchCookingLine + '\n\n' : ''}${avoidBlock}
 
 ${proInstructions}
 
-LANGUAGE: Write ALL meal names, descriptions, and ingredient names in ${languageName}. JSON keys stay in English.
+LANGUAGE: Write ALL meal names, descriptions, and ingredient names in ${languageName}. JSON keys stay in English.${languageName === 'English' ? ' Use American English spelling (e.g. "pita" not "pitta", "yogurt" not "yoghurt").' : ''}
 
 Generate exactly 4 meals: breakfast, lunch, dinner, snack.
 ${dietaryBlock ? `Remember: ${activeDietRules.split('\n')[0]}` : ''}
