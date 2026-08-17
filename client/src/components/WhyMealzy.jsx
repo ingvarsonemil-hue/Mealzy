@@ -95,7 +95,7 @@ export default function WhyMealzy() {
               Mealzy
             </div>
             <div className="px-6 py-4 text-sm font-semibold text-gray-500 text-center">
-              Most recipe apps (e.g. Mealime)
+              Most recipe apps
             </div>
           </div>
 

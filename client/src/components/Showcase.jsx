@@ -160,6 +160,9 @@ function MobileCta({ onStartPlan, ctaHref }) {
 }
 
 function BudgetPanel({ plan, budget, onChange, pending }) {
+  const spendEstimate = singleEstimate(range(plan.spend));
+  const budgetLeft = `$${budget - parseFloat(spendEstimate.replace('$', ''))}`;
+
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
       <div>
@@ -199,7 +202,7 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
       >
         <Figure
           label="Est. total spend"
-          value={singleEstimate(range(plan.spend))}
+          value={spendEstimate}
           className="mt-2 font-display text-3xl font-bold italic tabular-nums"
         />
         <Figure
@@ -210,7 +213,7 @@ function BudgetPanel({ plan, budget, onChange, pending }) {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">Budget left</p>
           <p className="mt-2 font-display text-[clamp(2.25rem,5vw,3rem)] font-black italic leading-none tabular-nums">
-            {singleEstimate(range(plan.saved))}
+            {budgetLeft}
           </p>
         </div>
       </div>
