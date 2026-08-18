@@ -1,0 +1,45 @@
+<div class="modal-overlay" id="npsModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h2 style="font-size:1.1rem;font-weight:700;">Quick question</h2>
+      <button class="modal-close" onclick="closeNpsModal(true)" aria-label="Close">✕</button>
+    </div>
+    <p style="font-size:0.9rem;color:var(--clr-muted-fg);margin-bottom:1.25rem;">How likely are you to recommend Mealzy to a friend or family member?</p>
+    <div style="display:flex;gap:0.3rem;justify-content:center;flex-wrap:wrap;margin-bottom:0.5rem;">
+      <button class="nps-btn" data-score="0" onclick="selectNpsScore(this)">0</button>
+      <button class="nps-btn" data-score="1" onclick="selectNpsScore(this)">1</button>
+      <button class="nps-btn" data-score="2" onclick="selectNpsScore(this)">2</button>
+      <button class="nps-btn" data-score="3" onclick="selectNpsScore(this)">3</button>
+      <button class="nps-btn" data-score="4" onclick="selectNpsScore(this)">4</button>
+      <button class="nps-btn" data-score="5" onclick="selectNpsScore(this)">5</button>
+      <button class="nps-btn" data-score="6" onclick="selectNpsScore(this)">6</button>
+      <button class="nps-btn" data-score="7" onclick="selectNpsScore(this)">7</button>
+      <button class="nps-btn" data-score="8" onclick="selectNpsScore(this)">8</button>
+      <button class="nps-btn" data-score="9" onclick="selectNpsScore(this)">9</button>
+      <button class="nps-btn" data-score="10" onclick="selectNpsScore(this)">10</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--clr-muted-fg);margin-bottom:1.25rem;">
+      <span>Not likely</span><span>Very likely</span>
+    </div>
+    <textarea id="npsComment" placeholder="What's the main reason? (optional)" rows="2"
+      style="width:100%;box-sizing:border-box;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.65rem 0.75rem;font-size:0.88rem;font-family:inherit;background:var(--clr-bg);color:var(--clr-fg);resize:none;margin-bottom:1.25rem;"></textarea>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end;align-items:center;">
+      <button class="btn btn-ghost" style="font-size:0.85rem;" onclick="closeNpsModal(true)">Maybe later</button>
+      <button class="btn btn-primary" id="npsSubmitBtn" onclick="submitNps()" disabled>Submit</button>
+    </div>
+  </div>
+</div>
+<style>
+  .nps-btn {
+    width: 2.4rem; height: 2.4rem;
+    border: 1.5px solid var(--clr-border);
+    border-radius: 0.4rem;
+    background: var(--clr-bg);
+    color: var(--clr-fg);
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .nps-btn:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+  .nps-btn.selected { background: var(--clr-primary); border-color: var(--clr-primary); color: #fff; }
+</style>

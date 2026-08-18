@@ -1,0 +1,25 @@
+<!-- PAGE HEADER — greeting, date, overflow menu, primary CTA. Normal in-flow
+     content, so it lives inside #dashboardContent (unlike the fixed-position
+     mobile hamburger bar, which lives in layout/sidebar.html instead since
+     its DOM position doesn't affect its fixed rendering). -->
+<div class="page-header dash-anim" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+  <div>
+    <div class="dash-greeting" id="greeting">Good morning!</div>
+    <div class="dash-greeting-sub" id="greetingSub">Loading your plan...</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;position:relative;">
+    <button class="btn btn-outline btn-sm" id="topBarMenuBtn" onclick="toggleTopBarMenu(event)" title="More actions" aria-haspopup="true" aria-expanded="false" style="padding:0.4rem 0.65rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="19" cy="12" r="1.75"/></svg>
+    </button>
+    <div id="topBarMenuPanel" class="card" style="display:none;position:absolute;top:calc(100% + 0.4rem);right:0;z-index:100;min-width:180px;padding:0.4rem !important;box-shadow:var(--shadow-lg);">
+      <button class="btn btn-ghost btn-sm" id="printBtn" onclick="printMealPlan();closeTopBarMenu();" title="Print your meal plan" style="width:100%;justify-content:flex-start;"><span data-i18n="btn_download_pdf">Print Plan</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="generateShareCard();closeTopBarMenu();" title="Download shareable image card" style="width:100%;justify-content:flex-start;"><span data-i18n="btn_share_card">Share Card</span></button>
+    </div>
+    <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;">
+      <span id="generateBtnLabel">Generate This Week's Plan</span>
+    </button>
+  </div>
+</div>
+
+<!-- G KEY TOOLTIP -->
+<div id="gKeyTooltip" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(0,0,0,0.75);color:white;font-size:0.8rem;padding:0.5rem 0.9rem;border-radius:0.5rem;z-index:100;pointer-events:none;">Press <kbd style="background:rgba(255,255,255,0.2);border-radius:3px;padding:0.1rem 0.3rem;">G</kbd> to generate</div>

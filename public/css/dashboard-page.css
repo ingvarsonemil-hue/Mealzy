@@ -1,0 +1,168 @@
+/* Mealzy — dashboard.html page-specific overrides.
+   Moved out of an inline <style> block during the partials refactor so
+   dashboard.html could drop under 150 lines. Not one of the 8 core
+   design-system files — loaded after them, same pattern as app-theme.css. */
+
+/* ── Dashboard redesign ─────────────────────────────── */
+.main-content {
+  background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,95%) 0%, transparent 55%) var(--clr-background);
+}
+[data-theme="dark"] .main-content {
+  background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,8%) 0%, transparent 55%) var(--clr-background);
+}
+/* Green anchor bar — visual continuity with the homepage */
+.main-content::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: var(--gradient-primary);
+  margin: -2rem -2rem 2rem -2rem;
+}
+@media (max-width: 900px) {
+  .main-content::before { margin: -1.25rem -1.25rem 1.25rem -1.25rem; }
+}
+
+/* Meal cards v2 */
+.meal-card-v2 {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+}
+.meal-card-v2:hover { box-shadow: var(--shadow-md); border-color: var(--clr-primary); }
+.meal-card-v2.completed { opacity: 0.55; }
+.meal-card-v2.completed .mcv2-name { text-decoration: line-through; }
+
+.mcv2-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+.mcv2-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+  color: var(--clr-foreground);
+}
+.mcv2-desc { font-size: 0.85rem; color: var(--clr-muted-fg); line-height: 1.4; margin-bottom: 0.6rem; }
+.mcv2-stats {
+  display: flex; align-items: center; gap: 1rem;
+  font-size: 0.8rem; font-weight: 600; color: var(--clr-muted-fg);
+  margin-bottom: 0.6rem;
+}
+.mcv2-stat { display: flex; align-items: center; gap: 0.25rem; }
+.mcv2-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
+.mcv2-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--clr-muted-fg); }
+.mcv2-check input { accent-color: var(--clr-primary); width: 16px; height: 16px; cursor: pointer; }
+[data-theme="dark"] .mcv2-check input { outline: 1.5px solid var(--clr-muted-fg); outline-offset: 1px; border-radius: 3px; }
+.mcv2-btns { display: flex; gap: 0.4rem; }
+
+/* Empty states */
+.macro-empty { text-align: center; padding: 1.25rem 1rem; }
+.macro-empty p { margin: 0; font-size: 0.9rem; color: var(--clr-foreground); }
+.macro-empty .hint { margin-top: 0.35rem; font-size: 0.82rem; color: var(--clr-muted-fg); }
+.today-progress-empty { text-align: center; padding: 1.5rem 1.25rem; background: var(--clr-card); border: 1px solid var(--clr-border); border-radius: 0.85rem; box-shadow: 0 1px 4px rgba(26,61,43,0.08); }
+[data-theme="dark"] .today-progress-empty { background: rgba(255,255,255,0.06); }
+.today-progress-empty h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+.today-progress-empty p { font-size: 0.88rem; color: var(--clr-muted-fg); margin: 0.25rem 0; }
+.today-progress-empty .goals { font-size: 0.82rem; }
+/* Stark, dense loading-style placeholder ring — no explainer copy */
+.today-progress-empty-ring {
+  width: 40px; height: 40px; margin: 0 auto 0.6rem;
+  border-radius: 50%;
+  border: 4px dashed var(--clr-border);
+}
+
+/* Recent plans */
+.recent-plan { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 0; }
+.recent-plan strong { font-size: 0.88rem; }
+.recent-plan-link { font-size: 0.85rem; font-weight: 600; color: var(--clr-primary); text-decoration: none; white-space: nowrap; }
+.recent-plan-link:hover { text-decoration: underline; }
+
+/* Page greeting */
+.dash-greeting { font-family: var(--font-display); font-style: italic; font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--clr-foreground); }
+.dash-greeting-sub { color: var(--clr-muted-fg); font-size: 0.88rem; margin-top: 0.3rem; font-weight: 500; }
+
+/* Macro rings — larger, cleaner */
+.rings-grid-v2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; }
+.ring-card-v2 { text-align: center; padding: 1.25rem 0.75rem; }
+.ring-card-v2 + .ring-card-v2 { box-shadow: inset 1px 0 0 var(--clr-border); } /* divider, not a brand accent stripe — box-shadow keeps this out of the border-left check */
+.ring-label-v2 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--clr-muted-fg); margin-bottom: 0.6rem; }
+.ring-target-v2 { font-size: 0.78rem; color: var(--clr-muted-fg); margin-top: 0.4rem; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .dash-anim { animation: dashSlide 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+  .dash-anim:nth-child(1) { animation-delay: 0.0s; }
+  .dash-anim:nth-child(2) { animation-delay: 0.06s; }
+  .dash-anim:nth-child(3) { animation-delay: 0.12s; }
+  .dash-anim:nth-child(4) { animation-delay: 0.18s; }
+  .dash-anim:nth-child(5) { animation-delay: 0.24s; }
+  @keyframes dashSlide { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width: 600px) {
+  .rings-grid-v2 { grid-template-columns: repeat(3, 1fr); }
+  .ring-card-v2 svg { width: 80px !important; height: 80px !important; }
+}
+
+[data-theme="dark"] .macro-ring-track { stroke: var(--clr-muted-fg); stroke-opacity: 0.35; }
+
+/* Stat cards */
+.stat-card {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  box-shadow: 0 1px 4px rgba(26,61,43,0.08);
+}
+.stat-card .stat-value { color: var(--clr-primary); }
+[data-theme="dark"] .stat-card { background: rgba(255,255,255,0.06); }
+
+/* Responsive sidebar for tablets */
+@media (max-width: 1024px) {
+  .sidebar { width: 220px; }
+  .main-content { margin-left: 220px; }
+}
+.sidebar-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; color: white; font-size: 1.25rem; text-decoration: none; }
+
+/* ── Sidebar quick actions (moved from page-bottom dead zone) ── */
+.sidebar-quick-actions { padding: 1rem 0; margin: 0.5rem 0; border-top: 1px solid var(--clr-forest-line); border-bottom: 1px solid var(--clr-forest-line); }
+.sidebar-quick-actions-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--clr-on-forest-muted); padding: 0 0.25rem 0.5rem; }
+.sidebar-quick-link {
+  display: flex; align-items: center; gap: 0.55rem;
+  width: 100%; box-sizing: border-box;
+  padding: 0.5rem 0.25rem;
+  background: none; border: none; cursor: pointer; text-align: left;
+  font-family: inherit; font-size: 0.85rem; font-weight: 600;
+  color: var(--clr-on-forest-body);
+  text-decoration: none;
+  border-radius: 0.4rem;
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-quick-link:hover { background: var(--clr-forest-raise); color: var(--clr-on-forest); }
+
+/* ── Sticky FAB — mirrors the primary "Generate" CTA ── */
+.dashboard-fab {
+  position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 90;
+  width: 52px; height: 52px;
+  border-radius: 50%; border: none;
+  background: var(--clr-primary); color: var(--clr-on-primary);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.dashboard-fab:hover { transform: translateY(-2px); box-shadow: var(--shadow-xl); }
+@media (max-width: 900px) { .dashboard-fab { bottom: 4.5rem; } }
+
+/* ── Budget + Macro grid ── */
+.budget-macro-grid { display: grid; grid-template-columns: minmax(200px, 1fr) 2fr; gap: 1.5rem; padding: 1rem 1.25rem !important; }
+.budget-macro-col-spend { display: flex; flex-direction: column; justify-content: center; gap: 0.75rem; }
+.budget-macro-spend-row { display: flex; gap: 1.5rem; }
+.budget-macro-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--clr-muted-fg); display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; }
+.budget-macro-value { font-size: 1.4rem; font-weight: 800; color: var(--clr-foreground); font-family: var(--font-display); letter-spacing: -0.02em; }
+.budget-macro-value-remaining { color: var(--clr-primary); }
+.budget-macro-badge { font-size: 0.6rem; padding: 0.1rem 0.5rem; background: var(--clr-muted-bg); color: var(--clr-muted-fg); }
+@media (max-width: 720px) {
+  .budget-macro-grid { grid-template-columns: 1fr; }
+}

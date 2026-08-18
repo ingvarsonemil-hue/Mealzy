@@ -1,0 +1,42 @@
+<!-- TODAY'S MEALS — FIRST VISIBLE SECTION -->
+<div class="card dash-anim" style="margin-bottom:1.5rem;">
+  <div class="card-header">
+    <div>
+      <div class="card-title" data-i18n="todays_meals" style="font-family:var(--font-display);font-style:italic;font-size:1.1rem;">Today's Meals</div>
+      <div class="card-subtitle" id="mealDateSub"></div>
+    </div>
+    <a href="meal-planner.html" class="btn btn-outline btn-sm" data-i18n="view_planner">Open Full Planner →</a>
+  </div>
+  <div id="mealsContainer"></div>
+  <div data-component="dashboard/hero-empty"></div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="grid-3" style="margin-bottom:1.5rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) 0.14s both;" id="statCards">
+  <div class="stat-card">
+    <div class="stat-label" data-i18n="stat_calories">Today's Calories</div>
+    <div class="stat-value" id="statCalories">0</div>
+    <div class="stat-sub" id="statCaloriesSub">of 0 kcal goal</div>
+    <div class="progress-bar-wrap" style="margin-top:0.75rem;">
+      <div class="progress-bar-fill" id="caloriesProgress" style="width:0%;"></div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label" data-i18n="stat_protein">Protein</div>
+    <div class="stat-value" id="statProtein">0g</div>
+    <div class="stat-sub" id="statProteinSub">of 0g goal</div>
+    <div class="progress-bar-wrap" style="margin-top:0.75rem;">
+      <div class="progress-bar-fill accent" id="proteinProgress" style="width:0%;"></div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label" data-i18n="stat_meals_done">Meals Done</div>
+    <div class="stat-value" id="statMealsDone">0/0</div>
+    <div class="stat-sub" data-i18n="stat_meals_today">meals completed today</div>
+  </div>
+</div>
+<div class="today-progress-empty" id="statCardsEmpty" style="display:none;">
+  <div class="today-progress-empty-ring" aria-hidden="true"></div>
+  <h3>Today's Progress</h3>
+  <p class="goals" id="statCardsEmptyGoals">Goals: ~0 kcal · 0g protein · 0g carbs · 0g fat</p>
+</div>

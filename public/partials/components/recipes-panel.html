@@ -1,0 +1,12 @@
+<div id="recipesPanel" style="display:none;">
+  <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;animation:slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;">
+    <div>
+      <div class="greeting" data-i18n="recipes_panel_title">My Recipes</div>
+      <div class="greeting-sub" data-i18n="recipes_panel_sub">Saved from photos and cookbooks</div>
+    </div>
+    <button class="btn btn-primary" onclick="openImportRecipeModal()">
+      Import Recipe
+    </button>
+  </div>
+  <div id="recipesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:1.5rem;"></div>
+</div>

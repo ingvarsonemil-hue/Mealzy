@@ -1,0 +1,23 @@
+<!-- RETENTION BANNER -->
+<div id="retentionBanner" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;border-radius:0.75rem;background:var(--clr-primary);color:#fff;font-size:0.9rem;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+  <span id="retentionBannerText"></span>
+  <div style="display:flex;gap:0.5rem;align-items:center;white-space:nowrap;">
+    <button onclick="generateMealPlan()" style="background:var(--clr-on-primary);color:var(--clr-primary);border:none;border-radius:0.5rem;padding:0.4rem 0.85rem;cursor:pointer;font-size:0.82rem;font-weight:700;">Generate New Plan</button>
+    <button onclick="document.getElementById('retentionBanner').style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:0.5rem;padding:0.4rem 0.75rem;cursor:pointer;font-size:0.82rem;" data-i18n="btn_dismiss">Dismiss</button>
+  </div>
+</div>
+
+<!-- REFERRAL BANNER (after first plan) -->
+<div id="referralBanner" style="display:none;margin-bottom:1.5rem;padding:1.25rem;border-radius:0.75rem;background:var(--clr-card);border:1px solid var(--clr-border);">
+  <div style="font-weight:700;margin-bottom:0.4rem;"><span data-i18n="referral_title">Get 1 extra free plan for every friend you invite</span></div>
+  <p style="font-size:0.84rem;color:var(--clr-muted);margin-bottom:0.75rem;" data-i18n="referral_desc">Share your link. When a friend signs up, you both unlock an extra free plan this month.</p>
+  <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem;">
+    <input id="referralLink" type="text" readonly style="flex:1;font-size:0.78rem;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.45rem 0.7rem;background:var(--clr-muted-bg);color:var(--clr-text);" />
+    <button onclick="copyReferralLink()" class="btn btn-outline btn-sm">Copy</button>
+  </div>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <button onclick="shareWhatsApp()" style="background:#25D366;color:white;border:none;padding:0.35rem 0.85rem;border-radius:0.5rem;font-size:0.82rem;font-weight:600;cursor:pointer;">WhatsApp</button>
+    <button onclick="shareFacebook()" style="background:#1877F2;color:white;border:none;padding:0.35rem 0.85rem;border-radius:0.5rem;font-size:0.82rem;font-weight:600;cursor:pointer;">Facebook</button>
+    <button onclick="copyShareMessage()" class="btn btn-outline btn-sm">Copy message</button>
+  </div>
+</div>

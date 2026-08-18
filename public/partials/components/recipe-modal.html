@@ -1,0 +1,20 @@
+<div class="modal-overlay" id="recipeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modalMealName">Recipe</h2>
+        <div id="modalMealDesc" class="text-muted text-sm" style="margin-top:0.25rem;"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalMacros" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;"></div>
+    <div style="margin-bottom:1.25rem;">
+      <h3 style="font-size:0.88rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Ingredients</h3>
+      <ul class="ingredients-list" id="modalIngredients"></ul>
+    </div>
+    <div>
+      <h3 style="font-size:0.88rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Instructions</h3>
+      <ol class="instructions-list" id="modalInstructions"></ol>
+    </div>
+  </div>
+</div>
