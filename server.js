@@ -793,8 +793,8 @@ function emailDay3Nudge(name, plansLeft) {
       ${['Unlimited AI meal plans â€” every week, every goal change', 'PDF export â€” print your plan, take it to the shop', 'Unlimited AI coaching with Mia â€” ask anything, any time', 'Advanced macros per meal â€” protein, carbs, fat broken down'].map(f => `
       <tr><td style="padding:6px 0;color:#333;font-size:14px;">âœ… ${f}</td></tr>`).join('')}
     </table>
-    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Start Pro â€” 7 Days Free â†’</a>
-    <p style="color:#888;font-size:13px;margin:0;">$12/month. Cancel any time with one click.</p>
+    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Upgrade to Pro â†’</a>
+    <p style="color:#888;font-size:13px;margin:0;">$8/month. Cancel any time with one click.</p>
   `);
 }
 
@@ -803,9 +803,9 @@ function emailLimitHit(name) {
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You hit your free plan limit ðŸš€</h2>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} â€” you've used all your free plans this month. That means you're actually using Mealzy â€” which is great.</p>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Upgrade to Pro and never hit a limit again. Your <strong>7-day free trial</strong> starts the moment you click â€” no charge until the trial ends.</p>
-    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Start My 7-Day Free Trial â†’</a>
-    <p style="color:#888;font-size:13px;margin:0;">$12/month after the trial. Cancel any time.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Upgrade to Pro and never hit a limit again. You'll be billed right away when you upgrade.</p>
+    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Upgrade to Pro â†’</a>
+    <p style="color:#888;font-size:13px;margin:0;">$8/month. Cancel any time.</p>
   `);
 }
 
@@ -823,7 +823,7 @@ function emailReferralReward(name, referredName) {
 function emailWeeklyDigest(name, isPro) {
   const safeName = escapeHtml(name || 'there');
   const upgradeSection = !isPro
-    ? `<p style="color:#555;font-size:14px;line-height:1.6;margin:0;">Running low on free plans? <strong>Pro unlocks unlimited plans for $12/month.</strong> <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;text-decoration:none;font-weight:700;">Upgrade now â†’</a></p>`
+    ? `<p style="color:#555;font-size:14px;line-height:1.6;margin:0;">Running low on free plans? <strong>Pro unlocks unlimited plans for $8/month.</strong> <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;text-decoration:none;font-weight:700;">Upgrade now â†’</a></p>`
     : '';
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Your meal plan for this week is waiting.</h2>
