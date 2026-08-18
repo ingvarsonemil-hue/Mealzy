@@ -17,7 +17,7 @@ const plans = [
   {
     id: 'free',
     name: 'Free',
-    description: 'Plan 3 meals a week with smart grocery lists. No credit card required.',
+    description: '1 meal plan a day for your first 30 days. No credit card required.',
     monthlyPrice: 0,
     annualPrice: 0,
     cta: 'Start Planning Free',
@@ -25,7 +25,7 @@ const plans = [
     ctaVariant: 'outline',
     popular: false,
     features: [
-      { label: 'Weekly meal plans', value: '1 plan / week' },
+      { label: 'Weekly meal plans', value: 'Daily plans for 30 days' },
       { label: 'Grocery list with estimates', value: true },
       { label: 'Budget-based planning', value: true },
       { label: 'Dietary filters', value: '3 filters' },
@@ -93,7 +93,7 @@ const featureRows = [
 const faqs = [
   {
     q: 'What counts as one plan?',
-    a: 'One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan per week; Pro and Family users can generate unlimited plans.',
+    a: 'One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan a day for their first 30 days. After that, you\'ll need to upgrade to Pro or Family to keep generating plans.',
   },
   {
     q: 'Can I cancel anytime?',
@@ -166,7 +166,7 @@ function PriceDisplay({ plan, billing }) {
     return (
       <div className="flex items-baseline gap-1">
         <span className="text-4xl font-bold text-forest">$0</span>
-        <span className="text-sm text-gray-500">forever</span>
+        <span className="text-sm text-gray-500">for 30 days</span>
       </div>
     );
   }
