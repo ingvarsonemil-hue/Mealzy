@@ -633,14 +633,27 @@ else logger.info('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + 
 const anthropic = new Anthropic({ apiKey: _anthropicKey });
 
 const DAILY_SPEND_CAP_USD = Number(process.env.DAILY_SPEND_CAP_USD) || 5;
-// claude-haiku-4-5-20251001 pricing, confirmed current as of this session:
-// $1.00 / million input tokens, $5.00 / million output tokens.
+// Per-model pricing, confirmed current as of August 2026.
 // Cache-read/cache-creation tokens are billed cheaper by Anthropic, but
 // we deliberately count them at the full input rate here â€” this is a
 // safety backstop, not a billing reconciliation, so it's correct to
 // slightly OVERestimate real spend rather than risk underestimating it.
-const HAIKU_INPUT_COST_PER_TOKEN = 1 / 1_000_000;
-const HAIKU_OUTPUT_COST_PER_TOKEN = 5 / 1_000_000;
+const MODEL_PRICING = {
+  'claude-haiku-4-5-20251001': { input: 1 / 1_000_000, output: 5 / 1_000_000 },
+  'claude-sonnet-5':           { input: 2 / 1_000_000, output: 10 / 1_000_000 },
+};
+// Fail-safe default for any model not in the table above: the most
+// expensive known rate, so an untracked model overcounts against the
+// spend cap rather than silently undercounting it.
+const FALLBACK_PRICING = Object.values(MODEL_PRICING).reduce((max, p) =>
+  (p.input + p.output > max.input + max.output) ? p : max
+);
+function getModelPricing(model) {
+  const pricing = MODEL_PRICING[model];
+  if (pricing) return pricing;
+  logger.warn('[spend-cap] Unknown model â€” using most expensive known rate as a fail-safe', { model });
+  return FALLBACK_PRICING;
+}
 
 // Known limitation: under high concurrency, multiple simultaneous requests
 // could all pass the pre-check before any of them records its spend,
@@ -663,7 +676,10 @@ async function callAnthropicWithSpendCap(params) {
     + (usage.cache_creation_input_tokens || 0)
     + (usage.cache_read_input_tokens || 0);
   const outputTokens = usage.output_tokens || 0;
-  const cost = (inputTokens * HAIKU_INPUT_COST_PER_TOKEN) + (outputTokens * HAIKU_OUTPUT_COST_PER_TOKEN);
+  // completion.model is the model the API actually ran, echoed back by
+  // Anthropic â€” more trustworthy than the requested params.model.
+  const pricing = getModelPricing(completion.model || params.model);
+  const cost = (inputTokens * pricing.input) + (outputTokens * pricing.output);
   db.addDailySpend(cost).catch(err => {
     logger.error('[spend-cap] failed to record spend (non-fatal)', { message: err.message });
   });
@@ -1392,6 +1408,13 @@ Respond ONLY with valid JSON, no markdown, no extra text:
       plan = parseJsonResponse(rawText);
     } catch(e) {
       return res.status(500).json({ error: 'Failed to generate demo. Please try again.' });
+    }
+
+    if (Array.isArray(plan.meals)) {
+      for (const meal of plan.meals) {
+        meal.name = normalizeSpelling(meal.name);
+        meal.description = normalizeSpelling(meal.description);
+      }
     }
 
     res.json({ success: true, plan });
@@ -2221,6 +2244,10 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       });
 
       const meal = parseJsonResponse(completion.content[0].text);
+      if (languageName === 'English') {
+        meal.name = normalizeSpelling(meal.name);
+        meal.description = normalizeSpelling(meal.description);
+      }
       meal.cost = await calculateMealCost(meal.ingredients);
 
       if (process.env.UNSPLASH_ACCESS_KEY) {
@@ -2340,6 +2367,13 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           ]
         });
         mealPlan = parseJsonResponse(retryCompletion.content[0].text);
+      }
+
+      if (languageName === 'English' && Array.isArray(mealPlan.meals)) {
+        for (const meal of mealPlan.meals) {
+          meal.name = normalizeSpelling(meal.name);
+          meal.description = normalizeSpelling(meal.description);
+        }
       }
 
       // â”€â”€ Macro sanity check + daily sums â€” computed in code, never trusted from the model â”€â”€
@@ -2579,6 +2613,28 @@ function parseJsonResponse(text) {
   const start = s.indexOf('{');
   if (start > 0) s = s.slice(start);
   return JSON.parse(s);
+}
+
+// British->American spelling fallback in case the AI ignores the prompt instruction.
+const SPELLING_VARIANTS = [
+  [/pitta/g, 'pita'],
+  [/yoghurt/g, 'yogurt'],
+];
+
+/** Case-preserving, word-boundary-safe British->American spelling normalization for English meal text. */
+function normalizeSpelling(text) {
+  if (!text || typeof text !== 'string') return text;
+  let result = text;
+  for (const [pattern, replacement] of SPELLING_VARIANTS) {
+    const re = new RegExp(`\\b${pattern.source}\\b`, 'gi');
+    result = result.replace(re, (match) => {
+      if (match[0] === match[0].toUpperCase()) {
+        return replacement[0].toUpperCase() + replacement.slice(1);
+      }
+      return replacement;
+    });
+  }
+  return result;
 }
 
 // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
