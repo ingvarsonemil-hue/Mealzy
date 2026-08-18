@@ -5,19 +5,17 @@
 /* ── Mealzy design tokens (mirror of public/css/tokens.css) ──────────────── */
 :root {
   --color-forest:      #1a3d2b;
-  --color-green:       #3d8b5e;
-  --color-green-light: #4ade80;
+  --color-green:       #059669;
+  --color-green-light: #10b981;
   --color-green-muted: #a8d5ba;
   --color-error-light: #fda4af;
 
-  --color-foreground:  #1a1a1a;
-  /* Darker than the shared #6b7280 token: that value is 4.31:1 on parchment,
-   * below WCAG AA (4.5:1). Homepage-scoped override. */
-  --color-muted-fg:    #4b5563;
+  --color-foreground:  #0f172a;
+  --color-muted-fg:    #475569;
   --color-cream:       #f8f5f0;
   --color-parchment:   #f2ede6;
-  --color-muted-bg:    #faf8f6;
-  --color-border:      #e5e0d8;
+  --color-muted-bg:    #f8fafc;
+  --color-border:      #e2e8f0;
   --color-hairline:    #ede8e0;
 
   --color-success:     #10b981;
@@ -25,12 +23,12 @@
   --color-error:       #ef4444;
   --color-brick:       #c2410c;
 
-  --shadow-sm:     0 2px 8px rgba(26, 61, 43, 0.06);
-  --shadow-md:     0 4px 16px rgba(26, 61, 43, 0.08);
-  --shadow-lg:     0 8px 32px rgba(26, 61, 43, 0.12);
-  --shadow-xl:     0 20px 60px rgba(26,61,43,0.22), 0 8px 24px rgba(26,61,43,0.14);
-  --shadow-button: 0 4px 12px rgba(61, 139, 94, 0.25);
-  --shadow-card:   0 2px 12px rgba(26, 61, 43, 0.08);
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md:     0 4px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg:     0 20px 50px -10px rgba(15, 23, 42, 0.15);
+  --shadow-xl:     0 25px 50px -12px rgba(15,23,42,0.25), 0 8px 24px rgba(15,23,42,0.14);
+  --shadow-button: 0 4px 12px rgba(5, 150, 105, 0.3);
+  --shadow-card:   0 1px 3px rgba(0, 0, 0, 0.05);
 
   --clr-on-forest:        #ffffff;
   --clr-on-forest-strong: rgba(255,255,255,0.93);
@@ -54,8 +52,8 @@
   /* RGB triplets for Tailwind alpha composition (theme-constant colors only) */
   --rgb-forest:      26 61 43;
   --rgb-forest-deep: 18 41 29;
-  --rgb-green:       61 139 94;
-  --rgb-green-light: 74 222 128;
+  --rgb-green:       5 150 105;
+  --rgb-green-light: 16 185 129;
   --rgb-error:       239 68 68;
 }
 
@@ -70,10 +68,10 @@
 
   /* Dark surfaces rely on borders, not shadows */
   --shadow-sm:     0 2px 8px rgba(0, 0, 0, 0);
-  --shadow-md:     0 4px 16px rgba(26, 61, 43, 0.06);
-  --shadow-lg:     0 8px 32px rgba(26, 61, 43, 0.06);
-  --shadow-button: 0 4px 12px rgba(61, 139, 94, 0.15);
-  --shadow-card:   0 2px 12px rgba(26, 61, 43, 0.06);
+  --shadow-md:     0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-lg:     0 8px 32px rgba(15, 23, 42, 0.06);
+  --shadow-button: 0 4px 12px rgba(5, 150, 105, 0.15);
+  --shadow-card:   0 2px 12px rgba(15, 23, 42, 0.06);
 }
 
 @layer base {
@@ -86,10 +84,12 @@
   body {
     @apply font-body text-foreground bg-muted-bg antialiased;
     font-size: 17px;
-    line-height: 1.7;
+    line-height: 1.6;
   }
   h1, h2, h3 {
     text-wrap: balance;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
   ::selection {
     background: var(--color-green-muted);

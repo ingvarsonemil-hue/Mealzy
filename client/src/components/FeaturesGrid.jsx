@@ -81,7 +81,7 @@ export default function FeaturesGrid() {
             >
             <article
               className={cn(
-                'relative h-full overflow-hidden rounded-lg border bg-cream p-6 shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0',
+                'relative h-full overflow-hidden rounded-md border bg-white p-8 shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-0.5 hover:shadow-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0',
                 i === 0 ? 'border-green/40 shadow-md' : 'border-border-warm'
               )}
             >

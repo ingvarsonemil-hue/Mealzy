@@ -33,8 +33,8 @@ export default {
         'forest-line': 'var(--clr-forest-line)'
       },
       fontFamily: {
-        display: ['Fraunces', 'Georgia', 'serif'],
-        body: ['Inter', 'system-ui', 'sans-serif']
+        display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif']
       },
       borderRadius: {
         sm: '6px',
@@ -51,7 +51,7 @@ export default {
         card: 'var(--shadow-card)'
       },
       maxWidth: {
-        container: '1160px',
+        container: '1200px',
         prose: '680px'
       },
       keyframes: {

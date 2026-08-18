@@ -110,9 +110,9 @@ const faqs = [
 
 /* ── Inline SVG Icons ─────────────────────────── */
 
-function IconCheck({ className }) {
+function IconCheck({ className, style }) {
   return (
-    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg className={className} style={style} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   );
@@ -165,7 +165,7 @@ function PriceDisplay({ plan, billing }) {
     return (
       <div className="flex items-baseline gap-1">
         <span className="text-4xl font-bold text-forest">$0</span>
-        <span className="text-sm text-gray-500">for 30 days</span>
+        <span className="text-sm text-slate-500">for 30 days</span>
       </div>
     );
   }
@@ -174,10 +174,10 @@ function PriceDisplay({ plan, billing }) {
     <div className="flex flex-col">
       <div className="flex items-baseline gap-1">
         <span className="text-4xl font-bold text-forest">${price}</span>
-        <span className="text-sm text-gray-500">{period}</span>
+        <span className="text-sm text-slate-500">{period}</span>
       </div>
       {billing === 'annual' && monthlyEquivalent && (
-        <span className="text-xs text-green-700 font-medium mt-1">
+        <span className="text-xs text-emerald-700 font-medium mt-1">
           ${monthlyEquivalent}/mo · Save ${annualSavings}/year
         </span>
       )}
@@ -194,7 +194,7 @@ function FeatureValue({ value, label }) {
   if (value === true) {
     return (
       <>
-        <IconCheck className="w-5 h-5 text-green-600" aria-hidden="true" />
+        <IconCheck className="w-5 h-5" style={{ color: '#10B981', width: '20px', height: '20px' }} aria-hidden="true" />
         <span className="sr-only">{label} — included</span>
       </>
     );
@@ -202,17 +202,17 @@ function FeatureValue({ value, label }) {
   if (value === false) {
     return (
       <>
-        <IconX className="w-5 h-5 text-gray-300" aria-hidden="true" />
+        <IconX className="w-5 h-5 text-slate-300" aria-hidden="true" />
         <span className="sr-only">{label} — not included</span>
       </>
     );
   }
-  return <span className="text-sm text-gray-700 font-medium">{value}</span>;
+  return <span className="text-sm text-slate-700 font-medium">{value}</span>;
 }
 
 function TableFeatureValue({ value, label, isFreePlan }) {
   if (value === false && isFreePlan) {
-    return <span className="text-xs text-gray-400 italic">Pro only: {label}</span>;
+    return <span className="text-xs text-slate-400">Pro only: {label}</span>;
   }
   return <FeatureValue value={value} label={label} />;
 }
@@ -223,13 +223,18 @@ function PricingCard({ plan, billing }) {
   return (
     <div
       className={`
-        relative flex flex-col rounded-2xl border p-6 md:p-8
+        relative flex flex-col p-6 md:p-8
         transition-all duration-300 ease-out
         ${isPopular
-          ? 'border-green-600 bg-cream shadow-xl md:scale-[1.03] z-10 ring-2 ring-forest ring-offset-2'
-          : 'border-gray-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1'
+          ? 'bg-cream md:scale-105 z-10'
+          : 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-lg hover:-translate-y-1'
         }
       `}
+      style={isPopular ? {
+        borderRadius: '16px',
+        border: '2px solid var(--color-green)',
+        boxShadow: '0 25px 50px -12px rgba(5, 150, 105, 0.25)'
+      } : undefined}
     >
       {isPopular && (
         <div className="mb-3">
@@ -241,7 +246,7 @@ function PricingCard({ plan, billing }) {
 
       <div className="mb-4">
         <h3 className="text-xl font-bold text-forest">{plan.name}</h3>
-        <p className="text-sm text-gray-500 mt-1">{plan.description}</p>
+        <p className="text-sm text-slate-500 mt-1">{plan.description}</p>
       </div>
 
       <div className="mb-6">
@@ -255,7 +260,7 @@ function PricingCard({ plan, billing }) {
           inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
           transition-colors duration-150
           ${plan.ctaVariant === 'primary'
-            ? 'bg-forest text-white hover:bg-green-900'
+            ? 'bg-forest text-white hover:bg-emerald-900'
             : 'bg-white text-forest border-2 border-forest hover:bg-cream'
           }
         `}
@@ -264,7 +269,7 @@ function PricingCard({ plan, billing }) {
         <IconArrowRight className="w-4 h-4" />
       </a>
       {plan.id === 'pro' && (
-        <p className="mt-2 text-center text-xs text-gray-400">1-click cancel. No questions asked.</p>
+        <p className="mt-2 text-center text-xs text-slate-400">1-click cancel. No questions asked.</p>
       )}
 
       <ul className="mt-6 space-y-3">
@@ -273,7 +278,7 @@ function PricingCard({ plan, billing }) {
             <span className="mt-0.5 shrink-0">
               <FeatureValue value={f.value} label={f.label} />
             </span>
-            <span className="text-sm text-gray-600">{f.label}</span>
+            <span className="text-sm text-slate-600">{f.label}</span>
           </li>
         ))}
       </ul>
@@ -304,7 +309,7 @@ export default function Pricing() {
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">
             Start eating better for less than a coffee per week
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-green-100 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg md:text-xl text-emerald-100 max-w-2xl mx-auto">
             Join thousands of home cooks who cut their grocery bill with smart, budget-first meal plans.
           </p>
         </div>
@@ -314,7 +319,7 @@ export default function Pricing() {
       <section className="py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div className="flex justify-center mb-12">
-            <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 shadow-sm">
+            <div className="inline-flex items-center bg-white rounded-full p-1 border border-slate-200 shadow-sm">
               <button
                 onClick={() => setBilling('monthly')}
                 data-track="billing-toggle-monthly"
@@ -322,7 +327,7 @@ export default function Pricing() {
                   px-5 py-2 text-sm font-semibold rounded-full transition-colors
                   ${billing === 'monthly'
                     ? 'bg-forest text-white'
-                    : 'text-gray-600 hover:text-forest'
+                    : 'text-slate-600 hover:text-forest'
                   }
                 `}
               >
@@ -335,7 +340,7 @@ export default function Pricing() {
                   px-5 py-2 text-sm font-semibold rounded-full transition-colors
                   ${billing === 'annual'
                     ? 'bg-forest text-white'
-                    : 'text-gray-600 hover:text-forest'
+                    : 'text-slate-600 hover:text-forest'
                   }
                 `}
               >
@@ -390,10 +395,10 @@ export default function Pricing() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b-2 border-gray-100">
-                  <th className="pb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Feature</th>
+                <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                  <th className="text-sm font-semibold text-slate-500 uppercase tracking-wider" style={{ padding: '16px 24px' }}>Feature</th>
                   {plans.map((p) => (
-                    <th key={p.id} className={`pb-4 text-center text-sm font-bold ${p.popular ? 'text-green-700' : 'text-forest'}`}>
+                    <th key={p.id} className={`text-center text-sm font-bold ${p.popular ? 'text-emerald-700' : 'text-forest'}`} style={{ padding: '16px 24px' }}>
                       {p.name}
                     </th>
                   ))}
@@ -401,12 +406,12 @@ export default function Pricing() {
               </thead>
               <tbody>
                 {featureRows.map((row) => (
-                  <tr key={row.key} className="border-b border-gray-50">
-                    <td className="py-4 text-sm text-gray-700 font-medium">{row.label}</td>
+                  <tr key={row.key} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                    <td className="text-sm text-slate-700 font-medium" style={{ padding: '16px 24px' }}>{row.label}</td>
                     {plans.map((p) => {
                       const feat = p.features.find((f) => f.label === row.key);
                       return (
-                        <td key={p.id} className="py-4 text-center">
+                        <td key={p.id} className="text-center" style={{ padding: '16px 24px' }}>
                           <div className="flex justify-center">
                             <TableFeatureValue value={feat?.value} label={row.label} isFreePlan={p.id === 'free'} />
                           </div>
@@ -427,17 +432,17 @@ export default function Pricing() {
           <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">Pricing questions</h2>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <div key={i} className="border border-gray-200 rounded-xl">
+              <div key={i} className="border border-slate-200 rounded-xl">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-left bg-white hover:bg-cream/50 transition-colors"
                   aria-expanded={openFaq === i}
                 >
                   <span className="font-semibold text-forest text-sm md:text-base">{faq.q}</span>
-                  <IconChevronDown className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
+                  <IconChevronDown className={`w-5 h-5 text-slate-400 shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">{faq.a}</div>
+                  <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed">{faq.a}</div>
                 )}
               </div>
             ))}
@@ -449,7 +454,7 @@ export default function Pricing() {
       <section className="py-16 md:py-24 bg-forest text-on-forest">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="text-2xl md:text-4xl font-extrabold">Start saving today</h2>
-          <p className="mt-3 text-green-100 text-lg max-w-xl mx-auto">
+          <p className="mt-3 text-emerald-100 text-lg max-w-xl mx-auto">
             Join thousands of home cooks who spend less and eat better with Mealzy.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -464,12 +469,12 @@ export default function Pricing() {
             <a
               href="/onboarding.html"
               data-track="closing-cta-secondary"
-              className="inline-flex items-center gap-2 rounded-xl border-2 border-green-400 text-white px-7 py-3.5 text-sm font-bold hover:bg-green-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border-2 border-emerald-400 text-white px-7 py-3.5 text-sm font-bold hover:bg-emerald-800 transition-colors"
             >
               Build My Free Plan
             </a>
           </div>
-          <p className="mt-4 text-xs text-green-200">No credit card required for Free. Cancel anytime.</p>
+          <p className="mt-4 text-xs text-emerald-200">No credit card required for Free. Cancel anytime.</p>
         </div>
       </section>
 
