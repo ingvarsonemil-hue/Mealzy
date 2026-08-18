@@ -486,8 +486,9 @@ const usageTracker = new Map();
 const FREE_PLAN_LIMIT = 3; // anonymous (no-session) requests only â€” logged-in free users use the 30-day daily trial below
 const referralBonus   = new Map(); // kept for in-session backward compat; SQLite is source of truth
 
-// â”€â”€ Free-tier 30-day daily trial (logged-in users) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€ Free-tier: daily plan for the first 30 days, then 1 plan every 7 days forever (logged-in users) â”€â”€
 const TRIAL_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const WEEKLY_PLAN_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Validates a client-supplied IANA timezone name; falls back to UTC for
  * anything missing, oversized, or not recognised by Intl. */
@@ -2055,25 +2056,35 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
         }
 
         const trialEndsAtMs = new Date(trialStartedAt).getTime() + TRIAL_DAYS_MS;
-        if (Date.now() >= trialEndsAtMs) {
-          await db.logEvent('free_trial_expired', { userId: session.userId }, '');
-          return res.status(402).json({
-            error: 'free_limit_reached',
-            message: 'Your 30-day free trial has ended.',
-            upgrade_url: '/pricing.html',
-            resets_in: null,
-            used: null,
-            limit: null
-          });
-        }
+        const trialActive = Date.now() < trialEndsAtMs;
 
-        const alreadyToday = await db.getTrialGenerationByDate(session.userId, trialLocalDate);
-        if (alreadyToday) {
-          await db.logEvent('trial_already_generated_today', { userId: session.userId }, '');
-          return res.status(409).json({
-            error: 'already_generated_today',
-            message: 'You already generated a plan today. Come back tomorrow for your next one.'
-          });
+        if (trialActive) {
+          const alreadyToday = await db.getTrialGenerationByDate(session.userId, trialLocalDate);
+          if (alreadyToday) {
+            await db.logEvent('trial_already_generated_today', { userId: session.userId }, '');
+            return res.status(409).json({
+              error: 'already_generated_today',
+              message: 'You already generated a plan today. Come back tomorrow for your next one.'
+            });
+          }
+        } else {
+          // â”€â”€ Past day 30: 1 free plan every 7 days, forever â”€â”€
+          const lastGeneration = await db.getLastTrialGeneration(session.userId);
+          if (lastGeneration) {
+            const nextAllowedMs = new Date(lastGeneration.local_date).getTime() + WEEKLY_PLAN_INTERVAL_MS;
+            if (Date.now() < nextAllowedMs) {
+              const nextAllowedDate = new Date(nextAllowedMs).toISOString().split('T')[0];
+              await db.logEvent('weekly_free_plan_limit_hit', { userId: session.userId }, '');
+              return res.status(402).json({
+                error: 'weekly_limit_reached',
+                message: `Your free plan resets weekly. Next one is available ${nextAllowedDate}, or upgrade to Pro for unlimited plans.`,
+                upgrade_url: '/pricing.html',
+                resets_in: nextAllowedDate,
+                used: null,
+                limit: null
+              });
+            }
+          }
         }
       } else {
         // Anonymous user: track by IP (in-memory, resets on server restart)

@@ -16,7 +16,7 @@ const plans = [
   {
     id: 'free',
     name: 'Free',
-    description: '1 meal plan a day for your first 30 days. No credit card required.',
+    description: '1 meal plan a day for your first 30 days. After that, get 1 new plan every week, forever. No credit card required.',
     monthlyPrice: 0,
     annualPrice: 0,
     cta: 'Build My Free Plan',
@@ -30,14 +30,14 @@ const plans = [
       { label: 'Dietary filters', value: '3 filters' },
       { label: 'Family sharing', value: false },
       { label: 'Nutrition breakdown', value: false },
-      { label: 'Priority support', value: false },
-      { label: 'Price history & trends', value: false },
+      { label: 'Direct email access to the founder', value: false },
+      { label: 'Grocery price tracking & cheaper swap suggestions', value: false },
     ],
   },
   {
     id: 'pro',
     name: 'Pro',
-    description: 'Save 4+ hours a month with unlimited meal plans, price tracking, and pantry sync. Our most popular choice.',
+    description: 'Pro pays for itself in week one. Stop overpaying at checkout and keep your grocery budget under control.',
     monthlyPrice: 8,
     annualPrice: 62,
     cta: 'Upgrade to Pro',
@@ -51,8 +51,8 @@ const plans = [
       { label: 'Dietary filters', value: 'Unlimited' },
       { label: 'Family sharing', value: false },
       { label: 'Nutrition breakdown', value: true },
-      { label: 'Priority support', value: true },
-      { label: 'Price history & trends', value: true },
+      { label: 'Direct email access to the founder', value: true },
+      { label: 'Grocery price tracking & cheaper swap suggestions', value: true },
     ],
   },
   {
@@ -72,8 +72,8 @@ const plans = [
       { label: 'Dietary filters', value: 'Unlimited' },
       { label: 'Family sharing', value: 'Up to 5 members' },
       { label: 'Nutrition breakdown', value: true },
-      { label: 'Priority support', value: true },
-      { label: 'Price history & trends', value: true },
+      { label: 'Direct email access to the founder', value: true },
+      { label: 'Grocery price tracking & cheaper swap suggestions', value: true },
     ],
   },
 ];
@@ -85,14 +85,14 @@ const featureRows = [
   { label: 'Dietary filters', key: 'Dietary filters' },
   { label: 'Family sharing', key: 'Family sharing' },
   { label: 'Nutrition breakdown', key: 'Nutrition breakdown' },
-  { label: 'Priority support', key: 'Priority support' },
-  { label: 'Price history & trends', key: 'Price history & trends' },
+  { label: 'Direct email access to the founder', key: 'Direct email access to the founder' },
+  { label: 'Grocery price tracking & cheaper swap suggestions', key: 'Grocery price tracking & cheaper swap suggestions' },
 ];
 
 const faqs = [
   {
     q: 'What counts as one plan?',
-    a: 'One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan a day for their first 30 days. After that, you\'ll need to upgrade to Pro or Family to keep generating plans.',
+    a: 'One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan a day for their first 30 days. After that, you get one new plan every week for free — upgrade to Pro or Family any time for unlimited plans.',
   },
   {
     q: 'Can I cancel anytime?',
@@ -210,6 +210,13 @@ function FeatureValue({ value, label }) {
   return <span className="text-sm text-gray-700 font-medium">{value}</span>;
 }
 
+function TableFeatureValue({ value, label, isFreePlan }) {
+  if (value === false && isFreePlan) {
+    return <span className="text-xs text-gray-400 italic">Pro only: {label}</span>;
+  }
+  return <FeatureValue value={value} label={label} />;
+}
+
 function PricingCard({ plan, billing }) {
   const isPopular = plan.popular;
 
@@ -256,6 +263,9 @@ function PricingCard({ plan, billing }) {
         {plan.cta}
         <IconArrowRight className="w-4 h-4" />
       </a>
+      {plan.id === 'pro' && (
+        <p className="mt-2 text-center text-xs text-gray-400">1-click cancel. No questions asked.</p>
+      )}
 
       <ul className="mt-6 space-y-3">
         {plan.features.map((f) => (
@@ -398,7 +408,7 @@ export default function Pricing() {
                       return (
                         <td key={p.id} className="py-4 text-center">
                           <div className="flex justify-center">
-                            <FeatureValue value={feat?.value} label={row.label} />
+                            <TableFeatureValue value={feat?.value} label={row.label} isFreePlan={p.id === 'free'} />
                           </div>
                         </td>
                       );

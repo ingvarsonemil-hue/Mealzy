@@ -741,6 +741,15 @@ async function getTrialPlanIdsForUser(userId) {
   return rows.map(r => ({ planId: r.plan_id, localDate: r.local_date }));
 }
 
+/** Most recent trial generation for a user — used to gate the post-30-day
+ * weekly free plan (one every 7 days, forever). */
+async function getLastTrialGeneration(userId) {
+  return get(
+    'SELECT user_id, local_date, plan_id, created_at FROM trial_generations WHERE user_id = ? ORDER BY local_date DESC LIMIT 1',
+    [userId]
+  );
+}
+
 // ── Grocery lists ─────────────────────────────────────────────────────────────
 
 async function saveGroceryList(id, userId, planId, day, groceryListObj) {
@@ -892,7 +901,7 @@ module.exports = {
   // plan generation quotas
   getPlanGenerationCount, incrementPlanGeneration,
   // free-tier 30-day daily trial
-  setTrialStart, getTrialGenerationByDate, recordTrialGeneration, getTrialPlanIdsForUser,
+  setTrialStart, getTrialGenerationByDate, recordTrialGeneration, getTrialPlanIdsForUser, getLastTrialGeneration,
   // daily API spend
   getDailySpend, addDailySpend,
   // ingredient prices
