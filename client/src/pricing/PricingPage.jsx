@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 
 /* ───────────────────────────────────────────────
-   Mealzy Pricing Page — Zero Dependency Version
-   Inline SVGs replace lucide-react icons.
+   Mealzy Pricing Page — CTA routes to /login
    Drop into: client/src/pricing/PricingPage.jsx
    ─────────────────────────────────────────────── */
 
-const getSignupUrl = (plan, billing = 'annual') => {
+const getLoginUrl = (plan, billing = 'annual') => {
   const params = new URLSearchParams();
   params.set('plan', plan);
   if (plan !== 'free') params.set('billing', billing);
-  return `/signup?${params.toString()}`;
+  return `/login?${params.toString()}`;
 };
 
 const plans = [
@@ -21,7 +20,7 @@ const plans = [
     monthlyPrice: 0,
     annualPrice: 0,
     cta: 'Start Planning Free',
-    ctaHref: getSignupUrl('free'),
+    ctaHref: '/onboarding.html', // free users go straight to the app
     ctaVariant: 'outline',
     popular: false,
     features: [
@@ -41,8 +40,8 @@ const plans = [
     description: 'Save 4+ hours a month with unlimited meal plans, price tracking, and pantry sync. Our most popular choice.',
     monthlyPrice: 8,
     annualPrice: 62,
-    cta: 'Try Pro Free for 14 Days',
-    ctaHref: getSignupUrl('pro', 'annual'),
+    cta: 'Upgrade to Pro',
+    ctaHref: getLoginUrl('pro', 'annual'),
     ctaVariant: 'primary',
     popular: true,
     features: [
@@ -63,7 +62,7 @@ const plans = [
     monthlyPrice: 16,
     annualPrice: 128,
     cta: 'Start Family Plan',
-    ctaHref: getSignupUrl('family', 'annual'),
+    ctaHref: getLoginUrl('family', 'annual'),
     ctaVariant: 'primary',
     popular: false,
     features: [
@@ -211,8 +210,7 @@ function FeatureValue({ value, label }) {
   return <span className="text-sm text-gray-700 font-medium">{value}</span>;
 }
 
-
-  function PricingCard({ plan, billing }) {
+function PricingCard({ plan, billing }) {
   const isPopular = plan.popular;
 
   return (
@@ -305,7 +303,6 @@ export default function Pricing() {
       {/* ── Toggle + Cards ─────────────────── */}
       <section className="py-12 md:py-20">
         <div className="mx-auto max-w-6xl px-4">
-          {/* Toggle */}
           <div className="flex justify-center mb-12">
             <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 shadow-sm">
               <button
@@ -337,7 +334,6 @@ export default function Pricing() {
             </div>
           </div>
 
-          {/* Cards */}
           <div className="grid gap-6 md:gap-8 md:grid-cols-3 items-start">
             {plans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} billing={billing} />
@@ -381,21 +377,13 @@ export default function Pricing() {
           <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">
             Compare all features
           </h2>
-
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b-2 border-gray-100">
-                  <th className="pb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                    Feature
-                  </th>
+                  <th className="pb-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">Feature</th>
                   {plans.map((p) => (
-                    <th
-                      key={p.id}
-                      className={`pb-4 text-center text-sm font-bold ${
-                        p.popular ? 'text-green-700' : 'text-forest'
-                      }`}
-                    >
+                    <th key={p.id} className={`pb-4 text-center text-sm font-bold ${p.popular ? 'text-green-700' : 'text-forest'}`}>
                       {p.name}
                     </th>
                   ))}
@@ -404,9 +392,7 @@ export default function Pricing() {
               <tbody>
                 {featureRows.map((row) => (
                   <tr key={row.key} className="border-b border-gray-50">
-                    <td className="py-4 text-sm text-gray-700 font-medium">
-                      {row.label}
-                    </td>
+                    <td className="py-4 text-sm text-gray-700 font-medium">{row.label}</td>
                     {plans.map((p) => {
                       const feat = p.features.find((f) => f.label === row.key);
                       return (
@@ -428,34 +414,20 @@ export default function Pricing() {
       {/* ── FAQ ────────────────────────────── */}
       <section className="py-12 md:py-16 bg-white">
         <div className="mx-auto max-w-3xl px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">
-            Pricing questions
-          </h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">Pricing questions</h2>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <div
-                key={i}
-                data-track={`faq-${faq.q.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
-                className="border border-gray-200 rounded-xl"
-              >
+              <div key={i} className="border border-gray-200 rounded-xl">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between px-5 py-4 text-left bg-white hover:bg-cream/50 transition-colors"
                   aria-expanded={openFaq === i}
                 >
-                  <span className="font-semibold text-forest text-sm md:text-base">
-                    {faq.q}
-                  </span>
-                  <IconChevronDown
-                    className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-200 ${
-                      openFaq === i ? 'rotate-180' : ''
-                    }`}
-                  />
+                  <span className="font-semibold text-forest text-sm md:text-base">{faq.q}</span>
+                  <IconChevronDown className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
-                    {faq.a}
-                  </div>
+                  <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">{faq.a}</div>
                 )}
               </div>
             ))}
@@ -466,32 +438,28 @@ export default function Pricing() {
       {/* ── Closing CTA ────────────────────── */}
       <section className="py-16 md:py-24 bg-forest text-on-forest">
         <div className="mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-2xl md:text-4xl font-extrabold">
-            Start saving today
-          </h2>
+          <h2 className="text-2xl md:text-4xl font-extrabold">Start saving today</h2>
           <p className="mt-3 text-green-100 text-lg max-w-xl mx-auto">
             Join thousands of home cooks who spend less and eat better with Mealzy.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href={getSignupUrl('pro', 'annual')}
+              href={getLoginUrl('pro', 'annual')}
               data-track="closing-cta-primary"
               className="inline-flex items-center gap-2 rounded-xl bg-white text-forest px-7 py-3.5 text-sm font-bold hover:bg-cream transition-colors"
             >
-              Try Pro Free for 14 Days
+              Upgrade to Pro
               <IconArrowRight className="w-4 h-4" />
             </a>
             <a
-              href={getSignupUrl('free')}
+              href="/onboarding.html"
               data-track="closing-cta-secondary"
               className="inline-flex items-center gap-2 rounded-xl border-2 border-green-400 text-white px-7 py-3.5 text-sm font-bold hover:bg-green-800 transition-colors"
             >
               Start Planning Free
             </a>
           </div>
-          <p className="mt-4 text-xs text-green-200">
-            No credit card required for Free. Cancel anytime.
-          </p>
+          <p className="mt-4 text-xs text-green-200">No credit card required for Free. Cancel anytime.</p>
         </div>
       </section>
 
@@ -501,14 +469,14 @@ export default function Pricing() {
           <div className="flex items-center justify-between gap-4 max-w-md mx-auto">
             <div>
               <p className="text-sm font-bold text-forest">Pro — $5.17/mo</p>
-              <p className="text-xs text-forest/60">14-day free trial</p>
+              <p className="text-xs text-forest/60">Billed monthly, cancel anytime</p>
             </div>
             <a
-              href={getSignupUrl('pro', 'annual')}
+              href={getLoginUrl('pro', 'annual')}
               data-track="sticky-cta-pro"
               className="px-5 py-2.5 bg-forest text-white rounded-lg text-sm font-bold whitespace-nowrap"
             >
-              Try Pro Free for 14 Days
+              Upgrade to Pro
             </a>
           </div>
         </div>
