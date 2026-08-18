@@ -20,7 +20,7 @@ function buildPaywallPlans({ annualReady, familyReady }) {
       price: PLAN_PRICING.pro.annualTotal,
       period: '/year',
       monthlyEq: `$${(PLAN_PRICING.pro.annualTotal / 12).toFixed(2)}/mo`,
-      cta: 'Upgrade to Pro — 14 Days Free',
+      cta: 'Upgrade to Pro',
       link: annualReady ? stripeUrls.annual : '/pricing.html',
       popular: true,
       features: [
@@ -40,7 +40,7 @@ function buildPaywallPlans({ annualReady, familyReady }) {
       price: PLAN_PRICING.family.annualTotal,
       period: '/year',
       monthlyEq: `$${(PLAN_PRICING.family.annualTotal / 12).toFixed(2)}/mo`,
-      cta: 'Upgrade to Family — 14 Days Free',
+      cta: 'Upgrade to Family',
       link: familyReady ? stripeUrls.familyAnnual : '/pricing.html',
       popular: false,
       features: [
@@ -110,7 +110,7 @@ export default function PaywallPage() {
             Your first free month is up
           </h1>
           <p className="mt-4 text-lg text-green-100 max-w-xl mx-auto">
-            Upgrade to keep generating meal plans. Try Pro or Family free for 14 days — no charge until the trial ends.
+            Upgrade to Pro or Family to keep generating meal plans. Billed right away, cancel anytime.
           </p>
         </div>
       </section>
@@ -152,7 +152,7 @@ export default function PaywallPage() {
                       <span className="text-sm text-gray-500">{plan.period}</span>
                     </div>
                     <span className="text-xs text-green-700 font-medium mt-1 block">
-                      {plan.monthlyEq} · 14-day free trial
+                      {plan.monthlyEq}
                     </span>
                   </div>
 
@@ -186,7 +186,7 @@ export default function PaywallPage() {
 
           <div className="mt-10 text-center">
             <p className="text-sm text-gray-500">
-              Cancel anytime. No questions asked refund within 14 days.{' '}
+              Cancel anytime from your account settings.{' '}
               <a href="mailto:support@mealzy.org" className="text-green-700 underline hover:text-forest">
                 Contact support
               </a>

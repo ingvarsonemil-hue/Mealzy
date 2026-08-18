@@ -79,7 +79,7 @@ export default function Hero({ onStartPlan, ctaHref }) {
                 type="submit"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-forest text-white px-6 py-3 text-sm font-bold hover:bg-green-900 transition-colors whitespace-nowrap"
               >
-                Generate My Free Week
+                Build My Free Plan
                 <IconArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -93,10 +93,6 @@ export default function Hero({ onStartPlan, ctaHref }) {
               <span className="inline-flex items-center gap-1">
                 <IconCheck className="w-3.5 h-3.5 text-green-600" />
                 Cancel anytime
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <IconCheck className="w-3.5 h-3.5 text-green-600" />
-                14-day money-back
               </span>
             </div>
           </div>

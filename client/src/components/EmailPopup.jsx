@@ -67,7 +67,7 @@ export default function EmailPopup() {
               ? 'Create a free account and your meal plan is always saved — access it any time, on any device.'
               : 'Enter your email to create a free account — your plan stays saved and resets every 30 days. No card needed.'}
           </Dialog.Description>
-          <p className="mt-2 text-sm text-on-forest-muted">Free: 3 meal plans a month. Pro removes the limits.</p>
+          <p className="mt-2 text-sm text-on-forest-muted">Free: 1 plan a day for your first 30 days. Pro removes the limits.</p>
 
           <div className="mt-5 flex flex-col gap-3">
             <input

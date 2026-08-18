@@ -13,6 +13,13 @@ function singleEstimate(rangeStr) {
   const avg = (parseFloat(match[1]) + parseFloat(match[2])) / 2;
   return `$${avg.toFixed(0)}`;
 }
+
+/* Same rounding as singleEstimate, as a number rather than a display string —
+ * for subtracting a ticked pantry item from the week total using the exact
+ * dollar figure already shown next to that item, not a hidden fractional one. */
+function estimateDollars(rangeStr) {
+  return parseFloat(singleEstimate(rangeStr).replace('$', '')) || 0;
+}
 /* The shoppable half of the Showcase: the priced list the week produces, its
  * tick state, and the clipboard copy. Split out of Showcase.jsx when the three-
  * column rewrite pushed that file past the 500-line limit; the seam is a real
@@ -162,6 +169,15 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
       return next;
     });
 
+  /* Only pantry items reduce the total — they're the ones a shopper might
+   * already have. Ticking a fresh-aisle item just tracks progress in the
+   * aisle, it isn't a claim that item is free. */
+  const pantryDeduction = plan.pantry.reduce((sum, [item, , cents]) => {
+    if (!ticked.has(`pantry:${item}`)) return sum;
+    return sum + estimateDollars(range(cents));
+  }, 0);
+  const weekTotal = Math.max(0, estimateDollars(range(plan.spend)) - pantryDeduction);
+
   return (
     <Reveal delay={100} className="mt-8 min-w-0 rounded-lg border border-border-warm bg-cream p-6 shadow-card">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -196,18 +212,25 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
         <GroceryGroup title="Pantry staples" muted items={plan.pantry} prefix="pantry" ticked={ticked} onToggle={toggle}>
           <p className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
             Priced at what the week uses, not a full pack — most of these are already in your
-            cupboard.
+            cupboard. Tick off what you've already got to see your real total.
           </p>
         </GroceryGroup>
       </div>
 
       <div className="mt-5 flex items-baseline justify-between border-t border-border-warm pt-4 text-base font-bold">
         <span>Week total</span>
-        <span className="tabular-nums">Est. {singleEstimate(range(plan.spend))}</span>
+        <span className="tabular-nums">
+          Est. ${weekTotal.toFixed(0)}
+          {pantryDeduction > 0 && (
+            <span className="ml-1.5 text-xs font-medium text-muted-fg">
+              (−${pantryDeduction.toFixed(0)} already in your pantry)
+            </span>
+          )}
+        </span>
       </div>
 
       <Button href={ctaHref} full size="lg" className="mt-6">
-        Build My Own Plan — Free
+        Build My Free Plan
       </Button>
       <p className="mt-3 text-center text-[13px] text-muted-fg">
         Prices are estimates based on typical supermarket rates.

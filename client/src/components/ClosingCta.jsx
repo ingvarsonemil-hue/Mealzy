@@ -17,7 +17,7 @@ export default function ClosingCta({ ctaHref = 'login.html?signup=1' }) {
         </p>
         <div className="mt-8 flex flex-col items-center gap-4">
           <Button href={ctaHref} size="lg" className="bg-white text-forest-deep hover:bg-gray-100">
-            Generate My Free Week →
+            Build My Free Plan →
           </Button>
           <a
             href="pricing.html"
@@ -27,7 +27,7 @@ export default function ClosingCta({ ctaHref = 'login.html?signup=1' }) {
           </a>
         </div>
         <p className="mt-4 text-sm text-on-forest-muted">
-          ✓ No credit card required &nbsp;·&nbsp; ✓ Cancel anytime &nbsp;·&nbsp; ✓ 14-day money-back guarantee
+          ✓ No credit card required &nbsp;·&nbsp; ✓ Cancel anytime
         </p>
       </Reveal>
     </section>

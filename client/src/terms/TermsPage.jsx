@@ -42,12 +42,13 @@ export default function TermsPage() {
       <section id="free-plan">
         <h2>3. Free plan</h2>
         <ul>
-          <li>Free accounts receive 3 AI meal plan generations per rolling 30-day period.</li>
+          <li>Anonymous visitors may generate up to 3 sample meal plans without creating an account.</li>
           <li>
-            The free limit resets automatically every 30 days from your first generation in that
-            cycle.
+            Creating a free account unlocks 1 meal plan generation per day for 30 days from your
+            first generation.
           </li>
-          <li>We reserve the right to adjust the free plan limit with reasonable notice.</li>
+          <li>After 30 days, generating new plans requires a Pro or Family subscription.</li>
+          <li>We reserve the right to adjust these limits with reasonable notice.</li>
           <li>
             Free accounts are for individual personal use only. Automated or bulk usage is not
             permitted.

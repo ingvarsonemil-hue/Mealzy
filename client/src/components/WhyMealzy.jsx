@@ -19,7 +19,7 @@ const comparisons = [
   },
   {
     category: 'Free plan',
-    mealzy: '1 full weekly plan + grocery list every week, no credit card',
+    mealzy: '1 meal plan a day for your first 30 days, no credit card',
     others: 'Limited recipe access; key features like nutrition info require Pro',
   },
   {

@@ -19,7 +19,7 @@ const plans = [
     description: '1 meal plan a day for your first 30 days. No credit card required.',
     monthlyPrice: 0,
     annualPrice: 0,
-    cta: 'Start Planning Free',
+    cta: 'Build My Free Plan',
     ctaHref: '/onboarding.html', // free users go straight to the app
     ctaVariant: 'outline',
     popular: false,
@@ -61,7 +61,7 @@ const plans = [
     description: 'Feed 4+ people for under $6 a serving. Shared plans, dietary filters, and family-sized grocery lists.',
     monthlyPrice: 16,
     annualPrice: 128,
-    cta: 'Start Family Plan',
+    cta: 'Upgrade to Family',
     ctaHref: getLoginUrl('family', 'annual'),
     ctaVariant: 'primary',
     popular: false,
@@ -456,7 +456,7 @@ export default function Pricing() {
               data-track="closing-cta-secondary"
               className="inline-flex items-center gap-2 rounded-xl border-2 border-green-400 text-white px-7 py-3.5 text-sm font-bold hover:bg-green-800 transition-colors"
             >
-              Start Planning Free
+              Build My Free Plan
             </a>
           </div>
           <p className="mt-4 text-xs text-green-200">No credit card required for Free. Cancel anytime.</p>
