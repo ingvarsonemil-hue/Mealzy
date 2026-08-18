@@ -18,7 +18,7 @@ const STEPS = [
 
 export default function HowItWorks() {
   return (
-    <section id="how-it-works" aria-labelledby="how-heading" className="scroll-mt-20 py-16 sm:py-20">
+    <section id="how-it-works" aria-labelledby="how-heading" className="scroll-mt-20 py-24">
       <div className="mx-auto max-w-container px-4 sm:px-5">
         <Reveal className="mb-12 text-center">
           <h2
@@ -38,13 +38,13 @@ export default function HowItWorks() {
             <Reveal
               key={step.title}
               delay={i * 80}
-              className="flex gap-6 border-b border-hairline py-8 first:pt-0 last:border-b-0 sm:gap-10"
+              className="flex gap-6 border-b border-l-4 border-hairline border-l-[#059669] py-8 pl-5 first:pt-0 last:border-b-0 sm:gap-10"
             >
               <span
                 aria-hidden="true"
-                className="w-14 shrink-0 select-none font-display text-[clamp(2.5rem,4vw,3.5rem)] font-black italic leading-none text-green-deep dark:text-green-light sm:w-20"
+                className="w-14 shrink-0 select-none font-display text-[clamp(2.5rem,4vw,3.5rem)] font-extrabold leading-none text-[#059669] sm:w-20"
               >
-                {i + 1}
+                {String(i + 1).padStart(2, '0')}
               </span>
               <div>
                 <h3 className="font-display text-2xl font-bold leading-[1.15] tracking-[-0.01em]">{step.title}</h3>

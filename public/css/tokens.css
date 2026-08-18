@@ -3,18 +3,18 @@
 :root {
   /* Brand Colors */
   --color-forest:      #1a3d2b;
-  --color-green:       #3d8b5e;
-  --color-green-light: #4ade80;
+  --color-green:       #059669;
+  --color-green-light: #10b981;
   --color-green-muted: #a8d5ba;
 
   /* Neutral Palette */
-  --color-foreground:  #1a1a1a;
-  --color-muted-fg:    #6b7280;
+  --color-foreground:  #0f172a;
+  --color-muted-fg:    #475569;
   --color-cream:       #f8f5f0;
   --color-parchment:   #f2ede6;
-  --color-muted-bg:    #faf8f6;
-  --color-border:      #e5e0d8;
-  --color-hairline:    #ede8e0;
+  --color-muted-bg:    #f8fafc;
+  --color-border:      #e2e8f0;
+  --color-hairline:    #e2e8f0;
 
   /* Semantic Colors */
   --color-success:     #10b981;
@@ -29,8 +29,8 @@
   --gradient-primary: linear-gradient(135deg, var(--color-green) 0%, var(--color-forest) 100%);
 
   /* Typography Scale (modular scale 1.125x) */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body:    'Inter', system-ui, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
   --font-size-xs:   0.75rem;  /* 12px - captions, labels */
   --font-size-sm:   0.875rem; /* 14px - small text */
   --font-size-base: 1rem;     /* 16px - body text */
@@ -70,12 +70,12 @@
   --radius-full: 999px;
 
   /* Elevation Shadows (layered ambient + soft for depth) */
-  --shadow-sm:     0 2px 8px rgba(26, 61, 43, 0.06);              /* Resting state */
-  --shadow-md:     0 4px 16px rgba(26, 61, 43, 0.08);             /* Raised/hover */
-  --shadow-lg:     0 8px 32px rgba(26, 61, 43, 0.12);             /* Floating overlay */
-  --shadow-xl:     0 20px 60px rgba(26,61,43,0.22), 0 8px 24px rgba(26,61,43,0.14); /* Modal/dropdown */
-  --shadow-button: 0 4px 12px rgba(61, 139, 94, 0.25);            /* CTA buttons */
-  --shadow-card:   0 2px 12px rgba(26, 61, 43, 0.08);             /* Card/surface elevation */
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.05);                 /* Resting state */
+  --shadow-md:     0 4px 16px rgba(15, 23, 42, 0.08);             /* Raised/hover */
+  --shadow-lg:     0 8px 32px rgba(15, 23, 42, 0.12);             /* Floating overlay */
+  --shadow-xl:     0 20px 60px rgba(15,23,42,0.22), 0 8px 24px rgba(15,23,42,0.14); /* Modal/dropdown */
+  --shadow-button: 0 4px 12px rgba(5, 150, 105, 0.3);             /* CTA buttons */
+  --shadow-card:   0 1px 3px rgba(0, 0, 0, 0.05);                 /* Card/surface elevation */
   /* Semantic layer aliases */
   --shadow-base:   var(--shadow-sm);                              /* Default surface */
   --shadow-raised: var(--shadow-md);                              /* Hover/interactive */
@@ -89,7 +89,7 @@
   --clr-surface-subtle: rgba(255,255,255,0.05);
   --clr-input-bg:      var(--clr-surface);
   --clr-primary-dark:  var(--color-forest);
-  --color-green-rgb:   61, 139, 94;      /* For rgba() usage: rgba(var(--color-green-rgb), 0.1) */
+  --color-green-rgb:   5, 150, 105;      /* For rgba() usage: rgba(var(--color-green-rgb), 0.1) */
   --clr-error:         #c0392b;
   --clr-warning:       hsl(32,88%,54%);  /* Protein ring, warm amber */
   --clr-info:          hsl(200,100%,50%); /* Carbs ring, info blue */

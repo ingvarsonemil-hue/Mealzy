@@ -123,7 +123,7 @@ export default function PlanPage() {
 
           {state.status === 'error' && (
             <div role="alert" className="py-16 text-center">
-              <h2 className="font-display text-2xl font-bold italic">Plan not found</h2>
+              <h2 className="font-display text-2xl font-bold">Plan not found</h2>
               <p className="mx-auto mt-2 mb-6 text-muted-fg">{state.error}</p>
               <a href="/" className="text-green">Back to Mealzy</a>
             </div>
@@ -135,13 +135,13 @@ export default function PlanPage() {
                 <div className="inline-flex rounded-full bg-green/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-green-deep dark:text-green-light">
                   Shared Meal Plan
                 </div>
-                <h1 className="mt-3 font-display text-[clamp(1.7rem,4vw,2.3rem)] font-black italic tracking-[-0.02em]">
+                <h1 className="mt-3 font-display text-[clamp(1.7rem,4vw,2.3rem)] font-black tracking-[-0.02em]">
                   {title}
                 </h1>
                 <div className="mt-6 flex flex-wrap justify-center gap-x-8 gap-y-4">
                   {stats.map((s) => (
                     <div key={s.label}>
-                      <div className="font-display text-2xl font-bold italic text-green-deep dark:text-green-light">{s.num}</div>
+                      <div className="font-display text-2xl font-bold text-green-deep dark:text-green-light">{s.num}</div>
                       <div className="text-xs uppercase tracking-[0.06em] text-muted-fg">{s.label}</div>
                     </div>
                   ))}
@@ -152,7 +152,7 @@ export default function PlanPage() {
                 {daysToShow.map(({ day, dayMeals, dayCost }) => (
                   <div key={day} className="overflow-hidden rounded-lg border border-border-warm bg-cream">
                     <header className="flex items-center justify-between border-b border-border-warm px-5 py-3">
-                      <span className="font-display font-bold italic">{day}</span>
+                      <span className="font-display font-bold">{day}</span>
                       <span className="text-sm text-muted-fg">~${dayCost.toFixed(2)}</span>
                     </header>
                     <div className="divide-y divide-hairline">
@@ -181,7 +181,7 @@ export default function PlanPage() {
               <ShareRow shareUrl={window.location.href} />
 
               <div className="mt-10 rounded-lg bg-forest px-8 py-9 text-center text-on-forest-strong">
-                <h2 className="font-display text-2xl font-black italic text-on-forest">Generate your own free plan.</h2>
+                <h2 className="font-display text-2xl font-black text-on-forest">Generate your own free plan.</h2>
                 <p className="mx-auto mb-5 mt-2 max-w-[44ch] text-[0.92rem] text-on-forest-body">
                   Tell Mealzy your calorie goal, budget, and dietary preferences. It builds your full week of meals and writes the grocery list — in 30 seconds. Free, no credit card.
                 </p>

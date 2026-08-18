@@ -1,6 +1,6 @@
 /* ================================================================
    MEALZY — App theme (dashboard, meal-planner, grocery-list,
-   analytics, ai-coach, settings). Loads AFTER style.css and
+   analytics, ai-coach, settings). Loads AFTER the style-*.css files (split from the former style.css) and
    restyles the app to match the marketing design system:
    clean muted canvas, crisp white surfaces with hairline borders,
    editorial Fraunces numerals, forest sidebar with brick active.
@@ -16,7 +16,7 @@
 /* ---------- Canvas: flat warm neutral, no tinted gradients ---------- */
 .main-content { background: var(--color-muted-bg); }
 [data-theme="dark"] .main-content { background: var(--clr-page-dark); }
-.page-header { margin-bottom: 2.25rem; }
+.page-header { margin-bottom: 2rem; }
 
 /* ---------- Surfaces: white cards on the warm canvas ---------- */
 .card, .stat-card, .meal-card, .quick-action-card, .chart-card, .ring-card,
@@ -24,12 +24,14 @@
 .chat-header, .chat-input-bar, .chat-msg.assistant .chat-bubble {
   background: var(--clr-surface);
 }
-.card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: 1.75rem !important; }
+/* App density: tighter than the marketing card scale (32px/20px radius) —
+   dashboards need information density, not editorial breathing room. */
+.card { border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: 16px 20px !important; }
 .card:hover { transform: none; box-shadow: var(--shadow-md); }
-.stat-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); }
-.meal-card, .quick-action-card, .chart-card, .ring-card, .week-day-col, .testimonial-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); }
+.stat-card { border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); }
+.meal-card, .quick-action-card, .chart-card, .ring-card, .week-day-col, .testimonial-card { border: 1px solid var(--color-border); border-radius: var(--radius-md); }
 .chart-card { box-shadow: var(--shadow-card); }
-.modal { border-radius: var(--radius-lg); }
+.modal { border-radius: var(--radius-md); }
 .toast { border-radius: var(--radius-md); }
 .toast.success { background: var(--color-green); }
 [data-theme="dark"] .card, [data-theme="dark"] .stat-card, [data-theme="dark"] .chart-card { box-shadow: none; }
@@ -38,22 +40,23 @@
 .greeting, .dash-greeting { font-size: clamp(1.9rem, 3vw, 2.3rem); letter-spacing: -0.025em; }
 .greeting-sub, .dash-greeting-sub { font-size: 0.92rem; margin-top: 0.35rem; }
 .stat-value {
-  font-family: var(--font-display); font-style: italic; font-weight: 700;
+  font-family: var(--font-display); font-weight: 700;
   font-size: 1.9rem; letter-spacing: -0.01em; line-height: 1.15;
 }
-.stats-grid .stat-num, .totals-bar .total-val { font-family: var(--font-display); font-style: italic; font-weight: 700; }
+.stats-grid .stat-num, .totals-bar .total-val { font-family: var(--font-display); font-weight: 700; }
 .stat-card-icon { border-radius: var(--radius-md); }
 
-/* ---------- Buttons and inputs: marketing primitives ---------- */
-.btn { border-radius: var(--radius-md); }
-.btn-primary { background: var(--color-green); box-shadow: none; }
+/* ---------- Buttons and inputs: shared design-system primitives ---------- */
+/* border-radius/padding for .btn now live in style-base.css (8px / 10px 16px)
+   so .btn-sm and .btn-lg — defined there, right after .btn — keep winning
+   the cascade; redeclaring them here would out-order those modifiers. */
+.btn-primary { background: var(--color-green); color: #fff; font-weight: 700; box-shadow: none; }
 .btn-primary:hover { background: var(--clr-green-deep); transform: translateY(-1px); box-shadow: var(--shadow-button); }
 .btn-primary:active { transform: scale(0.98); }
 .btn-accent { background: var(--color-green); box-shadow: none; }
 .btn-accent:hover { background: var(--clr-green-deep); transform: translateY(-1px); }
 .btn-outline { border-width: 1px; background: var(--clr-surface); }
 .btn-danger:hover { opacity: 1; background: var(--color-brick); }
-.form-input, .form-select, .form-textarea { border-radius: var(--radius-md); border-width: 1px; background: var(--clr-surface); }
 .chat-input { border-width: 1px; }
 
 /* ---------- Sidebar: forest, roomier, marketing logo scale ---------- */
@@ -75,8 +78,9 @@
 .day-tab.active { background: var(--color-green); border-color: var(--color-green); }
 .totals-bar { background: var(--clr-surface); box-shadow: var(--shadow-lg); border-top: 1px solid var(--color-hairline); }
 [data-theme="dark"] .totals-bar { background: var(--clr-surface); }
-.category-header { border-bottom: 1px solid var(--color-border); font-family: var(--font-display); font-style: italic; font-size: 1rem; letter-spacing: -0.01em; }
-.grocery-item { border-radius: var(--radius-md); }
+.category-header { border-bottom: 1px solid var(--color-border); font-family: var(--font-display); font-size: 1rem; letter-spacing: -0.01em; }
+.grocery-item { border-radius: 0; padding: 12px 16px; border-bottom: 1px solid #F1F5F9; }
+.grocery-item:last-child { border-bottom: none; }
 
 /* ---------- Chat (Mia) ---------- */
 .chat-msg.user .chat-bubble { background: var(--color-green); }

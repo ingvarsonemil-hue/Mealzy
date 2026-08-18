@@ -1,0 +1,48 @@
+/* === DARK MODE === */
+[data-theme="dark"] {
+  --clr-background: #1a2e22;
+  --clr-foreground: #F2EFE9;
+  --clr-card: #1f2f26;
+  --clr-border: #2a3a30;
+  --clr-input-bg: #1f2f26;
+  --clr-muted-bg: #17251d;
+  --clr-muted-fg: #8fa08f;
+  --clr-brand: #4a9d6c;
+  /* Sidebar slightly darker in dark mode */
+  --clr-sidebar: hsl(152, 42%, 12%);
+  --clr-sidebar-hover: hsl(152, 42%, 18%);
+  --clr-sidebar-active: hsl(152, 42%, 23%);
+}
+[data-theme="dark"] body { background: var(--clr-page-dark); }
+[data-theme="dark"] .grocery-header,
+[data-theme="dark"] .main-content {
+  background: var(--clr-page-dark);
+}
+[data-theme="dark"] .btn-outline { background: hsl(150,12%,14%); border-color: hsl(150,10%,22%); }
+[data-theme="dark"] .chip { background: hsl(150,12%,14%); }
+[data-theme="dark"] .nav-fixed { background: rgba(15,25,18,0.9); }
+[data-theme="dark"] .mobile-topbar { background: rgba(15,25,18,0.92); }
+[data-theme="dark"] .totals-bar { background: var(--clr-sidebar); }
+[data-theme="dark"] .chat-input-bar { background: var(--clr-card); }
+[data-theme="dark"] .chat-header { background: var(--clr-card); }
+[data-theme="dark"] .chat-messages { background: var(--clr-page-dark); }
+[data-theme="dark"] .chat-msg.assistant .chat-bubble { background: rgba(255,255,255,0.06); }
+[data-theme="dark"] .qp-chip { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); }
+[data-theme="dark"] .pricing-card { background: var(--clr-card); }
+[data-theme="dark"] .faq-btn { background: var(--clr-input-bg); color: rgba(255,255,255,0.92); }
+[data-theme="dark"] .main-content { background: radial-gradient(ellipse 70% 45% at 100% 0%, hsl(152,52%,8%) 0%, transparent 55%) var(--clr-background); }
+[data-theme="dark"] .card { border-color: rgba(255,255,255,0.06); }
+[data-theme="dark"] .stat-card { border-color: rgba(255,255,255,0.06); }
+[data-theme="dark"] #calorieHistoryChart { background: rgba(255,255,255,0.03); border-radius: 8px; padding: var(--space-4); }
+html[data-theme="dark"] .main-content input[type="text"],
+html[data-theme="dark"] .main-content input[type="number"],
+html[data-theme="dark"] .main-content select,
+html[data-theme="dark"] .main-content .form-input {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.85);
+}
+[data-theme="dark"] .card.settings-section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+}

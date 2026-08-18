@@ -194,7 +194,7 @@ function Stat({ label, value, accent }) {
       <p className="text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">{label}</p>
       <p
         className={cn(
-          'mt-1.5 font-display text-2xl font-bold italic tabular-nums',
+          'mt-1.5 font-display text-2xl font-bold tabular-nums',
           accent && 'text-green dark:text-green-light'
         )}
       >
@@ -214,7 +214,7 @@ function RevealStep({ plan, household, onClaim, onBack }) {
         <Stat label="Left in budget" value={range(plan.saved)} accent />
       </div>
 
-      <h3 className="mt-6 font-display text-lg font-bold italic">Your 7 days</h3>
+      <h3 className="mt-6 font-display text-lg font-bold">Your 7 days</h3>
       <ul role="list" className="mt-3 divide-y divide-border-warm border-y border-border-warm">
         {plan.days.map(({ day, dinner, cents }) => (
           <li key={day} className="flex items-baseline gap-3 py-2.5 text-[15px]">
@@ -362,7 +362,7 @@ export default function InteractiveOnboarding({ open, onOpenChange, seed }) {
             <p className="text-xs font-bold uppercase tracking-[0.08em] text-on-forest-muted">
               Step {step === 'targets' ? 1 : step === 'loading' ? 2 : 3} of 3
             </p>
-            <Dialog.Title className="mt-1.5 pr-8 font-display text-xl font-bold italic leading-[1.2] text-on-forest sm:text-2xl">
+            <Dialog.Title className="mt-1.5 pr-8 font-display text-xl font-bold leading-[1.2] text-on-forest sm:text-2xl">
               {TITLES[step]}
             </Dialog.Title>
             <Dialog.Description id="onboarding-desc" className="mt-1.5 text-sm text-on-forest-body">
