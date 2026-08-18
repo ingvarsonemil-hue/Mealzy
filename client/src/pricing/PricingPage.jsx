@@ -101,7 +101,7 @@ const faqs = [
   },
   {
     q: 'Is there a free trial?',
-    a: 'Pro and Family plans include a 14-day free trial. You will not be charged until the trial ends, and we send a reminder 3 days before.',
+    a: 'There\'s no separate trial for Pro or Family — every new user already gets 30 days of free daily meal plans on the Free tier before any payment is needed. When you\'re ready for Pro or Family, you\'re billed right away.',
   },
   {
     q: 'How accurate are price estimates?',
@@ -342,30 +342,6 @@ export default function Pricing() {
             {plans.map((plan) => (
               <PricingCard key={plan.id} plan={plan} billing={billing} />
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Money-Back Guarantee ───────────── */}
-      <section className="py-10">
-        <div className="mx-auto max-w-3xl px-4">
-          <div className="flex items-start gap-4 rounded-2xl bg-cream border border-green-200 p-6 md:p-8">
-            <IconShieldCheck className="w-8 h-8 text-green-700 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-lg font-bold text-forest">
-                14-Day Money-Back Guarantee
-              </h3>
-              <p className="mt-1 text-sm text-gray-600">
-                Not satisfied with Pro? Email us at{' '}
-                <a
-                  href="mailto:support@mealzy.org"
-                  className="underline text-green-700 hover:text-forest"
-                >
-                  support@mealzy.org
-                </a>{' '}
-                within 14 days for a full refund. No questions asked.
-              </p>
-            </div>
           </div>
         </div>
       </section>
