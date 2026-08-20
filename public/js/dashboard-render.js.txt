@@ -17,6 +17,47 @@ function setText(root, key, value) {
   if (el) el.textContent = value;
 }
 
+function renderEmptyState(root) {
+  const grid = root.querySelector('.dashboard-grid');
+  if (grid) grid.style.display = 'none';
+
+  let emptyContainer = root.querySelector('#dashboard-empty-container');
+  if (!emptyContainer) {
+    emptyContainer = document.createElement('div');
+    emptyContainer.id = 'dashboard-empty-container';
+    emptyContainer.className = 'dashboard-empty-container';
+    grid.parentNode.insertBefore(emptyContainer, grid);
+  }
+
+  emptyContainer.innerHTML = `
+    <div class="dashboard-empty">
+      <div class="dashboard-empty__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <h1 class="dashboard-empty__title">Let's plan your week.</h1>
+      <p class="dashboard-empty__text">
+        Set your grocery budget and dietary preferences. Mealzy will instantly generate a 7-day meal plan and a matching grocery list to keep you on track.
+      </p>
+      
+      <div class="dashboard-empty__profile">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        Preferences not configured yet
+      </div>
+
+      <a href="/meal-planner.html" class="dashboard-empty__btn">
+        Plan my week →
+      </a>
+      
+      <p class="dashboard-empty__meta">Your plans will appear here once you've created your first one.</p>
+    </div>
+  `;
+}
+
 function renderBudget(root, budget) {
   const filled = root.querySelector('[data-component-root="budget"]');
   const empty = root.querySelector('[data-component-root="budget-empty"]');
@@ -124,12 +165,20 @@ function bindActions(root) {
 async function loadDashboard(root) {
   try {
     const data = await fetchDashboard();
+    
+    // If no budget is set, this is a new user. Render the onboarding empty state.
+    if (!data.budget || !data.budget.total || data.budget.total === 0) {
+      renderEmptyState(root);
+      return;
+    }
+
     renderBudget(root, data.budget);
     renderMacros(root, data.macros);
     renderMeals(root, data.meals);
     renderActivity(root, data.activity);
   } catch (err) {
     console.error('[dashboard] load failed', err);
+    renderEmptyState(root); // Fallback to empty state on error to avoid blank screen
   }
 }
 

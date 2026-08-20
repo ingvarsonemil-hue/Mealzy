@@ -325,3 +325,113 @@
 /* Quick actions */
 .quick-actions { display: flex; flex-direction: column; gap: 8px; }
 .quick-actions .btn { justify-content: flex-start; }
+
+/* ==========================================
+   DASHBOARD EMPTY STATE (ONBOARDING)
+   ========================================== */
+.dashboard-empty-container {
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.dashboard-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 32px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.dashboard-empty__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: var(--color-primary);
+}
+
+.dashboard-empty__title {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.dashboard-empty__text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  max-width: 480px;
+  margin-bottom: 24px;
+}
+
+.dashboard-empty__profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 8px 16px;
+  margin-bottom: 32px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.dashboard-empty__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: var(--radius-input);
+  transition: background var(--transition), transform var(--transition);
+  text-decoration: none;
+  min-height: 44px;
+}
+.dashboard-empty__btn:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+.dashboard-empty__btn:active {
+  transform: scale(0.98);
+}
+
+.dashboard-empty__meta {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .dashboard-empty {
+    padding: 32px 24px;
+  }
+  .dashboard-empty__title {
+    font-size: 24px;
+  }
+}
