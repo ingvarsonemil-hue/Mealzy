@@ -1,10 +1,26 @@
 const REGISTRY = {
-  'dashboard/shell':         '/partials/dashboard/shell.html',
-  'dashboard/budget-card':   '/partials/dashboard/budget-card.html',
-  'dashboard/macro-card':    '/partials/dashboard/macro-card.html',
-  'dashboard/meals-card':    '/partials/dashboard/meals-card.html',
-  'dashboard/activity-card': '/partials/dashboard/activity-card.html',
-  'dashboard/quick-actions': '/partials/dashboard/quick-actions.html',
+  'layout/sidebar':                 '/partials/layout/sidebar.html',
+  'layout/topbar':                  '/partials/layout/topbar.html',
+  'layout/fab':                     '/partials/layout/fab.html',
+  'components/retention-banners':   '/partials/components/retention-banners.html',
+  'components/recipes-panel':       '/partials/components/recipes-panel.html',
+  'components/pwa-banner':          '/partials/components/pwa-banner.html',
+  'components/recipe-modal':        '/partials/components/recipe-modal.html',
+  'components/loading-overlay':     '/partials/components/loading-overlay.html',
+  'components/nps-modal':           '/partials/components/nps-modal.html',
+  'components/import-recipe-modal': '/partials/components/import-recipe-modal.html',
+  'dashboard/today-schedule':       '/partials/dashboard/today-schedule.html',
+  'dashboard/budget-macro-grid':    '/partials/dashboard/budget-macro-grid.html',
+  'dashboard/recent-plans':         '/partials/dashboard/recent-plans.html',
+  'dashboard/hero-empty':           '/partials/dashboard/hero-empty.html',
+  'planner/nav':                    '/partials/planner/nav.html',
+  'planner/header':                 '/partials/planner/header.html',
+  'planner/banners':                '/partials/planner/banners.html',
+  'planner/day-container':          '/partials/planner/day-container.html',
+  'planner/share-panel':            '/partials/planner/share-panel.html',
+  'planner/week-view':              '/partials/planner/week-view.html',
+  'planner/stats-bar':              '/partials/planner/stats-bar.html',
+  'planner/modals':                 '/partials/planner/modals.html',
 };
 
 async function fetchPartial(path) {
@@ -39,5 +55,3 @@ if (document.readyState === 'loading') {
 } else {
   loadAll();
 }
-
-export { loadAll };
