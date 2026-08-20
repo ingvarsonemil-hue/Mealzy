@@ -1,0 +1,21 @@
+const API_BASE = '/api/v1';
+
+async function getJson(path) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Accept: 'application/json' },
+    credentials: 'same-origin',
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
+  return res.json();
+}
+
+export async function fetchDashboard() {
+  const safe = (p) => getJson(p).catch(() => null);
+  const [budget, macros, meals, activity] = await Promise.all([
+    safe('/budget'),
+    safe('/macros/today'),
+    safe('/meals/week'),
+    safe('/activity?limit=5'),
+  ]);
+  return { budget, macros, meals, activity };
+}

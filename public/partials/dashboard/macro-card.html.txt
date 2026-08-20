@@ -1,0 +1,24 @@
+<section class="card">
+  <div class="card__header">
+    <h2 class="card__title">Today's macros</h2>
+    <span class="card__eyebrow">Targets</span>
+  </div>
+  <div class="macro-grid">
+    <div class="macro-cell">
+      <div class="macro-cell__label">Calories</div>
+      <div class="macro-cell__value"><span data-macro="calories">0</span><span class="macro-cell__unit">kcal</span></div>
+    </div>
+    <div class="macro-cell">
+      <div class="macro-cell__label">Protein</div>
+      <div class="macro-cell__value"><span data-macro="protein">0</span><span class="macro-cell__unit">g</span></div>
+    </div>
+    <div class="macro-cell">
+      <div class="macro-cell__label">Carbs</div>
+      <div class="macro-cell__value"><span data-macro="carbs">0</span><span class="macro-cell__unit">g</span></div>
+    </div>
+    <div class="macro-cell">
+      <div class="macro-cell__label">Fat</div>
+      <div class="macro-cell__value"><span data-macro="fat">0</span><span class="macro-cell__unit">g</span></div>
+    </div>
+  </div>
+</section>

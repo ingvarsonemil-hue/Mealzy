@@ -1,53 +1,43 @@
-// Fetches every <div data-component="name"></div> placeholder's partial from
-// /partials/<name>.html and injects it. Runs in passes so a partial that
-// itself contains a nested data-component div (e.g. today-schedule.html
-// nesting hero-empty.html) gets picked up too. Fires 'components:ready' on
-// document once nothing is left to load — dashboard-panels.js waits for that
-// event before touching any of this DOM.
-(function () {
-  const SKELETON_URL = '/partials/components/skeleton-card.html';
-  let skeletonHtml = null;
+const REGISTRY = {
+  'dashboard/shell':         '/partials/dashboard/shell.html',
+  'dashboard/budget-card':   '/partials/dashboard/budget-card.html',
+  'dashboard/macro-card':    '/partials/dashboard/macro-card.html',
+  'dashboard/meals-card':    '/partials/dashboard/meals-card.html',
+  'dashboard/activity-card': '/partials/dashboard/activity-card.html',
+  'dashboard/quick-actions': '/partials/dashboard/quick-actions.html',
+};
 
-  async function getSkeletonHtml() {
-    if (skeletonHtml === null) {
-      try {
-        const res = await fetch(SKELETON_URL);
-        skeletonHtml = res.ok ? await res.text() : '';
-      } catch (e) {
-        skeletonHtml = '';
-      }
-    }
-    return skeletonHtml;
+async function fetchPartial(path) {
+  const res = await fetch(path, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`Partial ${path} → ${res.status}`);
+  return res.text();
+}
+
+async function mount(node) {
+  const name = node.getAttribute('data-component');
+  const path = REGISTRY[name];
+  if (!path) { console.warn(`[loader] unknown component: ${name}`); return; }
+  try {
+    node.innerHTML = await fetchPartial(path);
+    node.setAttribute('data-component-loaded', 'true');
+  } catch (err) {
+    console.error(`[loader] ${name}`, err);
   }
+}
 
-  async function loadComponent(el) {
-    const name = el.getAttribute('data-component');
-    el.setAttribute('data-loaded', '1'); // mark first so a later pass doesn't refetch it
-    if (el.getAttribute('data-skeleton') !== 'off') {
-      el.innerHTML = await getSkeletonHtml();
-    }
-    try {
-      const res = await fetch(`/partials/${name}.html`);
-      if (!res.ok) throw new Error(`componentLoader: ${name} → ${res.status}`);
-      el.innerHTML = await res.text();
-    } catch (err) {
-      console.error(err.message);
-      el.innerHTML = '';
-    }
-  }
+async function loadAll(root = document) {
+  const nodes = Array.from(root.querySelectorAll('[data-component]'));
+  await Promise.all(nodes.map(mount));
+  document.dispatchEvent(new CustomEvent('components:ready', {
+    bubbles: true,
+    detail: { count: nodes.length },
+  }));
+}
 
-  async function loadPendingPass() {
-    const nodes = Array.from(document.querySelectorAll('[data-component]:not([data-loaded])'));
-    if (!nodes.length) return false;
-    await Promise.all(nodes.map(loadComponent));
-    return true;
-  }
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => loadAll());
+} else {
+  loadAll();
+}
 
-  async function loadAll() {
-    // eslint-disable-next-line no-await-in-loop
-    while (await loadPendingPass()) { /* keep going while nested placeholders appear */ }
-    document.dispatchEvent(new CustomEvent('components:ready'));
-  }
-
-  document.addEventListener('DOMContentLoaded', loadAll);
-})();
+export { loadAll };

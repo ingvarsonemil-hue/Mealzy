@@ -11,7 +11,6 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'client/index.html'),
         pricing: resolve(__dirname, 'client/pricing.html'),
-        login: resolve(__dirname, 'client/login.html'),
       },
     },
   },

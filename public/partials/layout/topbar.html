@@ -12,12 +12,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="19" cy="12" r="1.75"/></svg>
     </button>
     <div id="topBarMenuPanel" class="card" style="display:none;position:absolute;top:calc(100% + 0.4rem);right:0;z-index:100;min-width:180px;padding:0.4rem !important;box-shadow:var(--shadow-lg);">
+      <button class="btn btn-ghost btn-sm" id="generateBtn" onclick="generateMealPlan();closeTopBarMenu();" title="Press G to generate" style="width:100%;justify-content:flex-start;"><span id="generateBtnLabel">Generate This Week's Plan</span></button>
       <button class="btn btn-ghost btn-sm" id="printBtn" onclick="printMealPlan();closeTopBarMenu();" title="Print your meal plan" style="width:100%;justify-content:flex-start;"><span data-i18n="btn_download_pdf">Print Plan</span></button>
       <button class="btn btn-ghost btn-sm" onclick="generateShareCard();closeTopBarMenu();" title="Download shareable image card" style="width:100%;justify-content:flex-start;"><span data-i18n="btn_share_card">Share Card</span></button>
     </div>
-    <button class="btn btn-primary" id="generateBtn" onclick="generateMealPlan()" title="Press G to generate" style="display:inline-flex;align-items:center;gap:0.4rem;min-height:44px;">
-      <span id="generateBtnLabel">Generate This Week's Plan</span>
-    </button>
   </div>
 </div>
 

@@ -1,0 +1,90 @@
+<!-- FREE LIMIT MODAL -->
+<div id="limitModal" role="dialog" aria-modal="true" aria-labelledby="limitModalTitle">
+  <div class="limit-modal-inner">
+    <div class="limit-modal-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <h2 id="limitModalTitle">Your first month is up</h2>
+    <p>Your free first month has ended. Upgrade to Pro for unlimited plans and everything below.</p>
+    <ul class="limit-features">
+      <li>Unlimited AI meal plans, every week</li>
+      <li>Full grocery list with one click</li>
+      <li>PDF export — print and take it shopping</li>
+      <li>Unlimited AI coaching with Mia</li>
+      <li>Advanced macros broken down per meal</li>
+    </ul>
+    <a href="upgrade.html" class="btn btn-primary" style="display:block;width:100%;text-align:center;font-size:1rem;padding:0.85rem;" onclick="localStorage.setItem&&localStorage.setItem('mealzy_upgrade_source','limit_modal')">
+      Start Pro — 7 Days Free
+    </a>
+    <button class="limit-modal-dismiss" onclick="closeLimitModal()">Not now</button>
+  </div>
+</div>
+
+<!-- WEEK MEAL POPUP -->
+<div id="weekMealPopup" style="display:none;position:fixed;z-index:200;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:0.75rem;padding:0.9rem 1.1rem;box-shadow:0 8px 24px rgba(26,61,43,0.14);min-width:180px;max-width:240px;pointer-events:auto;">
+  <div id="weekPopupType" style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--clr-muted-fg);margin-bottom:0.3rem;"></div>
+  <div id="weekPopupName" style="font-weight:700;font-size:0.92rem;margin-bottom:0.5rem;line-height:1.3;"></div>
+  <div id="weekPopupMeta" style="font-size:0.82rem;color:var(--clr-muted-fg);display:flex;flex-direction:column;gap:0.2rem;"></div>
+  <button onclick="closeWeekMealPopup()" style="position:absolute;top:0.5rem;right:0.6rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:1rem;line-height:1;padding:0;">×</button>
+</div>
+
+<!-- CUSTOM MEAL MODAL -->
+<div id="customMealModal" role="dialog" aria-modal="true" aria-labelledby="customMealModalTitle">
+  <div class="custom-meal-modal-inner">
+    <h2 id="customMealModalTitle">Add a custom meal</h2>
+    <form id="customMealForm" onsubmit="saveCustomMeal(event)">
+      <div class="custom-meal-grid">
+        <div class="custom-meal-field">
+          <label for="customMealName">Meal name</label>
+          <input type="text" id="customMealName" maxlength="120" required />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealType">Type</label>
+          <select id="customMealType">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+          </select>
+        </div>
+      </div>
+      <div class="custom-meal-field">
+        <label for="customMealDesc">Description</label>
+        <textarea id="customMealDesc" rows="2" maxlength="500"></textarea>
+      </div>
+      <div class="custom-meal-grid">
+        <div class="custom-meal-field">
+          <label for="customMealCalories">Calories (kcal)</label>
+          <input type="number" id="customMealCalories" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealCookTime">Cook time (min)</label>
+          <input type="number" id="customMealCookTime" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealProtein">Protein (g)</label>
+          <input type="number" id="customMealProtein" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealCarbs">Carbs (g)</label>
+          <input type="number" id="customMealCarbs" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealFat">Fat (g)</label>
+          <input type="number" id="customMealFat" min="0" step="1" />
+        </div>
+        <div class="custom-meal-field">
+          <label for="customMealCost">Est. cost</label>
+          <input type="number" id="customMealCost" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="custom-meal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeCustomMealModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save meal</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>

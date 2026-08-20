@@ -1,0 +1,10 @@
+<section class="card">
+  <div class="card__header">
+    <h2 class="card__title">Quick actions</h2>
+  </div>
+  <div class="quick-actions">
+    <button class="btn btn--ghost" data-action="grocery-list">Build grocery list</button>
+    <button class="btn btn--ghost" data-action="swap-meal">Swap a meal</button>
+    <button class="btn btn--ghost" data-action="adjust-budget">Adjust budget</button>
+  </div>
+</section>

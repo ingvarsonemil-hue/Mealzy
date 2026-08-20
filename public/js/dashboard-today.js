@@ -68,7 +68,14 @@ async function refreshProfileFromServer() {
 
 let serverUser = null;
 let todayMeals = [];
-const today = new Date().toISOString().split('T')[0];
+// Local date (YYYY-MM-DD), not toISOString() (UTC) — must match server.js's getLocalDateString().
+function toLocalDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+const today = toLocalDateStr(new Date());
 let favoriteKeys = new Set();
 
 async function loadFavorites() {
@@ -220,7 +227,7 @@ function getMondayStr(date) {
   const d = new Date(date);
   const monday = new Date(d);
   monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return monday.toISOString().split('T')[0];
+  return toLocalDateStr(monday);
 }
 
 async function loadTodayData() {

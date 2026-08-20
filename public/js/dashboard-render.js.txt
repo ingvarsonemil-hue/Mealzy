@@ -1,0 +1,145 @@
+import { fetchDashboard } from './dashboard-api.js';
+
+const fmtCurrency = (n) => `$${(Number(n) || 0).toFixed(2)}`;
+const fmtInt = (n) => String(Math.round(Number(n) || 0));
+const pct = (used, total) => (total > 0)
+  ? Math.min(100, Math.max(0, (used / total) * 100))
+  : 0;
+
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+function setText(root, key, value) {
+  const el = root.querySelector(`[data-${key}]`);
+  if (el) el.textContent = value;
+}
+
+function renderBudget(root, budget) {
+  const filled = root.querySelector('[data-component-root="budget"]');
+  const empty = root.querySelector('[data-component-root="budget-empty"]');
+  if (!budget || !budget.total) {
+    if (filled) filled.style.display = 'none';
+    if (empty) empty.hidden = false;
+    return;
+  }
+  if (empty) empty.hidden = true;
+  if (filled) filled.style.display = '';
+
+  const spent = Number(budget.spent) || 0;
+  const total = Number(budget.total) || 0;
+  const remaining = Math.max(0, total - spent);
+  const days = Math.max(0, Number(budget.daysLeft) || 0);
+  const daily = days > 0 ? remaining / days : 0;
+  const used = pct(spent, total);
+
+  setText(root, 'budget=remaining-value', remaining.toFixed(2));
+  setText(root, 'budget=total', fmtCurrency(total));
+  setText(root, 'budget=spent', fmtCurrency(spent));
+  setText(root, 'budget=days', fmtInt(days));
+  setText(root, 'budget=daily', fmtCurrency(daily));
+
+  const fill = root.querySelector('[data-budget="fill"]');
+  if (fill) fill.style.width = `${used}%`;
+
+  const status = root.querySelector('[data-budget="status"]');
+  if (status) {
+    status.classList.remove('pill--warn', 'pill--danger');
+    if (used >= 100) { status.textContent = 'Over budget'; status.classList.add('pill--danger'); }
+    else if (used >= 80) { status.textContent = 'Watch spend'; status.classList.add('pill--warn'); }
+    else { status.textContent = 'On track'; }
+  }
+}
+
+function renderMacros(root, macros) {
+  if (!macros) return;
+  ['calories', 'protein', 'carbs', 'fat'].forEach((k) => {
+    setText(root, `macro=${k}`, fmtInt(macros[k]));
+  });
+}
+
+function renderMeals(root, meals) {
+  const list = root.querySelector('[data-meals="list"]');
+  const empty = root.querySelector('[data-component-root="meals-empty"]');
+  if (!meals || !meals.length) {
+    if (list) list.innerHTML = '';
+    if (empty) empty.hidden = false;
+    return;
+  }
+  if (empty) empty.hidden = true;
+  if (!list) return;
+
+  list.innerHTML = meals.map((m) => `
+    <li class="meal-row">
+      <img class="meal-row__thumb" src="${escapeHtml(m.thumb || '/img/placeholder.svg')}" alt="" loading="lazy" />
+      <div>
+        <div class="meal-row__name">${escapeHtml(m.name)}</div>
+        <div class="meal-row__sub">${escapeHtml(m.day || '')}${m.mealType ? ` · ${escapeHtml(m.mealType)}` : ''}</div>
+      </div>
+      <div class="meal-row__price">${fmtCurrency(m.cost)}</div>
+    </li>
+  `).join('');
+}
+
+function renderActivity(root, activity) {
+  const list = root.querySelector('[data-activity="list"]');
+  if (!list) return;
+  if (!activity || !activity.length) {
+    list.innerHTML = `<p style="font-size:13px; color:var(--color-text-muted);">No recent activity.</p>`;
+    return;
+  }
+  list.innerHTML = activity.map((a) => `
+    <div class="activity-item">
+      <div class="activity-item__dot"></div>
+      <div class="activity-item__body">
+        <div class="activity-item__title">${escapeHtml(a.title)}</div>
+        <div class="activity-item__time">${escapeHtml(a.time)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+const ROUTES = {
+  'set-budget':     '/settings/budget',
+  'adjust-budget':  '/settings/budget',
+  'generate-plan':  '/meals/generate',
+  'regenerate':     '/meals/generate',
+  'grocery-list':   '/groceries',
+  'swap-meal':      '/meals/swap',
+};
+
+function bindActions(root) {
+  root.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    if (action === 'refresh') { loadDashboard(root); return; }
+    const route = ROUTES[action];
+    if (route) window.location.href = route;
+  });
+}
+
+async function loadDashboard(root) {
+  try {
+    const data = await fetchDashboard();
+    renderBudget(root, data.budget);
+    renderMacros(root, data.macros);
+    renderMeals(root, data.meals);
+    renderActivity(root, data.activity);
+  } catch (err) {
+    console.error('[dashboard] load failed', err);
+  }
+}
+
+function initDashboard() {
+  const root = document.querySelector('[data-component="dashboard/shell"]');
+  if (!root) return;
+  bindActions(root);
+  loadDashboard(root);
+}
+
+document.addEventListener('components:ready', () => {
+  initDashboard();
+});

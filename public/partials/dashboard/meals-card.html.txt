@@ -1,0 +1,18 @@
+<section class="card">
+  <div class="card__header">
+    <h2 class="card__title">This week's meals</h2>
+    <button class="btn btn--ghost" data-action="regenerate">Regenerate</button>
+  </div>
+
+  <div data-component-root="meals-empty" hidden>
+    <div class="empty-state">
+      <div>
+        <div class="empty-state__title">No meals planned yet</div>
+        <p class="empty-state__desc">Generate a meal plan that fits your budget and macros automatically.</p>
+      </div>
+      <button class="btn btn--primary" data-action="generate-plan">Generate your first meal plan</button>
+    </div>
+  </div>
+
+  <ul class="meal-list" data-meals="list"></ul>
+</section>

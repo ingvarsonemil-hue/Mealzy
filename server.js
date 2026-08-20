@@ -1,8 +1,8 @@
-﻿/**
+/**
  * Mealzy server.js
  *
- * Sessions  : stateless JWT in httpOnly cookie â€” survive server restarts
- * Persistence: SQLite via sql.js (see db.js) â€” survives browser clears
+ * Sessions  : stateless JWT in httpOnly cookie — survive server restarts
+ * Persistence: SQLite via sql.js (see db.js) — survives browser clears
  * Payments   : Stripe webhook activates Pro server-side, regardless of redirect
  */
 
@@ -10,7 +10,7 @@
 
 require('dotenv').config();
 
-// â”€â”€ JWT secret guard â€” refuse to start without it â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── JWT secret guard — refuse to start without it ───────────────────────────
 if (!process.env.JWT_SECRET) {
   console.error('[FATAL] JWT_SECRET is not set. Set it in .env or Render env vars before starting.');
   process.exit(1);
@@ -27,7 +27,7 @@ const Anthropic    = require('@anthropic-ai/sdk');
 const winston      = require('winston');
 const db           = require('./db');
 
-// â”€â”€ Structured logging â€” replaces console.log/error throughout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Structured logging — replaces console.log/error throughout ──────────────
 const logger = winston.createLogger({
   level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: winston.format.combine(
@@ -39,7 +39,7 @@ const logger = winston.createLogger({
   ),
   transports: [
     new winston.transports.Console(),
-    // In production on Render, logs go to stdout â€” no file needed.
+    // In production on Render, logs go to stdout — no file needed.
     // Locally, also write errors to a file for easier debugging:
     ...(process.env.NODE_ENV !== 'production'
       ? [new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
@@ -48,7 +48,7 @@ const logger = winston.createLogger({
   ]
 });
 
-// Make logger globally available â€” Morgan should replace console.log with logger calls over time
+// Make logger globally available — Morgan should replace console.log with logger calls over time
 global.log = logger;
 
 const app  = express();
@@ -61,9 +61,9 @@ app.disable('x-powered-by');
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
 const MAX_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-// Note: analytics.json and leads.json were legacy flat-file stores â€” all analytics now live in SQLite via await db.logEvent()
+// Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
-// â”€â”€ Explicit output shapes â€” define exactly what each endpoint returns to clients â”€â”€
+// ── Explicit output shapes — define exactly what each endpoint returns to clients ──
 const OutputShapes = {
   User: (user, includeRefCode = false) => ({
     id: user.id,
@@ -94,7 +94,7 @@ const OutputShapes = {
   })
 };
 
-// â”€â”€ Security headers on every response â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Security headers on every response ────────────────────────────────────────
 // Shared by the global fallback middleware below and the express.static
 // setHeaders() callbacks, so static assets (.html/.js/.css/.json) carry the
 // same headers as every other route even if middleware ordering ever changes.
@@ -125,7 +125,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// â”€â”€ Admin middleware â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Admin middleware ───────────────────────────────────────────────────────────
 function requireAdmin(req, res, next) {
   const token = req.headers['x-admin-token'];
   const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
@@ -136,14 +136,14 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// â”€â”€ Stripe webhook needs raw body â€” must be BEFORE express.json() â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Stripe webhook needs raw body — must be BEFORE express.json() ──────────────
 app.post(
   '/api/stripe/webhook',
   express.raw({ type: 'application/json' }),
   handleStripeWebhook
 );
 
-// â”€â”€ Explicit CORS configuration with allowlist â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Explicit CORS configuration with allowlist ─────────────────────────────────
 const cors = require('cors');
 const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
   ? ['https://mealzy.org', 'https://www.mealzy.org']
@@ -160,7 +160,7 @@ app.use((req, res, next) => {
   express.json({ limit: '64kb' })(req, res, next);
 });
 
-// â”€â”€ Page view tracking (fires before static files are served) â”€â”€
+// ── Page view tracking (fires before static files are served) ──────────────────
 app.use((req, res, next) => {
   if (req.method === 'GET' && (req.path.endsWith('.html') || req.path === '/')) {
     const page = req.path === '/' ? '/index.html' : req.path;
@@ -175,7 +175,7 @@ app.get('/privacy.html', (req, res) => {
   res.redirect(301, '/privacy-policy.html');
 });
 
-// â”€â”€ React marketing pages (see vite.config.mjs for the full page list) â”€â”€â”€â”€â”€â”€
+// ── React marketing pages (see vite.config.mjs for the full page list) ────────
 // vite build outputs dist/ (index.html, pricing.html, login.html, etc. +
 // hashed assets). When present, dist/ wins for every page it builds; app
 // pages with no React version (dashboard, meal-planner, settings, ...)
@@ -188,14 +188,14 @@ if (hasDistBuild) {
   app.use(express.static(distDir, {
     setHeaders: (res, filePath) => {
       setSecurityHeaders(res);
-      // Vite assets are content-hashed â€” safe to cache forever
+      // Vite assets are content-hashed — safe to cache forever
       if (filePath.includes(`${path.sep}assets${path.sep}`)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       }
     }
   }));
 } else {
-  logger.error('[startup] dist/ build missing â€” serving legacy public/ pages. Run npm run build.');
+  logger.error('[startup] dist/ build missing — serving legacy public/ pages. Run npm run build.');
 }
 
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -207,7 +207,7 @@ app.get('/tiktok5D5PTssMk9TzIVSQAXCcHPlwQwQ52nQc.txt', async (req, res) => {
   res.type('text/plain').send('tiktok-developers-site-verification=5D5PTssMk9TzIVSQAXCcHPIwQwQ52nQc');
 });
 
-// â”€â”€ Rate limiters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Rate limiters ──────────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 60 * 1000,   // 1 minute
   max: 10,
@@ -225,26 +225,26 @@ const generateLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "You're generating plans fast â€” wait 60 seconds and try again." }
+  message: { error: "You're generating plans fast — wait 60 seconds and try again." }
 });
 
-// Demo meal limiter â€” 3 per IP per 24 hours (no account required)
+// Demo meal limiter — 3 per IP per 24 hours (no account required)
 const demoLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000,
   max: 3,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'demo_limit', message: "You've used today's 3 free demos. Create a free account â€” it only takes 30 seconds." }
+  message: { error: 'demo_limit', message: "You've used today's 3 free demos. Create a free account — it only takes 30 seconds." }
 });
 
-// AI coach / grocery list limiter â€” both call Anthropic and require a session,
+// AI coach / grocery list limiter — both call Anthropic and require a session,
 // so this only bounds how fast a logged-in user can spend API budget.
 const aiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "You're sending requests too fast â€” wait 60 seconds and try again." }
+  message: { error: "You're sending requests too fast — wait 60 seconds and try again." }
 });
 
 const trackLimiter = rateLimit({
@@ -263,7 +263,7 @@ const leadLimiter = rateLimit({
   message: { error: 'Too many requests, please slow down.' }
 });
 
-// Stripe-touching routes â€” bound how fast a session can hit the Stripe API
+// Stripe-touching routes — bound how fast a session can hit the Stripe API
 const stripeLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 10,
@@ -272,7 +272,7 @@ const stripeLimiter = rateLimit({
   message: { error: 'Too many requests, please slow down.' }
 });
 
-// Admin routes â€” defense in depth on top of the token check itself
+// Admin routes — defense in depth on top of the token check itself
 const adminLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
@@ -281,7 +281,7 @@ const adminLimiter = rateLimit({
   message: { error: 'Too many requests, please slow down.' }
 });
 
-// Cron routes â€” guarded by CRON_SECRET, but bound retry/brute-force speed too
+// Cron routes — guarded by CRON_SECRET, but bound retry/brute-force speed too
 const cronLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 5,
@@ -291,7 +291,7 @@ const cronLimiter = rateLimit({
 });
 
 // Catch-all safety net for every other /api/* route not covered by a
-// purpose-specific limiter above. /api/health is exempt â€” keep-alive.yml
+// purpose-specific limiter above. /api/health is exempt — keep-alive.yml
 // pings it every 9 minutes and it does no paid or expensive work.
 const generalApiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -303,7 +303,7 @@ const generalApiLimiter = rateLimit({
 });
 app.use('/api/', generalApiLimiter);
 
-// â”€â”€ Cookie helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Cookie helpers ─────────────────────────────────────────────────────────────
 function parseCookies(req) {
   const cookies = {};
   const header = req.headers.cookie || '';
@@ -406,13 +406,13 @@ async function optionalSession(req, res, next) {
       }
     } catch (err) {
       logger.error('[session] optional lookup error', { message: err.message });
-      // fall through as anonymous â€” do not fail the request
+      // fall through as anonymous — do not fail the request
     }
   }
   next();
 }
 
-// â”€â”€ Input sanitisation helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Input sanitisation helpers ────────────────────────────────────────────────
 function sanitise(val, maxLen = 500) {
   if (typeof val !== 'string') return '';
   return val.trim().slice(0, maxLen);
@@ -425,13 +425,13 @@ function capList(arr, maxItems, maxLen) {
     .map(x => sanitise(x, maxLen));
 }
 
-// â”€â”€ Email format validation (RFC-5322-ish, deliberately conservative) â”€â”€â”€â”€â”€â”€
+// ── Email format validation (RFC-5322-ish, deliberately conservative) ────────
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function isValidEmail(email) {
   return typeof email === 'string' && email.length <= 254 && EMAIL_RE.test(email);
 }
 
-// â”€â”€ HTML escape for email and HTML context â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── HTML escape for email and HTML context ────────────────────────────────────
 function escapeHtml(str) {
   if (typeof str !== 'string') return '';
   const map = {
@@ -444,24 +444,24 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, (char) => map[char]);
 }
 
-// â”€â”€ Constant-time string comparison (prevents timing attacks) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Constant-time string comparison (prevents timing attacks) ────────────────
 function timingSafeCompare(a, b) {
   try {
     return timingSafeEqual(Buffer.from(a), Buffer.from(b));
   } catch (e) {
-    // Lengths don't match â€” use fake comparison to prevent timing leak
+    // Lengths don't match — use fake comparison to prevent timing leak
     return false;
   }
 }
 
-// â”€â”€ Common weak passwords to reject â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Common weak passwords to reject ───────────────────────────────────────────
 const COMMON_PASSWORDS = new Set([
   'password', 'password123', '123456789', 'qwerty', 'abc123', 'letmein', 'welcome',
   'monkey', 'dragon', 'master', 'admin', 'sunshine', 'princess', 'football', 'shadow',
   'michael', 'batman', 'trustno1', 'starwars', 'superman', 'password1', 'admin123'
 ]);
 
-// â”€â”€ Password strength validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Password strength validation ──────────────────────────────────────────────
 function validatePasswordStrength(password) {
   if (password.length < 12) {
     return { valid: false, message: 'Password must be at least 12 characters.' };
@@ -481,12 +481,12 @@ function validatePasswordStrength(password) {
   return { valid: true };
 }
 
-// â”€â”€ In-memory usage tracker (free-plan generation cap) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── In-memory usage tracker (free-plan generation cap) ───────────────────────
 const usageTracker = new Map();
-const FREE_PLAN_LIMIT = 3; // anonymous (no-session) requests only â€” logged-in free users use the 30-day daily trial below
+const FREE_PLAN_LIMIT = 3; // anonymous (no-session) requests only — logged-in free users use the 30-day daily trial below
 const referralBonus   = new Map(); // kept for in-session backward compat; SQLite is source of truth
 
-// â”€â”€ Free-tier: daily plan for the first 30 days, then 1 plan every 7 days forever (logged-in users) â”€â”€
+// ── Free-tier: daily plan for the first 30 days, then 1 plan every 7 days forever (logged-in users) ──
 const TRIAL_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 const WEEKLY_PLAN_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -509,7 +509,7 @@ function getLocalDateString(timezone) {
   }).format(new Date());
 }
 
-// â”€â”€ Failed login tracking â€” per-account rate limiting and lockout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Failed login tracking — per-account rate limiting and lockout ─────────────
 const failedLoginAttempts = new Map(); // "email|ip" -> { count, lastAttempt, lockedUntil }
 const MAX_FAILED_ATTEMPTS = 10;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000; // 15 minutes
@@ -568,7 +568,7 @@ function recordFailedLogin(email, ip) {
 
 function clearFailedLogins(email, ip) {
   failedLoginAttempts.delete(failKey(email, ip));
-  // Deliberately do NOT clear ipFailedAttempts here â€” a successful login
+  // Deliberately do NOT clear ipFailedAttempts here — a successful login
   // on one account must not reset an attacker's spray-attempt counter
   // against other accounts from the same IP.
 }
@@ -590,7 +590,7 @@ setInterval(() => {
 
 
 
-// Constant-time filler for signin timing â€” computed once at startup so the
+// Constant-time filler for signin timing — computed once at startup so the
 // no-such-user / wrong-password / legacy-account paths all pay the same
 // bcrypt.compare() cost and don't leak account existence via response time.
 const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing-safety', 12);
@@ -625,18 +625,18 @@ async function getEffectiveLimit(email) {
   return FREE_PLAN_LIMIT + memBonus;
 }
 
-// Fix: Windows system env vars can override .env with empty string â€” read .env directly as fallback
+// Fix: Windows system env vars can override .env with empty string — read .env directly as fallback
 const _anthropicKey = (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY.trim())
   || (() => { try { return require('fs').readFileSync('.env','utf8').split('\n').find(l=>l.startsWith('ANTHROPIC_API_KEY='))?.split('=').slice(1).join('=').trim(); } catch(e){} })()
   || '';
-if (!_anthropicKey) logger.warn('[WARN] ANTHROPIC_API_KEY is not set â€” AI features will fail');
+if (!_anthropicKey) logger.warn('[WARN] ANTHROPIC_API_KEY is not set — AI features will fail');
 else logger.info('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + ')');
 const anthropic = new Anthropic({ apiKey: _anthropicKey });
 
 const DAILY_SPEND_CAP_USD = Number(process.env.DAILY_SPEND_CAP_USD) || 5;
 // Per-model pricing, confirmed current as of August 2026.
 // Cache-read/cache-creation tokens are billed cheaper by Anthropic, but
-// we deliberately count them at the full input rate here â€” this is a
+// we deliberately count them at the full input rate here — this is a
 // safety backstop, not a billing reconciliation, so it's correct to
 // slightly OVERestimate real spend rather than risk underestimating it.
 const MODEL_PRICING = {
@@ -652,19 +652,19 @@ const FALLBACK_PRICING = Object.values(MODEL_PRICING).reduce((max, p) =>
 function getModelPricing(model) {
   const pricing = MODEL_PRICING[model];
   if (pricing) return pricing;
-  logger.warn('[spend-cap] Unknown model â€” using most expensive known rate as a fail-safe', { model });
+  logger.warn('[spend-cap] Unknown model — using most expensive known rate as a fail-safe', { model });
   return FALLBACK_PRICING;
 }
 
 // Known limitation: under high concurrency, multiple simultaneous requests
 // could all pass the pre-check before any of them records its spend,
 // allowing a small overshoot right at the cap boundary. Acceptable for a
-// safety backstop at this traffic scale â€” not worth adding transaction
+// safety backstop at this traffic scale — not worth adding transaction
 // locking for.
 async function callAnthropicWithSpendCap(params) {
   const currentSpend = await db.getDailySpend();
   if (currentSpend >= DAILY_SPEND_CAP_USD) {
-    logger.error('[spend-cap] Daily Anthropic spend cap reached â€” blocking call', {
+    logger.error('[spend-cap] Daily Anthropic spend cap reached — blocking call', {
       currentSpend, cap: DAILY_SPEND_CAP_USD
     });
     const err = new Error('daily_spend_cap_reached');
@@ -678,7 +678,7 @@ async function callAnthropicWithSpendCap(params) {
     + (usage.cache_read_input_tokens || 0);
   const outputTokens = usage.output_tokens || 0;
   // completion.model is the model the API actually ran, echoed back by
-  // Anthropic â€” more trustworthy than the requested params.model.
+  // Anthropic — more trustworthy than the requested params.model.
   const pricing = getModelPricing(completion.model || params.model);
   const cost = (inputTokens * pricing.input) + (outputTokens * pricing.output);
   db.addDailySpend(cost).catch(err => {
@@ -687,14 +687,14 @@ async function callAnthropicWithSpendCap(params) {
   return completion;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// EMAIL UTILITY (Resend API â€” set RESEND_API_KEY in Render env vars)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// EMAIL UTILITY (Resend API — set RESEND_API_KEY in Render env vars)
+// ════════════════════════════════════════════════════════════════════════════
 
 async function sendEmail(to, subject, html) {
   if (!process.env.RESEND_API_KEY) {
-    // Graceful fallback â€” log so Emil can copy-paste the link during dev
-    logger.debug(`[email] RESEND_API_KEY not set â€” would send subject: ${subject}`);
+    // Graceful fallback — log so Emil can copy-paste the link during dev
+    logger.debug(`[email] RESEND_API_KEY not set — would send subject: ${subject}`);
     return { ok: false, reason: 'no_api_key' };
   }
   try {
@@ -716,7 +716,7 @@ async function sendEmail(to, subject, html) {
       console.error('[email] Resend error:', data);
       return { ok: false, error: data };
     }
-    logger.info(`[email] Sent â€” id: ${data.id}`);
+    logger.info(`[email] Sent — id: ${data.id}`);
     return { ok: true, id: data.id };
   } catch(err) {
     console.error('[email] sendEmail error:', err.message);
@@ -724,7 +724,7 @@ async function sendEmail(to, subject, html) {
   }
 }
 
-// â”€â”€ Email HTML templates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Email HTML templates ───────────────────────────────────────────────────────
 
 function emailBase(content) {
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
@@ -733,13 +733,13 @@ function emailBase(content) {
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
         <tr><td style="background:#3d8b5e;padding:24px 32px;border-radius:12px 12px 0 0;text-align:center;">
-          <span style="color:white;font-size:22px;font-weight:800;letter-spacing:-0.5px;">ðŸ¥— Mealzy</span>
+          <span style="color:white;font-size:22px;font-weight:800;letter-spacing:-0.5px;">🥗 Mealzy</span>
         </td></tr>
         <tr><td style="background:#ffffff;padding:32px;border-radius:0 0 12px 12px;">
           ${content}
           <hr style="border:none;border-top:1px solid #e8f0eb;margin:28px 0"/>
           <p style="color:#888;font-size:12px;text-align:center;margin:0;">
-            Mealzy Â· <a href="https://mealzy.org" style="color:#3d8b5e;text-decoration:none;">mealzy.org</a> Â·
+            Mealzy · <a href="https://mealzy.org" style="color:#3d8b5e;text-decoration:none;">mealzy.org</a> ·
             Questions? <a href="mailto:support@mealzy.org" style="color:#3d8b5e;text-decoration:none;">support@mealzy.org</a>
           </p>
         </td></tr>
@@ -755,7 +755,7 @@ function emailPasswordReset(name, resetUrl) {
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Reset your password</h2>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, here's your password reset link. It expires in 1 hour.</p>
-    <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password â†’</a>
+    <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Reset My Password →</a>
     <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
     <p style="color:#aaa;font-size:12px;margin-top:16px;">If you didn't request this, ignore this email. Your password won't change.</p>
   `);
@@ -765,10 +765,10 @@ function emailAccountExists(name) {
   const safeName = escapeHtml(name || 'there');
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Someone tried to sign up with your email</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, someone just tried to create a Mealzy account using this email address. You already have an account â€” if this was you, just sign in instead.</p>
-    <a href="https://mealzy.org/login.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Sign In â†’</a>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, someone just tried to create a Mealzy account using this email address. You already have an account — if this was you, just sign in instead.</p>
+    <a href="https://mealzy.org/login.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Sign In →</a>
     <p style="color:#888;font-size:13px;margin:0;">Forgot your password? <a href="https://mealzy.org/login.html" style="color:#3d8b5e;text-decoration:none;">Reset it here</a>.</p>
-    <p style="color:#aaa;font-size:12px;margin-top:16px;">If this wasn't you, no action is needed â€” your account is safe and nothing has changed.</p>
+    <p style="color:#aaa;font-size:12px;margin-top:16px;">If this wasn't you, no action is needed — your account is safe and nothing has changed.</p>
   `);
 }
 
@@ -779,7 +779,7 @@ function emailVerifyAddress(name, verifyUrl) {
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Verify your email</h2>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName}, welcome to Mealzy! Please verify your email to unlock AI meal plans, grocery lists, and the coach. This link expires in 24 hours.</p>
-    <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Verify My Email â†’</a>
+    <a href="${safeUrl}" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Verify My Email →</a>
     <p style="color:#888;font-size:13px;margin:0;">Or paste this link in your browser:<br/><span style="color:#3d8b5e;word-break:break-all;">${safeUrl}</span></p>
   `);
 }
@@ -788,13 +788,13 @@ function emailVerifyAddress(name, verifyUrl) {
 function emailDay3Nudge(name, plansLeft) {
   const safeName = escapeHtml(name || 'there');
   return emailBase(`
-    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You've got ${plansLeft} free plan${plansLeft !== 1 ? 's' : ''} left this month ðŸ¥—</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} â€” you signed up 3 days ago. Here's what Pro unlocks when you're ready:</p>
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You've got ${plansLeft} free plan${plansLeft !== 1 ? 's' : ''} left this month 🥗</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — you signed up 3 days ago. Here's what Pro unlocks when you're ready:</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
-      ${['Unlimited AI meal plans â€” every week, every goal change', 'PDF export â€” print your plan, take it to the shop', 'Unlimited AI coaching with Mia â€” ask anything, any time', 'Advanced macros per meal â€” protein, carbs, fat broken down'].map(f => `
-      <tr><td style="padding:6px 0;color:#333;font-size:14px;">âœ… ${f}</td></tr>`).join('')}
+      ${['Unlimited AI meal plans — every week, every goal change', 'PDF export — print your plan, take it to the shop', 'Unlimited AI coaching with Mia — ask anything, any time', 'Advanced macros per meal — protein, carbs, fat broken down'].map(f => `
+      <tr><td style="padding:6px 0;color:#333;font-size:14px;">✅ ${f}</td></tr>`).join('')}
     </table>
-    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Upgrade to Pro â†’</a>
+    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Upgrade to Pro →</a>
     <p style="color:#888;font-size:13px;margin:0;">$8/month. Cancel any time with one click.</p>
   `);
 }
@@ -802,10 +802,10 @@ function emailDay3Nudge(name, plansLeft) {
 function emailLimitHit(name) {
   const safeName = escapeHtml(name || 'there');
   return emailBase(`
-    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You hit your free plan limit ðŸš€</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} â€” you've used all your free plans this month. That means you're actually using Mealzy â€” which is great.</p>
+    <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You hit your free plan limit 🚀</h2>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — you've used all your free plans this month. That means you're actually using Mealzy — which is great.</p>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Upgrade to Pro and never hit a limit again. You'll be billed right away when you upgrade.</p>
-    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Upgrade to Pro â†’</a>
+    <a href="https://mealzy.org/upgrade.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Upgrade to Pro →</a>
     <p style="color:#888;font-size:13px;margin:0;">$8/month. Cancel any time.</p>
   `);
 }
@@ -815,30 +815,30 @@ function emailReferralReward(name, referredName) {
   const safeReferred = escapeHtml(referredName || 'someone you referred');
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">You earned a free plan!</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} â€” ${safeReferred} just upgraded to Pro. As a thank you, we've added an extra plan to your account this month.</p>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 16px;">Hi ${safeName} — ${safeReferred} just upgraded to Pro. As a thank you, we've added an extra plan to your account this month.</p>
     <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Keep referring friends to earn more free plans.</p>
-    <a href="https://mealzy.org/dashboard.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Go to My Dashboard â†’</a>
+    <a href="https://mealzy.org/dashboard.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:16px;">Go to My Dashboard →</a>
   `);
 }
 
 function emailWeeklyDigest(name, isPro) {
   const safeName = escapeHtml(name || 'there');
   const upgradeSection = !isPro
-    ? `<p style="color:#555;font-size:14px;line-height:1.6;margin:0;">Running low on free plans? <strong>Pro unlocks unlimited plans for $8/month.</strong> <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;text-decoration:none;font-weight:700;">Upgrade now â†’</a></p>`
+    ? `<p style="color:#555;font-size:14px;line-height:1.6;margin:0;">Running low on free plans? <strong>Pro unlocks unlimited plans for $8/month.</strong> <a href="https://mealzy.org/upgrade.html" style="color:#3d8b5e;text-decoration:none;font-weight:700;">Upgrade now →</a></p>`
     : '';
   return emailBase(`
     <h2 style="color:#1a1a1a;font-size:22px;font-weight:800;margin:0 0 12px;">Your meal plan for this week is waiting.</h2>
-    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName} â€” it's Monday. Takes 30 seconds to plan your whole week.</p>
-    <a href="https://mealzy.org/meal-planner.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Generate This Week's Plan â†’</a>
+    <p style="color:#555;font-size:15px;line-height:1.6;margin:0 0 24px;">Hi ${safeName} — it's Monday. Takes 30 seconds to plan your whole week.</p>
+    <a href="https://mealzy.org/meal-planner.html" style="display:inline-block;background:#3d8b5e;color:white;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:24px;">Generate This Week's Plan →</a>
     <p style="color:#888;font-size:13px;margin:0 0 24px;">Your calorie target and budget are already saved. Just hit generate.</p>
     <hr style="border:none;border-top:1px solid #e8f0eb;margin:24px 0"/>
     ${upgradeSection}
   `);
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// HEALTH
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// HEALTH & DASHBOARD APIs
+// ════════════════════════════════════════════════════════════════════════════
 
 app.get('/api/health', async (req, res) => {
   let dbOk = false;
@@ -852,14 +852,70 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-// â”€â”€ Stripe payment links â€” served from env vars so links update without code deploys â”€â”€
+// ── Dashboard APIs (Production-ready) ────────────────────────────────────────
+app.get('/api/v1/budget', requireSession, async (req, res) => {
+  try {
+    const profile = await db.getProfile(req.session.userId) || {};
+    const total = Number(profile.budget_weekly || profile.budget || 0);
+    // Calculate days left in the week (assuming week starts Monday)
+    const today = new Date();
+    const dayOfWeek = (today.getDay() + 6) % 7; // 0 = Monday
+    const daysLeft = 7 - dayOfWeek;
+    res.json({ total, spent: 0, daysLeft }); // Spent requires grocery list aggregation
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load budget' });
+  }
+});
+
+app.get('/api/v1/macros/today', requireSession, async (req, res) => {
+  try {
+    const profile = await db.getProfile(req.session.userId) || {};
+    res.json({
+      calories: Number(profile.daily_calories || profile.dailyCalories || 2000),
+      protein: Number(profile.daily_protein || profile.macros?.protein || 150),
+      carbs: Number(profile.daily_carbs || profile.macros?.carbs || 200),
+      fat: Number(profile.daily_fat || profile.macros?.fat || 65)
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load macros' });
+  }
+});
+
+app.get('/api/v1/meals/week', requireSession, async (req, res) => {
+  try {
+    const plans = await db.getRecentPlans(req.session.userId, 1);
+    if (!plans.length || !plans[0]?.plan?.meals) {
+      return res.json([]); // Triggers the empty state in the UI
+    }
+    // Flatten the week's meals into a simple array for the UI
+    const meals = plans[0].plan.meals.slice(0, 5).map(m => ({
+      name: m.name,
+      day: m.day || 'This Week',
+      mealType: m.type,
+      cost: Number(m.estimatedCost || 0),
+      thumb: m.image_url || ''
+    }));
+    res.json(meals);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load meals' });
+  }
+});
+
+app.get('/api/v1/activity', requireSession, async (req, res) => {
+  // Return a static welcome message, or query db.logEvent if you build an activity feed later
+  res.json([
+    { title: 'Welcome to your new dashboard', time: 'Just now' }
+  ]);
+});
+
+// ── Stripe payment links — served from env vars so links update without code deploys ──
 // To add a new plan: set the env var in .env (local) + Render dashboard (production), redeploy.
 const STRIPE_MONTHLY_FALLBACK = 'https://buy.stripe.com/28E28r1Q73q0e6neQRffy00';
 app.get('/stripe-config.js', async (req, res) => {
   const monthly        = process.env.STRIPE_MONTHLY_URL        || STRIPE_MONTHLY_FALLBACK;
   const annual         = process.env.STRIPE_ANNUAL_URL         || monthly; // falls back to monthly if annual not set
   // Family and the abandonment discount must never silently resolve to the Pro
-  // monthly link â€” that would charge (or promise) the wrong price. null here
+  // monthly link — that would charge (or promise) the wrong price. null here
   // means "not configured"; callers must check the *_READY flag before using it.
   const familyMonthly  = process.env.STRIPE_FAMILY_MONTHLY_URL || null;
   const familyAnnual   = process.env.STRIPE_FAMILY_ANNUAL_URL  || null;
@@ -876,9 +932,9 @@ app.get('/stripe-config.js', async (req, res) => {
   );
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // AUTH ENDPOINTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/auth/signup
 app.post('/api/auth/signup', authLimiter, async (req, res) => {
@@ -919,7 +975,7 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
     try { await db.createVerificationToken(verifyTokenHash, userId, verifyExpiresAt); } catch(e) {}
     const verifyHost = process.env.APP_URL || 'https://mealzy.org';
     const verifyUrl = `${verifyHost}/verify-email.html?token=${rawVerifyToken}`;
-    sendEmail(email, 'Verify your email â€” Mealzy', emailVerifyAddress(name, verifyUrl)).catch(() => {});
+    sendEmail(email, 'Verify your email — Mealzy', emailVerifyAddress(name, verifyUrl)).catch(() => {});
 
     await db.logEvent('signup', { userId }, '');
 
@@ -971,7 +1027,7 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
     const storedHash = user.hashed_password || '';
 
     if (!/^\$2[aby]\$/.test(storedHash)) {
-      // Pre-migration account â€” no bcrypt hash to compare against. Reject up front
+      // Pre-migration account — no bcrypt hash to compare against. Reject up front
       // rather than falling through to a comparison that can never succeed.
       logger.warn('[auth] Legacy pre-bcrypt account attempted login', { email });
       await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
@@ -993,7 +1049,7 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
     }
 
-    // Success â€” clear failed login attempts for this account
+    // Success — clear failed login attempts for this account
     clearFailedLogins(email, ip);
     setJwtCookie(res, buildSessionPayload(user));
     res.json({ success: true, user: OutputShapes.User(user) });
@@ -1003,7 +1059,7 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
   }
 });
 
-// GET /api/auth/me â€” returns current user (with profile) if JWT is valid
+// GET /api/auth/me — returns current user (with profile) if JWT is valid
 app.get('/api/auth/me', requireSession, async (req, res) => {
   const session = req.session;
 
@@ -1036,7 +1092,7 @@ app.post('/api/auth/signout', async (req, res) => {
   res.json({ success: true });
 });
 
-// POST /api/auth/signout-all â€” revoke all existing sessions for this user
+// POST /api/auth/signout-all — revoke all existing sessions for this user
 app.post('/api/auth/signout-all', requireSession, async (req, res) => {
   try {
     await db.bumpTokenVersion(req.session.userId);
@@ -1095,11 +1151,11 @@ app.post('/api/auth/reset-confirm', authLimiter, async (req, res) => {
     const incomingHash = require('crypto').createHash('sha256').update(sanitise(req.body.token, 36)).digest('hex');
     const record = await db.getResetToken(incomingHash);
     if (!record) {
-      return res.status(400).json({ error: 'invalid_token', message: 'This link has already been used. Try signing in with your new password â€” if that doesn\'t work, request a new reset link.' });
+      return res.status(400).json({ error: 'invalid_token', message: 'This link has already been used. Try signing in with your new password — if that doesn\'t work, request a new reset link.' });
     }
     if (new Date(record.expires_at) < new Date()) {
       await db.markResetTokenUsed(incomingHash);
-      return res.status(400).json({ error: 'expired_token', message: 'This link has expired. Reset links are valid for 1 hour â€” please request a new one.' });
+      return res.status(400).json({ error: 'expired_token', message: 'This link has expired. Reset links are valid for 1 hour — please request a new one.' });
     }
 
     const finalHash = await bcrypt.hash(newPassword, 12);
@@ -1150,23 +1206,23 @@ app.post('/api/auth/resend-verification', authLimiter, requireSession, async (re
     await db.createVerificationToken(tokenHash, user.id, expiresAt);
     const host = process.env.APP_URL || 'https://mealzy.org';
     const verifyUrl = `${host}/verify-email.html?token=${rawToken}`;
-    sendEmail(user.email, 'Verify your email â€” Mealzy', emailVerifyAddress(user.name, verifyUrl)).catch(() => {});
-    res.json({ success: true, message: 'Verification email sent â€” check your inbox.' });
+    sendEmail(user.email, 'Verify your email — Mealzy', emailVerifyAddress(user.name, verifyUrl)).catch(() => {});
+    res.json({ success: true, message: 'Verification email sent — check your inbox.' });
   } catch(err) {
     console.error('Resend verification error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // GOOGLE OAUTH
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 const GOOGLE_REDIRECT_URI = process.env.NODE_ENV === 'production'
   ? 'https://mealzy.org/auth/google/callback'
   : 'http://localhost:3000/auth/google/callback';
 
-// GET /auth/google â€” kick off the OAuth flow
+// GET /auth/google — kick off the OAuth flow
 app.get('/auth/google', authLimiter, async (req, res) => {
   if (!process.env.GOOGLE_CLIENT_ID) {
     return res.redirect('/login.html?error=google_not_configured');
@@ -1185,13 +1241,13 @@ app.get('/auth/google', authLimiter, async (req, res) => {
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 });
 
-// GET /auth/google/callback â€” exchange code, upsert user, issue JWT cookie
+// GET /auth/google/callback — exchange code, upsert user, issue JWT cookie
 app.get('/auth/google/callback', async (req, res) => {
   const { code, error, state } = req.query;
   if (error || !code) return res.redirect('/login.html?error=google_cancelled');
   const cookies = parseCookies(req);
   if (!state || state !== cookies.oauth_state) {
-    logger.warn('[google-oauth] CSRF state mismatch â€” possible attack');
+    logger.warn('[google-oauth] CSRF state mismatch — possible attack');
     return res.redirect('/login.html?error=csrf_detected');
   }
 
@@ -1243,9 +1299,9 @@ app.get('/auth/google/callback', async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // PROFILE ENDPOINTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/profile
 app.post('/api/profile', requireSession, async (req, res) => {
@@ -1269,26 +1325,26 @@ app.get('/api/profile', requireSession, async (req, res) => {
   res.json({ success: true, profile });
 });
 
-// DELETE /api/profile â€” permanently delete the authenticated user's profile data
+// DELETE /api/profile — permanently delete the authenticated user's profile data
 app.delete('/api/profile', requireSession, async (req, res) => {
   const session = req.session;
   await db.run('DELETE FROM profiles WHERE user_id = ?', [session.userId]);
   res.json({ success: true });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // FAMILY PROFILES (multi-profile for Family plan)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
-// GET /api/family-profiles â€” list all family profiles for the authenticated user
+// GET /api/family-profiles — list all family profiles for the authenticated user
 app.get('/api/family-profiles', requireSession, async (req, res) => {
   const session = req.session;
   const profiles = await db.getFamilyProfiles(session.userId);
   res.json({ success: true, profiles });
 });
 
-// POST /api/family-profiles â€” create or update a family profile
-// Body: { id (optional â€” omit to create), name, calorieGoal, budget, dietaryRestrictions, avatar }
+// POST /api/family-profiles — create or update a family profile
+// Body: { id (optional — omit to create), name, calorieGoal, budget, dietaryRestrictions, avatar }
 app.post('/api/family-profiles', requireSession, async (req, res) => {
   const session = req.session;
 
@@ -1331,9 +1387,9 @@ app.delete('/api/family-profiles/:id', requireSession, async (req, res) => {
   res.json({ success: true });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// DEMO MEAL â€” no auth, rate limited, for homepage interactive demo
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// DEMO MEAL — no auth, rate limited, for homepage interactive demo
+// ════════════════════════════════════════════════════════════════════════════
 
 app.post('/api/demo-meal', demoLimiter, async (req, res) => {
   try {
@@ -1359,7 +1415,7 @@ Requirements:
 - Cooking skill: beginner-friendly, everyday supermarket ingredients only.
 - Target 20-40g protein per meal to keep nutrition reasonably consistent across all meals.
 - Use American English spelling throughout (e.g. "pita" not "pitta", "yogurt" not "yoghurt").
-${dietaryLine}
+ ${dietaryLine}
 
 Generate exactly 21 meals: breakfast, lunch, and dinner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday.
 Keep meal names short (under 6 words) and descriptions under 8 words.
@@ -1432,9 +1488,9 @@ Respond ONLY with valid JSON, no markdown, no extra text:
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // PLAN HISTORY ENDPOINTS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 // POST /api/plans/save
 app.post('/api/plans/save', requireSession, async (req, res) => {
@@ -1472,11 +1528,11 @@ app.get('/api/plans/today', requireSession, async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // PRO ACTIVATION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
-// POST /api/pro/activate â€” called from pro-welcome.html as a belt-and-suspenders
+// POST /api/pro/activate — called from pro-welcome.html as a belt-and-suspenders
 // backup to the Stripe webhook. Both paths set pro = 1 in the DB.
 app.post('/api/pro/activate', stripeLimiter, requireSession, async (req, res) => {
   const session = req.session;
@@ -1492,7 +1548,7 @@ app.post('/api/pro/activate', stripeLimiter, requireSession, async (req, res) =>
 
   // Stripe webhook is the primary path; this is just a backup for the race where
   // pro-welcome.html loads before the webhook lands. Never grant Pro here without
-  // confirming an active/trialing subscription against the Stripe API directly â€”
+  // confirming an active/trialing subscription against the Stripe API directly —
   // the webhook may simply not have arrived yet, so absence of proof isn't grounds
   // to grant it for free.
   if (!user.stripe_customer_id || !process.env.STRIPE_SECRET_KEY) {
@@ -1513,12 +1569,12 @@ app.post('/api/pro/activate', stripeLimiter, requireSession, async (req, res) =>
 
   await db.setUserPro(session.userId);
   await db.logEvent('pro_activated', { userId: session.userId, source: 'pro_welcome_verified' }, '');
-  user.pro = 1; // reflect the update just made â€” `user` was fetched before setUserPro
+  user.pro = 1; // reflect the update just made — `user` was fetched before setUserPro
   setJwtCookie(res, buildSessionPayload(user, session.loginAt));
   res.json({ success: true, pro: true });
 });
 
-// â”€â”€ POST /api/cancel-subscription â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── POST /api/cancel-subscription ────────────────────────────────────────────
 // Cancels the user's Stripe subscription at period end and logs survey reason.
 app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, res) => {
   const session = req.session;
@@ -1526,7 +1582,7 @@ app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, 
   const user = await db.getUserById(session.userId);
   if (!user) return res.status(404).json({ error: 'user_not_found', message: 'User not found. Please log in again.' });
   if (!user.pro) return res.status(400).json({ error: 'not_pro', message: 'You don\'t have an active Pro subscription to cancel.' });
-  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer', message: 'No active subscription found â€” email support@mealzy.org and we\'ll sort it out immediately.' });
+  if (!user.stripe_customer_id) return res.status(400).json({ error: 'no_stripe_customer', message: 'No active subscription found — email support@mealzy.org and we\'ll sort it out immediately.' });
 
   if (!process.env.STRIPE_SECRET_KEY) {
     return res.status(503).json({ error: 'stripe_not_configured' });
@@ -1545,14 +1601,13 @@ app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, 
     });
 
     if (subscriptions.data.length === 0) {
-      return res.status(404).json({ error: 'no_active_subscription', message: 'No active subscription found â€” email support@mealzy.org and we\'ll sort it out immediately.' });
+      return res.status(404).json({ error: 'no_active_subscription', message: 'No active subscription found — email support@mealzy.org and we\'ll sort it out immediately.' });
     }
 
     const sub = subscriptions.data[0];
     await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true });
 
     await db.logEvent('cancel_survey', { userId: user.id, reason, detail }, '');
-    logger.info(`[cancel] ${user.id} â€” reason: ${reason}`);
     logger.info(`[cancel] ${user.id} — reason: ${reason}`);
 
     const cancelAt = new Date(sub.current_period_end * 1000).toISOString().split('T')[0];
@@ -1563,7 +1618,7 @@ app.post('/api/cancel-subscription', stripeLimiter, requireSession, async (req, 
   }
 });
 
-// â”€â”€ DELETE /api/account â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── DELETE /api/account ───────────────────────────────────────────────────────
 // Permanently deletes the user's account and all associated data (GDPR erasure).
 app.delete('/api/account', authLimiter, requireSession, async (req, res) => {
   const session = req.session;
@@ -1600,8 +1655,8 @@ app.delete('/api/account', authLimiter, requireSession, async (req, res) => {
   }
 });
 
-// â”€â”€ GET /api/nps/check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Returns { show: true } if the user is â‰¥7 days old and hasn't submitted NPS.
+// ── GET /api/nps/check ────────────────────────────────────────────────────────
+// Returns { show: true } if the user is ≥7 days old and hasn't submitted NPS.
 app.get('/api/nps/check', optionalSession, async (req, res) => {
   const session = req.session;
   if (!session) return res.json({ show: false });
@@ -1618,8 +1673,8 @@ app.get('/api/nps/check', optionalSession, async (req, res) => {
   }
 });
 
-// â”€â”€ POST /api/nps/submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Records NPS score (0â€“10) and optional comment, marks user as submitted.
+// ── POST /api/nps/submit ──────────────────────────────────────────────────────
+// Records NPS score (0–10) and optional comment, marks user as submitted.
 app.post('/api/nps/submit', requireSession, async (req, res) => {
   const session = req.session;
 
@@ -1636,7 +1691,7 @@ app.post('/api/nps/submit', requireSession, async (req, res) => {
 
     await db.logEvent('nps_response', { userId: user.id, score, comment }, '');
     await db.run('UPDATE users SET nps_submitted_at = datetime(\'now\') WHERE id = ?', [user.id]);
-    logger.info(`[nps] ${user.id} â€” score: ${score}`);
+    logger.info(`[nps] ${user.id} — score: ${score}`);
 
     res.json({ success: true });
   } catch (e) {
@@ -1645,9 +1700,9 @@ app.post('/api/nps/submit', requireSession, async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// STRIPE WEBHOOK â€” server-side Pro activation (primary path)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// STRIPE WEBHOOK — server-side Pro activation (primary path)
+// ════════════════════════════════════════════════════════════════════════════
 
 async function handleStripeWebhook(req, res) {
   // Stripe SDK is optional: only wire up if keys are configured
@@ -1683,7 +1738,7 @@ async function handleStripeWebhook(req, res) {
         await db.setUserPro(user.id);
         if (customerId) try { await db.setStripeCustomerId(user.id, customerId); } catch(e) {}
         await db.logEvent('pro_activated', { userId: user.id, source: 'stripe_webhook' }, '');
-        logger.info(`[stripe] Pro activated â€” userId: ${user ? user.id : 'unknown'}`);
+        logger.info(`[stripe] Pro activated — userId: ${user ? user.id : 'unknown'}`);
 
       } else {
         console.warn(`[stripe] checkout.session.completed for unknown email: ${email}`);
@@ -1705,10 +1760,10 @@ async function handleStripeWebhook(req, res) {
           if (!proUntil || proUntil < new Date()) {
             await db.removeUserPro(user.id);
             await db.logEvent('pro_removed', { userId: user.id, reason: event.type }, '');
-            logger.info(`[stripe] Pro removed â€” userId: ${user.id}, event: ${event.type}`);
+            logger.info(`[stripe] Pro removed — userId: ${user.id}, event: ${event.type}`);
           }
         } else {
-          console.warn(`[stripe] ${event.type} â€” no user found for customer ${customerId}`);
+          console.warn(`[stripe] ${event.type} — no user found for customer ${customerId}`);
         }
       } catch(e) { console.error('[stripe] subscription.deleted error:', e.message); }
     }
@@ -1719,9 +1774,9 @@ async function handleStripeWebhook(req, res) {
   res.json({ received: true });
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// ADMIN â€” GRANT PRO
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// ADMIN — GRANT PRO
+// ════════════════════════════════════════════════════════════════════════════
 
 app.post('/api/admin/grant-pro', adminLimiter, requireAdmin, async (req, res) => {
   const { email } = req.body;
@@ -1733,7 +1788,7 @@ app.post('/api/admin/grant-pro', adminLimiter, requireAdmin, async (req, res) =>
     if (!user) return res.status(404).json({ error: 'No user found with that email' });
     await db.setUserPro(user.id);
     await db.logEvent('pro_granted_admin', { userId: user.id }, '');
-    logger.info(`[admin] Pro granted â€” userId: ${user.id}`);
+    logger.info(`[admin] Pro granted — userId: ${user.id}`);
     res.json({ success: true, message: `Pro activated for ${user.email}` });
   } catch(e) {
     logger.error('[admin grant-pro]', e);
@@ -1741,9 +1796,9 @@ app.post('/api/admin/grant-pro', adminLimiter, requireAdmin, async (req, res) =>
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // ADMIN EXPORT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 app.get('/api/admin/export', adminLimiter, requireAdmin, async (req, res) => {
   logger.info('[admin] export requested', { ip: req.ip });
@@ -1762,9 +1817,9 @@ app.get('/api/admin/export', adminLimiter, requireAdmin, async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // ANALYTICS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 app.post('/api/track', trackLimiter, async (req, res) => {
   const { event, data } = req.body;
@@ -1829,13 +1884,13 @@ app.get('/api/analytics', requireSession, async (req, res) => {
   });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // REFERRAL
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
-// POST /api/referral â€” credit a referral (called at signup when a pending ref exists)
+// POST /api/referral — credit a referral (called at signup when a pending ref exists)
 app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
-  // Require authentication â€” only a real signed-in new user can trigger referral credit
+  // Require authentication — only a real signed-in new user can trigger referral credit
   const session = req.session;
 
   const { referrer_email, new_user_email } = req.body;
@@ -1845,7 +1900,7 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
     return res.status(403).json({ error: 'can_only_credit_own_signup' });
   }
 
-  // Referrer must exist in DB â€” referrer_email may be a ref_ code or a raw email
+  // Referrer must exist in DB — referrer_email may be a ref_ code or a raw email
   let referrer;
   if (typeof referrer_email === 'string' && referrer_email.startsWith('ref_')) {
     referrer = await db.getUserByRefCode(referrer_email);
@@ -1861,7 +1916,7 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
       [session.email]
     );
     if (alreadyCredited) return res.status(409).json({ error: 'already_credited' });
-  } catch(e) { /* non-fatal â€” proceed */ }
+  } catch(e) { /* non-fatal — proceed */ }
 
   const ip = clientIp(req);
   try {
@@ -1878,7 +1933,7 @@ app.post('/api/referral', authLimiter, requireSession, async (req, res) => {
   res.json({ ok: true, bonus_plans: current + 1 });
 });
 
-// GET /api/referral-capture â€” called when visitor lands with ?ref=EMAIL
+// GET /api/referral-capture — called when visitor lands with ?ref=EMAIL
 // Stores the referral intent so it can be credited when they sign up
 app.get('/api/referral-capture', async (req, res) => {
   const { ref, ip: queryIp } = req.query;
@@ -1919,16 +1974,16 @@ app.get('/api/referral-status', async (req, res) => {
   res.json(OutputShapes.ReferralStatus(referralCount, effectiveLimit, usage.count));
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // EMAIL LEADS
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 app.post('/api/email-leads', leadLimiter, async (req, res) => {
   try {
     const email    = sanitise(req.body.email, 254).toLowerCase();
     const source   = sanitise(req.body.source, 100) || 'unknown';
     const name     = sanitise(req.body.name,   100);
-    const discount = req.body.discount ? 1 : 0; // abandonment flow â€” mark for 50% off code
+    const discount = req.body.discount ? 1 : 0; // abandonment flow — mark for 50% off code
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'Valid email required' });
     }
@@ -1942,9 +1997,9 @@ app.post('/api/email-leads', leadLimiter, async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // MEAL GENERATION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 const DEFAULT_INGREDIENT_COST_USD = 0.50;
 
@@ -2005,7 +2060,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
 
     if (!profile) return res.status(400).json({ error: 'Profile is required' });
 
-    // â”€â”€ Freemium gate: server-side pro check is authoritative â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Freemium gate: server-side pro check is authoritative ──────────────
     const session = req.session;
 
     let sessionUser = null;
@@ -2024,21 +2079,21 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
       PRO_TOKEN.length >= 32 &&
       typeof plan_token === 'string' &&
       timingSafeCompare(plan_token, PRO_TOKEN)
-    ); // plan bypass â€” fails closed if PRO_TOKEN unset/short/mismatched
+    ); // plan bypass — fails closed if PRO_TOKEN unset/short/mismatched
 
     if (!isPro && session) {
-      // Re-query DB â€” the JWT payload may be stale if Pro was just activated
+      // Re-query DB — the JWT payload may be stale if Pro was just activated
       isPro = sessionUser?.pro === 1;
     }
 
-    // â”€â”€ Quota check (read-only) â€” credits/trial state are only *consumed* later,
+    // ── Quota check (read-only) — credits/trial state are only *consumed* later,
     // after the plan passes validation (see below).
     const ip = clientIp(req);
     let anonUsage = null;
     let trialLocalDate = null;
     if (!swap_meal_type && !isPro) {
       if (session) {
-        // â”€â”€ Logged-in free users: 30-day daily trial, 1 plan per local calendar day â”€â”€
+        // ── Logged-in free users: 30-day daily trial, 1 plan per local calendar day ──
         if (weekStart) {
           return res.status(400).json({
             error: 'week_mode_unavailable_on_trial',
@@ -2068,7 +2123,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
             });
           }
         } else {
-          // â”€â”€ Past day 30: 1 free plan every 7 days, forever â”€â”€
+          // ── Past day 30: 1 free plan every 7 days, forever ──
           const lastGeneration = await db.getLastTrialGeneration(session.userId);
           if (lastGeneration) {
             const nextAllowedMs = new Date(lastGeneration.local_date).getTime() + WEEKLY_PLAN_INTERVAL_MS;
@@ -2103,7 +2158,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
       }
     }
 
-    // â”€â”€ Profile field extraction â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Profile field extraction ──────────────────────────────────────────
     const name               = sanitise(profile.name || 'User', 100);
     const goal               = sanitise(profile.fitness_goal || profile.goal || 'eat healthier', 200);
     const dietaryPrefs       = Array.isArray(profile.dietary_preferences || profile.dietaryPrefs) ? (profile.dietary_preferences || profile.dietaryPrefs) : [];
@@ -2124,15 +2179,15 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     const dailyBudget    = (budget / 7 * priceTierMultiplier).toFixed(2);
     const perMealBudget  = (budget / 7 / 4 * priceTierMultiplier).toFixed(2);
 
-    // â”€â”€ Dietary restriction enforcement â€” explicit banned lists per preference â”€â”€
+    // ── Dietary restriction enforcement — explicit banned lists per preference ──
     // These blocks go at the TOP of all meal plan prompts (most important instruction first).
     const DIET_RULES = {
-      vegan:       'VEGAN â€” zero animal products. NEVER use: meat, fish, seafood, chicken, beef, pork, lamb, turkey, duck, eggs, milk, cheese, butter, cream, yoghurt, honey, ghee, lard, whey, gelatin. Use ONLY: vegetables, fruits, legumes, grains, nuts, seeds, plant-based oils, tofu, tempeh, seitan (if not GF), coconut milk, oat milk, soy milk, almond milk.',
-      vegetarian:  'VEGETARIAN â€” no meat or fish. NEVER use: chicken, beef, pork, lamb, turkey, duck, fish, salmon, tuna, shrimp, prawns, cod, sardines, anchovies, bacon, ham, sausage. Eggs and dairy are allowed.',
-      'gluten-free':'GLUTEN-FREE â€” no gluten. NEVER use: wheat, white flour, bread, sourdough, toast, wrap, pita, tortilla, pasta, noodles, couscous, barley, rye, seitan, soy sauce (use tamari), malt, crackers, croutons, breadcrumbs, regular oats. ALLOWED: rice, quinoa, potatoes, corn, certified GF oats, rice noodles, tamari.',
-      keto:        'KETO â€” max 25g total net carbs per day across all 4 meals. NEVER use: bread, pasta, rice, potatoes, corn, tortillas, wraps, noodles, couscous, sugar, honey, fruit juice, bananas, grapes, mangoes, apples, oranges, lentils, chickpeas, beans, peas, sweet potatoes, quinoa. ALLOWED: meat, fish, eggs, cheese, cream, butter, avocado, leafy greens, cauliflower, broccoli, zucchini, nuts, seeds, olive oil.',
-      halal:       'HALAL â€” no pork or alcohol. NEVER use: pork, bacon, ham, lard, gelatin (unless halal-certified), alcohol, wine, beer in cooking.',
-      'dairy-free':'DAIRY-FREE â€” no dairy. NEVER use: milk, cheese, butter, cream, yoghurt, ghee, whey, casein. Use: plant-based alternatives like coconut milk, oat milk, soy milk, vegan butter.',
+      vegan:       'VEGAN — zero animal products. NEVER use: meat, fish, seafood, chicken, beef, pork, lamb, turkey, duck, eggs, milk, cheese, butter, cream, yoghurt, honey, ghee, lard, whey, gelatin. Use ONLY: vegetables, fruits, legumes, grains, nuts, seeds, plant-based oils, tofu, tempeh, seitan (if not GF), coconut milk, oat milk, soy milk, almond milk.',
+      vegetarian:  'VEGETARIAN — no meat or fish. NEVER use: chicken, beef, pork, lamb, turkey, duck, fish, salmon, tuna, shrimp, prawns, cod, sardines, anchovies, bacon, ham, sausage. Eggs and dairy are allowed.',
+      'gluten-free':'GLUTEN-FREE — no gluten. NEVER use: wheat, white flour, bread, sourdough, toast, wrap, pita, tortilla, pasta, noodles, couscous, barley, rye, seitan, soy sauce (use tamari), malt, crackers, croutons, breadcrumbs, regular oats. ALLOWED: rice, quinoa, potatoes, corn, certified GF oats, rice noodles, tamari.',
+      keto:        'KETO — max 25g total net carbs per day across all 4 meals. NEVER use: bread, pasta, rice, potatoes, corn, tortillas, wraps, noodles, couscous, sugar, honey, fruit juice, bananas, grapes, mangoes, apples, oranges, lentils, chickpeas, beans, peas, sweet potatoes, quinoa. ALLOWED: meat, fish, eggs, cheese, cream, butter, avocado, leafy greens, cauliflower, broccoli, zucchini, nuts, seeds, olive oil.',
+      halal:       'HALAL — no pork or alcohol. NEVER use: pork, bacon, ham, lard, gelatin (unless halal-certified), alcohol, wine, beer in cooking.',
+      'dairy-free':'DAIRY-FREE — no dairy. NEVER use: milk, cheese, butter, cream, yoghurt, ghee, whey, casein. Use: plant-based alternatives like coconut milk, oat milk, soy milk, vegan butter.',
     };
     // Special combination rules that override individual rules
     const isVegan = dietaryPrefs.map(p=>p.toLowerCase()).includes('vegan');
@@ -2144,16 +2199,16 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
       .map(p => DIET_RULES[p.toLowerCase()] || `STRICT DIETARY REQUIREMENT: User is ${p}. Every meal MUST comply.`)
       .join('\n')) + comboRules;
     const dietaryBlock = activeDietRules
-      ? `\nâš ï¸ DIETARY RULES â€” HIGHEST PRIORITY â€” THESE OVERRIDE EVERYTHING ELSE:\n${activeDietRules}\nDouble-check every ingredient against these rules before including it.\n`
+      ? `\n⚠️ DIETARY RULES — HIGHEST PRIORITY — THESE OVERRIDE EVERYTHING ELSE:\n${activeDietRules}\nDouble-check every ingredient against these rules before including it.\n`
       : '';
     const allergyBlock = allergies.length > 0
-      ? `\nâš ï¸ ALLERGY WARNING â€” NEVER include these ingredients in any form: ${allergies.join(', ')}.\n`
+      ? `\n⚠️ ALLERGY WARNING — NEVER include these ingredients in any form: ${allergies.join(', ')}.\n`
       : '';
     const clientAvoidList = capList(avoid_meals, 30, 80);
     const dislikedMeals = session ? await db.getUserDislikedMeals(session.userId) : [];
     const avoidList = Array.from(new Set([...clientAvoidList, ...dislikedMeals])).slice(0, 60);
     const avoidBlock = avoidList.length > 0
-      ? `STRICT AVOID â€” do not include any of these previously rejected meals: ${avoidList.join(', ')}.`
+      ? `STRICT AVOID — do not include any of these previously rejected meals: ${avoidList.join(', ')}.`
       : '';
 
     const cuisineGroups = {
@@ -2172,7 +2227,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
 
     const preferredCuisine = sanitise(profile.preferred_cuisine, 60) || null;
     const allCuisinesFlat = Object.values(cuisineGroups).flat();
-    // Filter protein suggestions to match dietary restrictions â€” prevents biasing the model with forbidden proteins
+    // Filter protein suggestions to match dietary restrictions — prevents biasing the model with forbidden proteins
     const proteinsByDiet = {
       vegan:       ['tofu','lentils','chickpeas','tempeh','edamame','hemp seeds','black beans','kidney beans'],
       vegetarian:  ['eggs','tofu','lentils','chickpeas','tempeh','halloumi','cottage cheese','greek yogurt'],
@@ -2210,11 +2265,11 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     }
     const { todayCuisine, todayProtein, randomSeed } = pickDayVariety(null);
 
-    // â”€â”€ JSON schema embedded in the prompt for reliable parsing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── JSON schema embedded in the prompt for reliable parsing ──────────
     const mealSchema = `{
   "type": "breakfast|lunch|dinner|snack",
   "name": "string",
-  "description": "string â€” MUST start with a cooking method word (e.g. Grilled, Pan-seared, Slow-cooked, Roasted, Baked, Crispy, SautÃ©ed). Format: [Method] [ingredient] with [accompaniment]. Under ${isPro ? '15' : '10'} words.",
+  "description": "string — MUST start with a cooking method word (e.g. Grilled, Pan-seared, Slow-cooked, Roasted, Baked, Crispy, Sautéed). Format: [Method] [ingredient] with [accompaniment]. Under ${isPro ? '15' : '10'} words.",
   "calories": number,
   "protein": number,
   "carbs": number,
@@ -2227,9 +2282,9 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
   "imageKeyword": "simple English food keyword e.g. scrambled eggs"
 }`;
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════════════════════
     // SINGLE MEAL SWAP
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════════════════════
     if (swap_meal_type) {
       const mealCalories = { breakfast: Math.round(dailyCalories * 0.25), lunch: Math.round(dailyCalories * 0.35), dinner: Math.round(dailyCalories * 0.30), snack: Math.round(dailyCalories * 0.10) };
       const targetCals   = mealCalories[swap_meal_type] || Math.round(dailyCalories * 0.25);
@@ -2240,12 +2295,12 @@ Cuisine: ${todayCuisine}. Featured protein: ${todayProtein}. Variety seed: ${ran
 Target: ~${targetCals} kcal. Cooking skill: ${cookingSkill}. Max time: ${cookingTimeMinutes} min.
 Budget: max ${currency} ${perMealBudget} for this meal. Use common supermarket ingredients only.
 
-${avoidBlock}
+ ${avoidBlock}
 
 LANGUAGE: All meal name, description, and ingredient names MUST be in ${languageName}. JSON keys stay in English.${languageName === 'English' ? ' Use American English spelling (e.g. "pita" not "pitta", "yogurt" not "yoghurt").' : ''}
 
 Respond ONLY with valid JSON matching this exact schema (no markdown, no extra text):
-${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_meal_type}"`)}`;
+ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_meal_type}"`)}`;
 
       const completion = await callAnthropicWithSpendCap({
         model: 'claude-haiku-4-5-20251001',
@@ -2273,10 +2328,10 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
       return res.json({ success: true, meal });
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // FULL MEAL PLAN â€” one day's worth of meals, called once per day
+    // ═══════════════════════════════════════════════════════════════════════
+    // FULL MEAL PLAN — one day's worth of meals, called once per day
     // (7 times for a week, once for the legacy single-day path)
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════════════════════
 
     // Pro vs Free difference:
     // Pro: full recipes (up to 8 ingredients, 6 detailed technique steps, full descriptions)
@@ -2295,18 +2350,18 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
 
     const ingredientOverlapLine = `Ingredient efficiency: prioritize reusing ingredients across meals. If spinach is used at breakfast, use the remainder at lunch or dinner. If chicken is used at dinner, use leftovers in tomorrow's lunch. Minimize the number of unique ingredients across the 4 meals.`;
     const batchCookingLine = profile.batch_cooking
-      ? `BATCH COOKING MODE: Make dinner yield 3 servings. Schedule the leftovers as Tuesday and Wednesday lunch automatically â€” label them as 'Leftover: [dinner name]' with identical macros. This reduces daily cooking time significantly.`
+      ? `BATCH COOKING MODE: Make dinner yield 3 servings. Schedule the leftovers as Tuesday and Wednesday lunch automatically — label them as 'Leftover: [dinner name]' with identical macros. This reduces daily cooking time significantly.`
       : '';
 
     // Prompt caching: stable role block cached, volatile dietary block appended uncached
     const _baseSys = isPro
-      ? 'You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes â€” detailed techniques, precise measurements. NEVER violate dietary restrictions or allergies â€” this is non-negotiable.'
-      : 'You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise. NEVER violate dietary restrictions or allergies â€” this is non-negotiable.';
+      ? 'You are a professional nutritionist and executive chef. Respond with valid JSON only, no markdown. Pro users deserve restaurant-quality recipes — detailed techniques, precise measurements. NEVER violate dietary restrictions or allergies — this is non-negotiable.'
+      : 'You are a professional nutritionist. Respond with valid JSON only, no markdown. Keep instructions simple and concise. NEVER violate dietary restrictions or allergies — this is non-negotiable.';
     const _sysBlocks = [{ type: 'text', text: _baseSys, cache_control: { type: 'ephemeral' } }];
     if (dietaryBlock) _sysBlocks.push({ type: 'text', text: `CRITICAL: ${activeDietRules.split('\n')[0]}` });
 
     /** Generates and validates ONE day's 4-meal plan. Throws AllergyViolationError
-     * if a generated meal contains a declared allergen. Never trusts AI totals â€”
+     * if a generated meal contains a declared allergen. Never trusts AI totals —
      * calorie/macro/cost sums are always recomputed here. */
     async function generateDayMealPlan(dayDate, variety) {
       const { todayCuisine, todayProtein, randomSeed } = variety;
@@ -2315,27 +2370,27 @@ ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_
 
 Generate a practical, delicious daily meal plan for ${name} on ${dayDate}.
 
-Cuisine style: ${todayCuisine}. Variety seed: ${randomSeed}. Suggested protein for ONE meal only: ${todayProtein} (use different proteins across other meals for variety â€” no protein should appear in more than 2 of the 4 meals).
+Cuisine style: ${todayCuisine}. Variety seed: ${randomSeed}. Suggested protein for ONE meal only: ${todayProtein} (use different proteins across other meals for variety — no protein should appear in more than 2 of the 4 meals).
 Use real, everyday supermarket ingredients. Meals must be realistic for a home cook.
 
 User profile:
 - Goal: ${goal}
 - Daily calorie target: ${dailyCalories} kcal TOTAL (Protein ${dailyProtein}g / Carbs ${dailyCarbs}g / Fat ${dailyFat}g)
-- PER-MEAL CALORIE TARGETS (each meal MUST hit within Â±15% of its target):
+- PER-MEAL CALORIE TARGETS (each meal MUST hit within ±15% of its target):
   Breakfast: ${mealCalorieTargets.breakfast} kcal | Lunch: ${mealCalorieTargets.lunch} kcal | Dinner: ${mealCalorieTargets.dinner} kcal | Snack: ${mealCalorieTargets.snack} kcal
 - Cooking skill: ${cookingSkill}
 - Max time per meal: ${cookingTimeMinutes} min
 - STRICT DAILY BUDGET: ${currency} ${dailyBudget} total. Each meal max ${currency} ${perMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
-- User's price tier: ${priceTierLabel}. Adjust ingredient quality and brand expectations accordingly â€” Budget means value supermarket staples, Premium means quality cuts and fresh produce.
+- User's price tier: ${priceTierLabel}. Adjust ingredient quality and brand expectations accordingly — Budget means value supermarket staples, Premium means quality cuts and fresh produce.
 
-${batchCookingLine ? batchCookingLine + '\n\n' : ''}${avoidBlock}
+ ${batchCookingLine ? batchCookingLine + '\n\n' : ''}${avoidBlock}
 
-${proInstructions}
+ ${proInstructions}
 
 LANGUAGE: Write ALL meal names, descriptions, and ingredient names in ${languageName}. JSON keys stay in English.${languageName === 'English' ? ' Use American English spelling (e.g. "pita" not "pitta", "yogurt" not "yoghurt").' : ''}
 
 Generate exactly 4 meals: breakfast, lunch, dinner, snack.
-${dietaryBlock ? `Remember: ${activeDietRules.split('\n')[0]}` : ''}
+ ${dietaryBlock ? `Remember: ${activeDietRules.split('\n')[0]}` : ''}
 
 Respond ONLY with valid JSON (no markdown fences, no extra text):
 {
@@ -2387,7 +2442,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         }
       }
 
-      // â”€â”€ Macro sanity check + daily sums â€” computed in code, never trusted from the model â”€â”€
+      // ── Macro sanity check + daily sums — computed in code, never trusted from the model ──
       if (mealPlan.meals) {
         const sums = { calories: 0, protein: 0, carbs: 0, fat: 0, cost: 0 };
         for (const meal of mealPlan.meals) {
@@ -2413,7 +2468,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         mealPlan.totalCost     = Math.round(sums.cost * 100) / 100;
       }
 
-      // â”€â”€ Allergy enforcement â€” server-side scan after AI generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Allergy enforcement — server-side scan after AI generation ──────────
       if (allergies.length > 0 && mealPlan.meals) {
         const lowerAllergies = allergies.map(a => a.toLowerCase());
         for (const meal of mealPlan.meals) {
@@ -2458,11 +2513,11 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     }
 
     if (weekStart) {
-      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-      // WEEK MODE â€” 1 generation credit unlocks a full 7-day plan
+      // ═══════════════════════════════════════════════════════════════════════
+      // WEEK MODE — 1 generation credit unlocks a full 7-day plan
       // (21 meals + snacks), matching the marketing promise and the
       // 7-day grid on meal-planner.html.
-      // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+      // ═══════════════════════════════════════════════════════════════════════
       const days = [];
       let prevCuisine = null;
       for (let i = 0; i < 7; i++) {
@@ -2490,7 +2545,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         days.push({ date: dayDate, dayName: getDayNameFromDate(dayDate), ...dayMealPlan });
       }
 
-      // â”€â”€ Weekly totals â€” sums and per-day averages computed in code, never trusted from the model â”€â”€
+      // ── Weekly totals — sums and per-day averages computed in code, never trusted from the model ──
       const weeklyTotals = days.reduce((acc, d) => {
         acc.totalCalories += d.totalCalories || 0;
         acc.totalProtein  += d.totalProtein  || 0;
@@ -2505,7 +2560,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       weeklyTotals.avgCarbs    = Math.round(weeklyTotals.totalCarbs    / 7);
       weeklyTotals.avgFat      = Math.round(weeklyTotals.totalFat      / 7);
 
-      // â”€â”€ Quota consumption â€” 1 credit for the whole week, only after every
+      // ── Quota consumption — 1 credit for the whole week, only after every
       // day has passed allergy/macro validation. Errors above never reach here.
       if (isPro) {
         await db.logEvent('generate_plan', { pro: true, weekStart }, '');
@@ -2530,7 +2585,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
       res.json({ success: true, weekStart, days, weeklyTotals });
 
-      // Auto-generate and persist each day's grocery list in the background â€”
+      // Auto-generate and persist each day's grocery list in the background —
       // fire-and-forget so it never slows down or fails the plan response.
       if (session) {
         for (const d of days) {
@@ -2544,10 +2599,10 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       return;
     }
 
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-    // SINGLE-DAY MODE (legacy) â€” used by dashboard.html's "today" widget.
+    // ═══════════════════════════════════════════════════════════════════════
+    // SINGLE-DAY MODE (legacy) — used by dashboard.html's "today" widget.
     // Kept unchanged so it doesn't affect the 7-day credit accounting above.
-    // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+    // ═══════════════════════════════════════════════════════════════════════
     let mealPlan;
     try {
       mealPlan = await generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed });
@@ -2565,7 +2620,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     const planDate = date || new Date().toISOString().split('T')[0];
     const planId   = randomUUID();
 
-    // â”€â”€ Quota consumption â€” only now, after the plan has passed allergy/macro
+    // ── Quota consumption — only now, after the plan has passed allergy/macro
     // validation and is guaranteed to be returned. Errors and rejects above never reach here.
     if (!swap_meal_type) {
       if (isPro) {
@@ -2591,7 +2646,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
     res.json({ success: true, date, mealPlan });
 
-    // Auto-generate and persist this day's grocery list in the background â€”
+    // Auto-generate and persist this day's grocery list in the background —
     // fire-and-forget so it never slows down or fails the plan response.
     if (session && mealPlan.meals?.length) {
       const day = getDayNameFromDate(planDate);
@@ -2648,9 +2703,9 @@ function normalizeSpelling(text) {
   return result;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // GROCERY LIST
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 /** Derive the weekday name (Monday..Sunday) from a YYYY-MM-DD date string. */
 function getDayNameFromDate(dateStr) {
@@ -2671,7 +2726,7 @@ async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
   const langName  = langNames[groceryLang] || 'English';
 
   const mealList    = meals.map(m => `- ${m.name} (${m.type})`).join('\n');
-  const allergyInfo = allergies.length > 0 ? `ALLERGY WARNING â€” never include: ${allergies.join(', ')}.` : '';
+  const allergyInfo = allergies.length > 0 ? `ALLERGY WARNING — never include: ${allergies.join(', ')}.` : '';
   const prefInfo    = dietaryPrefs.length > 0 ? `Dietary preferences: ${dietaryPrefs.join(', ')}. All items must comply.` : '';
   const dayLine     = day
     ? `All these meals are for ${day}. Tag every item's "day" field as "${day}".`
@@ -2687,7 +2742,33 @@ async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
     messages: [{ role: 'user', content: prompt }]
   });
 
-  return parseJsonResponse(completion.content[0].text);
+  const groceryList = parseJsonResponse(completion.content[0].text);
+  await groundAndStampGroceryItems(groceryList);
+  return groceryList;
+}
+
+/** Grounds each AI-estimated item cost against ingredient_prices where a name
+ * match exists (same lookup as calculateMealCost), then stamps the fields the
+ * grocery UI and the item-level PATCH endpoint depend on: a stable id unique
+ * within this list, estimatedCost, actualCost (null until the user edits it),
+ * and checked. Mutates groceryList in place. */
+async function groundAndStampGroceryItems(groceryList) {
+  const priceRows = await db.getIngredientPrices();
+  let seq = 0;
+  for (const items of Object.values(groceryList.categories || {})) {
+    for (const item of items || []) {
+      const priceRow = _findIngredientPriceRow(item.name, priceRows);
+      if (priceRow) {
+        const grounded = Math.round(priceRow.price_per_unit * _parseIngredientQuantity(item.amount) * 100) / 100;
+        if (grounded > 0) item.cost = grounded;
+      }
+      seq += 1;
+      item.id = `g_${String(seq).padStart(3, '0')}`;
+      item.estimatedCost = Number(item.cost) || 0;
+      item.actualCost = null;
+      item.checked = !!item.checked;
+    }
+  }
 }
 
 /** Splits a categorized grocery list into one grocery-list object per day, keyed by day name. */
@@ -2720,7 +2801,7 @@ const groceryLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "You're sending requests too fast â€” wait 60 seconds and try again." },
+  message: { error: "You're sending requests too fast — wait 60 seconds and try again." },
   keyGenerator: (req) => req.grocerySession.userId,
 });
 
@@ -2738,6 +2819,7 @@ app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEma
     const meals = Array.isArray(rawMeals)
       ? rawMeals.slice(0, 50).map(m => ({ name: sanitise(m?.name, 100), type: sanitise(m?.type, 30) }))
       : [];
+    console.log('[generate-grocery-list debug]', { userId: session.userId, rawMealsLength: Array.isArray(rawMeals) ? rawMeals.length : typeof rawMeals, sanitisedMealsLength: meals.length, rawWeekStart, rawDay });
     if (meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
 
     let budget = Number(profile.budget);
@@ -2753,7 +2835,7 @@ app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEma
     let planId;
     try {
       if (day) {
-        // Single-day generate/refresh â€” reuse the caller's planId only if it
+        // Single-day generate/refresh — reuse the caller's planId only if it
         // already belongs to them, so a spoofed id can't delete/overwrite
         // another user's saved days.
         planId = requestedPlanId || null;
@@ -2791,7 +2873,7 @@ app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEma
   }
 });
 
-// GET /api/grocery-list/trial-summary â€” aggregated running total across every day
+// GET /api/grocery-list/trial-summary — aggregated running total across every day
 // generated so far in a free user's 30-day trial. Unlike week-mode (where 7 days
 // share one plan_id and getGroceryListsForPlan covers them), each trial day gets
 // its own plan_id, so this pulls across all of them via trial_generations.
@@ -2811,8 +2893,8 @@ app.get('/api/grocery-list/trial-summary', requireSession, async (req, res) => {
   }
 });
 
-// GET /api/grocery-list/:planId/days â€” available days for the day-switcher UI
-// (registered before the /:day route below â€” otherwise Express would match "days" as a day value)
+// GET /api/grocery-list/:planId/days — available days for the day-switcher UI
+// (registered before the /:day route below — otherwise Express would match "days" as a day value)
 app.get('/api/grocery-list/:planId/days', requireSession, async (req, res) => {
   const session = req.session;
   try {
@@ -2842,16 +2924,51 @@ app.get('/api/grocery-list/:planId/:day', requireSession, async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// PATCH /api/grocery-list/:planId/:day/items/:itemId — toggle checked and/or
+// save a user-edited actualCost for one item. Storage is keyed by (planId, day)
+// per the grocery_lists table, so day is part of the path rather than the item
+// id alone. Returns just the updated item, not the whole list.
+app.patch('/api/grocery-list/:planId/:day/items/:itemId', requireSession, async (req, res) => {
+  const session = req.session;
+  try {
+    const day = GROCERY_DAYS.includes(req.params.day) ? req.params.day : null;
+    const itemId = sanitise(req.params.itemId, 40);
+    if (!day || !itemId) return res.status(400).json({ error: 'Invalid day or item id' });
+
+    const { checked, actualCost } = req.body || {};
+    const updates = {};
+    if (typeof checked === 'boolean') updates.checked = checked;
+    if (actualCost === null) {
+      updates.actualCost = null;
+    } else if (actualCost !== undefined) {
+      const n = Number(actualCost);
+      if (!Number.isFinite(n) || n < 0 || n > 10000) {
+        return res.status(400).json({ error: 'actualCost must be a number between 0 and 10000, or null' });
+      }
+      updates.actualCost = Math.round(n * 100) / 100;
+    }
+    if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Nothing to update' });
+
+    const updatedItem = await db.updateGroceryItem(req.params.planId, day, session.userId, itemId, updates);
+    if (!updatedItem) return res.status(404).json({ error: 'not_found' });
+
+    res.json({ success: true, item: updatedItem });
+  } catch(err) {
+    console.error('[grocery-list] item patch error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
 // AI COACH
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 const coachLimiterFree = rateLimit({
   windowMs: 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "You're sending messages too fast â€” wait 60 seconds and try again." },
+  message: { error: "You're sending messages too fast — wait 60 seconds and try again." },
   keyGenerator: (req) => req.coachSession.userId,
 });
 
@@ -2860,7 +2977,7 @@ const coachLimiterPro = rateLimit({
   max: 30,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "You're sending messages too fast â€” wait 60 seconds and try again." },
+  message: { error: "You're sending messages too fast — wait 60 seconds and try again." },
   keyGenerator: (req) => req.coachSession.userId,
 });
 
@@ -2914,7 +3031,7 @@ app.post('/api/ai-coach', requireCoachAuth, requireVerifiedEmail, routeCoachLimi
 Personality: warm, encouraging, science-based. Give practical, actionable advice. Plain text only.
 Never diagnose or replace professional medical advice. Always tailor to this user's profile.
 If a user's calorie target appears dangerously low (under 1200 kcal for adults), gently note that this may be too low and suggest consulting a healthcare professional.
-If a user mentions restricting, purging, skipping meals excessively, or any disordered eating behaviour, do not engage with the restriction plan â€” instead warmly encourage them to speak with a healthcare professional or eating disorder support service.
+If a user mentions restricting, purging, skipping meals excessively, or any disordered eating behaviour, do not engage with the restriction plan — instead warmly encourage them to speak with a healthcare professional or eating disorder support service.
 Always acknowledge that cross-contamination is possible and users with severe allergies should verify ingredients independently.`;
 
     const _userCtx = `You are talking with ${name}.
@@ -2970,9 +3087,9 @@ Respond in ${coachLangName}.`;
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // FALLBACK MEAL PLAN (returned when AI generation fails)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 function generateFallbackMealPlan(profile) {
   const calories = profile?.dailyCalories || 2000;
@@ -2981,7 +3098,7 @@ function generateFallbackMealPlan(profile) {
       { type:'breakfast',name:'Greek Yogurt Parfait',description:'Creamy Greek yogurt layered with fresh berries and granola',calories:Math.round(calories*.25),protein:20,carbs:35,fat:8,cookTime:5,servings:1,estimatedCost:3.50,ingredients:[{name:'Greek yogurt',amount:'200g',cost:1.80},{name:'Mixed berries',amount:'100g',cost:1.20},{name:'Granola',amount:'50g',cost:0.50}],instructions:['Spoon yogurt into a bowl.','Layer with fresh berries.','Top with granola and serve.'] },
       { type:'lunch',name:'Grilled Chicken Salad',description:'Tender grilled chicken over crisp greens with avocado',calories:Math.round(calories*.30),protein:40,carbs:20,fat:18,cookTime:20,servings:1,estimatedCost:6.00,ingredients:[{name:'Chicken breast',amount:'150g',cost:3.00},{name:'Mixed salad greens',amount:'100g',cost:1.20},{name:'Avocado',amount:'1/2',cost:1.00},{name:'Cherry tomatoes',amount:'100g',cost:0.80}],instructions:['Season and grill chicken 6-7 min per side.','Let rest 5 min, then slice.','Arrange over greens with avocado and lemon juice.'] },
       { type:'snack',name:'Apple with Almond Butter',description:'Crisp apple slices with creamy almond butter',calories:Math.round(calories*.10),protein:5,carbs:25,fat:8,cookTime:2,servings:1,estimatedCost:2.00,ingredients:[{name:'Apple',amount:'1 medium',cost:0.80},{name:'Almond butter',amount:'2 tbsp',cost:1.20}],instructions:['Wash and slice the apple.','Serve with almond butter for dipping.'] },
-      { type:'dinner',name:'Salmon with Roasted Vegetables',description:'Pan-seared salmon with colorful roasted seasonal vegetables',calories:Math.round(calories*.35),protein:45,carbs:30,fat:20,cookTime:30,servings:1,estimatedCost:9.00,ingredients:[{name:'Salmon fillet',amount:'200g',cost:5.00},{name:'Broccoli',amount:'150g',cost:1.20},{name:'Bell pepper',amount:'1',cost:1.00},{name:'Olive oil',amount:'1 tbsp',cost:0.30}],instructions:['Roast veg at 200Â°C for 20 min.','Cook salmon 4 min per side.','Serve with lemon wedge.'] }
+      { type:'dinner',name:'Salmon with Roasted Vegetables',description:'Pan-seared salmon with colorful roasted seasonal vegetables',calories:Math.round(calories*.35),protein:45,carbs:30,fat:20,cookTime:30,servings:1,estimatedCost:9.00,ingredients:[{name:'Salmon fillet',amount:'200g',cost:5.00},{name:'Broccoli',amount:'150g',cost:1.20},{name:'Bell pepper',amount:'1',cost:1.00},{name:'Olive oil',amount:'1 tbsp',cost:0.30}],instructions:['Roast veg at 200°C for 20 min.','Cook salmon 4 min per side.','Serve with lemon wedge.'] }
     ],
     totalCalories: calories,
     totalCost: 20.50,
@@ -2989,11 +3106,11 @@ function generateFallbackMealPlan(profile) {
   };
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 // XP / GAMIFICATION ENDPOINT
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
-// POST /api/xp/award â€” award XP to the authenticated user (server validates)
+// POST /api/xp/award — award XP to the authenticated user (server validates)
 // Body: { action: 'generate_plan' | 'swap_meal' | 'complete_day' | 'onboarding' }
 app.post('/api/xp/award', requireSession, async (req, res) => {
   const session = req.session;
@@ -3018,7 +3135,7 @@ app.post('/api/xp/award', requireSession, async (req, res) => {
     profile.xp    = newXP;
     profile.level = newLevel;
 
-    // Streak logic â€” only runs on generate_plan (the daily engagement action)
+    // Streak logic — only runs on generate_plan (the daily engagement action)
     let streakIncremented = false;
     if (action === 'generate_plan') {
       const today     = new Date().toISOString().split('T')[0];
@@ -3026,7 +3143,7 @@ app.post('/api/xp/award', requireSession, async (req, res) => {
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
       if (lastActive === today) {
-        // already active today â€” no change
+        // already active today — no change
       } else if (lastActive === yesterday) {
         profile.streak = (profile.streak || 1) + 1;
         streakIncremented = true;
@@ -3054,7 +3171,7 @@ app.post('/api/xp/award', requireSession, async (req, res) => {
   }
 });
 
-// POST /api/meal-feedback â€” record a like/dislike/swap for a meal (server-authoritative userId)
+// POST /api/meal-feedback — record a like/dislike/swap for a meal (server-authoritative userId)
 // Body: { mealName: string, action: 'like' | 'dislike' | 'swap', reason?: string }
 const MEAL_FEEDBACK_ACTIONS = new Set(['like', 'dislike', 'swap']);
 app.post('/api/meal-feedback', requireSession, async (req, res) => {
@@ -3083,7 +3200,7 @@ function calcLevel(xp) {
   return 1;
 }
 
-// GET /api/share-card/:userId â€” public, no auth required
+// GET /api/share-card/:userId — public, no auth required
 app.get('/api/share-card/:userId', async (req, res) => {
   const { userId } = req.params;
   if (!userId || userId.length > 40) return res.status(404).json({ error: 'Not found' });
@@ -3103,16 +3220,16 @@ app.get('/api/share-card/:userId', async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// SHAREABLE MEAL PLANS â€” public, no login
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// SHAREABLE MEAL PLANS — public, no login
+// ════════════════════════════════════════════════════════════════════════════
 
 const PLAN_SHARE_DAYS = new Set([
   'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday',
   'Today','Unspecified'
 ]);
 
-// POST /api/plans/share â€” generate a shareable link for a plan
+// POST /api/plans/share — generate a shareable link for a plan
 app.post('/api/plans/share', requireSession, async (req, res) => {
   const session = req.session;
 
@@ -3157,7 +3274,7 @@ app.post('/api/plans/share', requireSession, async (req, res) => {
   }
 });
 
-// GET /api/shared-plan/:shareId â€” public, no auth
+// GET /api/shared-plan/:shareId — public, no auth
 app.get('/api/shared-plan/:shareId', async (req, res) => {
   const { shareId } = req.params;
   if (!shareId || shareId.length > 20) return res.status(404).json({ error: 'Not found' });
@@ -3169,11 +3286,11 @@ app.get('/api/shared-plan/:shareId', async (req, res) => {
   res.json({ success: true, plan: link.plan, views: (link.views || 0) + 1 });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// REF CODE LOOKUP â€” handles /?ref=CODE on homepage
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// REF CODE LOOKUP — handles /?ref=CODE on homepage
+// ════════════════════════════════════════════════════════════════════════════
 
-// GET /api/ref-lookup?code=ref_ABC123 â€” resolves a code to an email for referral credit
+// GET /api/ref-lookup?code=ref_ABC123 — resolves a code to an email for referral credit
 app.get('/api/ref-lookup', authLimiter, async (req, res) => {
   const { code } = req.query;
   if (!code) return res.json({ found: false });
@@ -3184,9 +3301,9 @@ app.get('/api/ref-lookup', authLimiter, async (req, res) => {
   res.json({ found: false });
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// ANALYTICS FUNNEL â€” admin endpoint
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
+// ANALYTICS FUNNEL — admin endpoint
+// ════════════════════════════════════════════════════════════════════════════
 
 app.get('/api/analytics/funnel', requireSession, async (req, res) => {
   const session = req.session;
@@ -3205,10 +3322,10 @@ app.get('/api/analytics/funnel', requireSession, async (req, res) => {
   }
 });
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// CRON ENDPOINTS â€” called by Render cron job or external scheduler
+// ════════════════════════════════════════════════════════════════════════════
+// CRON ENDPOINTS — called by Render cron job or external scheduler
 // Secured with a cron-specific secret header: x-cron-secret
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ════════════════════════════════════════════════════════════════════════════
 
 function cronAuth(req, res) {
   const secret      = req.headers['x-cron-secret'];
@@ -3224,7 +3341,7 @@ function cronAuth(req, res) {
   return true;
 }
 
-// POST /api/cron/day3-nudge â€” send day-3 nudge emails to unconverted users
+// POST /api/cron/day3-nudge — send day-3 nudge emails to unconverted users
 app.post('/api/cron/day3-nudge', cronLimiter, async (req, res) => {
   if (!cronAuth(req, res)) return;
   try {
@@ -3233,7 +3350,7 @@ app.post('/api/cron/day3-nudge', cronLimiter, async (req, res) => {
     for (const user of users) {
       const result = await sendEmail(
         user.email,
-        "You've got 2 free plans left this month â€” here's what Pro unlocks",
+        "You've got 2 free plans left this month — here's what Pro unlocks",
         emailDay3Nudge(user.name, 2)
       );
       if (result.ok) {
@@ -3250,7 +3367,7 @@ app.post('/api/cron/day3-nudge', cronLimiter, async (req, res) => {
   }
 });
 
-// POST /api/cron/weekly-digest â€” send weekly reminder to all active free users
+// POST /api/cron/weekly-digest — send weekly reminder to all active free users
 app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
   if (!cronAuth(req, res)) return;
   try {
@@ -3259,7 +3376,7 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
     for (const user of users) {
       const result = await sendEmail(
         user.email,
-        'New week â€” generate your meal plan in 30 seconds',
+        'New week — generate your meal plan in 30 seconds',
         emailWeeklyDigest(user.name, user.pro === 1)
       );
       if (result.ok) sent++;
@@ -3273,11 +3390,11 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
   }
 });
 
-// â”€â”€ Recipe routes (photo import, save, list) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Recipe routes (photo import, save, list) ──────────────────────────────────
 require('./routes/recipes')(app, { anthropic, requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap });
 require('./routes/favorites')(app, { requireSession, db });
 
-// â”€â”€ Blog routes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Blog routes ───────────────────────────────────────────────────────────────
 app.get('/blog', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'blog', 'index.html'));
 });
@@ -3285,7 +3402,7 @@ app.use('/blog', express.static(path.join(__dirname, 'public', 'blog'), {
   setHeaders: setSecurityHeaders
 }));
 
-// â”€â”€ React build pages: serve the matching dist/*.html instead of index.html â”€â”€
+// ── React build pages: serve the matching dist/*.html instead of index.html ──
 if (hasDistBuild) {
   const distPages = [
     'pricing', 'upgrade', 'login', 'reset-password', 'privacy-policy', 'terms',
@@ -3299,7 +3416,7 @@ if (hasDistBuild) {
   }
 }
 
-// â”€â”€ Catch-all: serve index.html â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Catch-all: serve index.html ───────────────────────────────────────────────
 app.get('*', async (req, res) => {
   if (hasDistBuild) {
     return res.sendFile(path.join(distDir, 'index.html'));
@@ -3307,7 +3424,7 @@ app.get('*', async (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// â”€â”€ Global error handler â€” prevents unhandled exceptions from crashing the server â”€â”€
+// ── Global error handler — prevents unhandled exceptions from crashing the server ──
 app.use((err, req, res, next) => {
   if (err.type === 'entity.too.large') {
     return res.status(413).json({ error: 'payload_too_large', message: 'Request body is too large.' });
@@ -3322,15 +3439,15 @@ process.on('unhandledRejection', (reason) => {
 });
 process.on('uncaughtException', (err) => {
   console.error('[uncaughtException]', err.stack || err);
-  // Don't exit â€” Render will restart if truly unrecoverable
+  // Don't exit — Render will restart if truly unrecoverable
 });
 
-// â”€â”€ Start server after DB is ready â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Start server after DB is ready ────────────────────────────────────────────
 db.initDb().then(async () => {
   app.listen(PORT, async () => {
     logger.info(`Mealzy running on http://localhost:${PORT}`);
 
-    // Startup self-test â€” Avery checks these logs after every deploy
+    // Startup self-test — Avery checks these logs after every deploy
     const checks = [
       { name: 'JWT_SECRET',              ok: !!process.env.JWT_SECRET },
       { name: 'ANTHROPIC_API_KEY',       ok: !!process.env.ANTHROPIC_API_KEY },
@@ -3359,7 +3476,7 @@ db.initDb().then(async () => {
     if (fail.length) logger.warn(`[startup] Missing/failed: ${fail.map(c => c.name).join(', ')}`);
     else logger.info('[startup] All systems go');
 
-    // â”€â”€ Avery: keep-alive ping â€” prevents Render free tier spin-down â”€â”€â”€â”€â”€â”€
+    // ── Avery: keep-alive ping — prevents Render free tier spin-down ──────────
     if (process.env.NODE_ENV === 'production') {
       setInterval(() => {
         fetch('https://mealzy.org/api/health').catch(() => {});

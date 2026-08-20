@@ -1,0 +1,402 @@
+/* Meal Planner — day view partials (header, empty state, meal cards, stats bar) */
+
+.planner-day-container .grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 700px) {
+  .planner-day-container .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.planner-empty {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 16px;
+  padding: 56px 24px;
+  text-align: center;
+}
+.planner-empty__icon {
+  width: 56px;
+  height: 56px;
+  background: var(--clr-primary-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--clr-primary);
+}
+.planner-empty__title {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--clr-foreground);
+  max-width: 30rem;
+  margin: 0 auto 8px;
+}
+.planner-empty__body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--clr-muted-fg);
+  max-width: 28rem;
+  margin: 0 auto 24px;
+}
+.planner-empty__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Meal card ────────────────────────────────────────────── */
+.meal-card {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.meal-card:hover {
+  border-color: var(--color-green);
+}
+.meal-card.is-done {
+  opacity: 0.6;
+}
+.meal-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.meal-card__type {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clr-muted-fg);
+}
+.meal-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.meal-card__action {
+  background: none;
+  border: 1px solid var(--clr-border);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--clr-muted-fg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.meal-card__action:hover {
+  border-color: var(--clr-primary);
+  color: var(--clr-primary);
+}
+.meal-card__action.is-active {
+  border-color: var(--color-green);
+  color: var(--color-green);
+}
+.meal-card__action[data-action="favorite"],
+.meal-card__action[data-action="done"] {
+  border: none;
+  padding: 4px;
+}
+.meal-card__body {
+  margin-top: 12px;
+}
+.meal-card__title {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--clr-foreground);
+  margin: 0;
+}
+.meal-card__desc {
+  font-size: 14px;
+  color: var(--clr-muted-fg);
+  margin: 4px 0 16px 0;
+  line-height: 1.6;
+}
+.meal-card__details {
+  padding: 0 20px 20px 20px;
+  margin: 16px -20px -20px -20px;
+  border-top: 1px solid var(--clr-border);
+  padding-top: 16px;
+}
+.meal-card__section h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--clr-muted-fg);
+  margin: 16px 0 8px 0;
+}
+.meal-card__section:first-child h4 {
+  margin-top: 0;
+}
+.meal-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.meal-card__list li {
+  font-size: 14px;
+  color: var(--clr-foreground);
+  padding: 4px 0;
+}
+.meal-card__section p {
+  font-size: 14px;
+  color: var(--clr-foreground);
+  line-height: 1.6;
+  margin: 0;
+}
+.meal-card__metrics {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+}
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.metric__label {
+  font-size: 12px;
+  color: var(--clr-muted-fg);
+}
+.metric__value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--clr-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.metric--cost .metric__value {
+  color: var(--color-green);
+  font-weight: 700;
+}
+
+/* ── Stats bar ────────────────────────────────────────────── */
+.stats-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--clr-muted-bg);
+  border-top: 1px solid var(--clr-border);
+  padding: 16px 32px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.stats-bar__item {
+  text-align: center;
+}
+.stats-bar__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--clr-muted-fg);
+  margin-bottom: 2px;
+}
+.stats-bar__value {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--clr-foreground);
+}
+.stats-bar__value--cost {
+  color: var(--color-green);
+}
+@media (max-width: 600px) {
+  .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 12px 0; padding: 12px 16px; }
+}
+
+/* ── Header grouping & view toggle ───────────────────────── */
+.planner-header__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.planner-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.planner-header__actions .view-toggle {
+  background: var(--color-slate-100);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 0;
+  width: auto;
+}
+.planner-header__actions .view-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted-fg);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.planner-header__actions .view-toggle-btn.active {
+  background: var(--clr-surface);
+  color: var(--color-foreground);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Page chrome (moved from inline <style> in meal-planner.html) ──────── */
+.sidebar-logo { font-family: var(--font-display); font-style: italic; font-weight: 700; color: white; font-size: 1.25rem; text-decoration: none; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .meal-card-animated { animation: fadeInUp 0.38s ease both; }
+  .meal-card-animated:nth-child(1) { animation-delay: 0.00s; }
+  .meal-card-animated:nth-child(2) { animation-delay: 0.07s; }
+  .meal-card-animated:nth-child(3) { animation-delay: 0.14s; }
+  .meal-card-animated:nth-child(4) { animation-delay: 0.21s; }
+  .meal-card-animated:nth-child(5) { animation-delay: 0.28s; }
+  .meal-card-animated:nth-child(6) { animation-delay: 0.35s; }
+}
+
+/* ── Planner page layout ─────────────────────────────── */
+.main-content {
+  background: var(--clr-background);
+}
+
+/* ── Date navigator ─────────────────────────────────── */
+.date-navigator {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  overflow-x: visible;
+  margin-bottom: 1.5rem;
+}
+.date-display {
+  flex-shrink: 0;
+  min-width: 140px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--clr-foreground);
+}
+
+[data-theme="dark"] .main-content {
+  background: var(--clr-muted-bg);
+}
+
+/* ── Dark theme warning colors ─────────────────────────────── */
+[data-theme="dark"] {
+  --clr-warning-bg: hsl(38,30%,10%);
+  --clr-warning-fg: hsl(38,25%,65%);
+  --clr-warning-border: hsl(38,65%,40%);
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] .main-content,
+[data-theme="dark"] .planner-content,
+[data-theme="dark"] .page-content {
+  background: var(--clr-muted-bg);
+}
+[data-theme="dark"] #healthDisclaimer,
+[data-theme="dark"] .ai-disclaimer,
+[data-theme="dark"] .disclaimer {
+  background: rgba(255,255,255,0.06);
+  border-left-color: var(--color-green);
+}
+
+/* ── AI disclaimer polish ─────────────────────────────────── */
+#healthDisclaimer span {
+  font-size: 12px;
+  color: var(--color-slate-400);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .planner-wrapper,
+[data-theme="dark"] .day-view-container {
+  background: var(--clr-muted-bg);
+}
+
+/* ── Skeleton loading state ─────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--clr-border) 25%,
+    var(--clr-muted-bg) 50%,
+    var(--clr-border) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 0.4rem;
+}
+.skeleton-card {
+  background: var(--clr-card);
+  border: 1px solid var(--clr-border);
+  border-radius: 0.75rem;
+  padding: 1.1rem 1.25rem;
+}
+.sk-badge  { width: 72px; height: 20px; margin-bottom: 0.75rem; }
+.sk-title  { width: 65%; height: 22px; margin-bottom: 0.5rem; }
+.sk-desc   { width: 90%; height: 14px; margin-bottom: 0.25rem; }
+.sk-desc2  { width: 70%; height: 14px; margin-bottom: 0.75rem; }
+.sk-stats  { display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+.sk-stat   { width: 80px; height: 14px; }
+
+/* ── Error state ────────────────────────────────────────── */
+.error-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border: 1px solid hsl(0,60%,88%);
+  background: hsl(0,60%,98%);
+  border-radius: 1rem;
+}
+[data-theme="dark"] .error-state {
+  background: hsl(0,30%,10%);
+  border-color: hsl(0,40%,25%);
+}
+.error-state-icon {
+  width: 48px; height: 48px;
+  background: hsl(0,60%,92%);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+  color: hsl(0,65%,45%);
+}
+[data-theme="dark"] .error-state-icon { background: hsl(0,30%,18%); }
+.error-state h3 { font-family: var(--font-display); font-style: italic; font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--clr-foreground); }
+.error-state p { font-size: 0.88rem; color: var(--clr-muted-fg); margin-bottom: 1.25rem; }
+
+/* Free limit modal & custom meal modal styles moved to planner-modals.css (500-line rule) */

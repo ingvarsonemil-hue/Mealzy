@@ -1,0 +1,23 @@
+<!-- SHARE PLAN PANEL (shown after plan generation) -->
+<div id="sharePlanPanel" style="display:none;margin-top:1.25rem;padding:1.25rem;background:var(--clr-card);border:1px solid var(--clr-border);border-radius:1rem;">
+  <div style="font-weight:700;font-size:0.9rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.4rem;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    Share this plan
+  </div>
+  <p style="font-size:0.82rem;color:var(--clr-muted-fg);margin-bottom:0.75rem;">Share your meal plan — friends can view it and generate their own from your link.</p>
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+    <input id="sharePlanInput" type="text" readonly style="flex:1;min-width:200px;font-size:0.78rem;border:1px solid var(--clr-border);border-radius:0.5rem;padding:0.45rem 0.7rem;background:var(--clr-muted-bg);color:var(--clr-text);" placeholder="Generating link…" />
+    <button onclick="copySharePlanLink()" class="btn btn-outline btn-sm" style="display:flex;align-items:center;gap:0.35rem;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+      Copy
+    </button>
+    <a id="shareTwitterBtn" href="#" target="_blank" class="btn btn-outline btn-sm" style="display:flex;align-items:center;gap:0.35rem;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+      X
+    </a>
+    <a id="shareWhatsAppBtn" href="#" target="_blank" class="btn btn-outline btn-sm" style="display:flex;align-items:center;gap:0.35rem;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</div>

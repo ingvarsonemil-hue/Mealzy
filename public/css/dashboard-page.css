@@ -68,12 +68,9 @@
 .today-progress-empty h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
 .today-progress-empty p { font-size: 0.88rem; color: var(--clr-muted-fg); margin: 0.25rem 0; }
 .today-progress-empty .goals { font-size: 0.82rem; }
-/* Stark, dense loading-style placeholder ring — no explainer copy */
-.today-progress-empty-ring {
-  width: 40px; height: 40px; margin: 0 auto 0.6rem;
-  border-radius: 50%;
-  border: 4px dashed var(--clr-border);
-}
+/* Solid SVG ring shell, 0% filled — matches the live macro rings' style, no explainer copy */
+.today-progress-empty-ring { width: 40px; height: 40px; margin: 0 auto 0.6rem; }
+.today-progress-empty-ring circle:last-child { transition: stroke-dashoffset 0.6s ease-out; }
 
 /* Recent plans */
 .recent-plan { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 0; }

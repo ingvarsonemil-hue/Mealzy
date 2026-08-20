@@ -1,0 +1,43 @@
+<section class="card budget-card">
+  <div data-component-root="budget-empty" hidden>
+    <div class="empty-state">
+      <div>
+        <div class="empty-state__title">No weekly budget set</div>
+        <p class="empty-state__desc">Set your budget to track spend and projected savings in real time.</p>
+      </div>
+      <button class="btn btn--primary" data-action="set-budget">Set your weekly budget</button>
+    </div>
+  </div>
+
+  <div data-component-root="budget">
+    <div class="budget-card__hero">
+      <div>
+        <div class="budget-card__amount-label">Projected remaining</div>
+        <div class="budget-card__amount">
+          <span class="budget-card__amount-currency">$</span><span data-budget="remaining-value">0.00</span>
+        </div>
+        <div class="budget-card__meta">of <strong data-budget="total">$0.00</strong> weekly budget</div>
+      </div>
+      <span class="pill" data-budget="status">On track</span>
+    </div>
+
+    <div class="budget-progress">
+      <div class="budget-progress__fill" data-budget="fill" style="width: 0%"></div>
+    </div>
+
+    <div class="budget-breakdown">
+      <div class="budget-stat">
+        <div class="budget-stat__label">Spent</div>
+        <div class="budget-stat__value" data-budget="spent">$0.00</div>
+      </div>
+      <div class="budget-stat">
+        <div class="budget-stat__label">Days left</div>
+        <div class="budget-stat__value" data-budget="days">0</div>
+      </div>
+      <div class="budget-stat">
+        <div class="budget-stat__label">Daily avg</div>
+        <div class="budget-stat__value" data-budget="daily">$0.00</div>
+      </div>
+    </div>
+  </div>
+</section>

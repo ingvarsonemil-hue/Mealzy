@@ -230,16 +230,32 @@ async function createUser({ id, name, email, hashedPassword }) {
   );
 }
 
+// Dev-only: force a single account to read as Pro + verified on localhost, so
+// the paywall/verification gate still work for everyone else. Never active
+// when NODE_ENV === 'production'.
+function _applyDevProOverride(user) {
+  const devEmail = process.env.DEV_PRO_EMAIL;
+  if (user && devEmail && process.env.NODE_ENV !== 'production' &&
+      user.email === devEmail.toLowerCase().trim()) {
+    user.pro = 1;
+    user.email_verified = 1;
+  }
+  return user;
+}
+
 async function getUserByEmail(email) {
-  return get('SELECT * FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+  const user = await get('SELECT * FROM users WHERE email = ?', [email.toLowerCase().trim()]);
+  return _applyDevProOverride(user);
 }
 
 async function getUserById(id) {
-  return get('SELECT * FROM users WHERE id = ?', [id]);
+  const user = await get('SELECT * FROM users WHERE id = ?', [id]);
+  return _applyDevProOverride(user);
 }
 
 async function getUserByGoogleId(googleId) {
-  return get('SELECT * FROM users WHERE google_id = ?', [googleId]);
+  const user = await get('SELECT * FROM users WHERE google_id = ?', [googleId]);
+  return _applyDevProOverride(user);
 }
 
 async function createUserGoogle({ id, name, email, googleId }) {
@@ -780,6 +796,32 @@ async function deleteGroceryListForPlanDay(planId, day, userId) {
   );
 }
 
+/** Applies a partial update (checked, actualCost) to one item inside a stored
+ * grocery list's JSON blob, keyed by (plan_id, day, user_id) since that's the
+ * row grocery_lists is scoped to. Returns the updated item, or null if the
+ * list row or the item id isn't found. */
+async function updateGroceryItem(planId, day, userId, itemId, updates) {
+  const row = await get(
+    'SELECT id, data FROM grocery_lists WHERE plan_id = ? AND day = ? AND user_id = ?',
+    [planId, day, userId]
+  );
+  if (!row) return null;
+
+  let parsed;
+  try { parsed = JSON.parse(row.data); } catch(e) { return null; }
+
+  let item = null;
+  for (const items of Object.values(parsed.categories || {})) {
+    item = (items || []).find(i => i.id === itemId);
+    if (item) break;
+  }
+  if (!item) return null;
+
+  Object.assign(item, updates);
+  await run('UPDATE grocery_lists SET data = ? WHERE id = ?', [JSON.stringify(parsed), row.id]);
+  return item;
+}
+
 /** Aggregates grocery lists across every day the user has generated so far in
  * their trial (each daily generation gets its own plan_id, unlike week-mode
  * where 7 days share one plan_id) — reuses the same per-row shape as
@@ -909,7 +951,7 @@ module.exports = {
   // meal feedback
   saveMealFeedback, getUserDislikedMeals,
   // grocery lists
-  saveGroceryList, getGroceryListsForPlan, getGroceryListsForUserTrial, getGroceryListByDay, deleteGroceryListForPlanDay,
+  saveGroceryList, getGroceryListsForPlan, getGroceryListsForUserTrial, getGroceryListByDay, deleteGroceryListForPlanDay, updateGroceryItem,
   // health
   ping,
   // webhook idempotency
