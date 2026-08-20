@@ -2,6 +2,7 @@ import * as React from 'react';
 import Header from '@/components/Header';
 import FounderStory from '@/components/FounderStory';
 import Hero from '@/components/Hero';
+import ProductDemo from '@/components/ProductDemo';
 import Showcase from '@/components/Showcase';
 import TrustBar from '@/components/TrustBar';
 import HowItWorks from '@/components/HowItWorks';
@@ -59,6 +60,10 @@ export default function App() {
       <Header ctaHref={secondaryCtaHref} />
       <main id="main">
         <Hero onStartPlan={startPlan} ctaHref={secondaryCtaHref} />
+        
+        {/* Visual Product Demo Section */}
+        <ProductDemo />
+        
         <Showcase
           onStartPlan={startPlan}
           budget={budget}
