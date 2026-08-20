@@ -1,22 +1,21 @@
+import ProductDemo from '@/components/ProductDemo';
+import ClosingCta from '@/components/ClosingCta';
 import * as React from 'react';
 import Header from '@/components/Header';
 import FounderStory from '@/components/FounderStory';
 import Hero from '@/components/Hero';
-import ProductDemo from '@/components/ProductDemo';
 import Showcase from '@/components/Showcase';
 import TrustBar from '@/components/TrustBar';
 import HowItWorks from '@/components/HowItWorks';
 import FeaturesGrid from '@/components/FeaturesGrid';
 import WhyMealzy from '@/components/WhyMealzy';
 import Faq from '@/components/Faq';
-import ClosingCta from '@/components/ClosingCta';
 import InteractiveOnboarding from '@/components/InteractiveOnboarding';
 import Footer from '@/components/Footer';
 import { captureReferral } from '@/lib/api';
 import { BASE_BUDGET, DIETS } from '@/components/showcase-plan';
 
 const DEFAULT_HOUSEHOLD = 2;
-
 export default function App() {
   const [budget, setBudget] = React.useState(BASE_BUDGET);
   const [planBudget, setPlanBudget] = React.useState(BASE_BUDGET);
@@ -58,10 +57,11 @@ export default function App() {
     <>
       <a href="#main" className="skip-link">Skip to main content</a>
       <Header ctaHref={secondaryCtaHref} />
-      <main id="main">
+      
+      {/* We added gap-12 and md:gap-16 here to tighten the vertical whitespace between sections by ~20-30% */}
+      <main id="main" className="flex flex-col gap-12 md:gap-16">
         <Hero onStartPlan={startPlan} ctaHref={secondaryCtaHref} />
         
-        {/* Visual Product Demo Section */}
         <ProductDemo />
         
         <Showcase
@@ -72,13 +72,19 @@ export default function App() {
           ctaHref={secondaryCtaHref}
         />
         <TrustBar />
-        <FounderStory />
         <HowItWorks />
         <FeaturesGrid />
         <WhyMealzy />
+        
+        {/* FounderStory moved here (lower down) */}
+        <FounderStory /> 
+        
         <Faq />
-        <ClosingCta ctaHref={secondaryCtaHref} />
+        
+        {/* Replaced the old ClosingCta with our new FinalCTA */}
+       <ClosingCta ctaHref={secondaryCtaHref} />
       </main>
+      
       <InteractiveOnboarding open={onboarding} onOpenChange={setOnboarding} seed={seed} />
       <Footer ctaHref={secondaryCtaHref} />
     </>
