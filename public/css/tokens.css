@@ -1,45 +1,220 @@
+/* Mealzy Design System — tokens.css */
+
 :root {
-  --color-primary: #059669;
-  --color-primary-hover: #047857;
-  --color-primary-soft: #ECFDF5;
-  --color-text: #0F172A;
-  --color-text-muted: #475569;
-  --color-bg: #FFFFFF;
-  --color-bg-subtle: #F8FAFC;
-  --color-border: #E2E8F0;
-  --color-hairline: #F1F5F9;
+  /* Brand Colors */
+  --color-forest:      #1a3d2b;
+  --color-green:       #059669;
+  --color-green-light: #10b981;
+  --color-green-muted: #a8d5ba;
 
-  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Neutral Palette */
+  --color-foreground:  #0f172a;
+  --color-muted-fg:    #475569;
+  --color-cream:       #f8f5f0;
+  --color-parchment:   #f2ede6;
+  --color-muted-bg:    #f8fafc;
+  --color-border:      #e2e8f0;
+  --color-hairline:    #e2e8f0;
 
-  --radius-card: 12px;
-  --radius-input: 8px;
-  --radius-pill: 999px;
+  /* Semantic Colors */
+  --color-success:     #10b981;
+  --color-warning:     #f59e0b;
+  --color-info:  hsl(200, 100%, 40%);
+  --color-indigo:      #6366f1;
+  --color-amber: hsl(32, 88%, 50%);
+  --color-error:       #ef4444;
+  --color-brick:       #c2410c;
 
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--color-green) 0%, var(--color-forest) 100%);
 
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.06);
-  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Typography Scale (modular scale 1.125x) */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-size-xs:   0.75rem;  /* 12px - captions, labels */
+  --font-size-sm:   0.875rem; /* 14px - small text */
+  --font-size-base: 1rem;     /* 16px - body text */
+  --font-size-lg:   1.125rem; /* 18px - emphasized text */
+  --font-size-xl:   1.25rem;  /* 20px - section titles */
+  --font-size-2xl:  1.5rem;   /* 24px - page headings */
+  --font-size-3xl:  2rem;     /* 32px - large headings */
+  --font-size-4xl:  2.5rem;   /* 40px - hero headings */
+  /* Font weights for hierarchy */
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:    700;
+  --font-weight-black:   900;
+
+  /* Spacing Scale (8px base grid) */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Border Radius */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   32px;
+  --radius-full: 999px;
+
+  /* Elevation Shadows (layered ambient + soft for depth) */
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.05);                 /* Resting state */
+  --shadow-md:     0 4px 16px rgba(15, 23, 42, 0.08);             /* Raised/hover */
+  --shadow-lg:     0 8px 32px rgba(15, 23, 42, 0.12);             /* Floating overlay */
+  --shadow-xl:     0 20px 60px rgba(15,23,42,0.22), 0 8px 24px rgba(15,23,42,0.14); /* Modal/dropdown */
+  --shadow-button: 0 4px 12px rgba(5, 150, 105, 0.3);             /* CTA buttons */
+  --shadow-card:   0 1px 3px rgba(0, 0, 0, 0.05);                 /* Card/surface elevation */
+  /* Semantic layer aliases */
+  --shadow-base:   var(--shadow-sm);                              /* Default surface */
+  --shadow-raised: var(--shadow-md);                              /* Hover/interactive */
+  --shadow-overlay:var(--shadow-lg);                              /* Floating content */
+  --shadow-modal:  var(--shadow-xl);                              /* Modal/dialog */
+
+  /* Extended semantic tokens */
+  --clr-surface:       #ffffff;
+  --clr-page-dark:     #1a2e22;          /* Dark mode card / chat bg */
+  --clr-on-primary:    #ffffff;
+  --clr-surface-subtle: rgba(255,255,255,0.05);
+  --clr-input-bg:      var(--clr-surface);
+  --clr-primary-dark:  var(--color-forest);
+  --color-green-rgb:   5, 150, 105;      /* For rgba() usage: rgba(var(--color-green-rgb), 0.1) */
+  --clr-error:         #c0392b;
+  --clr-warning:       hsl(32,88%,54%);  /* Protein ring, warm amber */
+  --clr-info:          hsl(200,100%,50%); /* Carbs ring, info blue */
+  --clr-accent:        hsl(260,60%,55%); /* Fat ring, purple accent */
+
+  /* On-forest palette — text and surfaces layered on --color-forest drench sections */
+  --clr-on-forest:        #ffffff;
+  --clr-on-forest-strong: rgba(255,255,255,0.93);
+  --clr-on-forest-body:   rgba(255,255,255,0.80);
+  --clr-on-forest-muted:  rgba(255,255,255,0.58);
+  --clr-on-forest-faint:  rgba(255,255,255,0.32);
+  --clr-forest-raise:     rgba(255,255,255,0.07);
+  --clr-forest-line:      rgba(255,255,255,0.15);
+  --color-forest-deep:    #12291d;
+  --clr-green-deep:       #2d6e4a;
+  --clr-green-glow:       rgba(74,222,128,0.45);
+  --clr-scrim:            rgba(10,20,14,0.6);
+
+  /* Animation */
+  --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-edit:     cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 0.15s;
+  --duration-base: 0.3s;
+  --duration-slow: 0.5s;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+[data-theme="dark"] {
+  --clr-surface: #1e2d24;
+  --color-foreground:  #f5f1ed;
+  --color-muted-fg:    #a8a29e;
+  --color-cream:       #1f2937;
+  --color-parchment:   #111827;
+  --color-muted-bg:    #0f1419;
+  --color-border:      #2d3748;
+  --color-hairline:    #2d3748;
+}
 
-html, body {
-  font-family: var(--font-sans);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-muted);
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-green);
+  color: white;
+  padding: 8px 16px;
+  z-index: 10000;
   font-size: 14px;
-  line-height: 1.6;
-  letter-spacing: -0.01em;
-  -webkit-font-smoothing: antialiased;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius-sm) 0;
+  transition: top 0.15s var(--ease-out);
 }
 
-button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-a { color: inherit; text-decoration: none; }
-ul { list-style: none; }
+.skip-link:focus {
+  top: 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badge-green {
+  background: var(--color-green);
+  color: white;
+}
+
+.form-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input-wrapper .form-input {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted-fg);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.password-toggle:focus {
+  outline: 2px solid var(--color-green);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Dark mode nav fix */
+[data-theme="dark"] .nav {
+  background: rgba(15, 20, 25, 0.95);
+  border-bottom-color: var(--color-border);
+}
+[data-theme="dark"] .nav-logo { color: white; }
+[data-theme="dark"] .nav-link { color: var(--color-foreground); }
+
+/* Dark mode card fix */
+[data-theme="dark"] .card {
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+[data-theme="dark"] .card:hover {
+  box-shadow: none;
+  border-color: var(--color-green-muted);
+  transform: translateY(-2px);
+}
+
+/* Dark mode form inputs */
+[data-theme="dark"] .form-input {
+  background: var(--color-cream);
+  color: var(--color-foreground);
+  border-color: var(--color-border);
+}
