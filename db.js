@@ -196,6 +196,31 @@ async function _applySchema() {
   try {
     await _client.execute(`UPDATE users SET email_verified = 1 WHERE email_verified IS NULL`);
   } catch(e) {}
+
+  // ── ingredient_prices unit-normalization fix (pricing foundation) ──────────
+  // These three rows stored a package/pack price under a non-gram/ml unit
+  // ("lb", "1L", "800g tub"), which the cost calculator silently treated as
+  // if it were a per-gram/per-ml price - producing costs off by 2-3 orders
+  // of magnitude (e.g. salmon priced at $9/lb computed as $9/g).
+  // Converted to canonical g/ml at the SAME economic value, not re-priced:
+  //   salmon fillets: $9.00/lb  -> $9.00 / 453.59237 g/lb = $0.0198/g
+  //   almond milk:    $2.80/1L  -> $2.80 / 1000 ml         = $0.0028/ml
+  //   greek yogurt:   $5.40/800g tub -> $5.40 / 800 g       = $0.00675/g
+  // Guarded on the OLD unit so this only fires once and is a no-op if the
+  // row has already been corrected (manually or by a prior boot).
+  const unitFixes = [
+    { name: 'salmon fillets', oldUnit: 'lb',           newUnit: 'g',  newPrice: 0.0198 },
+    { name: 'almond milk',    oldUnit: '1L',            newUnit: 'ml', newPrice: 0.0028 },
+    { name: 'greek yogurt',   oldUnit: '800g tub',       newUnit: 'g',  newPrice: 0.00675 },
+  ];
+  for (const fix of unitFixes) {
+    try {
+      await _client.execute({
+        sql: `UPDATE ingredient_prices SET price_per_unit = ?, unit = ? WHERE name = ? AND unit = ?`,
+        args: [fix.newPrice, fix.newUnit, fix.name, fix.oldUnit],
+      });
+    } catch(e) { /* best-effort, non-fatal */ }
+  }
 }
 
 // ── Low-level helpers ─────────────────────────────────────────────────────────

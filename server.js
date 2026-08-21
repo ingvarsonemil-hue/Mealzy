@@ -26,6 +26,7 @@ const rateLimit    = require('express-rate-limit');
 const Anthropic    = require('@anthropic-ai/sdk');
 const winston      = require('winston');
 const db           = require('./db');
+const pricing      = require('./pricing');
 
 // ── Structured logging — replaces console.log/error throughout ──────────────
 const logger = winston.createLogger({
@@ -2001,36 +2002,17 @@ app.post('/api/email-leads', leadLimiter, async (req, res) => {
 // MEAL GENERATION
 // ════════════════════════════════════════════════════════════════════════════
 
-const DEFAULT_INGREDIENT_COST_USD = 0.50;
-
-function _parseIngredientQuantity(amountStr) {
-  const m = String(amountStr || '').match(/[\d.]+/);
-  const n = m ? parseFloat(m[0]) : NaN;
-  return Number.isFinite(n) && n > 0 ? n : 1;
-}
-
-function _findIngredientPriceRow(name, priceRows) {
-  const norm = String(name || '').toLowerCase().trim();
-  if (!norm) return null;
-  return priceRows.find(p => p.name === norm)
-    || priceRows.find(p => norm.includes(p.name) || p.name.includes(norm))
-    || null;
-}
-
-/** Deterministic ingredient-cost lookup: matches ingredient names against
- * ingredient_prices, falls back to a flat default for unmatched items.
- * Never asks the AI to guess prices. */
+/** Deterministic, unit-aware ingredient-cost lookup — delegates to pricing.js,
+ * the single source of truth shared with the grocery-list cost calculation.
+ * Never asks the AI to guess prices, and never trusts the AI's own estimated
+ * cost field. Returns { totalUSD, allVerified, items } — allVerified is false
+ * whenever any ingredient fell back to an unknown/estimated/legacy price. */
 async function calculateMealCost(ingredients) {
-  if (!Array.isArray(ingredients) || ingredients.length === 0) return 0;
-  const priceRows = await db.getIngredientPrices();
-  let total = 0;
-  for (const ing of ingredients) {
-    const priceRow = _findIngredientPriceRow(ing?.name, priceRows);
-    total += priceRow
-      ? priceRow.price_per_unit * _parseIngredientQuantity(ing?.amount)
-      : DEFAULT_INGREDIENT_COST_USD;
+  if (!Array.isArray(ingredients) || ingredients.length === 0) {
+    return { totalUSD: 0, allVerified: true, items: [] };
   }
-  return Math.round(total * 100) / 100;
+  const priceRows = await db.getIngredientPrices();
+  return pricing.priceIngredients(ingredients, priceRows);
 }
 
 /** Thrown when a generated meal contains a declared allergen; the route
@@ -2277,10 +2259,15 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
   "cookTime": number,
   "servings": 1,
   "estimatedCost": number,
-  "ingredients": [{ "name": "string", "amount": "string", "cost": number }],
+  "ingredients": [{ "name": "string", "amount": "string (human-readable, e.g. '200g' or '2 eggs')", "amountValue": number, "amountUnit": "g|ml|count", "cost": number }],
   "instructions": ["string"],
   "imageKeyword": "simple English food keyword e.g. scrambled eggs"
 }`;
+    // Every ingredient's amountValue/amountUnit MUST be grams for solids, milliliters
+    // for liquids, or count for discrete items (eggs, slices, heads) — never cups,
+    // tablespoons, ounces, or other cooking units. "amount" stays a human-readable
+    // string for display; amountValue/amountUnit are what the server actually prices.
+    const ingredientUnitRule = `Every ingredient's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items like eggs or slices — convert from cups/tbsp/oz yourself, never leave it in those units. Example: "amount": "1 cup rice" -> "amountValue": 185, "amountUnit": "g".`;
 
     // ═══════════════════════════════════════════════════════════════════════
     // SINGLE MEAL SWAP
@@ -2299,6 +2286,8 @@ Budget: max ${currency} ${perMealBudget} for this meal. Use common supermarket i
 
 LANGUAGE: All meal name, description, and ingredient names MUST be in ${languageName}. JSON keys stay in English.${languageName === 'English' ? ' Use American English spelling (e.g. "pita" not "pitta", "yogurt" not "yoghurt").' : ''}
 
+${ingredientUnitRule}
+
 Respond ONLY with valid JSON matching this exact schema (no markdown, no extra text):
  ${mealSchema.replace('"type": "breakfast|lunch|dinner|snack"', `"type": "${swap_meal_type}"`)}`;
 
@@ -2314,7 +2303,9 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
         meal.name = normalizeSpelling(meal.name);
         meal.description = normalizeSpelling(meal.description);
       }
-      meal.cost = await calculateMealCost(meal.ingredients);
+      const priced = await calculateMealCost(meal.ingredients);
+      meal.cost = priced.totalUSD;
+      meal.costConfidence = priced.allVerified ? 'verified' : 'estimated';
 
       if (process.env.UNSPLASH_ACCESS_KEY) {
         try {
@@ -2392,6 +2383,8 @@ LANGUAGE: Write ALL meal names, descriptions, and ingredient names in ${language
 Generate exactly 4 meals: breakfast, lunch, dinner, snack.
  ${dietaryBlock ? `Remember: ${activeDietRules.split('\n')[0]}` : ''}
 
+${ingredientUnitRule}
+
 Respond ONLY with valid JSON (no markdown fences, no extra text):
 {
   "meals": [
@@ -2444,7 +2437,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
       // ── Macro sanity check + daily sums — computed in code, never trusted from the model ──
       if (mealPlan.meals) {
-        const sums = { calories: 0, protein: 0, carbs: 0, fat: 0, cost: 0 };
+        const sums = { calories: 0, protein: 0, carbs: 0, fat: 0, cost: 0, allCostsVerified: true };
         for (const meal of mealPlan.meals) {
           const p = Number(meal.protein) || 0;
           const c = Number(meal.carbs)   || 0;
@@ -2458,14 +2451,18 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           sums.protein  += p;
           sums.carbs    += c;
           sums.fat      += f;
-          meal.cost      = await calculateMealCost(meal.ingredients);
+          const priced   = await calculateMealCost(meal.ingredients);
+          meal.cost      = priced.totalUSD;
+          meal.costConfidence = priced.allVerified ? 'verified' : 'estimated';
           sums.cost     += meal.cost;
+          if (!priced.allVerified) sums.allCostsVerified = false;
         }
         mealPlan.totalCalories = Math.round(sums.calories);
         mealPlan.totalProtein  = Math.round(sums.protein);
         mealPlan.totalCarbs    = Math.round(sums.carbs);
         mealPlan.totalFat      = Math.round(sums.fat);
         mealPlan.totalCost     = Math.round(sums.cost * 100) / 100;
+        mealPlan.totalCostConfidence = sums.allCostsVerified ? 'verified' : 'estimated';
       }
 
       // ── Allergy enforcement — server-side scan after AI generation ──────────
@@ -2733,7 +2730,9 @@ async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
     : `Tag each item's "day" field with the day of the week (Monday..Sunday) it is needed for, inferred from the meal list order. If it can't be determined, use "Unspecified".`;
   const exampleDay  = day || 'Monday';
 
-  const prompt = `Generate a complete grocery list for the following meals:\n\n${mealList}\n\n${prefInfo}\n${allergyInfo}\n${dayLine}\nBudget: ${currency} ${budget}. Keep total cost at or under this amount.\nWrite all ingredient names in ${langName}. JSON keys stay in English.\nConsolidate duplicate ingredients. Group by category.\n\nRespond ONLY with valid JSON:\n{\n  "weekStart": "${weekStart || ''}",\n  "totalCost": 85.50,\n  "budgetAmount": ${budget},\n  "currency": "${currency}",\n  "categories": {\n    "produce": [{ "name": "Spinach", "amount": "200g", "cost": 2.50, "checked": false, "day": "${exampleDay}" }],\n    "protein": [],\n    "dairy": [],\n    "grains": [],\n    "pantry": [],\n    "frozen": [],\n    "beverages": [],\n    "other": []\n  }\n}`;
+  const unitRule = `Every item's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items — convert from cups/tbsp/oz yourself, never leave it in those units.`;
+
+  const prompt = `Generate a complete grocery list for the following meals:\n\n${mealList}\n\n${prefInfo}\n${allergyInfo}\n${dayLine}\nBudget: ${currency} ${budget}. Keep total cost at or under this amount.\nWrite all ingredient names in ${langName}. JSON keys stay in English.\nConsolidate duplicate ingredients. Group by category.\n${unitRule}\n\nRespond ONLY with valid JSON:\n{\n  "weekStart": "${weekStart || ''}",\n  "totalCost": 85.50,\n  "budgetAmount": ${budget},\n  "currency": "${currency}",\n  "categories": {\n    "produce": [{ "name": "Spinach", "amount": "200g", "amountValue": 200, "amountUnit": "g", "cost": 2.50, "checked": false, "day": "${exampleDay}" }],\n    "protein": [],\n    "dairy": [],\n    "grains": [],\n    "pantry": [],\n    "frozen": [],\n    "beverages": [],\n    "other": []\n  }\n}`;
 
   const completion = await callAnthropicWithSpendCap({
     model: 'claude-haiku-4-5-20251001',
@@ -2747,28 +2746,33 @@ async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
   return groceryList;
 }
 
-/** Grounds each AI-estimated item cost against ingredient_prices where a name
- * match exists (same lookup as calculateMealCost), then stamps the fields the
+/** Grounds every item's cost using pricing.js — the SAME unit-aware
+ * calculation path used for meal-plan costs (calculateMealCost above). The
+ * AI's own guessed "cost" is never treated as authoritative; it is always
+ * replaced by the independently-computed costUSD. Also stamps the fields the
  * grocery UI and the item-level PATCH endpoint depend on: a stable id unique
  * within this list, estimatedCost, actualCost (null until the user edits it),
- * and checked. Mutates groceryList in place. */
+ * priceSource (verified/unknown_ingredient/unsupported_unit/legacy_estimate),
+ * and checked. Recomputes groceryList.totalCost from the grounded item costs
+ * rather than leaving the AI's own guessed total in place. Mutates in place. */
 async function groundAndStampGroceryItems(groceryList) {
   const priceRows = await db.getIngredientPrices();
   let seq = 0;
+  let recomputedTotal = 0;
   for (const items of Object.values(groceryList.categories || {})) {
     for (const item of items || []) {
-      const priceRow = _findIngredientPriceRow(item.name, priceRows);
-      if (priceRow) {
-        const grounded = Math.round(priceRow.price_per_unit * _parseIngredientQuantity(item.amount) * 100) / 100;
-        if (grounded > 0) item.cost = grounded;
-      }
+      const { costUSD, source } = pricing.priceIngredient(item, priceRows);
+      item.cost = costUSD;
+      item.priceSource = source;
+      recomputedTotal += costUSD;
       seq += 1;
       item.id = `g_${String(seq).padStart(3, '0')}`;
-      item.estimatedCost = Number(item.cost) || 0;
+      item.estimatedCost = costUSD;
       item.actualCost = null;
       item.checked = !!item.checked;
     }
   }
+  groceryList.totalCost = Math.round(recomputedTotal * 100) / 100;
 }
 
 /** Splits a categorized grocery list into one grocery-list object per day, keyed by day name. */
