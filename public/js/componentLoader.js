@@ -13,6 +13,7 @@ const REGISTRY = {
   'dashboard/budget-macro-grid':    '/partials/dashboard/budget-macro-grid.html',
   'dashboard/recent-plans':         '/partials/dashboard/recent-plans.html',
   'dashboard/hero-empty':           '/partials/dashboard/hero-empty.html',
+  'dashboard/first-plan-hero':      '/partials/dashboard/first-plan-hero.html',
   'planner/nav':                    '/partials/planner/nav.html',
   'planner/header':                 '/partials/planner/header.html',
   'planner/banners':                '/partials/planner/banners.html',
@@ -32,21 +33,31 @@ async function fetchPartial(path) {
 async function mount(node) {
   const name = node.getAttribute('data-component');
   const path = REGISTRY[name];
+  // Always mark loaded, even on failure — loadAll() re-queries for
+  // unloaded nodes each pass, so an unmarked node would loop forever.
+  node.setAttribute('data-component-loaded', 'true');
   if (!path) { console.warn(`[loader] unknown component: ${name}`); return; }
   try {
     node.innerHTML = await fetchPartial(path);
-    node.setAttribute('data-component-loaded', 'true');
   } catch (err) {
     console.error(`[loader] ${name}`, err);
   }
 }
 
+// Loops because a mounted partial can itself contain [data-component] nodes
+// (e.g. dashboard/hero-empty nested inside dashboard/today-schedule) — a
+// single pass would leave those never mounted.
 async function loadAll(root = document) {
-  const nodes = Array.from(root.querySelectorAll('[data-component]'));
-  await Promise.all(nodes.map(mount));
+  let total = 0;
+  let nodes = Array.from(root.querySelectorAll('[data-component]:not([data-component-loaded])'));
+  while (nodes.length) {
+    total += nodes.length;
+    await Promise.all(nodes.map(mount));
+    nodes = Array.from(root.querySelectorAll('[data-component]:not([data-component-loaded])'));
+  }
   document.dispatchEvent(new CustomEvent('components:ready', {
     bubbles: true,
-    detail: { count: nodes.length },
+    detail: { count: total },
   }));
 }
 

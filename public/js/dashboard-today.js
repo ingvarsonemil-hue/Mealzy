@@ -1,8 +1,5 @@
-// Mealzy dashboard — split out of dashboard.html during the partials refactor
-// (1/4: today's meals, profile/auth, stats). See dashboard-panels.js for the
-// boot sequence — everything here runs as global function declarations and
-// isn't called until 'components:ready' fires, so load order vs. the other
-// three dashboard-*.js files doesn't matter.
+// Mealzy dashboard (1/4: today's meals, profile/auth, stats). See dashboard-panels.js for the boot sequence —
+// everything here runs as global function declarations, not called until 'components:ready' fires.
 
 // ── Icon strings (empty — icons removed) ─────────────────────────────────
 const ICO = {
@@ -49,10 +46,8 @@ async function signOut() {
 
 let profile = null;
 
-// Always pulls the server's copy of the profile before meal generation so a
-// stale localStorage "mealzy_profile" (e.g. old allergy settings) can never
-// cause a false allergy_violation. Falls back to the cached profile if the
-// request fails (offline, etc).
+// Always pulls the server's copy of the profile before meal generation so a stale localStorage
+// "mealzy_profile" can never cause a false allergy_violation. Falls back to the cache if offline.
 async function refreshProfileFromServer() {
   try {
     const res = await fetch('/api/profile');
@@ -230,13 +225,16 @@ function getMondayStr(date) {
   return toLocalDateStr(monday);
 }
 
+// True until the user's first-ever plan generation; see updateDashboardEmptyState in dashboard-panels.js.
+let hasEverGeneratedPlan = false;
+
 async function loadTodayData() {
   let plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+  const history = JSON.parse(localStorage.getItem('mealzy_history') || '[]');
+  hasEverGeneratedPlan = history.length > 0 || Object.keys(plans).length > 0;
 
   if (!plans[today] || !plans[today].meals || plans[today].meals.length === 0) {
-    // Nothing cached locally for today — pull the user's most recent saved
-    // plan from the server (read-only, no credit spent) instead of leaving
-    // the widget empty or auto-generating a new one.
+    // Nothing cached locally for today — pull the most recent saved plan (read-only, no credit spent).
     plans = await fetchActivePlanIfNeeded(plans);
   }
 
@@ -249,16 +247,17 @@ async function loadTodayData() {
   await loadFavorites();
   renderMeals();
   updateStats();
+  updateDashboardEmptyState();
 }
 
-// Fetches the user's most recently saved plan (week or legacy single-day
-// format) and merges it into localStorage.mealzy_meal_plans. Never triggers
-// generation — GET /api/plans is read-only, so no credit is consumed.
+// Fetches the user's most recently saved plan (week or legacy single-day format) and merges it into
+// localStorage.mealzy_meal_plans. Never triggers generation — GET /api/plans is read-only.
 async function fetchActivePlanIfNeeded(plans) {
   try {
     const res = await fetch('/api/plans');
     if (!res.ok) return plans;
     const data = await res.json();
+    if ((data.plans || []).length > 0) hasEverGeneratedPlan = true;
     const latest = (data.plans || [])[0];
     if (!latest) return plans;
 

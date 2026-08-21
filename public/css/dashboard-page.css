@@ -115,8 +115,11 @@
 .stat-card .stat-value { color: var(--clr-primary); }
 [data-theme="dark"] .stat-card { background: rgba(255,255,255,0.06); }
 
-/* Responsive sidebar for tablets */
-@media (max-width: 1024px) {
+/* Responsive sidebar for tablets — scoped to stop below 900px so it doesn't
+   clobber style-overlays.css's mobile reset (.sidebar display:none,
+   .main-content margin-left:0), which uses the same specificity and would
+   otherwise lose to this rule's later position in the cascade. */
+@media (min-width: 901px) and (max-width: 1024px) {
   .sidebar { width: 220px; }
   .main-content { margin-left: 220px; }
 }
@@ -151,6 +154,15 @@
 }
 .dashboard-fab:hover { transform: translateY(-2px); box-shadow: var(--shadow-xl); }
 @media (max-width: 900px) { .dashboard-fab { bottom: 4.5rem; } }
+
+/* ── First-time dashboard empty state ── */
+.first-plan-hero-icon {
+  width: 52px; height: 52px; margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: var(--clr-primary-light);
+  display: flex; align-items: center; justify-content: center;
+}
+.first-plan-hero-hint { font-size: 0.8rem; color: var(--clr-muted-fg); margin-top: 1rem !important; margin-bottom: 0 !important; }
 
 /* ── Budget + Macro grid ── */
 .budget-macro-grid { display: grid; grid-template-columns: minmax(200px, 1fr) 2fr; gap: 1.5rem; padding: 1rem 1.25rem !important; }

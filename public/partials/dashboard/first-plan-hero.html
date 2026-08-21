@@ -1,0 +1,15 @@
+<!-- First-time dashboard state: shown only until the user has generated their
+     very first meal plan (any day, any device — see hasEverGeneratedPlan in
+     dashboard-today.js). Hidden immediately after their first successful
+     generation, in favor of the real today-schedule/budget-macro cards. -->
+<div class="card dash-anim first-plan-hero">
+  <div class="empty-state" style="padding:2.5rem 1.5rem;">
+    <div class="first-plan-hero-icon" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14a7 7 0 01-14 0z"/><path d="M8.5 9c0-1.5 1-1.5 1-3"/><path d="M13.5 9c0-1.5 1-1.5 1-3"/></svg>
+    </div>
+    <h2 style="font-family:var(--font-display);font-style:italic;font-size:1.4rem;margin-bottom:0.5rem;">Let's plan your first week</h2>
+    <p style="max-width:420px;margin-inline:auto;">Mealzy builds a full week of meals around your calorie, macro, and grocery budget targets — ready in under a minute.</p>
+    <button class="btn btn-primary" onclick="generateMealPlan()">Plan my week →</button>
+    <p class="first-plan-hero-hint">Your meals, macros, and grocery list will show up here once your first plan is ready.</p>
+  </div>
+</div>

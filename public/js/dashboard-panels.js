@@ -2,6 +2,22 @@
 // and the boot sequence that wires everything up once componentLoader.js signals
 // 'components:ready').
 
+// Swaps the whole dashboard between the first-time welcome hero (no plan
+// ever generated — see hasEverGeneratedPlan in dashboard-today.js) and the
+// normal today-schedule/budget-macro cards. A returning user with just no
+// plan *today* still gets the normal cards — they already know how the
+// product works, so they keep the compact "No plan for today" empty state
+// inside dashboard/today-schedule instead.
+function updateDashboardEmptyState() {
+  const hero = document.getElementById('firstPlanHero');
+  const todaySection = document.getElementById('todayScheduleSection');
+  const budgetSection = document.getElementById('budgetMacroSection');
+  if (!hero) return;
+  hero.style.display = hasEverGeneratedPlan ? 'none' : '';
+  if (todaySection) todaySection.style.display = hasEverGeneratedPlan ? '' : 'none';
+  if (budgetSection) budgetSection.style.display = hasEverGeneratedPlan ? '' : 'none';
+}
+
 function showGKeyTooltip() {
   const tooltip = document.getElementById('gKeyTooltip');
   if (!tooltip || localStorage.getItem('mealzy_g_key_shown')) return;

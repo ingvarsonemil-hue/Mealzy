@@ -117,6 +117,8 @@ async function generateMealPlan() {
     const planCount = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0') + 1;
     localStorage.setItem('mealzy_plan_count_month', planCount);
 
+    hasEverGeneratedPlan = true;
+    updateDashboardEmptyState();
     saveToHistory(todayMeals);
     renderMeals();
     updateStats();
