@@ -189,7 +189,8 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
       </div>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <p className="text-[15px] leading-[1.6] text-muted-fg">
-          Tick items off as you shop — the list opens in any browser, nothing to install.
+          One list for the whole week above, sized to your budget — not seven separate recipes to
+          reconcile yourself. Tick items off as you shop; opens in any browser, nothing to install.
         </p>
         <CopyListButton plan={plan} />
       </div>

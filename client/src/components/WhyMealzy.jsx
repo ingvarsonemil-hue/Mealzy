@@ -23,19 +23,14 @@ const comparisons = [
     others: 'Limited recipe access; key features like nutrition info require Pro',
   },
   {
-    category: 'Serving sizes',
-    mealzy: 'Any household size — from solo cooks to large families',
-    others: 'Fixed increments (2, 4, or 6 servings)',
-  },
-  {
     category: 'Platform',
     mealzy: 'Full-featured web app that works on phone, tablet, and desktop',
     others: 'Mobile-first app with a very basic web experience',
   },
   {
-    category: 'Pantry & waste',
-    mealzy: 'Smart grocery lists that help you buy only what you need',
-    others: 'List resets when you swap meals; no pantry tracking',
+    category: 'Shopping list',
+    mealzy: 'One list for the whole week, priced and ready to shop',
+    others: 'List resets every time you swap a meal',
   },
 ];
 
@@ -80,7 +75,9 @@ export default function WhyMealzy() {
             Most meal planners start with recipes. Mealzy starts with your budget.
           </h2>
           <p className="mt-4 text-lg text-muted-fg max-w-2xl mx-auto">
-            Recipes get picked afterward, once the week already fits what you meant to spend.
+            Recipes get picked afterward, once the week already fits what you meant to spend —
+            then built around your calories, diet, and preferences, as one plan, not a pile of
+            recipes to make fit yourself.
           </p>
         </div>
 
@@ -138,7 +135,9 @@ export default function WhyMealzy() {
               onClick={() => setShowAll(!showAll)}
               className="text-sm font-semibold text-green-deep hover:text-foreground underline underline-offset-2 dark:text-green-light"
             >
-              {showAll ? 'Show less' : `Show ${comparisons.length - 4} more comparisons`}
+              {showAll
+                ? 'Show less'
+                : `Show ${comparisons.length - 4} more comparison${comparisons.length - 4 === 1 ? '' : 's'}`}
             </button>
           </div>
         )}

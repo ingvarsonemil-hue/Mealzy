@@ -6,7 +6,8 @@ import { Sunrise, Bowl, Cutlery, ChevronDown, Swap, Spinner } from '@/components
 import GroceryList from '@/components/GroceryList';
 import { cn } from '@/lib/utils';
 import {
-  planFor, range, dollars, photo, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP
+  planFor, range, dollars, photo, MIN_BUDGET, MAX_BUDGET, BUDGET_STEP,
+  DIET_LABEL
 } from '@/components/showcase-plan';
 
 const COURSE_ICON = { Breakfast: Sunrise, Lunch: Bowl, Dinner: Cutlery };
@@ -241,12 +242,21 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
             id="showcase-heading"
             className="font-display text-[clamp(1.75rem,2.6vw+0.6rem,2.75rem)] font-bold italic leading-[1.1] tracking-[-0.02em]"
           >
-            Your week, planned and ready to shop.
+            Your week, built around you.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            Move the slider and watch the costs, calories, and grocery list adjust. This is one
-            example week — your real plan is personalized to your goals, diet, and budget.
+            Mealzy combines your grocery budget, calorie target, and dietary preference into one
+            weekly plan — not seven meals picked independently. Move the slider to see it adjust.
           </p>
+        </Reveal>
+
+        <Reveal className="mx-auto mb-6 flex max-w-prose flex-wrap items-center justify-center gap-2 text-center">
+          <span className="text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
+            This example week:
+          </span>
+          <Badge accent>{dollars(budget * 100)} budget</Badge>
+          <Badge accent>{num(plan.kcalTarget)} kcal/day</Badge>
+          <Badge accent>{DIET_LABEL} diet</Badge>
         </Reveal>
 
         <Reveal className="rounded-lg border border-green/40 bg-cream p-6 shadow-card sm:p-8">
@@ -315,7 +325,8 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
         </div>
 
         <Reveal delay={160} as="p" className="mx-auto mt-10 max-w-prose text-center text-[17px] leading-[1.7]">
-          Unlike generic recipe sites, every plan balances to your budget target before you shop.
+          Not a pile of recipes. A week that fits together — budget, calories, and diet, all
+          balanced before you shop.
         </Reveal>
       </div>
 

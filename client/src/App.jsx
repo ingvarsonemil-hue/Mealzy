@@ -13,7 +13,6 @@ import Footer from '@/components/Footer';
 import { captureReferral, track } from '@/lib/api';
 import { BASE_BUDGET, DIETS } from '@/components/showcase-plan';
 
-const DEFAULT_HOUSEHOLD = 2;
 export default function App() {
   const [budget, setBudget] = React.useState(BASE_BUDGET);
   const [planBudget, setPlanBudget] = React.useState(BASE_BUDGET);
@@ -35,8 +34,7 @@ export default function App() {
     const params = new URLSearchParams({
       signup: '1',
       budget: String(budget),
-      dietary: diet.signup,
-      household: String(DEFAULT_HOUSEHOLD)
+      dietary: diet.signup
     });
     return `login.html?${params}`;
   }, [budget, dietId]);

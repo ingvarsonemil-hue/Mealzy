@@ -68,6 +68,11 @@ const DAYS = [
   ]]
 ];
 
+/* Every dinner above matches the "Balanced" preset's dinner list below, so
+ * this label is a true statement about the sample plan, not a separate claim
+ * layered on top of it. */
+export const DIET_LABEL = 'Balanced';
+
 /* What actually goes in the trolley this week: [item, quantity, unit, cents],
  * both figures at the baseline budget. Quantities are what the 21 meals above
  * consume, not round pack sizes — the list is meant to be shoppable, not
