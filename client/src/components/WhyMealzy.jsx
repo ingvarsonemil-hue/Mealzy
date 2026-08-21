@@ -69,61 +69,61 @@ export default function WhyMealzy() {
   const visibleRows = showAll ? comparisons : comparisons.slice(0, 4);
 
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section className="py-16 md:py-24 bg-cream">
       <div className="mx-auto max-w-5xl px-4">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <span className="inline-block rounded-full bg-cream border border-green-200 px-3 py-1 text-xs font-semibold text-green-800 uppercase tracking-wider mb-4">
+          <span className="inline-block rounded-full bg-green/10 border border-green/30 px-3 py-1 text-xs font-semibold text-green-deep dark:text-green-light uppercase tracking-wider mb-4">
             Why Mealzy
           </span>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-forest tracking-tight">
-            Built to save money, not just pick recipes
+          <h2 className="text-3xl md:text-4xl font-extrabold text-foreground tracking-tight">
+            Most meal planners start with recipes. Mealzy starts with your budget.
           </h2>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Most meal planners help you choose dinner. Mealzy helps you spend less at the checkout.
+          <p className="mt-4 text-lg text-muted-fg max-w-2xl mx-auto">
+            Recipes get picked afterward, once the week already fits what you meant to spend.
           </p>
         </div>
 
         {/* Comparison Table */}
-        <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-border-warm shadow-sm">
           {/* Desktop header */}
-          <div className="hidden md:grid grid-cols-[1.2fr_1fr_1fr] bg-cream border-b border-gray-200">
-            <div className="px-6 py-4 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+          <div className="hidden md:grid grid-cols-[1.2fr_1fr_1fr] bg-cream border-b border-border-warm">
+            <div className="px-6 py-4 text-sm font-semibold text-muted-fg uppercase tracking-wider">
               Feature
             </div>
-            <div className="px-6 py-4 text-sm font-bold text-forest text-center bg-green-50/50">
+            <div className="px-6 py-4 text-sm font-bold text-foreground text-center bg-green/10">
               Mealzy
             </div>
-            <div className="px-6 py-4 text-sm font-semibold text-gray-500 text-center">
+            <div className="px-6 py-4 text-sm font-semibold text-muted-fg text-center">
               Most recipe apps
             </div>
           </div>
 
           {/* Rows */}
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-border-warm">
             {visibleRows.map((row, i) => (
               <div
                 key={i}
-                className="grid md:grid-cols-[1.2fr_1fr_1fr] items-start bg-white hover:bg-cream/30 transition-colors"
+                className="grid md:grid-cols-[1.2fr_1fr_1fr] items-start bg-parchment hover:bg-cream/30 transition-colors"
               >
                 {/* Category label */}
                 <div className="px-5 py-4 md:px-6 md:py-5">
-                  <span className="text-sm font-semibold text-forest">{row.category}</span>
+                  <span className="text-sm font-semibold text-foreground">{row.category}</span>
                 </div>
 
                 {/* Mealzy */}
-                <div className="px-5 pb-4 md:px-6 md:py-5 bg-green-50/30 md:bg-green-50/50">
+                <div className="px-5 pb-4 md:px-6 md:py-5 bg-green/5 md:bg-green/10">
                   <div className="flex items-start gap-3">
-                    <IconCheck className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                    <span className="text-sm text-gray-700 leading-relaxed">{row.mealzy}</span>
+                    <IconCheck className="w-5 h-5 text-green shrink-0 mt-0.5" />
+                    <span className="text-sm text-foreground leading-relaxed">{row.mealzy}</span>
                   </div>
                 </div>
 
                 {/* Others */}
                 <div className="px-5 pb-4 md:px-6 md:py-5">
                   <div className="flex items-start gap-3">
-                    <IconMinus className="w-5 h-5 text-gray-300 shrink-0 mt-0.5" />
-                    <span className="text-sm text-gray-500 leading-relaxed">{row.others}</span>
+                    <IconMinus className="w-5 h-5 text-muted-fg shrink-0 mt-0.5" />
+                    <span className="text-sm text-muted-fg leading-relaxed">{row.others}</span>
                   </div>
                 </div>
               </div>
@@ -136,7 +136,7 @@ export default function WhyMealzy() {
           <div className="md:hidden mt-4 text-center">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="text-sm font-semibold text-green-700 hover:text-forest underline underline-offset-2"
+              className="text-sm font-semibold text-green-deep hover:text-foreground underline underline-offset-2 dark:text-green-light"
             >
               {showAll ? 'Show less' : `Show ${comparisons.length - 4} more comparisons`}
             </button>
@@ -144,7 +144,7 @@ export default function WhyMealzy() {
         )}
 
         {/* Trust note */}
-        <p className="mt-4 text-xs text-gray-400 text-center max-w-xl mx-auto">
+        <p className="mt-4 text-xs text-muted-fg text-center max-w-xl mx-auto">
           Comparison based on publicly available features as of August 2026.
           Competitor offerings may change.
         </p>
@@ -158,7 +158,7 @@ export default function WhyMealzy() {
             See Mealzy pricing
             <IconArrowRight className="w-4 h-4" />
           </a>
-          <p className="mt-3 text-xs text-gray-500">
+          <p className="mt-3 text-xs text-muted-fg">
             Free for your first month. No credit card required.
           </p>
         </div>

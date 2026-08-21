@@ -6,12 +6,11 @@ import Hero from '@/components/Hero';
 import Showcase from '@/components/Showcase';
 import TrustBar from '@/components/TrustBar';
 import HowItWorks from '@/components/HowItWorks';
-import FeaturesGrid from '@/components/FeaturesGrid';
 import WhyMealzy from '@/components/WhyMealzy';
 import Faq from '@/components/Faq';
 import InteractiveOnboarding from '@/components/InteractiveOnboarding';
 import Footer from '@/components/Footer';
-import { captureReferral } from '@/lib/api';
+import { captureReferral, track } from '@/lib/api';
 import { BASE_BUDGET, DIETS } from '@/components/showcase-plan';
 
 const DEFAULT_HOUSEHOLD = 2;
@@ -20,8 +19,13 @@ export default function App() {
   const [planBudget, setPlanBudget] = React.useState(BASE_BUDGET);
   const [dietId, setDietId] = React.useState(DIETS[0].id);
 
+  const budgetTracked = React.useRef(false);
   React.useEffect(() => {
     if (budget === planBudget) return undefined;
+    if (!budgetTracked.current) {
+      budgetTracked.current = true;
+      track('homepage_demo_budget_changed', {});
+    }
     const t = setTimeout(() => setPlanBudget(budget), 250);
     return () => clearTimeout(t);
   }, [budget, planBudget]);
@@ -40,6 +44,7 @@ export default function App() {
   const [onboarding, setOnboarding] = React.useState(false);
   const [seed, setSeed] = React.useState(null);
   const startPlan = React.useCallback((targets) => {
+    track('homepage_start_plan', {});
     if (targets) setSeed(targets);
     setOnboarding(true);
   }, []);
@@ -49,6 +54,7 @@ export default function App() {
     if (bootRan.current) return;
     bootRan.current = true;
     captureReferral();
+    track('homepage_viewed', {});
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   }, []);
 
@@ -68,18 +74,15 @@ export default function App() {
           onBudgetChange={setBudget}
           ctaHref={secondaryCtaHref}
         />
-        <TrustBar />
-        <HowItWorks />
-        <FeaturesGrid />
+        {/* "Recipes vs. budget" differentiation right after the demo, then the
+            single three-step workflow, then the objection-answering numbers
+            section — each idea told once, in the order a new visitor decides. */}
         <WhyMealzy />
-        
-        {/* FounderStory moved here (lower down) */}
-        <FounderStory /> 
-        
+        <HowItWorks />
+        <TrustBar />
+        <FounderStory />
         <Faq />
-        
-        {/* Replaced the old ClosingCta with our new FinalCTA */}
-       <ClosingCta ctaHref={secondaryCtaHref} />
+        <ClosingCta ctaHref={secondaryCtaHref} />
       </main>
       
       <InteractiveOnboarding open={onboarding} onOpenChange={setOnboarding} seed={seed} />

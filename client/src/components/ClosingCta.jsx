@@ -1,18 +1,21 @@
+import { track } from '@/lib/api';
+
 export default function ClosingCta({ ctaHref }) {
   return (
     <section className="bg-forest py-20 md:py-24 px-4">
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="font-display text-3xl md:text-4xl font-bold italic text-cream mb-4">
+        <h2 className="font-display text-3xl md:text-4xl font-bold italic text-on-forest mb-4">
           Ready to plan your week?
         </h2>
         <p className="text-lg text-green-muted font-body mb-8">
           Tell Mealzy your grocery budget. We'll help plan the rest.
         </p>
-        <a 
-          href={ctaHref} 
+        <a
+          href={ctaHref}
           className="inline-flex items-center justify-center bg-green text-white font-body font-semibold py-3 px-8 rounded-md shadow-button hover:bg-green-light transition-all duration-150"
+          onClick={() => track('homepage_closing_cta_click', {})}
         >
-          Plan my week →
+          Plan my week free
         </a>
         <p className="mt-4 text-sm text-green-muted font-body">
           Free to try · No credit card

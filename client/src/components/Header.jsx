@@ -3,6 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { Sun, Moon, Menu, X } from '@/components/icons';
 import { cn, scrollToHash, prefersReducedMotion } from '@/lib/utils';
+import { track } from '@/lib/api';
 
 const NAV_LINKS = [
   { href: '#how-it-works', label: 'How it works' },
@@ -108,10 +109,13 @@ export default function Header({ links = NAV_LINKS, activeHref, ctaHref = '/logi
           <Button href="/login.html" variant="quiet" size="sm" className="hidden text-on-forest-body hover:text-on-forest md:inline-flex">
             Sign in
           </Button>
-          {/* Short variant: the full "Build My Free Plan" wraps to two lines in the
-            * nav bar at the md breakpoint, where space is tightest. */}
-          <Button href={ctaHref} size="sm" className="hidden md:inline-flex">
-            Build My Plan
+          <Button
+            href={ctaHref}
+            size="sm"
+            className="hidden md:inline-flex"
+            onClick={() => track('homepage_header_cta_click', {})}
+          >
+            Plan my week free
           </Button>
 
           {/* Mobile slide-out panel */}
@@ -162,7 +166,9 @@ export default function Header({ links = NAV_LINKS, activeHref, ctaHref = '/logi
                     </a>
                   </li>
                   <li className="mt-4">
-                    <Button href={ctaHref} full>Start Planning Free</Button>
+                    <Button href={ctaHref} full onClick={() => track('homepage_header_cta_click', { source: 'mobile' })}>
+                      Plan my week free
+                    </Button>
                   </li>
                 </ul>
               </Dialog.Content>

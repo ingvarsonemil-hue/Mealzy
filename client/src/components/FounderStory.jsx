@@ -14,7 +14,7 @@ export default function FounderStory() {
             </div>
             <p className="mt-4 text-sm font-semibold text-gray-900">Emil</p>
             <p className="text-sm text-gray-500">Founder, Mealzy</p>
-            <p className="mt-1 text-xs text-gray-400">Stockholm, Sweden 🇸🇪</p>
+            <p className="mt-1 text-xs text-gray-500">Sweden</p>
           </div>
 
           {/* Right: Story */}
@@ -24,9 +24,9 @@ export default function FounderStory() {
             </h2>
             
             <p className="text-lg text-gray-600 leading-relaxed">
-              I was spending $95 a week on groceries for just myself — and still ordering takeout 
-              because I had nothing planned. Every meal planner I tried suggested recipes that 
-              blew my budget. $8 salmon fillets when I had $40 for the whole week.
+              I kept overspending on groceries every week — and still ordering takeout
+              because I had nothing planned. Every meal planner I tried suggested recipes that
+              blew my budget without ever telling me the price first.
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">
@@ -36,7 +36,7 @@ export default function FounderStory() {
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">
-              It's just me right now, building this in Stockholm. If it saves you money and time, 
+              It's just me right now, building this in Sweden. If it saves you money and time, 
               I've done my job.
             </p>
 

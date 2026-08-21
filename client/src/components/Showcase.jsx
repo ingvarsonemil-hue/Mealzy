@@ -91,7 +91,7 @@ const cardClasses =
 function DayHeader({ day }) {
   return (
     <header className="bg-forest px-4 py-2.5 text-on-forest">
-      <h4 className="font-display text-base font-bold italic">{day}</h4>
+      <h3 className="font-display text-base font-bold italic">{day}</h3>
     </header>
   );
 }
@@ -152,7 +152,7 @@ function MobileCta({ onStartPlan, ctaHref }) {
           onStartPlan();
         }}
       >
-        Start Planning Free
+        Plan my week free
       </Button>
       <p className="mt-2 text-center text-[13px] text-muted-fg">30 seconds · No credit card</p>
     </div>

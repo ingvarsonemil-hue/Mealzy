@@ -230,7 +230,7 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
       </div>
 
       <Button href={ctaHref} full size="lg" className="mt-6">
-        Start Planning Free
+        Plan my week free
       </Button>
       <p className="mt-3 text-center text-[13px] text-muted-fg">
         Prices are estimates based on typical supermarket rates.

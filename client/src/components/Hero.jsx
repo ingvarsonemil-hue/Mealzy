@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
+import { track } from '@/lib/api';
+import { planFor, photo } from '@/components/showcase-plan';
 
 /* ───────────────────────────────────────────────
-   Hero — Screenshot-ready version
-   Replace mockup placeholder with real app image.
-   Expected asset: /images/hero-screenshot.png (or .webp)
+   Hero
+   Right-side preview is real sample-plan data (see showcase-plan.js),
+   not a screenshot — there is no hero-screenshot asset to show.
    ─────────────────────────────────────────────── */
 
 function IconArrowRight({ className }) {
@@ -23,11 +25,14 @@ function IconCheck({ className }) {
   );
 }
 
+const PREVIEW_DAY = planFor(60).days[0];
+
 export default function Hero({ onStartPlan, ctaHref }) {
   const [email, setEmail] = useState('');
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
+    track('homepage_hero_cta_submit', {});
     if (onStartPlan) onStartPlan({ email });
   }, [email, onStartPlan]);
 
@@ -42,15 +47,18 @@ export default function Hero({ onStartPlan, ctaHref }) {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: Copy */}
           <div className="text-center lg:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-forest tracking-tight leading-[1.1]">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight leading-[1.1]">
               Stop overspending at the grocery store
             </h1>
-            <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
+            <p className="mt-6 text-lg md:text-xl text-muted-fg max-w-xl mx-auto lg:mx-0">
               Mealzy builds your weekly meal plan around your budget — so you buy only what you need and stop throwing food away.
             </p>
 
             {/* Value prop boxes */}
-            <div className="mt-8 grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
+            <p className="mt-8 text-xs font-bold uppercase tracking-[0.08em] text-gray-500 text-center lg:text-left">
+              Example week
+            </p>
+            <div className="mt-2 grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
               <div className="rounded-xl bg-white border border-gray-200 p-3 text-center shadow-sm">
                 <div className="text-2xl font-bold text-forest">$60</div>
                 <div className="text-xs text-gray-500 mt-1">Typical spend</div>
@@ -67,7 +75,9 @@ export default function Hero({ onStartPlan, ctaHref }) {
 
             {/* CTA */}
             <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto lg:mx-0">
+              <label htmlFor="hero-email" className="sr-only">Email address</label>
               <input
+                id="hero-email"
                 type="email"
                 required
                 placeholder="Enter your email"
@@ -95,7 +105,7 @@ export default function Hero({ onStartPlan, ctaHref }) {
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-button)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
               >
-                Start Planning Free
+                Plan my week free
                 <IconArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -113,8 +123,8 @@ export default function Hero({ onStartPlan, ctaHref }) {
             </div>
           </div>
 
-          {/* Right: Real app screenshot — hidden below md (768px): a scaled-down
-              screenshot of an 800px-wide app UI is illegible on phones. */}
+          {/* Right: sample-plan preview — hidden below md (768px): a scaled-down
+              preview this dense is illegible on phones. */}
           <div className="relative hidden md:block">
             {/* Decorative glow behind screenshot */}
             <div className="absolute -inset-4 bg-emerald-200/30 rounded-[2rem] blur-2xl" />
@@ -136,21 +146,36 @@ export default function Hero({ onStartPlan, ctaHref }) {
                   <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
                 <div className="flex-1 mx-4">
-                  <div className="max-w-xs mx-auto rounded-md bg-white border border-gray-200 px-3 py-1 text-xs text-gray-400 text-center truncate">
+                  <div className="max-w-xs mx-auto rounded-md bg-white border border-gray-200 px-3 py-1 text-xs text-gray-500 text-center truncate">
                     app.mealzy.org/plan
                   </div>
                 </div>
               </div>
 
-              {/* THE SCREENSHOT */}
-              <img
-                src="/images/hero-screenshot.png"
-                alt="Mealzy app showing a weekly meal plan with grocery list and budget tracker"
-                className="w-full h-auto block"
-                loading="eager"
-                width="800"
-                height="600"
-              />
+              {/* Monday's plan from the $60 sample week — same data the
+                  budget slider below builds from, not a screenshot. */}
+              <div className="p-4 sm:p-5">
+                <p className="text-xs font-bold uppercase tracking-[0.08em] text-gray-500">{PREVIEW_DAY.day}</p>
+                <ul className="mt-3 divide-y divide-gray-100">
+                  {PREVIEW_DAY.meals.map((meal) => (
+                    <li key={meal.course} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+                      <img
+                        src={photo(meal.img)}
+                        alt=""
+                        width="64"
+                        height="45"
+                        loading="eager"
+                        className="h-[45px] w-16 shrink-0 rounded-sm object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-500">{meal.course}</p>
+                        <p className="truncate text-sm font-medium text-gray-900">{meal.name}</p>
+                      </div>
+                      <span className="shrink-0 text-sm font-bold text-emerald-700">{meal.cost}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             {/* Floating badge */}
@@ -170,8 +195,8 @@ export default function Hero({ onStartPlan, ctaHref }) {
                 <IconCheck className="w-5 h-5 text-emerald-700" />
               </div>
               <div>
-                <div className="text-sm font-bold text-forest">$13 saved</div>
-                <div className="text-xs text-gray-500">this week alone</div>
+                <div className="text-sm font-bold text-forest">$13 under budget</div>
+                <div className="text-xs text-gray-500">example week</div>
               </div>
             </div>
           </div>

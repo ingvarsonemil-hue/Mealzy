@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { scrollToHash, cn } from '@/lib/utils';
 
 function columnsFor(ctaHref) {
@@ -15,7 +14,7 @@ function columnsFor(ctaHref) {
       heading: 'Account',
       links: [
         { href: '/login.html', label: 'Sign in' },
-        { href: ctaHref, label: 'Start Planning Free' },
+        { href: ctaHref, label: 'Plan my week free' },
         { href: '/reset-password.html', label: 'Reset password' }
       ]
     },
@@ -36,18 +35,6 @@ const TRUST_BADGES = [
 ];
 
 export default function Footer({ ctaHref = '/login.html?signup=1' }) {
-  const [email, setEmail] = React.useState('');
-  const [subscribed, setSubscribed] = React.useState(false);
-
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (email.includes('@')) {
-      setSubscribed(true);
-      setEmail('');
-      // TODO: wire this to your email service (Mailchimp, Resend, etc.)
-    }
-  };
-
   const COLUMNS = columnsFor(ctaHref);
   return (
     <footer className="border-t border-forest-line bg-forest-deep py-14 text-on-forest">
@@ -72,31 +59,6 @@ export default function Footer({ ctaHref = '/login.html?signup=1' }) {
                 See full pricing
               </a>
             </p>
-
-            {/* Email capture */}
-            <div className="mt-6">
-              <p className="text-sm font-medium text-on-forest-body">Get one budget meal tip every Friday</p>
-              {subscribed ? (
-                <p className="mt-2 text-sm text-green-light">✓ You're on the list!</p>
-              ) : (
-                <form onSubmit={handleSubscribe} className="mt-2 flex gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                    className="flex-1 rounded-md border border-forest-line bg-forest px-3 py-2 text-sm text-on-forest placeholder:text-on-forest-faint focus:outline-none focus:ring-2 focus:ring-green"
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-md bg-green px-4 py-2 text-sm font-semibold text-white hover:bg-green-600 transition-colors"
-                  >
-                    Subscribe
-                  </button>
-                </form>
-              )}
-            </div>
           </div>
           {COLUMNS.map((col) => (
             <div key={col.heading}>
@@ -133,7 +95,7 @@ export default function Footer({ ctaHref = '/login.html?signup=1' }) {
           ))}
         </ul>
         <div className="mt-6 text-xs leading-[1.6] text-on-forest-muted">
-          <p>© 2026 Mealzy. Built in Stockholm. Used worldwide.</p>
+          <p>© 2026 Mealzy. Built in Sweden. Used worldwide.</p>
           <p className="mt-1">Questions? <a href="mailto:support@mealzy.org" className="text-on-forest-body hover:text-on-forest">support@mealzy.org</a></p>
           <p className="mt-1">Nutritional calculations aligned with USDA dietary guidelines.</p>
         </div>

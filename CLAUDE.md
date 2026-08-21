@@ -12,11 +12,11 @@ Target: 10 paying subscribers, ~$50 MRR at 49 kr/month. Not $200 — hold me to 
 - Node.js + Express — server.js (all routes; ~2,400 lines, exempt from the 500-line rule below until the planned route split — do not refactor it unasked)
 - Turso/libSQL — db.js (users, plans, grocery_lists, and more)
 - Auth: JWT in httpOnly cookies. NEVER trust the JWT payload for Pro/subscription status — always re-query the DB. (Client-trusted `is_pro` was a real, since-fixed vulnerability. Do not reintroduce it.)
-- Stripe — Free (3 plans/month) · Pro $8/mo or $62/yr · Family $16/mo or $130/yr. Stripe account is in my dad's name — never touch live keys, and anything with legal/tax/contract/refund weight gets flagged for him or a professional. I'm 16 and can't sign for this.
+- Stripe — Free (anonymous: 3 plans/month by IP; logged-in: 1 plan/day for the first 30 days, then 1/week) · Pro $8/mo or $62/yr · Family $16/mo or $128/yr. Stripe account is in my dad's name — never touch live keys, and anything with legal/tax/contract/refund weight gets flagged for him or a professional. I'm 16 and can't sign for this.
 - Anthropic API — claude-haiku-4-5-20251001 (meal generation + AI coach "Mia"). Every generation is a paid call. Before adding a call, a retry loop, a per-item call, or a larger model: tell me what it costs. Bootstrapped budget.
 - Resend — transactional email (custom domain, DNS on Namecheap)
 - Render free tier (Ohio) — no auto-deploy; deploys triggered manually. Cold starts (~30-60s after ~15 min idle) and ephemeral local disk — persistent data must go through Turso, never local disk expecting it to survive a restart.
-- Frontend — vanilla HTML/CSS/JS, 18 pages in /public/, no framework. Winston logger.
+- Frontend — two parts. The homepage and other marketing/app pages (pricing, login, legal, plan tools, blog) are a React 19 + Vite app in /client/, built with `npm run build` to /dist/ and served by server.js when /dist/index.html exists (see `hasDistBuild` in server.js). The rest of the app (dashboard, meal-planner, grocery-list, analytics, ai-coach, settings — 18 pages) is vanilla HTML/CSS/JS in /public/, no framework. Winston logger.
 - Repo: ingvarsonemil-hue/Mealzy · My machine: C:\Users\emili\Documents\mealzy\
 - Shell: PowerShell locally — never chain commands with `&&`, use `;` or separate lines. Remote/cloud sessions run bash and may chain normally.
 
