@@ -244,8 +244,8 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
             Your week, planned and ready to shop.
           </h2>
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            Set your budget and watch the whole week re-plan itself — every meal counted, every
-            ingredient priced.
+            Move the slider and watch the costs, calories, and grocery list adjust. This is one
+            example week — your real plan is personalized to your goals, diet, and budget.
           </p>
         </Reveal>
 
@@ -273,6 +273,9 @@ export default function Showcase({ onStartPlan, budget, planBudget, onBudgetChan
           )}
         >
           <Reveal delay={60} className="mt-8">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.08em] text-muted-fg">
+              Example week at this budget
+            </p>
             <ul role="list" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {shown.map((day) => (
                 <DayCard key={day.day} day={day} onSwap={swapMeal} />

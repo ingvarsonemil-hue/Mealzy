@@ -1,4 +1,3 @@
-import ProductDemo from '@/components/ProductDemo';
 import ClosingCta from '@/components/ClosingCta';
 import * as React from 'react';
 import Header from '@/components/Header';
@@ -61,9 +60,7 @@ export default function App() {
       {/* We added gap-12 and md:gap-16 here to tighten the vertical whitespace between sections by ~20-30% */}
       <main id="main" className="flex flex-col gap-12 md:gap-16">
         <Hero onStartPlan={startPlan} ctaHref={secondaryCtaHref} />
-        
-        <ProductDemo />
-        
+
         <Showcase
           onStartPlan={startPlan}
           budget={budget}
