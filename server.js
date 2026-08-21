@@ -2580,7 +2580,10 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         }
       }
 
-      res.json({ success: true, weekStart, days, weeklyTotals });
+      // Expose the plan id only when it's actually backed by a saved plan/grocery
+      // rows (requires a session — see the `if (session)` savePlan call above).
+      // A planId with nothing behind it would send the frontend chasing a 404.
+      res.json({ success: true, weekStart, days, weeklyTotals, ...(session ? { planId: weekPlanId } : {}) });
 
       // Auto-generate and persist each day's grocery list in the background —
       // fire-and-forget so it never slows down or fails the plan response.
@@ -2641,7 +2644,9 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       }
     }
 
-    res.json({ success: true, date, mealPlan });
+    // Same reasoning as week mode: only expose planId when a session actually
+    // backs it with a saved plan/grocery rows.
+    res.json({ success: true, date, mealPlan, ...(session ? { planId } : {}) });
 
     // Auto-generate and persist this day's grocery list in the background —
     // fire-and-forget so it never slows down or fails the plan response.

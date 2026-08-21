@@ -88,6 +88,16 @@ async function generateMealPlan() {
     }
     localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
 
+    // The server already generated and saved a grocery list for this plan in the
+    // background (see /api/generate-meal) — stash its id under the same key
+    // groceries-sync.js reads, so "Shop Grocery List" opens the real list instead
+    // of an empty one.
+    if (data.planId) {
+      const groceryPlanIds = JSON.parse(localStorage.getItem('mealzy_grocery_plan_ids') || '{}');
+      groceryPlanIds[weekStart] = data.planId;
+      localStorage.setItem('mealzy_grocery_plan_ids', JSON.stringify(groceryPlanIds));
+    }
+
     todayMeals = (plans[today] && plans[today].meals) ? plans[today].meals.map(m => ({ ...m, completed: false })) : [];
     trackEvent('generate_plan', { weekStart });
 

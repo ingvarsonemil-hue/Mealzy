@@ -88,7 +88,12 @@ function dayHasList(day) {
   return availableDays.has(day) || !!getCachedDayList(day);
 }
 
-async function refreshAvailableDays() {
+// Grocery list generation for a freshly-created plan runs fire-and-forget on
+// the server (see /api/generate-meal), so it can still be in flight the
+// moment the user lands here via "Shop Grocery List". Retry a few times
+// before treating a real, just-created plan as if it had no list.
+async function refreshAvailableDays(retriesLeft) {
+  if (retriesLeft === undefined) retriesLeft = 3;
   availableDays = new Set();
   if (!planId) return;
   try {
@@ -96,6 +101,10 @@ async function refreshAvailableDays() {
     if (res.ok) {
       const data = await res.json();
       if (data.success) availableDays = new Set(data.days || []);
+      if (availableDays.size === 0 && retriesLeft > 0) {
+        await new Promise(r => setTimeout(r, 1200));
+        return refreshAvailableDays(retriesLeft - 1);
+      }
     } else if (res.status === 404) {
       planId = null;
     }
