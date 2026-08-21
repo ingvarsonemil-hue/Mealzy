@@ -152,7 +152,7 @@ function MobileCta({ onStartPlan, ctaHref }) {
           onStartPlan();
         }}
       >
-        Build My Free Plan
+        Start Planning Free
       </Button>
       <p className="mt-2 text-center text-[13px] text-muted-fg">30 seconds · No credit card</p>
     </div>

@@ -162,7 +162,7 @@ export default function Header({ links = NAV_LINKS, activeHref, ctaHref = '/logi
                     </a>
                   </li>
                   <li className="mt-4">
-                    <Button href={ctaHref} full>Build My Free Plan</Button>
+                    <Button href={ctaHref} full>Start Planning Free</Button>
                   </li>
                 </ul>
               </Dialog.Content>

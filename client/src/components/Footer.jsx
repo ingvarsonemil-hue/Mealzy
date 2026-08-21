@@ -15,7 +15,7 @@ function columnsFor(ctaHref) {
       heading: 'Account',
       links: [
         { href: '/login.html', label: 'Sign in' },
-        { href: ctaHref, label: 'Build My Free Plan' },
+        { href: ctaHref, label: 'Start Planning Free' },
         { href: '/reset-password.html', label: 'Reset password' }
       ]
     },

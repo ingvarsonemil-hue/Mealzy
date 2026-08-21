@@ -95,7 +95,7 @@ export default function Hero({ onStartPlan, ctaHref }) {
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-button)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
               >
-                Build My Free Plan
+                Start Planning Free
                 <IconArrowRight className="w-4 h-4" />
               </button>
             </form>

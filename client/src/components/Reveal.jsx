@@ -5,10 +5,18 @@ import { cn, prefersReducedMotion } from '@/lib/utils';
  * motion; otherwise fades/translates in once when it enters the viewport. */
 export default function Reveal({ as: Comp = 'div', className, delay = 0, children, ...props }) {
   const ref = React.useRef(null);
-  const [shown, setShown] = React.useState(() => prefersReducedMotion());
+  /* Visible by default — prerendered markup and no-JS visitors must never see
+   * this content hidden. Only flipped to a hidden/animate-in state below, and
+   * only for elements genuinely off-screen once JS has actually mounted. */
+  const [shown, setShown] = React.useState(true);
 
   React.useEffect(() => {
-    if (shown || !('IntersectionObserver' in window)) { setShown(true); return; }
+    if (prefersReducedMotion() || !('IntersectionObserver' in window) || !ref.current) return undefined;
+
+    const alreadyVisible = ref.current.getBoundingClientRect().top < window.innerHeight;
+    if (alreadyVisible) return undefined;
+
+    setShown(false);
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((en) => {
@@ -17,9 +25,9 @@ export default function Reveal({ as: Comp = 'div', className, delay = 0, childre
       },
       { threshold: 0, rootMargin: '0px 0px 100px 0px' }
     );
-    if (ref.current) io.observe(ref.current);
+    io.observe(ref.current);
     return () => io.disconnect();
-  }, [shown]);
+  }, []);
 
   return (
     <Comp
