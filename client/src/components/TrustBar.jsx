@@ -11,7 +11,7 @@ const ITEMS = [
   },
   {
     title: 'Calorie targets via Mifflin-St Jeor',
-    body: 'The same formula registered dietitians use to estimate daily energy needs, not a guess.'
+    body: 'A standard energy-needs formula, applied to the height, weight and activity level you enter. Nutrition values are estimates, not medical advice.'
   },
   {
     title: 'Prices are estimates, not quotes',

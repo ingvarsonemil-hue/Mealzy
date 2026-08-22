@@ -75,9 +75,8 @@ export default function WhyMealzy() {
             Most meal planners start with recipes. Mealzy starts with your budget.
           </h2>
           <p className="mt-4 text-lg text-muted-fg max-w-2xl mx-auto">
-            Recipes get picked afterward, once the week already fits what you meant to spend —
-            then built around your calories, diet, and preferences, as one plan, not a pile of
-            recipes to make fit yourself.
+            Recipes get picked once the week already fits your budget — as one plan built around
+            your calories, diet and preferences, not a pile of recipes you have to make fit yourself.
           </p>
         </div>
 
@@ -158,7 +157,7 @@ export default function WhyMealzy() {
             <IconArrowRight className="w-4 h-4" />
           </a>
           <p className="mt-3 text-xs text-muted-fg">
-            Free for your first month. No credit card required.
+            Free — one plan a day for your first 30 days. No credit card required.
           </p>
         </div>
       </div>

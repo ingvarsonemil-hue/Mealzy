@@ -4,11 +4,11 @@ import Reveal from '@/components/Reveal';
 const STEPS = [
   {
     title: 'Tell Mealzy about you',
-    body: "Calories, weekly budget, diet, and anything you can't eat. A 3-minute setup, once — it remembers."
+    body: "Calories, weekly budget, diet, and anything you can't eat. A few quick steps, once — it remembers."
   },
   {
     title: 'Get your week in 30 seconds',
-    body: "Targets use the Mifflin-St Jeor formula dietitians use. Every recipe is matched to your budget, so nothing gets suggested that pushes you over. Swap any meal in one click."
+    body: "Calorie targets use a standard energy-needs formula (Mifflin-St Jeor) based on what you enter. Every recipe is matched to your budget, so nothing gets suggested that pushes you over. Swap any meal in one click."
   },
   {
     title: 'Shop from the list, cook, repeat',
@@ -27,10 +27,10 @@ export default function HowItWorks() {
           >
             Three steps. One week planned.
           </h2>
-          {/* Same sentence as the hero, word for word — the two places a
-            * visitor meets the time claim must not quote different numbers. */}
+          {/* Same sentence as the footer, word for word — every place a
+            * visitor meets the setup-time claim must agree. */}
           <p className="mt-4 text-[17px] leading-[1.7] text-muted-fg">
-            3-minute setup. 30 seconds every week after. Every swap stays inside your budget.
+            A few quick steps to set up. 30 seconds every week after.
           </p>
         </Reveal>
         <div className="mx-auto max-w-3xl">

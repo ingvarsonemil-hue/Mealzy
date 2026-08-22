@@ -30,8 +30,7 @@ function columnsFor(ctaHref) {
 }
 
 const TRUST_BADGES = [
-  'Prices estimated from regional grocery data.',
-  'Every price calculated, not guessed'
+  'Meal costs estimated from ingredient prices, not a model guess.'
 ];
 
 export default function Footer({ ctaHref = '/login.html?signup=1' }) {
@@ -48,10 +47,10 @@ export default function Footer({ ctaHref = '/login.html?signup=1' }) {
               A full week of meals, priced to your budget, in 30 seconds.
             </p>
             <p className="mt-2 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              3-minute setup. 30 seconds every week after.
+              A few quick steps to set up. 30 seconds every week after.
             </p>
             <p className="mt-3 max-w-xs text-sm leading-[1.6] text-on-forest-muted">
-              Free for your first month. Pro $8/mo or $62/yr. Family $16/mo or $128/yr.{' '}
+              Free — one plan a day for your first 30 days, then one a week. Pro $8/mo or $62/yr. Family $16/mo or $128/yr.{' '}
               <a
                 href="/pricing.html"
                 className="font-semibold text-on-forest underline decoration-from-font underline-offset-2"

@@ -18,11 +18,11 @@ const FAQS = [
   },
   {
     q: 'Can I use Mealzy without signing up?',
-    a: 'No — but the sample week above lets you try it instantly. A free account (no credit card) generates your personalized plan in about three minutes.'
+    a: 'No — but the sample week above lets you try it instantly. A free account (no credit card) walks you through a few quick steps to build your personalized plan.'
   },
   {
-    q: 'What happens after my first month?',
-    a: 'Nothing is taken away. Free gives you one new meal plan a day for your first 30 days; once that ends, the plans you already made stay in your account.',
+    q: 'What happens after my first 30 days?',
+    a: 'Nothing is taken away. Free gives you one new meal plan a day for your first 30 days, then one new plan every week after that, for free, for as long as you use Mealzy. Every plan you already made stays in your account.',
     plans: [
       { name: 'Pro', price: '$8/month or $62/year' },
       { name: 'Family', price: '$16/month or $128/year' }
