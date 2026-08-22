@@ -77,7 +77,7 @@ async function generateMealPlan() {
 
     const data = await response.json();
     if (!response.ok || !data.success) {
-      showToast(data.error || 'Generation failed. Please try again.', 'error');
+      showToast(data.message || data.error || 'Generation failed. Please try again.', 'error');
       return;
     }
 

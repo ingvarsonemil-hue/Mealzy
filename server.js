@@ -27,6 +27,7 @@ const Anthropic    = require('@anthropic-ai/sdk');
 const winston      = require('winston');
 const db           = require('./db');
 const pricing      = require('./pricing');
+const budgetEngine = require('./budgetEngine');
 const { getISOWeekKey } = require('./weekKey');
 
 // ── Structured logging — replaces console.log/error throughout ──────────────
@@ -2016,6 +2017,42 @@ async function calculateMealCost(ingredients) {
   return pricing.priceIngredients(ingredients, priceRows);
 }
 
+/** Fires the Budget Engine analytics events for one runWithBudgetRepair call.
+ * Buckets are used instead of raw dollar figures, and no allergy/diet/dislike/
+ * meal-content data is ever included — see CLAUDE.md analytics guidance. */
+function logBudgetAttempt(mode, userId) {
+  return async (attempt, evaluation, maxAttempts) => {
+    await db.logEvent('budget_generation_attempt', {
+      mode, attempt, withinBudget: evaluation.withinBudget, userId,
+      overageBucket: budgetEngine.bucketOverage(evaluation.overagePct),
+    }, '');
+    if (!evaluation.withinBudget && attempt < maxAttempts) {
+      await db.logEvent('budget_retry', {
+        mode, nextAttempt: attempt + 1, userId,
+        overageBucket: budgetEngine.bucketOverage(evaluation.overagePct),
+      }, '');
+    }
+  };
+}
+async function logBudgetOutcome(mode, userId, succeeded, attempts, evaluation) {
+  await db.logEvent(succeeded ? 'budget_generation_succeeded' : 'budget_generation_failed', {
+    mode, attempts, userId, overageBucket: budgetEngine.bucketOverage(evaluation.overagePct),
+  }, '');
+}
+
+/** The truthful, non-blaming controlled-failure body for a plan that could
+ * not be brought under budget after budgetEngine.MAX_GENERATION_ATTEMPTS
+ * attempts. Never returns the over-budget plan as if it succeeded. */
+function budgetUnreachableResponse(evaluation, extra) {
+  return {
+    error: 'budget_unreachable',
+    message: "Mealzy couldn't build a plan within this budget using the current constraints. Try increasing the budget or relaxing one of your preferences.",
+    estimatedCostUSD: evaluation.costUSD,
+    budgetUSD: evaluation.budgetUSD,
+    ...extra,
+  };
+}
+
 /** Thrown when a generated meal contains a declared allergen; the route
  * turns this into a 400 for single-day requests or fails the whole week. */
 class AllergyViolationError extends Error {
@@ -2151,8 +2188,28 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     const dailyProtein       = Number(profile.daily_protein  || (profile.macros?.protein) || 150);
     const dailyCarbs         = Number(profile.daily_carbs    || (profile.macros?.carbs) || 200);
     const dailyFat           = Number(profile.daily_fat      || (profile.macros?.fat) || 65);
-    const budget             = Number(profile.budget_weekly  || profile.budget || 100);
+    // Clamped the same way /api/generate-grocery-list already clamps `budget`
+    // (see groundAndStampGroceryItems' caller) — an unclamped negative/absurd/
+    // NaN value would make budgetEngine retry 3 times against an
+    // unsatisfiable target, burning real Anthropic spend for no reason.
+    let budget                = Number(profile.budget_weekly || profile.budget || 100);
+    if (Number.isNaN(budget)) budget = 100;
+    budget                    = Math.min(10000, Math.max(1, budget));
     const currency           = sanitise(profile.currency || 'USD', 10);
+    // Budget Engine v1 enforcement threshold for SINGLE-DAY mode only.
+    // Deliberately the RAW weekly budget divided by 7 — NOT the
+    // price-tier-multiplied `dailyBudget` used in the prompt below (that
+    // multiplier is a prompt-only hint about ingredient quality, and
+    // inflating it for Premium tier would let a day legitimately exceed the
+    // user's actual weekly budget). Single-day mode has no separate weekly
+    // context to defer to (each request is independent/stateless — see
+    // server.js's single-day block), so it enforces this figure directly.
+    // Week mode does NOT use this as a hard per-day cap — see
+    // budgetEngine.nextDayGuidanceUSD (adaptive per-day prompt guidance) and
+    // budgetEngine.runWeeklyBudgetRepair (the actual, authoritative
+    // whole-week invariant check) further down in this route.
+    const dailyBudgetUSD     = budget / 7;
+    const budgetEnforceable  = budgetEngine.isBudgetEnforceable(currency);
     const cookingTimeMinutes = Number(profile.cooking_time_minutes || profile.cookingTimeMinutes || 30);
     const language           = sanitise(profile.language || 'en', 10);
     const languageNames = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };
@@ -2354,11 +2411,29 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
 
     /** Generates and validates ONE day's 4-meal plan. Throws AllergyViolationError
      * if a generated meal contains a declared allergen. Never trusts AI totals —
-     * calorie/macro/cost sums are always recomputed here. */
-    async function generateDayMealPlan(dayDate, variety) {
+     * calorie/macro/cost sums are always recomputed here.
+     * `repairContext` is set only on a budget-repair retry (single-day mode's
+     * budgetEngine.runWithBudgetRepair, or week mode's budgetEngine.
+     * runWeeklyBudgetRepair repairing one day): { attempt, previousCostUSD,
+     * budgetUSD, maxAttempts }. It never relaxes allergy/diet/macro/cooking-
+     * time constraints — those stay identical on every attempt; only the
+     * budget instruction changes.
+     * `dailyGuidanceUSD`, when set, overrides the fixed price-tier `dailyBudget`
+     * prompt figure — week mode passes the ADAPTIVE remaining-budget/
+     * remaining-days share here (see budgetEngine.nextDayGuidanceUSD) instead
+     * of a rigid 1/7 split. It is guidance only; no day is hard-rejected for
+     * missing it — the final weekly total is what's actually enforced. */
+    async function generateDayMealPlan(dayDate, variety, repairContext, dailyGuidanceUSD) {
       const { todayCuisine, todayProtein, randomSeed } = variety;
 
-      const fullPlanPrompt = `${dietaryBlock}${allergyBlock}${ingredientOverlapLine}
+      const budgetRepairBlock = repairContext
+        ? `\n⚠️ BUDGET REPAIR — REQUIRED (attempt ${repairContext.attempt}/${repairContext.maxAttempts || budgetEngine.MAX_GENERATION_ATTEMPTS}): The previous attempt's authoritative estimated cost was ${currency} ${repairContext.previousCostUSD.toFixed(2)}, over the ${currency} ${repairContext.budgetUSD.toFixed(2)} target for this day. Rebuild using cheaper ingredients or simpler meals so the total fits within budget. Do not shrink portion sizes to unrealistic amounts — swap to cheaper ingredients instead. Every other requirement (diet, allergies, calories, cooking time) still applies exactly as stated.\n`
+        : '';
+
+      const effectiveDailyBudget   = dailyGuidanceUSD != null ? dailyGuidanceUSD.toFixed(2) : dailyBudget;
+      const effectivePerMealBudget = dailyGuidanceUSD != null ? (dailyGuidanceUSD / 4).toFixed(2) : perMealBudget;
+
+      const fullPlanPrompt = `${dietaryBlock}${allergyBlock}${budgetRepairBlock}${ingredientOverlapLine}
 
 Generate a practical, delicious daily meal plan for ${name} on ${dayDate}.
 
@@ -2372,7 +2447,7 @@ User profile:
   Breakfast: ${mealCalorieTargets.breakfast} kcal | Lunch: ${mealCalorieTargets.lunch} kcal | Dinner: ${mealCalorieTargets.dinner} kcal | Snack: ${mealCalorieTargets.snack} kcal
 - Cooking skill: ${cookingSkill}
 - Max time per meal: ${cookingTimeMinutes} min
-- STRICT DAILY BUDGET: ${currency} ${dailyBudget} total. Each meal max ${currency} ${perMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${dailyBudget}.
+- STRICT DAILY BUDGET: ${currency} ${effectiveDailyBudget} total. Each meal max ${currency} ${effectivePerMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${effectiveDailyBudget}.
 - User's price tier: ${priceTierLabel}. Adjust ingredient quality and brand expectations accordingly — Budget means value supermarket staples, Premium means quality cuts and fresh produce.
 
  ${batchCookingLine ? batchCookingLine + '\n\n' : ''}${avoidBlock}
@@ -2517,15 +2592,37 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       // 7-day grid on meal-planner.html.
       // ═══════════════════════════════════════════════════════════════════════
       const days = [];
+      const dayVarieties = []; // kept per index so a week-level repair can regenerate a day with the same cuisine/protein context
       let prevCuisine = null;
+      const budgetTelemetryId = session?.userId || 'anon';
+      if (!budgetEnforceable) {
+        await db.logEvent('budget_enforcement_skipped_currency', { currency, userId: budgetTelemetryId }, '');
+      }
+
+      // Adaptive per-day guidance only — NOT a hard per-day cap. A $60/week
+      // budget does not mean every day must cost <= $8.57; Monday can run
+      // $11 as long as later days come in cheaper so the FINAL weekly total
+      // (checked below, after every day is generated) still fits. Each day
+      // is generated exactly once here — no per-day retry loop — and
+      // remainingBudgetUSD/remainingDays just make the guidance handed to
+      // later days reflect what's actually left, tightening if earlier days
+      // ran high.
+      let remainingBudgetUSD = budget;
+      let remainingDays = 7;
+
       for (let i = 0; i < 7; i++) {
         const dayDate = addDaysToDateStr(weekStart, i);
         const variety = pickDayVariety(prevCuisine);
         prevCuisine = variety.todayCuisine;
+        dayVarieties.push(variety);
+
+        const dayGuidanceUSD = budgetEnforceable
+          ? budgetEngine.nextDayGuidanceUSD(remainingBudgetUSD, remainingDays)
+          : undefined;
 
         let dayMealPlan;
         try {
-          dayMealPlan = await generateDayMealPlan(dayDate, variety);
+          dayMealPlan = await generateDayMealPlan(dayDate, variety, null, dayGuidanceUSD);
         } catch (err) {
           if (err instanceof AllergyViolationError) {
             await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
@@ -2541,9 +2638,70 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
         await attachMealImages(dayMealPlan.meals);
         days.push({ date: dayDate, dayName: getDayNameFromDate(dayDate), ...dayMealPlan });
+
+        if (budgetEnforceable) {
+          remainingBudgetUSD -= (dayMealPlan.totalCost || 0);
+          remainingDays -= 1;
+        }
       }
 
-      // ── Weekly totals — sums and per-day averages computed in code, never trusted from the model ──
+      // ── THE weekly budget invariant — mandatory, runs even though no
+      // individual day above was hard-rejected. If the authoritative weekly
+      // total is over budget, repair the single most expensive day (up to
+      // MAX_WEEKLY_REPAIR_ROUNDS times) and re-check. A week that still
+      // doesn't fit after that is a controlled failure: it is never saved
+      // or returned as successful. ──────────────────────────────────────────
+      if (budgetEnforceable) {
+        try {
+          const { days: settledDays, weeklyEvaluation, attempts, succeeded } = await budgetEngine.runWeeklyBudgetRepair(
+            days,
+            budget,
+            {
+              getDayCost: (d) => d.totalCost || 0,
+              regenerateDay: async (dayIndex, repairContext) => {
+                const oldDay = days[dayIndex];
+                try {
+                  const repairedPlan = await generateDayMealPlan(oldDay.date, dayVarieties[dayIndex], {
+                    attempt: repairContext.attempt,
+                    previousCostUSD: repairContext.previousDayCostUSD,
+                    budgetUSD: repairContext.targetDayCostUSD,
+                    maxAttempts: repairContext.maxAttempts,
+                  });
+                  await attachMealImages(repairedPlan.meals);
+                  return { date: oldDay.date, dayName: oldDay.dayName, ...repairedPlan };
+                } catch (err) {
+                  if (err instanceof AllergyViolationError) err.day = oldDay.date;
+                  throw err;
+                }
+              },
+              onAttempt: logBudgetAttempt('week', budgetTelemetryId),
+            }
+          );
+
+          await logBudgetOutcome('week', budgetTelemetryId, succeeded, attempts, weeklyEvaluation);
+
+          if (!succeeded) {
+            return res.status(422).json(budgetUnreachableResponse(weeklyEvaluation));
+          }
+          days.length = 0;
+          days.push(...settledDays);
+        } catch (err) {
+          if (err instanceof AllergyViolationError) {
+            await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
+            logger.warn(`[allergy] Violation detected: "${err.allergen}" in "${err.mealName}" (week budget repair, day ${err.day || 'unknown'})`);
+            return res.status(400).json({
+              error: 'allergy_violation', retry: true, allergen: err.allergen,
+              message: `Generated meal "${err.mealName}" may contain "${err.allergen}". Please regenerate your plan.`,
+              day: err.day
+            });
+          }
+          throw err;
+        }
+      }
+
+      // ── Weekly totals — sums and per-day averages computed in code, never
+      // trusted from the model, AFTER any week-level budget repair above so
+      // these always reflect the final, actually-saved/returned days. ──────
       const weeklyTotals = days.reduce((acc, d) => {
         acc.totalCalories += d.totalCalories || 0;
         acc.totalProtein  += d.totalProtein  || 0;
@@ -2607,8 +2765,23 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     // Kept unchanged so it doesn't affect the 7-day credit accounting above.
     // ═══════════════════════════════════════════════════════════════════════
     let mealPlan;
+    const singleDayBudgetTelemetryId = session?.userId || 'anon';
     try {
-      mealPlan = await generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed });
+      if (budgetEnforceable) {
+        const { result, evaluation, attempts, succeeded } = await budgetEngine.runWithBudgetRepair(
+          (repairContext) => generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed }, repairContext),
+          dailyBudgetUSD,
+          { onAttempt: logBudgetAttempt('single_day', singleDayBudgetTelemetryId) }
+        );
+        await logBudgetOutcome('single_day', singleDayBudgetTelemetryId, succeeded, attempts, evaluation);
+        if (!succeeded) {
+          return res.status(422).json(budgetUnreachableResponse(evaluation));
+        }
+        mealPlan = result;
+      } else {
+        await db.logEvent('budget_enforcement_skipped_currency', { currency, userId: singleDayBudgetTelemetryId }, '');
+        mealPlan = await generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed });
+      }
     } catch (err) {
       if (err instanceof AllergyViolationError) {
         await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');

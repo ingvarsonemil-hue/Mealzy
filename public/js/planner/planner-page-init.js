@@ -249,7 +249,7 @@ async function generateMealPlan(isRegenerate) {
     }
 
     if (!res.ok || !data.success) {
-      showErrorState(data.error || 'Generation failed. Please try again.');
+      showErrorState(data.message || data.error || 'Generation failed. Please try again.');
       return;
     }
 
