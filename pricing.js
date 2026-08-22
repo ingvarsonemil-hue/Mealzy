@@ -79,8 +79,14 @@ function priceIngredient(ingredient, priceRows) {
   const priceRow = _findPriceRow(ingredient?.name, priceRows);
 
   if (!priceRow) {
-    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNKNOWN_INGREDIENT };
+    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNKNOWN_INGREDIENT, category: null };
   }
+
+  // Surfaced alongside cost so callers (e.g. deterministic grocery
+  // categorization) can bucket a priced item without re-implementing this
+  // module's ingredient-name matching. Present whenever a price row matched,
+  // regardless of whether the unit itself priced successfully.
+  const category = priceRow.category ?? null;
 
   const rowUnit = normalizeDbUnit(priceRow.unit);
   const rawAmountUnit = ingredient?.amountUnit;
@@ -97,18 +103,18 @@ function priceIngredient(ingredient, priceRows) {
     const unitMatchesPriceRow = rowUnit && rawAmountUnit === rowUnit;
 
     if (!validQuantity || !unitIsSupported || !unitMatchesPriceRow) {
-      return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT };
+      return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT, category };
     }
 
-    return { costUSD: _round2(priceRow.price_per_unit * amountValue), source: PRICE_SOURCE.VERIFIED };
+    return { costUSD: _round2(priceRow.price_per_unit * amountValue), source: PRICE_SOURCE.VERIFIED, category };
   }
 
   // No amountUnit field at all -> pre-existing data saved before this change.
   if (!rowUnit) {
-    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT };
+    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT, category };
   }
   const legacyQty = _legacyParseQuantity(ingredient?.amount);
-  return { costUSD: _round2(priceRow.price_per_unit * legacyQty), source: PRICE_SOURCE.LEGACY_ESTIMATE };
+  return { costUSD: _round2(priceRow.price_per_unit * legacyQty), source: PRICE_SOURCE.LEGACY_ESTIMATE, category };
 }
 
 /**
@@ -121,10 +127,10 @@ function priceIngredients(ingredients, priceRows) {
   let totalUSD = 0;
   let allVerified = items.length > 0;
   const priced = items.map(ing => {
-    const { costUSD, source } = priceIngredient(ing, priceRows);
+    const { costUSD, source, category } = priceIngredient(ing, priceRows);
     totalUSD += costUSD;
     if (source !== PRICE_SOURCE.VERIFIED) allVerified = false;
-    return { ...ing, costUSD, priceSource: source };
+    return { ...ing, costUSD, priceSource: source, category };
   });
   return { totalUSD: _round2(totalUSD), allVerified, items: priced };
 }

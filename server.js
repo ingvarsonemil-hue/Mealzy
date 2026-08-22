@@ -28,6 +28,7 @@ const winston      = require('winston');
 const db           = require('./db');
 const pricing      = require('./pricing');
 const budgetEngine = require('./budgetEngine');
+const groceryAgg   = require('./groceryAggregation');
 const { getISOWeekKey } = require('./weekKey');
 
 // ── Structured logging — replaces console.log/error throughout ──────────────
@@ -2933,12 +2934,32 @@ async function maybeLogWeekReturn(userId, previousWeekKey) {
 }
 
 /**
- * Calls the AI to build a categorized grocery list for the given meals.
- * When `day` is passed, every item is tagged with that single day (used by the
- * per-day auto-generation flow). Otherwise the AI is asked to infer each
- * item's day from context (used by the multi-day manual fallback).
+ * Budget Engine v2 — builds a grocery list directly from the meals' own
+ * already-generated, already-priced structured ingredients. No AI call, no
+ * invented ingredient set: this is the fix for the gap where Mealzy priced
+ * one ingredient set for the budget check and showed the user a different,
+ * independently AI-invented one. All aggregation/categorization/pricing
+ * logic lives in groceryAggregation.js (pure, unit-tested); this is just
+ * the DB-fetching wrapper around it. */
+async function buildDeterministicGroceryList({ meals, weekStart, budget, currency, day }) {
+  const priceRows = await db.getIngredientPrices();
+  return groceryAgg.buildGroceryList(meals, priceRows, { weekStart, budget, currency, day });
+}
+
+/**
+ * LEGACY FALLBACK ONLY — calls the AI to invent a grocery list from meal
+ * names/types. Kept solely for meals whose ingredients predate the
+ * amountValue/amountUnit structured contract (see
+ * groceryAggregation.isStructuredIngredient) and therefore can't feed the
+ * deterministic path above without fabricating quantities. Every meal
+ * generated since Budget Engine v1 already satisfies the structured
+ * contract, so this path should see decreasing use over time; once no
+ * client can submit an unstructured meal (old cached localStorage plans
+ * fully cycled out), this function and its call site can be deleted.
+ * Do not extend or improve this path — fix the gap by making callers send
+ * structured ingredients instead (see /api/generate-grocery-list).
  */
-async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
+async function generateGroceryListForMealsLegacyAI({ meals, profile, weekStart, day }) {
   const { budget = 100, currency = 'USD', dietaryPrefs = [], allergies = [], language: groceryLang = 'en' } = profile || {};
   const langNames = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };
   const langName  = langNames[groceryLang] || 'English';
@@ -2975,7 +2996,12 @@ async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
  * within this list, estimatedCost, actualCost (null until the user edits it),
  * priceSource (verified/unknown_ingredient/unsupported_unit/legacy_estimate),
  * and checked. Recomputes groceryList.totalCost from the grounded item costs
- * rather than leaving the AI's own guessed total in place. Mutates in place. */
+ * rather than leaving the AI's own guessed total in place. Mutates in place.
+ * LEGACY-FALLBACK-ONLY — see generateGroceryListForMealsLegacyAI. Note this
+ * prices each of the AI's own already-consolidated rows once, so it inherits
+ * the same unknown-ingredient understatement risk described in
+ * groceryAggregation.js if the AI merged an unpriceable ingredient itself;
+ * not fixed here since this path is being phased out, not improved. */
 async function groundAndStampGroceryItems(groceryList) {
   const priceRows = await db.getIngredientPrices();
   let seq = 0;
@@ -2994,6 +3020,22 @@ async function groundAndStampGroceryItems(groceryList) {
     }
   }
   groceryList.totalCost = Math.round(recomputedTotal * 100) / 100;
+}
+
+/**
+ * Public entry point used by all 3 grocery-generation call sites. Routes to
+ * the deterministic path (buildDeterministicGroceryList) whenever every
+ * supplied meal's ingredients are structured; falls back to the legacy AI
+ * generator otherwise (old cached client data, or a caller that didn't send
+ * ingredients at all). See groceryAggregation.mealsAreFullyStructured for
+ * the exact gate.
+ */
+async function generateGroceryListForMeals({ meals, profile, weekStart, day }) {
+  const { budget = 100, currency = 'USD' } = profile || {};
+  if (groceryAgg.mealsAreFullyStructured(meals)) {
+    return buildDeterministicGroceryList({ meals, weekStart, budget, currency, day });
+  }
+  return generateGroceryListForMealsLegacyAI({ meals, profile, weekStart, day });
 }
 
 /** Splits a categorized grocery list into one grocery-list object per day, keyed by day name. */
@@ -3041,8 +3083,27 @@ app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEma
     profile.allergies    = capList(profile.allergies, 20, 40);
     profile.dietaryPrefs = capList(profile.dietaryPrefs, 20, 40);
 
+    // Pass through structured ingredients (validated/bounded) so this route
+    // can reach the deterministic grocery path in generateGroceryListForMeals
+    // instead of always falling back to the legacy AI generator. amountValue/
+    // amountUnit are the only fields aggregation reads — anything else the
+    // client sends (e.g. a client-guessed "cost") is dropped, matching the
+    // rest of this route's never-trust-client-cost stance.
     const meals = Array.isArray(rawMeals)
-      ? rawMeals.slice(0, 50).map(m => ({ name: sanitise(m?.name, 100), type: sanitise(m?.type, 30) }))
+      ? rawMeals.slice(0, 50).map(m => ({
+          name: sanitise(m?.name, 100),
+          type: sanitise(m?.type, 30),
+          ingredients: Array.isArray(m?.ingredients)
+            ? m.ingredients.slice(0, 30).map(ing => {
+                const amountValue = Number(ing?.amountValue);
+                return {
+                  name: sanitise(ing?.name, 100),
+                  amountValue: Number.isFinite(amountValue) && amountValue > 0 ? Math.min(100000, amountValue) : undefined,
+                  amountUnit: sanitise(ing?.amountUnit, 20) || undefined,
+                };
+              })
+            : [],
+        }))
       : [];
     console.log('[generate-grocery-list debug]', { userId: session.userId, rawMealsLength: Array.isArray(rawMeals) ? rawMeals.length : typeof rawMeals, sanitisedMealsLength: meals.length, rawWeekStart, rawDay });
     if (meals.length === 0) return res.status(400).json({ error: 'Meals array is required' });
