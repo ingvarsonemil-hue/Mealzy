@@ -96,6 +96,122 @@ function bucketOverage(overagePct) {
   return '50+';
 }
 
+/** Buckets a USD weekly budget for analytics — coarse enough that no exact
+ * personal budget figure is ever logged, fine enough to answer "which
+ * budget tier fails most in production" (see the Budget Engine
+ * observability PR report). Cents-safe: boundaries are inclusive of the
+ * lower bound of each named bucket (e.g. exactly $40.00 is "40_49", not
+ * "under_40"). Only meaningful for USD — callers must gate on
+ * isBudgetEnforceable() before attaching this to an event, since a non-USD
+ * number isn't a real USD budget. */
+function budgetBucket(budgetUSD) {
+  const cents = toCents(budgetUSD);
+  if (cents < 4000) return 'under_40';
+  if (cents < 5000) return '40_49';
+  if (cents < 6000) return '50_59';
+  if (cents < 7500) return '60_74';
+  if (cents < 10000) return '75_99';
+  if (cents < 13000) return '100_129';
+  return '130_plus';
+}
+
+/** Coarse direction of a repair's effect on cost, for analytics — never the
+ * raw before/after dollar values. Cents-safe: a change of less than one
+ * cent (impossible in practice since both inputs are already cent-rounded,
+ * but kept explicit) counts as "unchanged" rather than a false decrease/
+ * increase. */
+function repairDirection(previousCostUSD, currentCostUSD) {
+  const prevCents = toCents(previousCostUSD);
+  const currCents = toCents(currentCostUSD);
+  if (currCents < prevCents) return 'decreased';
+  if (currCents > prevCents) return 'increased';
+  return 'unchanged';
+}
+
+/**
+ * Pure: decides which analytics events should fire for one attempt of a
+ * budget generate/repair loop — never persists anything itself, so the
+ * decision logic is fully unit-testable without a DB or an HTTP request.
+ * server.js's logBudgetAttempt calls this once per attempt and persists
+ * whatever it returns.
+ *
+ * `requestId` is a random, ephemeral, request-scoped correlation key
+ * (crypto.randomUUID() from server.js) — never derived from userId/email/
+ * IP/session/diet/allergies/ingredients. `previousCostUSD` is the prior
+ * attempt's cost (null on the very first attempt, or whenever the caller
+ * has no prior attempt to compare against).
+ *
+ * TIMING (traced from runWeeklyBudgetRepair, not assumed): onAttempt fires
+ * at the TOP of each loop iteration, evaluating the days as they currently
+ * stand. For attempt >= 2, those days were already mutated by the PREVIOUS
+ * iteration's regenerateDay call — so attempt N's evaluation (N >= 2)
+ * always describes repair round (N-1)'s completed, repriced result. That's
+ * true whether round (N-1) brought the week back under budget (success),
+ * left it still over with another round to go, or left it still over with
+ * none left (terminal failure) — the repair already happened by the time
+ * this fires, regardless of outcome.
+ *
+ * Firing rules (exactly):
+ *   budget_generation_attempt — always fires once, reporting THIS attempt's
+ *     own result.
+ *   budget_repair_completed — fires whenever attempt > 1, i.e. whenever a
+ *     repair round just produced this evaluation. repairRound = attempt - 1
+ *     (the round that just finished, not the one that might come next).
+ *     `direction` compares this attempt's cost to the attempt right before
+ *     it via repairDirection(). There is no separate "repair about to
+ *     start" event — once direction data lives here, that signal would be
+ *     fully redundant with an over-budget attempt event followed by either
+ *     another attempt or a terminal failure event, so it was not kept
+ *     alongside this one (avoids event spam with no distinct analytical
+ *     value; a prior version of this function had exactly that redundant,
+ *     mis-attributed event — see the observability-correction report).
+ */
+function buildAttemptEvents({ requestId, mode, attempt, maxAttempts, evaluation, previousCostUSD = null }) {
+  const bucket = budgetBucket(evaluation.budgetUSD);
+  const events = [{
+    event: 'budget_generation_attempt',
+    data: {
+      requestId, mode, attempt, budgetBucket: bucket,
+      withinBudget: evaluation.withinBudget,
+      overageBucket: bucketOverage(evaluation.overagePct),
+    },
+  }];
+
+  if (attempt > 1 && previousCostUSD !== null && previousCostUSD !== undefined) {
+    events.push({
+      event: 'budget_repair_completed',
+      data: {
+        requestId, mode, repairRound: attempt - 1, budgetBucket: bucket,
+        direction: repairDirection(previousCostUSD, evaluation.costUSD),
+        withinBudget: evaluation.withinBudget,
+        overageBucket: bucketOverage(evaluation.overagePct),
+      },
+    });
+  }
+
+  return events;
+}
+
+/**
+ * Pure: builds the single terminal event for a resolved budget generate/
+ * repair loop — exactly one of budget_generation_succeeded or
+ * budget_generation_failed, mutually exclusive by construction (the caller
+ * passes one `succeeded` boolean, never both). `attempts` is the loop's
+ * 1-indexed attempt count; `repairsUsed` (attempts - 1) is logged instead
+ * since it's the analytically meaningful number (0, 1, or 2 repairs).
+ */
+function buildOutcomeEvent({ requestId, mode, succeeded, attempts, evaluation }) {
+  const bucket = budgetBucket(evaluation.budgetUSD);
+  const repairsUsed = attempts - 1;
+  if (succeeded) {
+    return { event: 'budget_generation_succeeded', data: { requestId, mode, repairsUsed, budgetBucket: bucket } };
+  }
+  return {
+    event: 'budget_generation_failed',
+    data: { requestId, mode, repairsUsed, budgetBucket: bucket, finalOverageBucket: bucketOverage(evaluation.overagePct) },
+  };
+}
+
 /** A fair share of what's actually left, not a rigid 1/7 split of the whole
  * budget — lets an expensive day be balanced by cheaper ones elsewhere in
  * the week, as long as the FINAL weekly total (evaluateWeeklyBudget) still
@@ -235,6 +351,10 @@ module.exports = {
   evaluateBudget,
   evaluateWeeklyBudget,
   bucketOverage,
+  budgetBucket,
+  repairDirection,
+  buildAttemptEvents,
+  buildOutcomeEvent,
   nextDayGuidanceUSD,
   runWithBudgetRepair,
   pickMostExpensiveDayIndex,

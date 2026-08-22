@@ -2018,27 +2018,47 @@ async function calculateMealCost(ingredients) {
   return pricing.priceIngredients(ingredients, priceRows);
 }
 
-/** Fires the Budget Engine analytics events for one runWithBudgetRepair call.
- * Buckets are used instead of raw dollar figures, and no allergy/diet/dislike/
- * meal-content data is ever included — see CLAUDE.md analytics guidance. */
-function logBudgetAttempt(mode, userId) {
+/**
+ * Fires the Budget Engine analytics events for one runWeeklyBudgetRepair/
+ * runWithBudgetRepair call. `requestId` is generated once per generation
+ * request by the caller (see call sites) and attached to every event so a
+ * single week's attempt -> repair completed -> attempt -> repair completed
+ * -> outcome journey can be reconstructed later — it is a random, ephemeral
+ * correlation key only
+ * (crypto.randomUUID()), never derived from userId/email/IP/session/diet/
+ * allergies/ingredients.
+ *
+ * All decision logic (which events fire, their exact payload, bucketing,
+ * repair direction) lives in budgetEngine.buildAttemptEvents/
+ * buildOutcomeEvent — pure and unit-tested. This function is only the thin
+ * persistence wrapper, so Budget Engine correctness never depends on
+ * analytics: every body here is wrapped in try/catch and only warns on
+ * failure (db.logEvent already swallows its own errors internally, but
+ * this also guards the payload-building call itself) — it can never abort
+ * or alter plan generation.
+ */
+function logBudgetAttempt(mode, requestId) {
+  let previousCostUSD = null;
   return async (attempt, evaluation, maxAttempts) => {
-    await db.logEvent('budget_generation_attempt', {
-      mode, attempt, withinBudget: evaluation.withinBudget, userId,
-      overageBucket: budgetEngine.bucketOverage(evaluation.overagePct),
-    }, '');
-    if (!evaluation.withinBudget && attempt < maxAttempts) {
-      await db.logEvent('budget_retry', {
-        mode, nextAttempt: attempt + 1, userId,
-        overageBucket: budgetEngine.bucketOverage(evaluation.overagePct),
-      }, '');
+    try {
+      const events = budgetEngine.buildAttemptEvents({ requestId, mode, attempt, maxAttempts, evaluation, previousCostUSD });
+      for (const { event, data } of events) {
+        await db.logEvent(event, data, '');
+      }
+      previousCostUSD = evaluation.costUSD;
+    } catch (err) {
+      logger.warn('[budget-analytics] logBudgetAttempt failed (non-fatal, generation continues):', { message: err.message });
     }
   };
 }
-async function logBudgetOutcome(mode, userId, succeeded, attempts, evaluation) {
-  await db.logEvent(succeeded ? 'budget_generation_succeeded' : 'budget_generation_failed', {
-    mode, attempts, userId, overageBucket: budgetEngine.bucketOverage(evaluation.overagePct),
-  }, '');
+
+async function logBudgetOutcome(mode, requestId, succeeded, attempts, evaluation) {
+  try {
+    const { event, data } = budgetEngine.buildOutcomeEvent({ requestId, mode, succeeded, attempts, evaluation });
+    await db.logEvent(event, data, '');
+  } catch (err) {
+    logger.warn('[budget-analytics] logBudgetOutcome failed (non-fatal, generation continues):', { message: err.message });
+  }
 }
 
 /** The truthful, non-blaming controlled-failure body for a plan that could
@@ -2596,6 +2616,12 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       const dayVarieties = []; // kept per index so a week-level repair can regenerate a day with the same cuisine/protein context
       let prevCuisine = null;
       const budgetTelemetryId = session?.userId || 'anon';
+      // Random, ephemeral correlation key for this one generation request's
+      // budget_* events only — never derived from userId/email/IP/session/
+      // diet/allergies/ingredients. Generated once per request, never
+      // per-attempt, so a whole attempt->retry->outcome journey can be
+      // reconstructed from analytics later (see logBudgetAttempt).
+      const weekRequestId = randomUUID();
       if (!budgetEnforceable) {
         await db.logEvent('budget_enforcement_skipped_currency', { currency, userId: budgetTelemetryId }, '');
       }
@@ -2675,11 +2701,11 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
                   throw err;
                 }
               },
-              onAttempt: logBudgetAttempt('week', budgetTelemetryId),
+              onAttempt: logBudgetAttempt('week', weekRequestId),
             }
           );
 
-          await logBudgetOutcome('week', budgetTelemetryId, succeeded, attempts, weeklyEvaluation);
+          await logBudgetOutcome('week', weekRequestId, succeeded, attempts, weeklyEvaluation);
 
           if (!succeeded) {
             return res.status(422).json(budgetUnreachableResponse(weeklyEvaluation));
@@ -2767,14 +2793,20 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     // ═══════════════════════════════════════════════════════════════════════
     let mealPlan;
     const singleDayBudgetTelemetryId = session?.userId || 'anon';
+    // Same requestId contract as week mode's weekRequestId (random,
+    // ephemeral, request-scoped) - single-day mode's repair algorithm and
+    // convergence questions are out of scope for this observability PR (see
+    // report), but it shares logBudgetAttempt/logBudgetOutcome, which now
+    // require a real requestId rather than a persistent userId in that slot.
+    const singleDayRequestId = randomUUID();
     try {
       if (budgetEnforceable) {
         const { result, evaluation, attempts, succeeded } = await budgetEngine.runWithBudgetRepair(
           (repairContext) => generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed }, repairContext),
           dailyBudgetUSD,
-          { onAttempt: logBudgetAttempt('single_day', singleDayBudgetTelemetryId) }
+          { onAttempt: logBudgetAttempt('single_day', singleDayRequestId) }
         );
-        await logBudgetOutcome('single_day', singleDayBudgetTelemetryId, succeeded, attempts, evaluation);
+        await logBudgetOutcome('single_day', singleDayRequestId, succeeded, attempts, evaluation);
         if (!succeeded) {
           return res.status(422).json(budgetUnreachableResponse(evaluation));
         }
