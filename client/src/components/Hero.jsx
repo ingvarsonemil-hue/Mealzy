@@ -1,12 +1,15 @@
 import { useCallback } from 'react';
 import { track } from '@/lib/api';
 import { prefersReducedMotion } from '@/lib/utils';
-import { planFor, dollars, estimateDollars, singleEstimate } from '@/components/showcase-plan';
+import { planFor, dollars, estimateDollars } from '@/components/showcase-plan';
+import heroScreenshot from '@/assets/hero-screenshot.webp';
 
 /* ───────────────────────────────────────────────
    Hero
-   Right-side preview is real sample-plan data (see showcase-plan.js),
-   not a screenshot — there is no hero-screenshot asset to show.
+   Right-side is a real screenshot of the logged-in meal planner
+   (client/src/assets/hero-screenshot.webp) — actual product, not a
+   reconstruction. The left-side stat boxes still come from the sample-plan
+   math in showcase-plan.js, shared with the budget slider below.
    ─────────────────────────────────────────────── */
 
 function IconArrowRight({ className }) {
@@ -31,17 +34,8 @@ function IconCheck({ className }) {
  * separate hand-picked number — so the hero can never disagree with the
  * demo underneath it. */
 const HERO_PLAN = planFor(60);
-const PREVIEW_DAY = HERO_PLAN.days[0];
 const HERO_PLANNED = estimateDollars(HERO_PLAN.spend);
 const HERO_SAVED = HERO_PLAN.budget - HERO_PLANNED;
-
-/* Same day the mini preview shows, totalled from the same per-meal estimates
- * it renders — never a separate figure that could drift from the rows above
- * it. */
-const PREVIEW_DAY_TOTAL = PREVIEW_DAY.meals.reduce(
-  (sum, meal) => sum + parseFloat(singleEstimate(meal.cost).replace('$', '')),
-  0
-);
 
 export default function Hero() {
   const goToShowcase = useCallback(() => {
@@ -126,13 +120,14 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right: sample-plan preview — hidden below md (768px): a scaled-down
-              preview this dense is illegible on phones. */}
-          <div className="relative hidden md:block">
+          {/* Right: real product screenshot — a live meal plan from the
+              logged-in app, not a reconstruction. Cropped tighter on mobile
+              (top nav trimmed) so the meal cards and budget bar stay
+              readable; full frame from md up. */}
+          <div className="relative">
             {/* Decorative glow behind screenshot */}
-            <div className="absolute -inset-4 bg-emerald-200/30 rounded-[2rem] blur-2xl" />
+            <div className="absolute -inset-4 bg-emerald-200/30 dark:bg-green/10 rounded-[2rem] blur-2xl" aria-hidden="true" />
 
-            {/* Screenshot container with browser chrome */}
             <div
               className="relative overflow-hidden bg-white"
               style={{
@@ -141,61 +136,17 @@ export default function Hero() {
                 border: '1px solid var(--color-border)'
               }}
             >
-              {/* Browser top bar */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b border-gray-100">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-amber-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                <div className="flex-1 mx-4">
-                  <div className="max-w-xs mx-auto rounded-md bg-white border border-gray-200 px-3 py-1 text-xs text-gray-500 text-center truncate">
-                    app.mealzy.org/plan
-                  </div>
-                </div>
-              </div>
-
-              {/* Monday's plan from the $60 sample week — same data the
-                  budget slider below builds from, not a screenshot and not
-                  a food photo: a planner, because that's what Mealzy is. */}
-              <div className="p-4 sm:p-5">
-                <p className="text-sm font-bold uppercase tracking-[0.08em] text-gray-500">{PREVIEW_DAY.day}</p>
-                <ul className="mt-2 divide-y divide-gray-100">
-                  {PREVIEW_DAY.meals.map((meal) => (
-                    <li key={meal.course} className="flex items-baseline justify-between gap-3 py-3 first:pt-0 last:pb-0">
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-500">{meal.course}</p>
-                        <p className="mt-0.5 truncate text-base font-semibold text-gray-900">{meal.name}</p>
-                      </div>
-                      <span className="shrink-0 text-base font-bold text-emerald-700">{singleEstimate(meal.cost)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-3 border-t border-gray-100 pt-3 text-sm font-bold text-forest">
-                  {PREVIEW_DAY.day} planned · ${PREVIEW_DAY_TOTAL.toFixed(0)}
-                </p>
-              </div>
-            </div>
-
-            {/* Floating badge */}
-            <div
-              className="absolute -bottom-4 -left-4 md:-left-8 flex items-center gap-3"
-              style={{
-                background: 'rgba(255, 255, 255, 0.85)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.5)',
-                borderRadius: '12px',
-                boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
-                padding: '16px'
-              }}
-            >
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <IconCheck className="w-5 h-5 text-emerald-700" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-forest">${HERO_SAVED} under budget</div>
-                <div className="text-xs text-gray-500">example week</div>
+              <div className="relative w-full aspect-[1548/732] md:aspect-[1548/822] overflow-hidden">
+                <img
+                  src={heroScreenshot}
+                  alt="Mealzy daily meal plan showing meal costs, calories, protein and daily budget tracking"
+                  width={1548}
+                  height={822}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover object-bottom md:object-top"
+                />
               </div>
             </div>
           </div>
