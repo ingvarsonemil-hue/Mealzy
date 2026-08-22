@@ -328,9 +328,14 @@
     userData.currency = detected;
   }
 
-  // Pre-fill from the homepage demo's handoff (?budget=&diet=/&dietary=), set
-  // on login.html by InteractiveOnboarding.jsx and forwarded here by login.js.
-  // Untrusted input: the diet value is only accepted if it matches a real chip.
+  // No cooking-time UI step exists here, so a homepage value is applied
+  // straight to userData.cookingTimeMinutes, snapped to a supported option.
+  const ALLOWED_COOK_TIMES = [15, 30, 60];
+  function nearestCookTime(n) {
+    return ALLOWED_COOK_TIMES.reduce((best, t) => Math.abs(t - n) < Math.abs(best - n) ? t : best, ALLOWED_COOK_TIMES[0]);
+  }
+
+  // Pre-fill from the homepage demo's handoff (?budget=&diet=/&dietary=&cookingTime=).
   function prefillFromQueryParams() {
     const qs = new URLSearchParams(window.location.search);
     const budgetParam = parseFloat(qs.get('budget'));
@@ -346,6 +351,10 @@
       const chip = Array.from(document.querySelectorAll('#dietChips .chip'))
         .find(c => c.dataset.pref === dietParam);
       if (chip && !chip.classList.contains('active')) toggleChip(chip);
+    }
+    const cookTimeParam = parseInt(qs.get('cookingTime'), 10);
+    if (Number.isFinite(cookTimeParam)) {
+      userData.cookingTimeMinutes = nearestCookTime(cookTimeParam);
     }
   }
   prefillFromQueryParams();

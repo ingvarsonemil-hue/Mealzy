@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { track } from '@/lib/api';
-import { planFor, photo } from '@/components/showcase-plan';
+import { prefersReducedMotion } from '@/lib/utils';
+import { planFor, dollars, estimateDollars, singleEstimate } from '@/components/showcase-plan';
 
 /* ───────────────────────────────────────────────
    Hero
@@ -25,16 +26,31 @@ function IconCheck({ className }) {
   );
 }
 
-const PREVIEW_DAY = planFor(60).days[0];
+/* The example figures below come from the exact same sample-plan math the
+ * budget slider uses (client/src/components/showcase-plan.js), not a
+ * separate hand-picked number — so the hero can never disagree with the
+ * demo underneath it. */
+const HERO_PLAN = planFor(60);
+const PREVIEW_DAY = HERO_PLAN.days[0];
+const HERO_PLANNED = estimateDollars(HERO_PLAN.spend);
+const HERO_SAVED = HERO_PLAN.budget - HERO_PLANNED;
 
-export default function Hero({ onStartPlan, ctaHref }) {
-  const [email, setEmail] = useState('');
+/* Same day the mini preview shows, totalled from the same per-meal estimates
+ * it renders — never a separate figure that could drift from the rows above
+ * it. */
+const PREVIEW_DAY_TOTAL = PREVIEW_DAY.meals.reduce(
+  (sum, meal) => sum + parseFloat(singleEstimate(meal.cost).replace('$', '')),
+  0
+);
 
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
-    track('homepage_hero_cta_submit', {});
-    if (onStartPlan) onStartPlan({ email });
-  }, [email, onStartPlan]);
+export default function Hero() {
+  const goToShowcase = useCallback(() => {
+    track('homepage_hero_cta_click', {});
+    document.getElementById('showcase')?.scrollIntoView({
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      block: 'start'
+    });
+  }, []);
 
   return (
     <section className="relative bg-parchment overflow-hidden">
@@ -51,7 +67,7 @@ export default function Hero({ onStartPlan, ctaHref }) {
               Stop overspending at the grocery store
             </h1>
             <p className="mt-6 text-lg md:text-xl text-muted-fg max-w-xl mx-auto lg:mx-0">
-              Mealzy builds your weekly meal plan around your budget — so you buy only what you need and stop throwing food away.
+              Mealzy plans your week around your grocery budget, diet, preferences, and available cooking time — so you buy only what you need and stop throwing food away.
             </p>
 
             {/* Value prop boxes */}
@@ -60,42 +76,29 @@ export default function Hero({ onStartPlan, ctaHref }) {
             </p>
             <div className="mt-2 grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
               <div className="rounded-xl bg-white border border-gray-200 p-3 text-center shadow-sm">
-                <div className="text-2xl font-bold text-forest">$60</div>
-                <div className="text-xs text-gray-500 mt-1">Typical spend</div>
+                <div className="text-2xl font-bold text-forest">{dollars(HERO_PLAN.budget * 100)}</div>
+                <div className="text-xs text-gray-500 mt-1">Weekly budget</div>
               </div>
               <div className="rounded-xl bg-white border border-gray-200 p-3 text-center shadow-sm">
-                <div className="text-2xl font-bold text-emerald-600">$47</div>
+                <div className="text-2xl font-bold text-emerald-600">${HERO_PLANNED}</div>
                 <div className="text-xs text-gray-500 mt-1">With Mealzy</div>
               </div>
               <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-center shadow-sm">
-                <div className="text-2xl font-bold text-emerald-700">$13</div>
-                <div className="text-xs text-emerald-700 mt-1 font-medium">Saved</div>
+                <div className="text-2xl font-bold text-emerald-700">${HERO_SAVED}</div>
+                <div className="text-xs text-emerald-700 mt-1 font-medium">Left over</div>
               </div>
             </div>
 
-            {/* CTA */}
-            <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto lg:mx-0">
-              <label htmlFor="hero-email" className="sr-only">Email address</label>
-              <input
-                id="hero-email"
-                type="email"
-                required
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 text-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
-                style={{
-                  padding: '14px 20px',
-                  borderRadius: '8px',
-                  border: '1px solid #CBD5E1',
-                  background: 'var(--color-muted-bg)'
-                }}
-              />
+            {/* CTA — starts the inline mini pre-onboarding in Showcase.jsx.
+             * No email field here: nothing on the homepage consumes an email
+             * before the visitor reaches the real signup handoff. */}
+            <div className="mt-8 flex justify-center lg:justify-start">
               <button
-                type="submit"
+                type="button"
+                onClick={goToShowcase}
                 className="inline-flex items-center justify-center gap-2 text-sm text-white whitespace-nowrap hover:-translate-y-px"
                 style={{
-                  padding: '14px 24px',
+                  padding: '14px 28px',
                   borderRadius: '8px',
                   background: 'var(--color-green)',
                   fontWeight: 700,
@@ -105,10 +108,10 @@ export default function Hero({ onStartPlan, ctaHref }) {
                 onMouseEnter={(e) => { e.currentTarget.style.boxShadow = 'var(--shadow-button)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
               >
-                Plan my week free
+                Build my example week
                 <IconArrowRight className="w-4 h-4" />
               </button>
-            </form>
+            </div>
 
             {/* Trust badges */}
             <div className="mt-4 flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-1 text-xs text-gray-500">
@@ -153,28 +156,24 @@ export default function Hero({ onStartPlan, ctaHref }) {
               </div>
 
               {/* Monday's plan from the $60 sample week — same data the
-                  budget slider below builds from, not a screenshot. */}
+                  budget slider below builds from, not a screenshot and not
+                  a food photo: a planner, because that's what Mealzy is. */}
               <div className="p-4 sm:p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.08em] text-gray-500">{PREVIEW_DAY.day}</p>
-                <ul className="mt-3 divide-y divide-gray-100">
+                <p className="text-sm font-bold uppercase tracking-[0.08em] text-gray-500">{PREVIEW_DAY.day}</p>
+                <ul className="mt-2 divide-y divide-gray-100">
                   {PREVIEW_DAY.meals.map((meal) => (
-                    <li key={meal.course} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                      <img
-                        src={photo(meal.img)}
-                        alt=""
-                        width="64"
-                        height="45"
-                        loading="eager"
-                        className="h-[45px] w-16 shrink-0 rounded-sm object-cover"
-                      />
-                      <div className="min-w-0 flex-1">
+                    <li key={meal.course} className="flex items-baseline justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                      <div className="min-w-0">
                         <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-gray-500">{meal.course}</p>
-                        <p className="truncate text-sm font-medium text-gray-900">{meal.name}</p>
+                        <p className="mt-0.5 truncate text-base font-semibold text-gray-900">{meal.name}</p>
                       </div>
-                      <span className="shrink-0 text-sm font-bold text-emerald-700">{meal.cost}</span>
+                      <span className="shrink-0 text-base font-bold text-emerald-700">{singleEstimate(meal.cost)}</span>
                     </li>
                   ))}
                 </ul>
+                <p className="mt-3 border-t border-gray-100 pt-3 text-sm font-bold text-forest">
+                  {PREVIEW_DAY.day} planned · ${PREVIEW_DAY_TOTAL.toFixed(0)}
+                </p>
               </div>
             </div>
 
@@ -195,7 +194,7 @@ export default function Hero({ onStartPlan, ctaHref }) {
                 <IconCheck className="w-5 h-5 text-emerald-700" />
               </div>
               <div>
-                <div className="text-sm font-bold text-forest">$13 under budget</div>
+                <div className="text-sm font-bold text-forest">${HERO_SAVED} under budget</div>
                 <div className="text-xs text-gray-500">example week</div>
               </div>
             </div>

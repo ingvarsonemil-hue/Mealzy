@@ -2,25 +2,11 @@ import * as React from 'react';
 import Reveal from '@/components/Reveal';
 import { Button } from '@/components/ui/button';
 import { Phone, Check } from '@/components/icons';
+import { track } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { range, dollars } from '@/components/showcase-plan';
+import { range, dollars, singleEstimate, estimateDollars } from '@/components/showcase-plan';
 
-/* Turns "$1–$3" into "$2". If already a single number, leaves it alone. */
-function singleEstimate(rangeStr) {
-  if (!rangeStr || typeof rangeStr !== 'string') return rangeStr;
-  const match = rangeStr.match(/\$?([\d.]+)\s*[-–—]\s*\$?([\d.]+)/);
-  if (!match) return rangeStr;
-  const avg = (parseFloat(match[1]) + parseFloat(match[2])) / 2;
-  return `$${avg.toFixed(0)}`;
-}
-
-/* Same rounding as singleEstimate, as a number rather than a display string —
- * for subtracting a ticked pantry item from the week total using the exact
- * dollar figure already shown next to that item, not a hidden fractional one. */
-function estimateDollars(rangeStr) {
-  return parseFloat(singleEstimate(rangeStr).replace('$', '')) || 0;
-}
-/* The shoppable half of the Showcase: the priced list the week produces, its
+/* The shoppable half of the Showcase result: the priced list the week produces, its
  * tick state, and the clipboard copy. Split out of Showcase.jsx when the three-
  * column rewrite pushed that file past the 500-line limit; the seam is a real
  * one — nothing here reads the day cards, and nothing there reads these rows.
@@ -65,8 +51,10 @@ function GroceryLine({ item, qty, cents, checked, onToggle }) {
 }
 
 /* An aisle and its lines. Fresh aisles and the pantry render identically, so
- * they share this rather than repeating the markup twice. */
-function GroceryGroup({ title, muted, items, prefix, ticked, onToggle, children }) {
+ * they share this rather than repeating the markup twice. `limit` truncates
+ * the collapsed preview; omit it (or pass Infinity) to show every line. */
+function GroceryGroup({ title, muted, items, limit = Infinity, prefix, ticked, onToggle, children }) {
+  const shown = items.slice(0, limit);
   return (
     <div className="min-w-0">
       <p
@@ -78,7 +66,7 @@ function GroceryGroup({ title, muted, items, prefix, ticked, onToggle, children 
         {title}
       </p>
       <ul role="list">
-        {items.map(([item, qty, cents]) => (
+        {shown.map(([item, qty, cents]) => (
           <GroceryLine
             key={item}
             item={item}
@@ -159,8 +147,16 @@ function CopyListButton({ plan }) {
   );
 }
 
+/* Collapsed default: the first two lines of each fresh aisle (Produce,
+ * Protein — 4 items) plus the first two pantry lines (2 items) = 6, enough to
+ * prove the shape of the list — categories, quantities, prices — without the
+ * homepage reading as a spreadsheet. Expanding reveals every line. */
+const COLLAPSED_FRESH_LIMIT = 2;
+const COLLAPSED_PANTRY_LIMIT = 2;
+
 export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
   const [ticked, setTicked] = React.useState(() => new Set());
+  const [expanded, setExpanded] = React.useState(false);
 
   const toggle = (id) =>
     setTicked((prev) => {
@@ -169,14 +165,31 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
       return next;
     });
 
+  const toggleExpanded = () => {
+    const next = !expanded;
+    setExpanded(next);
+    if (next) track('homepage_demo_grocery_expanded', {});
+  };
+
   /* Only pantry items reduce the total — they're the ones a shopper might
    * already have. Ticking a fresh-aisle item just tracks progress in the
    * aisle, it isn't a claim that item is free. */
   const pantryDeduction = plan.pantry.reduce((sum, [item, , cents]) => {
     if (!ticked.has(`pantry:${item}`)) return sum;
-    return sum + estimateDollars(range(cents));
+    return sum + estimateDollars(cents);
   }, 0);
-  const weekTotal = Math.max(0, estimateDollars(range(plan.spend)) - pantryDeduction);
+  const weekTotal = Math.max(0, estimateDollars(plan.spend) - pantryDeduction);
+
+  const hiddenCount = expanded
+    ? 0
+    : plan.fresh.reduce((n, [, items]) => n + Math.max(0, items.length - COLLAPSED_FRESH_LIMIT), 0)
+      + Math.max(0, plan.pantry.length - COLLAPSED_PANTRY_LIMIT);
+
+  /* Against the full, untouched estimate — not the ticked-down weekTotal
+   * below — so this figure doesn't drift as the visitor ticks pantry items
+   * they already own. It's a statement about the example plan, not about
+   * what's left in their cart right now. */
+  const savedUnderBudget = Math.max(0, plan.budget - estimateDollars(plan.spend));
 
   return (
     <Reveal delay={100} className="mt-8 min-w-0 rounded-lg border border-border-warm bg-cream p-6 shadow-card">
@@ -201,6 +214,7 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
             key={aisle}
             title={aisle}
             items={items}
+            limit={expanded ? Infinity : COLLAPSED_FRESH_LIMIT}
             prefix={aisle}
             ticked={ticked}
             onToggle={toggle}
@@ -210,7 +224,15 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
         {/* Kept apart from the shop-this-week aisles: these are cupboard
           * items the plan draws on, priced at the share it uses rather
           * than as a full pack you have to buy again. */}
-        <GroceryGroup title="Pantry staples" muted items={plan.pantry} prefix="pantry" ticked={ticked} onToggle={toggle}>
+        <GroceryGroup
+          title="Pantry staples"
+          muted
+          items={plan.pantry}
+          limit={expanded ? Infinity : COLLAPSED_PANTRY_LIMIT}
+          prefix="pantry"
+          ticked={ticked}
+          onToggle={toggle}
+        >
           <p className="mt-2 text-[13px] leading-[1.5] text-muted-fg">
             Priced at what the week uses, not a full pack — most of these are already in your
             cupboard. Tick off what you've already got to see your real total.
@@ -218,21 +240,61 @@ export default function GroceryList({ plan, ctaHref = 'login.html?signup=1' }) {
         </GroceryGroup>
       </div>
 
-      <div className="mt-5 flex items-baseline justify-between border-t border-border-warm pt-4 text-base font-bold">
-        <span>Week total</span>
-        <span className="tabular-nums">
-          Est. ${weekTotal.toFixed(0)}
-          {pantryDeduction > 0 && (
-            <span className="ml-1.5 text-xs font-medium text-muted-fg">
-              (−${pantryDeduction.toFixed(0)} already in your pantry)
-            </span>
-          )}
-        </span>
+      {hiddenCount > 0 && (
+        <div className="mt-2 text-center">
+          <Button
+            variant="quiet"
+            size="sm"
+            onClick={toggleExpanded}
+            className="border border-border-warm bg-cream hover:bg-muted-bg"
+          >
+            + {hiddenCount} more items
+          </Button>
+        </div>
+      )}
+      {expanded && (
+        <div className="mt-2 text-center">
+          <button
+            type="button"
+            onClick={toggleExpanded}
+            className="inline-flex min-h-[44px] cursor-pointer items-center justify-center px-2 text-sm text-muted-fg underline underline-offset-2 hover:text-foreground"
+          >
+            Show fewer ingredients
+          </button>
+        </div>
+      )}
+
+      <div className="mt-5 border-t border-border-warm pt-4">
+        <div className="flex items-baseline justify-between">
+          <span className="text-base font-bold">Estimated grocery total</span>
+          <span className="text-xl font-bold tabular-nums text-green-deep dark:text-green-light">
+            ${weekTotal.toFixed(0)}
+          </span>
+        </div>
+        {pantryDeduction > 0 && (
+          <p className="mt-1 text-right text-xs font-medium text-muted-fg">
+            (−${pantryDeduction.toFixed(0)} already in your pantry)
+          </p>
+        )}
+        {savedUnderBudget > 0 && (
+          <p className="mt-1 text-[13px] text-muted-fg">
+            ${savedUnderBudget.toFixed(0)} under your ${plan.budget} example budget.
+          </p>
+        )}
       </div>
 
-      <Button href={ctaHref} full size="lg" className="mt-6">
-        Plan my week free
-      </Button>
+      {/* A lightweight secondary nudge, not another large CTA card — the
+       * dominant "Build my real week" already sits above the static example,
+       * right after the visitor's own answers. */}
+      <div className="mt-5 text-center">
+        <a
+          href={ctaHref}
+          onClick={() => track('homepage_demo_cta_clicked', {})}
+          className="inline-flex min-h-[44px] items-center justify-center px-2 text-[15px] font-semibold text-green-deep underline underline-offset-2 hover:text-forest dark:text-green-light"
+        >
+          Build my real week →
+        </a>
+      </div>
       <p className="mt-3 text-center text-[13px] text-muted-fg">
         Prices are estimates based on typical supermarket rates.
       </p>

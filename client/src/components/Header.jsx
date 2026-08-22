@@ -113,7 +113,10 @@ export default function Header({ links = NAV_LINKS, activeHref, ctaHref = '/logi
             href={ctaHref}
             size="sm"
             className="hidden md:inline-flex"
-            onClick={() => track('homepage_header_cta_click', {})}
+            onClick={(e) => {
+              track('homepage_header_cta_click', {});
+              if (ctaHref.startsWith('#')) scrollToHash(e, ctaHref);
+            }}
           >
             Plan my week free
           </Button>
@@ -166,7 +169,14 @@ export default function Header({ links = NAV_LINKS, activeHref, ctaHref = '/logi
                     </a>
                   </li>
                   <li className="mt-4">
-                    <Button href={ctaHref} full onClick={() => track('homepage_header_cta_click', { source: 'mobile' })}>
+                    <Button
+                      href={ctaHref}
+                      full
+                      onClick={(e) => {
+                        track('homepage_header_cta_click', { source: 'mobile' });
+                        if (ctaHref.startsWith('#')) onAnchorClick(e, ctaHref);
+                      }}
+                    >
                       Plan my week free
                     </Button>
                   </li>

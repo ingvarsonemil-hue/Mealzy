@@ -122,13 +122,13 @@
     } catch (err) { showError('Could not connect. Please check your connection and try again.'); setLoading('btnSignIn', false); }
   }
 
-  /* Forwards the homepage demo's targets (?budget=&diet=/&dietary=&household=)
+  /* Forwards the homepage demo's targets (?budget=&diet=/&dietary=&cookingTime=)
    * on to onboarding.html so the wizard can pre-fill them — otherwise they're
    * dropped the moment login.html finishes and the user starts over. */
   function onboardingUrl() {
     var qs = new URLSearchParams(window.location.search);
     var keep = new URLSearchParams();
-    ['budget', 'diet', 'dietary', 'household'].forEach(function (k) {
+    ['budget', 'diet', 'dietary', 'cookingTime'].forEach(function (k) {
       var v = qs.get(k);
       if (v) keep.set(k, v);
     });

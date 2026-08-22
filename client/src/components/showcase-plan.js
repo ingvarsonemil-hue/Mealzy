@@ -108,42 +108,35 @@ const PANTRY = [
   ['Olive oil', 4, 'tbsp', 75]
 ];
 
-/* The dietary styles the product can actually preview end to end. `signup` is
- * the value handed to the signup page so the choice survives the jump; it
- * matches the dietary values server.js already accepts. Lives here, not in the
- * modal, because the hero form offers the same list.  */
-export const DIETS = [
-  {
-    id: 'balanced', label: 'Balanced', signup: 'none', kcal: 2100,
-    dinners: [
-      'Herb-Crusted Salmon', 'Chicken Stir-Fry', 'Beef & Black Bean Tacos',
-      'Pasta Pomodoro', 'Coconut Veggie Curry', 'Roast Chicken & Veg', 'Baked Cod & Greens'
-    ]
-  },
-  {
-    id: 'high-protein', label: 'High protein', signup: 'high-protein', kcal: 2200,
-    dinners: [
-      'Grilled Chicken & Quinoa', 'Turkey Chili', 'Steak & Roast Potatoes',
-      'Tuna Steak & Edamame', 'Cottage Cheese Pasta Bake', 'Pork Loin & Green Beans',
-      'Shrimp & Egg Fried Rice'
-    ]
-  },
-  {
-    id: 'vegan', label: 'Vegan', signup: 'vegan', kcal: 2000,
-    dinners: [
-      'Chickpea Tikka Masala', 'Black Bean Burrito Bowl', 'Peanut Tofu Noodles',
-      'Lentil Shepherd’s Pie', 'Mushroom & Barley Risotto', 'Roasted Cauliflower Tacos',
-      'Red Curry Tempeh'
-    ]
-  },
-  {
-    id: 'keto', label: 'Keto', signup: 'keto', kcal: 1900,
-    dinners: [
-      'Garlic Butter Salmon', 'Chicken Alfredo Zoodles', 'Beef & Broccoli Skillet',
-      'Egg Roll in a Bowl', 'Pesto Chicken Bake', 'Cauliflower Cottage Pie',
-      'Ribeye & Asparagus'
-    ]
-  }
+/* The diet styles the mini-onboarding can honestly offer: every `value` here
+ * is the literal data-pref string the real onboarding chips use (see
+ * public/onboarding.html) and the literal `dietary` query value onboarding.js
+ * matches on prefill. No "Balanced"/"High protein" entries — those never
+ * existed as real onboarding chips, they were homepage-only labels that
+ * silently failed to prefill anything downstream. '' (No preference) means
+ * no chip gets toggled, which is exactly what selecting nothing does today. */
+export const DIET_OPTIONS = [
+  { value: '', label: 'No preference' },
+  { value: 'vegetarian', label: 'Vegetarian' },
+  { value: 'vegan', label: 'Vegan' },
+  { value: 'keto', label: 'Keto' },
+  { value: 'paleo', label: 'Paleo' },
+  { value: 'mediterranean', label: 'Mediterranean' },
+  { value: 'halal', label: 'Halal' },
+  { value: 'kosher', label: 'Kosher' },
+  { value: 'gluten_free', label: 'Gluten-free' },
+  { value: 'dairy_free', label: 'Dairy-free' }
+];
+
+/* Cooking-time ceilings the generation prompt genuinely enforces
+ * (`cookingTimeMinutes` -> "Max time per meal: N min" in server.js). All
+ * three are real caps — there is no separate no-limit/no-preference state on
+ * the generation path, so 60 is labeled as the cap it actually is, not as
+ * "I don't mind". */
+export const COOK_TIME_OPTIONS = [
+  { value: 15, label: '15 min or less' },
+  { value: 30, label: '30 min or less' },
+  { value: 60, label: '60 min or less' }
 ];
 
 export const money = (cents) => `$${(cents / 100).toFixed(2)}`;
@@ -175,6 +168,25 @@ export function range(cents, spread = 0.1) {
 
   const dollarsLow = Math.floor(low / 100);
   return `$${dollarsLow}–$${Math.max(Math.ceil(high / 100), dollarsLow + 1)}`;
+}
+
+/* Turns "$46–$57" into "$52" (the midpoint, whole dollars). Leaves an
+ * already-single figure alone. Shared by every place on the homepage that
+ * needs one headline number instead of a band — the hero value props, the
+ * showcase budget panel, and the grocery total all go through this so none
+ * of them can quote a different number for the same plan. */
+export function singleEstimate(rangeStr) {
+  if (!rangeStr || typeof rangeStr !== 'string') return rangeStr;
+  const match = rangeStr.match(/\$?([\d.]+)\s*[-–—]\s*\$?([\d.]+)/);
+  if (!match) return rangeStr;
+  const avg = (parseFloat(match[1]) + parseFloat(match[2])) / 2;
+  return `$${avg.toFixed(0)}`;
+}
+
+/* The same midpoint, as a number, for arithmetic (subtracting a ticked
+ * pantry item, deriving "left in budget") rather than for display. */
+export function estimateDollars(cents) {
+  return parseFloat(singleEstimate(range(cents)).replace('$', '')) || 0;
 }
 
 /* Units that read the same whether there is one or twenty. */

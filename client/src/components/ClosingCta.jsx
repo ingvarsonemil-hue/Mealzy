@@ -1,4 +1,5 @@
 import { track } from '@/lib/api';
+import { scrollToHash } from '@/lib/utils';
 
 export default function ClosingCta({ ctaHref }) {
   return (
@@ -13,7 +14,10 @@ export default function ClosingCta({ ctaHref }) {
         <a
           href={ctaHref}
           className="inline-flex items-center justify-center bg-green text-white font-body font-semibold py-3 px-8 rounded-md shadow-button hover:bg-green-light transition-all duration-150"
-          onClick={() => track('homepage_closing_cta_click', {})}
+          onClick={(e) => {
+            track('homepage_closing_cta_click', {});
+            if (ctaHref.startsWith('#')) scrollToHash(e, ctaHref);
+          }}
         >
           Plan my week free
         </a>
