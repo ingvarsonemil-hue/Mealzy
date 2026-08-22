@@ -7,7 +7,7 @@ import { useTheme } from '@/components/Header';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Sun, Moon, Check, HelpCircle, Lock, Bowl, Cutlery } from '@/components/icons';
 import { stripeUrls, PLAN_PRICING, planDisplay } from '@/lib/stripe';
-import { track } from '@/lib/api';
+import { track, trackReliable } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 /* Three scannable groups rather than one flat list — each names the axis the
@@ -74,9 +74,13 @@ export default function UpgradePage() {
   const yearly = mode === 'yearly';
   const pro = planDisplay('pro', mode);
 
-  const onCtaClick = (source) => {
+  const onCtaClick = (source, billingOverride) => {
     clickedRef.current = true;
-    track('upgrade_click', { source: source || 'upgrade_page', billing: mode });
+    const billing = billingOverride || mode;
+    track('upgrade_click', { source: source || 'upgrade_page', billing });
+    // Reliable send: the abandon-offer CTA navigates in the same tab, so a
+    // plain fetch could be aborted mid-flight by the redirect.
+    trackReliable('checkout_started', { tier: 'pro', billing });
   };
 
   return (
@@ -176,7 +180,7 @@ export default function UpgradePage() {
               data-testid="upgrade-cta"
               onClick={() => onCtaClick()}
             >
-              Start Pro 7-Day Free Trial
+              Upgrade to Pro
             </Button>
             <Button href="/" variant="quiet" full data-testid="stay-free">
               Not ready? Keep your free plan
@@ -184,7 +188,7 @@ export default function UpgradePage() {
           </div>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[13px] leading-normal text-muted-fg">
             <Lock className="shrink-0" />
-            $0 due today. Cancel before day 7 and you owe nothing.
+            Billed when you subscribe. Cancel anytime.
           </p>
           <p className="mt-4 text-center text-sm text-muted-fg">
             Cooking for a household?{' '}
@@ -218,7 +222,7 @@ export default function UpgradePage() {
           </Accordion>
         </Panel>
 
-        <AbandonOffer clickedRef={clickedRef} onCheckout={() => onCtaClick('abandon_offer')} />
+        <AbandonOffer clickedRef={clickedRef} onCheckout={() => onCtaClick('abandon_offer', 'monthly')} />
 
         <div className="mt-10 text-center text-sm text-on-forest-muted">
           <p className="text-[13px] leading-normal">

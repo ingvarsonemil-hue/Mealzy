@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { track } from '@/lib/api';
+import PricingFaq from './PricingFaq';
 
 /* ───────────────────────────────────────────────
    Mealzy Pricing Page — CTA routes to /login
@@ -89,25 +91,6 @@ const featureRows = [
   { label: 'Grocery price tracking & cheaper swap suggestions', key: 'Grocery price tracking & cheaper swap suggestions' },
 ];
 
-const faqs = [
-  {
-    q: 'What counts as one plan?',
-    a: 'One plan is a complete 7-day meal schedule with a matched grocery list and price estimate. Free users get one plan a day for their first 30 days. After that, you get one new plan every week for free — upgrade to Pro or Family any time for unlimited plans.',
-  },
-  {
-    q: 'Can I cancel anytime?',
-    a: 'Yes. You can cancel your subscription at any time from your account settings. You will keep access until the end of your current billing period.',
-  },
-  {
-    q: 'Is there a free trial?',
-    a: 'There\'s no separate trial for Pro or Family — every new user already gets 30 days of free daily meal plans on the Free tier before any payment is needed. When you\'re ready for Pro or Family, you\'re billed right away.',
-  },
-  {
-    q: 'How accurate are price estimates?',
-    a: 'Estimates are based on aggregated regional grocery data and update weekly. They are typically within 10–15% of your actual receipt, but local prices and seasonal fluctuations can vary.',
-  },
-];
-
 /* ── Inline SVG Icons ─────────────────────────── */
 
 function IconCheck({ className, style }) {
@@ -141,14 +124,6 @@ function IconShieldCheck({ className }) {
     <svg className={className} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       <polyline points="9 12 12 15 16 10" />
-    </svg>
-  );
-}
-
-function IconChevronDown({ className }) {
-  return (
-    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="6 9 12 15 18 9" />
     </svg>
   );
 }
@@ -288,8 +263,14 @@ function PricingCard({ plan, billing }) {
 
 export default function Pricing() {
   const [billing, setBilling] = useState('annual');
-  const [openFaq, setOpenFaq] = useState(null);
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+
+  const trackedView = useRef(false);
+  useEffect(() => {
+    if (trackedView.current) return;
+    trackedView.current = true;
+    track('pricing_viewed', {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -310,7 +291,7 @@ export default function Pricing() {
             Start eating better for less than a coffee per week
           </h1>
           <p className="mt-4 text-lg md:text-xl text-emerald-100 max-w-2xl mx-auto">
-            Join thousands of home cooks who cut their grocery bill with smart, budget-first meal plans.
+            Build your week around your budget — priced meals and a grocery list that matches it.
           </p>
         </div>
       </section>
@@ -427,35 +408,14 @@ export default function Pricing() {
       </section>
 
       {/* ── FAQ ────────────────────────────── */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="mx-auto max-w-3xl px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-forest text-center mb-10">Pricing questions</h2>
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <div key={i} className="border border-slate-200 rounded-xl">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left bg-white hover:bg-cream/50 transition-colors"
-                  aria-expanded={openFaq === i}
-                >
-                  <span className="font-semibold text-forest text-sm md:text-base">{faq.q}</span>
-                  <IconChevronDown className={`w-5 h-5 text-slate-400 shrink-0 ml-4 transition-transform duration-200 ${openFaq === i ? 'rotate-180' : ''}`} />
-                </button>
-                {openFaq === i && (
-                  <div className="px-5 pb-4 text-sm text-slate-600 leading-relaxed">{faq.a}</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PricingFaq />
 
       {/* ── Closing CTA ────────────────────── */}
       <section className="py-16 md:py-24 bg-forest text-on-forest">
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="text-2xl md:text-4xl font-extrabold">Start saving today</h2>
           <p className="mt-3 text-emerald-100 text-lg max-w-xl mx-auto">
-            Join thousands of home cooks who spend less and eat better with Mealzy.
+            Tell Mealzy what you can spend. Get a week of meals that fits.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a

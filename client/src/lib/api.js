@@ -13,6 +13,14 @@ export function track(event, data) {
   }
 }
 
+// Use immediately before navigating away (e.g. a checkout redirect) — survives
+// page unload via sendBeacon instead of a plain fetch that could be aborted.
+export function trackReliable(event, data) {
+  if (typeof window !== 'undefined' && typeof window.mealzyTrackReliable === 'function') {
+    window.mealzyTrackReliable(event, data || {});
+  }
+}
+
 export async function generateDemoMeal({ calorieGoal, budget, dietary }) {
   const res = await fetch('/api/demo-meal', {
     method: 'POST',

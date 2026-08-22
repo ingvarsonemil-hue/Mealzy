@@ -27,6 +27,7 @@ const Anthropic    = require('@anthropic-ai/sdk');
 const winston      = require('winston');
 const db           = require('./db');
 const pricing      = require('./pricing');
+const { getISOWeekKey } = require('./weekKey');
 
 // ── Structured logging — replaces console.log/error throughout ──────────────
 const logger = winston.createLogger({
@@ -2079,7 +2080,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
         if (weekStart) {
           return res.status(400).json({
             error: 'week_mode_unavailable_on_trial',
-            message: 'Full week generation isn\'t available during your free trial. Generate today\'s plan instead.',
+            message: 'Full week generation isn\'t available on the free plan yet. Generate today\'s plan instead.',
           });
         }
 
@@ -2573,8 +2574,10 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       // Save the whole week as one plan row so days can't drift out of sync.
       const weekPlanId = randomUUID();
       if (session) {
+        const previousWeekKey = await getPreviousPlanWeekKey(session.userId); // read before save
         try {
           await db.savePlan(weekPlanId, session.userId, { weekStart, days, weeklyTotals, savedAt: new Date().toISOString() });
+          await maybeLogWeekReturn(session.userId, previousWeekKey); // only after a successful save
         } catch (saveErr) {
           console.error('[generate-meal] week DB save error (non-fatal):', saveErr);
         }
@@ -2637,8 +2640,10 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     await attachMealImages(mealPlan.meals);
 
     if (session) {
+      const previousWeekKey = await getPreviousPlanWeekKey(session.userId); // read before save
       try {
         await db.savePlan(planId, session.userId, { date: planDate, plan: mealPlan, savedAt: new Date().toISOString() });
+        await maybeLogWeekReturn(session.userId, previousWeekKey); // only after a successful save
       } catch (saveErr) {
         console.error('[generate-meal] DB save error (non-fatal):', saveErr);
       }
@@ -2714,6 +2719,44 @@ function getDayNameFromDate(dateStr) {
   const d = new Date(`${dateStr}T00:00:00`);
   if (isNaN(d.getTime())) return 'Unspecified';
   return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d.getDay()];
+}
+
+/**
+ * Reads the ISO week key of a session user's most recently SAVED plan,
+ * before a new plan is generated/saved. Must be called before db.savePlan()
+ * for the current generation — once that insert lands, "most recent" would
+ * be the new plan itself. Returns null for a user with no prior plan (their
+ * first-ever generation), which callers use to mean "not a return".
+ */
+async function getPreviousPlanWeekKey(userId) {
+  try {
+    const lastPlan = await db.getLastPlanCreatedAt(userId);
+    if (!lastPlan?.created_at) return null;
+    return getISOWeekKey(new Date(lastPlan.created_at));
+  } catch (err) {
+    console.error('[week_return] previous-week lookup failed (non-fatal):', err);
+    return null;
+  }
+}
+
+/**
+ * Logs `week_return` only after the new plan has been successfully
+ * persisted — a failed savePlan() must never produce a false retention
+ * event. Fires when `previousWeekKey` (captured via getPreviousPlanWeekKey
+ * BEFORE the save, see call sites) differs from the current ISO week; does
+ * nothing when previousWeekKey is null (first-ever plan) or unchanged
+ * (repeated generation in the same week).
+ */
+async function maybeLogWeekReturn(userId, previousWeekKey) {
+  if (!previousWeekKey) return; // first-ever plan — not a "return"
+  try {
+    const thisWeek = getISOWeekKey(new Date());
+    if (previousWeekKey !== thisWeek) {
+      await db.logEvent('week_return', { userId }, '');
+    }
+  } catch (err) {
+    console.error('[week_return] log failed (non-fatal):', err);
+  }
 }
 
 /**
@@ -3255,6 +3298,9 @@ app.post('/api/plans/share', requireSession, async (req, res) => {
     calories:      Number(m?.calories)      || 0,
     protein:       Number(m?.protein)       || 0,
     cookTime:      Number(m?.cookTime)      || 0,
+    // cost is the authoritative, pricing.js-computed value; estimatedCost is the
+    // raw AI guess kept only as a fallback for links shared before this field existed
+    cost:          Number(m?.cost) || 0,
     estimatedCost: Number(m?.estimatedCost) || 0,
   }));
   if (meals.length === 0) {

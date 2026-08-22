@@ -30,9 +30,10 @@ export default function FounderStory() {
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">
-              So I built Mealzy — the only planner that treats your grocery budget as a 
-              <span className="text-emerald-600 font-semibold"> hard rule</span>, not a suggestion. 
-              Every meal is priced before it enters your plan. If it doesn't fit, it doesn't get suggested.
+              So I built Mealzy — it starts with your
+              <span className="text-emerald-600 font-semibold"> grocery budget</span>, then builds
+              the week around your preferences. Every meal is priced as the plan comes together, so
+              you see the total before you commit to it.
             </p>
             
             <p className="text-lg text-gray-600 leading-relaxed">

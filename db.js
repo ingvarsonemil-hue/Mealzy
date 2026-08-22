@@ -336,6 +336,12 @@ async function savePlan(id, userId, planObj) {
   );
 }
 
+/** Most recent plan's created_at for a user, or null if they have none yet.
+ * Used to detect week-over-week return (see server.js maybeLogWeekReturn). */
+async function getLastPlanCreatedAt(userId) {
+  return get('SELECT created_at FROM plans WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', [userId]);
+}
+
 async function getRecentPlans(userId, limit = 10) {
   const rows = await all(
     'SELECT data FROM plans WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
@@ -944,7 +950,7 @@ module.exports = {
   // profiles
   saveProfile, getProfile,
   // plans
-  savePlan, getRecentPlans,
+  savePlan, getRecentPlans, getLastPlanCreatedAt,
   // share links
   saveShareLink, getShareLink, incrementShareViews,
   // reset tokens

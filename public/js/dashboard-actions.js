@@ -61,7 +61,10 @@ async function generateMealPlan() {
 
     if (response.status === 402) {
       const data = await response.json();
-      trackEvent('free_limit_hit', {});
+      // free_limit_hit (and the more specific trial_already_generated_today /
+      // weekly_free_plan_limit_hit events) are logged server-side, at the
+      // point the limit is actually enforced — logging it again here on
+      // receipt of the 402 double-counted every real limit hit.
       showUpgradePrompt(data.message || 'Your first free month has ended. Upgrade to keep generating.');
       return;
     }
@@ -281,6 +284,12 @@ function captureUpgradeEmail() {
     fetch('/api/email-leads', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, source:'upgrade_prompt' }) }).catch(()=>{});
   }
   trackEvent('upgrade_click', { source: 'stripe_button' });
+  // Both Stripe buttons in this modal are Pro, billed monthly (the discount
+  // offer is $4 for the first month, then $8/month — still monthly billing).
+  // Reliable send since these links can be followed before a plain fetch resolves.
+  if (typeof mealzyTrackReliable === 'function') {
+    mealzyTrackReliable('checkout_started', { tier: 'pro', billing: 'monthly' });
+  }
 }
 
 function showToast(msg, type = '') {

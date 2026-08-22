@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Upgrade to Mealzy Pro — Unlimited AI Meal Plans, PDF Export &amp; More</title>
-<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI Meal Plans, PDF export, and unlimited Mia AI Nutrition Coach. $8/month or $62/year, save 35%. 7-day free trial, cancel anytime.">
+<meta name="description" content="Upgrade to Mealzy Pro — unlimited AI Meal Plans, PDF export, and unlimited Mia AI Nutrition Coach. $8/month or $62/year, save 35%. Billed when you subscribe, cancel anytime.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#1a3d2b">
 <meta property="og:title" content="Upgrade to Mealzy Pro">
@@ -159,12 +159,12 @@
     </div>
 
     <div class="cta-stack">
-      <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-full" onclick="trackUpgrade()">Start Pro 7-Day Free Trial</a>
+      <a href="https://buy.stripe.com/28E28r1Q73q0e6neQRffy00" id="upgradeCtaBtn" target="_blank" rel="noopener" class="btn btn-primary btn-lg btn-full" onclick="trackUpgrade()">Upgrade to Pro</a>
       <a href="/" class="btn btn-quiet btn-full" id="stayFreeBtn">Stay on Free Plan</a>
     </div>
     <p class="guarantee-line">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      $0 due today. Cancel before day 7 and you owe nothing.
+      Billed when you subscribe. Cancel anytime.
     </p>
     <p class="family-upsell">Cooking for a household? <a href="pricing.html#cardFamily">Check Family plan</a></p>
   </div>
@@ -300,6 +300,16 @@
 
   function trackUpgrade(source) {
     mealzyTrack('upgrade_click', { source: source || 'upgrade_page', billing: billingMode });
+    // Reliable send: the abandon-offer link (source: 'abandon_offer') navigates
+    // in the same tab via window.location.href, so a plain fetch could be
+    // aborted mid-flight by the redirect. The discount offer bills monthly
+    // regardless of the page's billing toggle.
+    if (typeof mealzyTrackReliable === 'function') {
+      mealzyTrackReliable('checkout_started', {
+        tier: 'pro',
+        billing: source === 'abandon_offer' ? 'monthly' : billingMode
+      });
+    }
   }
 
   function closeAbandonOffer() {

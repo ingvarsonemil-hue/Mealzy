@@ -78,6 +78,36 @@
   }
   window.mealzyTrack = mealzyTrack;
 
+  // Reliable variant for events fired immediately before navigation (e.g.
+  // checkout redirects) where a plain fetch could be aborted by the page
+  // unloading. sendBeacon queues the request with the browser and survives
+  // navigation; a Blob with an explicit application/json type is required
+  // so the server's express.json() parser (which only reads that content
+  // type) can read the body — sendBeacon defaults to text/plain otherwise.
+  function mealzyTrackReliable(event, data) {
+    var consent;
+    try {
+      consent = localStorage.getItem(CONSENT_KEY);
+    } catch (e) {
+      return;
+    }
+    if (consent !== 'accepted') return;
+    var payload = JSON.stringify({ event: event, data: data });
+    if (navigator.sendBeacon) {
+      try {
+        var blob = new Blob([payload], { type: 'application/json' });
+        if (navigator.sendBeacon('/api/track', blob)) return;
+      } catch (e) { /* fall through to fetch */ }
+    }
+    fetch('/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+      keepalive: true
+    }).catch(function () {});
+  }
+  window.mealzyTrackReliable = mealzyTrackReliable;
+
   var consent = null;
   try {
     consent = localStorage.getItem(CONSENT_KEY);
