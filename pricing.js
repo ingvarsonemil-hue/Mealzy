@@ -48,12 +48,56 @@ function _round2(n) {
   return Math.round(n * 100) / 100;
 }
 
+// Small, curated exact-name synonym list (ingredientPriceData.js is the
+// canonical source; this module owns only the resolution logic). Checked
+// BEFORE the substring fallback so an alias always wins over a guess.
+const { ALIASES } = require('./ingredientPriceData');
+const ALIAS_MAP = new Map(ALIASES.map(a => [a.alias, a.canonical]));
+
+/**
+ * Finds the price row matching `name`, or null if none can be resolved
+ * safely. Resolution order:
+ *   1. Exact normalized match.
+ *   2. A curated alias (ingredientPriceData.js ALIASES) resolved to its
+ *      canonical row.
+ *   3. A conservative substring fallback: a row is a candidate only if its
+ *      name literally appears inside `name`, or vice versa. When multiple
+ *      candidates exist, they resolve ONLY if there is a single longest
+ *      candidate whose name is itself a superstring of every other
+ *      candidate's name — a genuine specificity hierarchy ("almond milk"
+ *      contains "milk"), not two unrelated products that both happen to
+ *      appear in the text. Any other multi-candidate situation (a tie, or
+ *      candidates that don't subsume each other) is treated as ambiguous
+ *      and returns null — a false VERIFIED price is worse than an explicit
+ *      fallback estimate, so this never guesses between genuine
+ *      alternatives. This is what fixes the proven bug where "unsweetened
+ *      almond milk" resolved to the "milk" row (whichever candidate
+ *      happened to appear first in DB insertion order) instead of the more
+ *      specific "almond milk" row.
+ */
 function _findPriceRow(name, priceRows) {
   const norm = String(name || '').toLowerCase().trim();
   if (!norm || !Array.isArray(priceRows)) return null;
-  return priceRows.find(p => p.name === norm)
-    || priceRows.find(p => norm.includes(p.name) || p.name.includes(norm))
-    || null;
+
+  const exact = priceRows.find(p => p.name === norm);
+  if (exact) return exact;
+
+  const aliasTarget = ALIAS_MAP.get(norm);
+  if (aliasTarget) {
+    const aliased = priceRows.find(p => p.name === aliasTarget);
+    if (aliased) return aliased;
+  }
+
+  const candidates = priceRows.filter(p => norm.includes(p.name) || p.name.includes(norm));
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+
+  const byLengthDesc = [...candidates].sort((a, b) => b.name.length - a.name.length);
+  const longest = byLengthDesc[0];
+  const uniqueLongest = byLengthDesc[1].name.length !== longest.name.length;
+  const longestSubsumesAll = candidates.every(c => c === longest || longest.name.includes(c.name));
+
+  return (uniqueLongest && longestSubsumesAll) ? longest : null;
 }
 
 // Legacy best-effort parse for ingredients saved before the structured

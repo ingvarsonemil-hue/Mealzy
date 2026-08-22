@@ -1,0 +1,96 @@
+{
+  "backedUpAt": "2026-08-22T17:47:47.763Z",
+  "rowCount": 15,
+  "rows": [
+    {
+      "name": "chicken breast",
+      "category": "meat",
+      "price_per_unit": 0.011,
+      "unit": "g"
+    },
+    {
+      "name": "ground beef",
+      "category": "meat",
+      "price_per_unit": 0.013,
+      "unit": "g"
+    },
+    {
+      "name": "eggs",
+      "category": "dairy",
+      "price_per_unit": 0.25,
+      "unit": "unit"
+    },
+    {
+      "name": "white rice",
+      "category": "pantry",
+      "price_per_unit": 0.002,
+      "unit": "g"
+    },
+    {
+      "name": "oats",
+      "category": "pantry",
+      "price_per_unit": 0.003,
+      "unit": "g"
+    },
+    {
+      "name": "olive oil",
+      "category": "pantry",
+      "price_per_unit": 0.015,
+      "unit": "ml"
+    },
+    {
+      "name": "milk",
+      "category": "dairy",
+      "price_per_unit": 0.0012,
+      "unit": "ml"
+    },
+    {
+      "name": "bread",
+      "category": "pantry",
+      "price_per_unit": 0.15,
+      "unit": "unit"
+    },
+    {
+      "name": "banana",
+      "category": "produce",
+      "price_per_unit": 0.25,
+      "unit": "unit"
+    },
+    {
+      "name": "spinach",
+      "category": "produce",
+      "price_per_unit": 0.012,
+      "unit": "g"
+    },
+    {
+      "name": "broccoli",
+      "category": "produce",
+      "price_per_unit": 2.5,
+      "unit": "head"
+    },
+    {
+      "name": "bell peppers",
+      "category": "produce",
+      "price_per_unit": 1.2,
+      "unit": "each"
+    },
+    {
+      "name": "salmon fillets",
+      "category": "protein",
+      "price_per_unit": 0.0198,
+      "unit": "g"
+    },
+    {
+      "name": "greek yogurt",
+      "category": "dairy",
+      "price_per_unit": 0.00675,
+      "unit": "g"
+    },
+    {
+      "name": "almond milk",
+      "category": "dairy",
+      "price_per_unit": 0.0028,
+      "unit": "ml"
+    }
+  ]
+}

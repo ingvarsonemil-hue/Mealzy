@@ -910,6 +910,23 @@ async function getIngredientPrices() {
   return rows;
 }
 
+/** Idempotent insert-or-update by `name` (the table's UNIQUE key) — used by
+ * scripts/applyIngredientPrices.js to apply ingredientPriceData.js (the
+ * canonical, version-controlled dataset of documented price estimates) to
+ * the live table. Never called
+ * from a user-facing route. Invalidates the in-memory price cache so the
+ * next getIngredientPrices() call picks up the change immediately rather
+ * than waiting out INGREDIENT_PRICES_CACHE_MS. */
+async function upsertIngredientPrice({ name, category, unit, price_per_unit }) {
+  await run(
+    `INSERT INTO ingredient_prices (id, name, category, unit, price_per_unit)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(name) DO UPDATE SET category = excluded.category, unit = excluded.unit, price_per_unit = excluded.price_per_unit`,
+    [randomUUID(), name, category, unit, price_per_unit]
+  );
+  _ingredientPricesCache = null;
+}
+
 // ── Meal feedback ─────────────────────────────────────────────────────────────
 
 async function saveMealFeedback({ userId, mealName, action, reason }) {
@@ -979,6 +996,7 @@ module.exports = {
   getDailySpend, addDailySpend,
   // ingredient prices
   getIngredientPrices,
+  upsertIngredientPrice,
   // meal feedback
   saveMealFeedback, getUserDislikedMeals,
   // grocery lists
