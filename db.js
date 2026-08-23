@@ -350,6 +350,15 @@ async function getRecentPlans(userId, limit = 10) {
   return rows.map(r => { try { return JSON.parse(r.data); } catch(e) { return null; } }).filter(Boolean);
 }
 
+/** Looks up one plan by id, scoped to userId so a plan_id can never be used
+ * to read another user's plan. Used to recover a plan blocked-generation
+ * responses already know the id of (see server.js's trial_generations check). */
+async function getPlanById(id, userId) {
+  const row = await get('SELECT data FROM plans WHERE id = ? AND user_id = ?', [id, userId]);
+  if (!row) return null;
+  try { return JSON.parse(row.data); } catch(e) { return null; }
+}
+
 // ── Reset Tokens ──────────────────────────────────────────────────────────────
 
 async function createResetToken(token, userId, expiresAt) {
@@ -967,7 +976,7 @@ module.exports = {
   // profiles
   saveProfile, getProfile,
   // plans
-  savePlan, getRecentPlans, getLastPlanCreatedAt,
+  savePlan, getRecentPlans, getLastPlanCreatedAt, getPlanById,
   // share links
   saveShareLink, getShareLink, incrementShareViews,
   // reset tokens

@@ -126,7 +126,7 @@ function renderWeekView() {
       }
     });
   }
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(new Date()); // local date, not UTC — see planner-controller.js
   const goalCals = profile?.dailyCalories || 2000;
   const days = [];
   const ref = new Date(currentDate);
@@ -145,7 +145,7 @@ function renderWeekView() {
   const sym = getCurrencySymbol(profile?.currency || 'USD');
 
   const cols = days.map((d, idx) => {
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = toLocalDateStr(d); // local date, not UTC — see planner-controller.js
     const plan = plans[dateStr];
     const meals = plan && plan.meals ? plan.meals : [];
     const isToday = dateStr === todayStr;

@@ -71,6 +71,25 @@ async function generateMealPlan() {
 
     if (response.status === 409) {
       const data = await response.json();
+      // Generation is blocked because today's plan already exists server-side —
+      // load that plan instead of leaving the user with nothing to look at.
+      if (data.existingPlan && data.existingPlan.plan && data.existingPlan.plan.meals) {
+        const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+        const planDate = data.existingPlan.date || today;
+        plans[planDate] = { meals: data.existingPlan.plan.meals, generatedAt: data.existingPlan.savedAt || new Date().toISOString() };
+        localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+        if (data.planId) {
+          const groceryPlanIds = JSON.parse(localStorage.getItem('mealzy_grocery_plan_ids') || '{}');
+          groceryPlanIds[getMondayStr(new Date())] = data.planId;
+          localStorage.setItem('mealzy_grocery_plan_ids', JSON.stringify(groceryPlanIds));
+        }
+        todayMeals = (plans[today] && plans[today].meals) ? plans[today].meals.map(m => ({ ...m, completed: false })) : [];
+        hasEverGeneratedPlan = true;
+        updateDashboardEmptyState();
+        renderMeals();
+        showToast(data.message || "You already created a plan today. We've loaded it for you.", 'success');
+        return;
+      }
       showToast(data.message || "You already generated a plan today. Come back tomorrow for your next one.");
       return;
     }

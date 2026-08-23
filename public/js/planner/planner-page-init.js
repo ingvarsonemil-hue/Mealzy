@@ -179,12 +179,14 @@ function setHouseholdSize(value) {
   window.PlannerRenderDayView();
 }
 
-/** Monday (YYYY-MM-DD) of the week containing the given Date. */
+/** Monday (YYYY-MM-DD) of the week containing the given Date — local
+ * calendar date, via toLocalDateStr() (planner-controller.js), matching
+ * dashboard-today.js's identical getMondayStr(). */
 function getMondayStr(date) {
   const d = new Date(date);
   const monday = new Date(d);
   monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-  return monday.toISOString().split('T')[0];
+  return toLocalDateStr(monday);
 }
 
 // Pro: generates a full 7-day plan (21 meals + snacks) for the week containing
@@ -244,6 +246,22 @@ async function generateMealPlan(isRegenerate) {
     }
 
     if (res.status === 409 && data.error === 'already_generated_today') {
+      // Generation is blocked because today's plan already exists server-side —
+      // load that plan instead of leaving the user at a dead-end error state.
+      if (data.existingPlan && data.existingPlan.plan && data.existingPlan.plan.meals) {
+        const plans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
+        const planDate = data.existingPlan.date || currentDateStr;
+        plans[planDate] = { meals: data.existingPlan.plan.meals, generatedAt: data.existingPlan.savedAt || new Date().toISOString() };
+        localStorage.setItem('mealzy_meal_plans', JSON.stringify(plans));
+        if (data.planId) {
+          const groceryPlanIds = JSON.parse(localStorage.getItem('mealzy_grocery_plan_ids') || '{}');
+          groceryPlanIds[weekStart] = data.planId;
+          localStorage.setItem('mealzy_grocery_plan_ids', JSON.stringify(groceryPlanIds));
+        }
+        window.PlannerRenderDayView();
+        showToast(data.message || "You already created a plan today. We've loaded it for you.", 'success');
+        return;
+      }
       showAlreadyGeneratedTodayState(data.message);
       return;
     }

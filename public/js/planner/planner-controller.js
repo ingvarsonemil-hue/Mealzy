@@ -12,10 +12,23 @@ window.PlannerState = window.PlannerState || {
   profile: null
 };
 
+// Local calendar date (YYYY-MM-DD), not toISOString() (UTC) — must match
+// dashboard-today.js's/groceries-sync.js's toLocalDateStr(), which is how
+// plans are keyed everywhere else. A plain function declaration in a
+// non-module script is global, so planner-page-init.js and
+// planner-week-view.js (loaded after this file — see meal-planner.html)
+// reuse this same one instead of each doing their own UTC date math.
+function toLocalDateStr(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 (function () {
   function setDateStr() {
     const state = window.PlannerState;
-    state.currentDateStr = state.currentDate.toISOString().split('T')[0];
+    state.currentDateStr = toLocalDateStr(state.currentDate);
     const today = new Date();
     const diff = Math.round((state.currentDate - today) / 86400000);
 
@@ -31,6 +44,12 @@ window.PlannerState = window.PlannerState || {
   async function renderDayView() {
     const state = window.PlannerState;
     state.currentMeals = window.PlannerAPI.getDayMeals(state.currentDateStr);
+    if (state.currentMeals.length === 0) {
+      // Nothing cached locally for this day — check the server before
+      // rendering empty (read-only, no credit spent; see planner-api.js).
+      const serverMeals = await window.PlannerAPI.fetchServerPlanIfNeeded(state.currentDateStr);
+      if (serverMeals) state.currentMeals = serverMeals;
+    }
     await window.PlannerRender.renderDay(state.currentMeals, state.profile);
   }
   window.PlannerRenderDayView = renderDayView;

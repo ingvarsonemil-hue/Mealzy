@@ -2166,9 +2166,20 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
           const alreadyToday = await db.getTrialGenerationByDate(session.userId, trialLocalDate);
           if (alreadyToday) {
             await db.logEvent('trial_already_generated_today', { userId: session.userId }, '');
+            // Recover the plan that generation already produced today, rather than
+            // leaving the user blocked with nothing to show — the server already
+            // knows its id from trial_generations, so this is a lookup, not a new
+            // generation (no quota is touched).
+            const existingPlan = alreadyToday.plan_id
+              ? await db.getPlanById(alreadyToday.plan_id, session.userId)
+              : null;
             return res.status(409).json({
               error: 'already_generated_today',
-              message: 'You already generated a plan today. Come back tomorrow for your next one.'
+              message: existingPlan
+                ? 'You already created a plan today. We\'ve loaded it for you.'
+                : 'You already generated a plan today. Come back tomorrow for your next one.',
+              planId: alreadyToday.plan_id || null,
+              existingPlan
             });
           }
         } else {
@@ -2839,13 +2850,15 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
     // ── Quota consumption — only now, after the plan has passed allergy/macro
     // validation and is guaranteed to be returned. Errors and rejects above never reach here.
+    // Logged-in free-trial users are the one path where the quota record
+    // (trial_generations) doubles as the "already generated today" lookup
+    // key for plan recovery — recording it before the plan is actually saved
+    // would let the DB say "today's plan exists" while no plan does, so that
+    // one is deferred until after db.savePlan() succeeds below.
     if (!swap_meal_type) {
       if (isPro) {
         await db.logEvent('generate_plan', { pro: true }, '');
-      } else if (session) {
-        await db.recordTrialGeneration(session.userId, trialLocalDate, planId);
-        await db.logEvent('generate_plan', { userId: session.userId, trialLocalDate }, '');
-      } else {
+      } else if (!session) {
         incrementUsage(ip);
         await db.logEvent('generate_plan', { plan_num: (anonUsage?.count || 0) + 1 }, '');
       }
@@ -2857,6 +2870,10 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       const previousWeekKey = await getPreviousPlanWeekKey(session.userId); // read before save
       try {
         await db.savePlan(planId, session.userId, { date: planDate, plan: mealPlan, savedAt: new Date().toISOString() });
+        if (!swap_meal_type && !isPro) {
+          await db.recordTrialGeneration(session.userId, trialLocalDate, planId);
+          await db.logEvent('generate_plan', { userId: session.userId, trialLocalDate }, '');
+        }
         await maybeLogWeekReturn(session.userId, previousWeekKey); // only after a successful save
       } catch (saveErr) {
         console.error('[generate-meal] DB save error (non-fatal):', saveErr);
