@@ -26,6 +26,7 @@ const rateLimit    = require('express-rate-limit');
 const Anthropic    = require('@anthropic-ai/sdk');
 const winston      = require('winston');
 const db           = require('./db');
+const { resolveTrackedEventData } = require('./analyticsIdentity');
 const pricing      = require('./pricing');
 const budgetEngine = require('./budgetEngine');
 const groceryAgg   = require('./groceryAggregation');
@@ -1825,15 +1826,21 @@ app.get('/api/admin/export', adminLimiter, requireAdmin, async (req, res) => {
 // ANALYTICS
 // ════════════════════════════════════════════════════════════════════════════
 
-app.post('/api/track', trackLimiter, async (req, res) => {
+// optionalSession resolves+DB-verifies the session cookie when present but
+// never rejects the request — anonymous analytics keeps working exactly as
+// before. Any client-supplied `data.userId` is untrusted and is always
+// replaced (or stripped) by resolveTrackedEventData using the server-verified
+// identity, the same one generate_plan/week_return already use.
+app.post('/api/track', trackLimiter, optionalSession, async (req, res) => {
   const { event, data } = req.body;
   if (!event) return res.status(400).json({ error: 'event required' });
-  const dataStr = JSON.stringify(data || {});
+  const safeData = resolveTrackedEventData(data, req.session?.userId);
+  const dataStr = JSON.stringify(safeData);
   if (dataStr.length > 5000) {
     return res.status(400).json({ error: 'payload_too_large' });
   }
   const ip = clientIp(req);
-  await db.logEvent(event, data || {}, ip.slice(-8));
+  await db.logEvent(event, safeData, ip.slice(-8));
   res.json({ ok: true });
 });
 

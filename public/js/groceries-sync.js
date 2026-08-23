@@ -21,6 +21,16 @@ let weekStart = '';
 let weekDates = [];
 let selectedDay = '';
 
+// Fires at most once per page load, the first time a real (non-empty-state)
+// grocery list is successfully shown — switching days, retries, and re-renders
+// of the same list must never re-fire it. See selectDay().
+let groceryListViewedFired = false;
+function trackGroceryListViewedOnce() {
+  if (groceryListViewedFired) return;
+  groceryListViewedFired = true;
+  if (typeof mealzyTrack === 'function') mealzyTrack('grocery_list_viewed', {});
+}
+
 const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const DAY_ABBR  = { Monday:'Mon', Tuesday:'Tue', Wednesday:'Wed', Thursday:'Thu', Friday:'Fri', Saturday:'Sat', Sunday:'Sun' };
 
@@ -120,6 +130,7 @@ async function selectDay(day) {
     groceryList = cached;
     renderGroceryList();
     updateProgress();
+    trackGroceryListViewedOnce();
     return;
   }
 
@@ -138,6 +149,7 @@ async function selectDay(day) {
         setCachedDayList(day, groceryList);
         renderGroceryList();
         updateProgress();
+        trackGroceryListViewedOnce();
         return;
       }
     }
@@ -190,14 +202,17 @@ async function init() {
 // Fire-and-forget PATCH — the caller has already updated the DOM and local
 // state optimistically, so this never blocks the UI thread and a failure
 // just gets logged (item stays checked/edited locally either way).
-function syncItemToServer(category, itemId, updates) {
+// onSuccess (optional) only runs once the server has confirmed the write —
+// used so activation tracking never counts a persistence attempt that failed.
+function syncItemToServer(category, itemId, updates, onSuccess) {
   if (!planId || !selectedDay) return;
   fetch(`/api/grocery-list/${planId}/${encodeURIComponent(selectedDay)}/items/${encodeURIComponent(itemId)}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates)
   }).then(res => {
-    if (!res.ok) console.error('[grocery-list] item sync rejected:', res.status);
+    if (!res.ok) { console.error('[grocery-list] item sync rejected:', res.status); return; }
+    if (onSuccess) onSuccess();
   }).catch(err => console.error('[grocery-list] item sync failed:', err));
 }
 

@@ -193,6 +193,7 @@ function toggleItem(category, itemId, checked) {
   // Optimistic: update state + DOM instantly, then fire the PATCH in the
   // background without awaiting it. Checking an item marks it acquired —
   // it does not change the Remaining budget (that reflects planned spend).
+  const wasChecked = !!item.checked;
   item.checked = checked;
 
   const itemEl = document.getElementById(`item-${itemId}`);
@@ -204,7 +205,14 @@ function toggleItem(category, itemId, checked) {
 
   updateProgress();
   saveLists();
-  syncItemToServer(category, itemId, { checked });
+  // Only the unchecked -> checked transition is a "used the list" signal, and
+  // only once the server confirms the write — never log activation for an
+  // edit that failed to persist. Re-checking an already-checked item (a
+  // no-op onchange won't fire this, but guard anyway) does not re-fire.
+  const isNewlyChecked = !wasChecked && checked;
+  syncItemToServer(category, itemId, { checked }, isNewlyChecked
+    ? () => { if (typeof mealzyTrack === 'function') mealzyTrack('grocery_item_checked', {}); }
+    : undefined);
 }
 
 function updateProgress() {
