@@ -82,6 +82,7 @@ const OutputShapes = {
     name: user.name,
     email: user.email,
     pro: user.pro === 1,
+    email_verified: user.email_verified === 1,
     ref_code: user.ref_code || null,
     profile
   }),

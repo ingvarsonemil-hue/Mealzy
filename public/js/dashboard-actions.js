@@ -75,6 +75,20 @@ async function generateMealPlan() {
       return;
     }
 
+    if (response.status === 403) {
+      const data = await response.json();
+      // Frontend verification state can go stale (e.g. verified in another tab
+      // without reloading this one) — the backend is still authoritative, so
+      // resync locally and flip the hero back to the verify-required state
+      // instead of leaving the user at a dead-end error.
+      if (data.error === 'email_not_verified') {
+        if (serverUser) serverUser.email_verified = false;
+        updateDashboardEmptyState();
+      }
+      showToast(data.message || 'Please verify your email to generate plans.', 'error');
+      return;
+    }
+
     const data = await response.json();
     if (!response.ok || !data.success) {
       showToast(data.message || data.error || 'Generation failed. Please try again.', 'error');

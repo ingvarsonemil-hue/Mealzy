@@ -1,9 +1,15 @@
 <!-- First-time dashboard state: shown only until the user has generated their
      very first meal plan (any day, any device — see hasEverGeneratedPlan in
      dashboard-today.js). Hidden immediately after their first successful
-     generation, in favor of the real today-schedule/budget-macro cards. -->
+     generation, in favor of the real today-schedule/budget-macro cards.
+
+     Two inner states share this card: #firstPlanHeroReady (default) and
+     #firstPlanHeroVerify (unverified email — generation is blocked server-side,
+     so the CTA here must not be one that's guaranteed to fail). Toggled by
+     updateDashboardEmptyState() in dashboard-panels.js based on
+     serverUser.email_verified from /api/auth/me. -->
 <div class="card dash-anim first-plan-hero">
-  <div class="empty-state" style="padding:2.5rem 1.5rem;">
+  <div class="empty-state" id="firstPlanHeroReady" style="padding:2.5rem 1.5rem;">
     <div class="first-plan-hero-icon" aria-hidden="true">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14a7 7 0 01-14 0z"/><path d="M8.5 9c0-1.5 1-1.5 1-3"/><path d="M13.5 9c0-1.5 1-1.5 1-3"/></svg>
     </div>
@@ -11,5 +17,14 @@
     <p style="max-width:420px;margin-inline:auto;">Mealzy builds a full week of meals around your calorie, macro, and grocery budget targets — ready in under a minute.</p>
     <button class="btn btn-primary" onclick="generateMealPlan()">Plan my week →</button>
     <p class="first-plan-hero-hint">Your meals, macros, and grocery list will show up here once your first plan is ready.</p>
+  </div>
+  <div class="empty-state" id="firstPlanHeroVerify" style="padding:2.5rem 1.5rem;display:none;">
+    <div class="first-plan-hero-icon" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--clr-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+    </div>
+    <h2 style="font-family:var(--font-display);font-style:italic;font-size:1.4rem;margin-bottom:0.5rem;">Verify your email to start planning</h2>
+    <p style="max-width:420px;margin-inline:auto;">We need to verify your email before you can generate meal plans.</p>
+    <button class="btn btn-primary" id="resendVerificationBtn" onclick="resendVerificationFromDashboard()">Resend verification email</button>
+    <p class="first-plan-hero-hint" id="resendVerificationMsg" role="status" aria-live="polite"></p>
   </div>
 </div>

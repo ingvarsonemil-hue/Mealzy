@@ -16,6 +16,51 @@ function updateDashboardEmptyState() {
   hero.style.display = hasEverGeneratedPlan ? 'none' : '';
   if (todaySection) todaySection.style.display = hasEverGeneratedPlan ? '' : 'none';
   if (budgetSection) budgetSection.style.display = hasEverGeneratedPlan ? '' : 'none';
+
+  // Unverified accounts must not see a "Plan my week" CTA that's guaranteed
+  // to fail server-side (requireVerifiedEmail / the email_verified check in
+  // /api/generate-meal). serverUser is missing only during the brief offline
+  // fallback window in init() — fail open there, the backend still enforces it.
+  const readyState = document.getElementById('firstPlanHeroReady');
+  const verifyState = document.getElementById('firstPlanHeroVerify');
+  if (readyState && verifyState) {
+    const verified = !serverUser || !!serverUser.email_verified;
+    readyState.style.display = verified ? '' : 'none';
+    verifyState.style.display = verified ? 'none' : '';
+  }
+}
+
+let _resendVerificationInFlight = false;
+
+async function resendVerificationFromDashboard() {
+  if (_resendVerificationInFlight) return;
+  const btn = document.getElementById('resendVerificationBtn');
+  const msg = document.getElementById('resendVerificationMsg');
+  _resendVerificationInFlight = true;
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  if (msg) { msg.textContent = ''; msg.style.color = ''; }
+  try {
+    const res = await fetch('/api/auth/resend-verification', { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      const text = data.message || 'Verification email sent — check your inbox.';
+      if (msg) { msg.textContent = text; msg.style.color = 'var(--clr-success)'; }
+      showToast(text, 'success');
+    } else {
+      const text = data.error === 'not_authenticated'
+        ? 'Sign in first, then try again.'
+        : (data.message || data.error || 'Something went wrong. Please try again.');
+      if (msg) { msg.textContent = text; msg.style.color = 'var(--clr-destructive)'; }
+      showToast(text, 'error');
+    }
+  } catch (e) {
+    const text = 'Could not connect. Please check your connection and try again.';
+    if (msg) { msg.textContent = text; msg.style.color = 'var(--clr-destructive)'; }
+    showToast(text, 'error');
+  } finally {
+    _resendVerificationInFlight = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Resend verification email'; }
+  }
 }
 
 function showGKeyTooltip() {
