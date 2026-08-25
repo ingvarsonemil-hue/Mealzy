@@ -21,6 +21,8 @@
  */
 
 const pricing = require('./pricing');
+const shoppingDisplay = require('./shoppingDisplayUnits');
+const budgetEngine = require('./budgetEngine');
 
 function normalizeIngredientName(name) {
   return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
@@ -134,11 +136,11 @@ function aggregateMealIngredients(meals) {
  * header — this module reuses pricing.js as-is, it does not modify it).
  */
 function priceAggregatedRow(row, priceRows) {
-  const { costUSD, source, category } = pricing.priceIngredient(row, priceRows);
+  const { costUSD, source, category, canonicalName } = pricing.priceIngredient(row, priceRows);
   const finalCostUSD = source === pricing.PRICE_SOURCE.VERIFIED
     ? costUSD
     : Math.round(costUSD * row.occurrenceCount * 100) / 100;
-  return { costUSD: finalCostUSD, source, category };
+  return { costUSD: finalCostUSD, source, category, canonicalName };
 }
 
 const GROCERY_CATEGORY_KEYS = ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen', 'beverages', 'other'];
@@ -153,12 +155,37 @@ function groceryBucketFor(dbCategory) {
 }
 
 /** Deterministic display string for an aggregated row's merged quantity —
- * "500g", "300ml", "4" for count. Not fancy pluralized English (the
- * per-occurrence AI-written amounts are gone once merged), just an honest
- * reflection of the numeric total actually priced. */
+ * "500g", "300ml" for the raw g/ml fallback. Not fancy pluralized English
+ * (the per-occurrence AI-written amounts are gone once merged), just an
+ * honest reflection of the numeric total actually priced. Used only when no
+ * shopper-facing conversion applies (see formatShoppingAmount below) — the
+ * bare-number count case ("4") was replaced by formatCountDisplay, which
+ * needs the ingredient name this function doesn't have. */
 function formatGroceryAmountDisplay(amountValue, amountUnit) {
   const rounded = Math.round(amountValue * 100) / 100;
-  return amountUnit === 'count' ? String(rounded) : `${rounded}${amountUnit}`;
+  return `${rounded}${amountUnit}`;
+}
+
+/**
+ * Chooses the SHOPPING DISPLAY string for one aggregated row — a third,
+ * display-only representation, separate from the recipe/pricing quantity
+ * (amountValue/amountUnit, unchanged, still what costUSD was computed from;
+ * see shoppingDisplayUnits.js file header for why these must never merge).
+ *
+ * Resolution order:
+ *   1. A registered produce conversion (garlic/onion/lemon/lime, grams only)
+ *      -> "1/2 onion", "2 cloves garlic".
+ *   2. A count-unit item -> "3 eggs" (name-aware, unlike a bare number).
+ *   3. Fallback: the raw "120g" / "300ml" display.
+ * `canonicalName` is the exact resolved price-row name (null for an
+ * unknown ingredient with no matched row) — never the AI's raw ingredient
+ * text, so this can never confuse "lemon" with "lemon juice".
+ */
+function formatShoppingAmount({ name, amountValue, amountUnit, canonicalName }) {
+  const produceDisplay = shoppingDisplay.getProduceShoppingDisplay(canonicalName, amountValue, amountUnit);
+  if (produceDisplay) return produceDisplay;
+  if (amountUnit === 'count') return shoppingDisplay.formatCountDisplay(name, amountValue);
+  return formatGroceryAmountDisplay(amountValue, amountUnit);
 }
 
 /**
@@ -177,14 +204,20 @@ function buildGroceryList(meals, priceRows, { weekStart, budget, currency, day }
 
   let seq = 0;
   let recomputedTotal = 0;
+  let unknownEstimatedCostUSD = 0;
+  let unknownIngredientCount = 0;
   for (const row of aggregated) {
-    const { costUSD, source, category } = priceAggregatedRow(row, priceRows);
+    const { costUSD, source, category, canonicalName } = priceAggregatedRow(row, priceRows);
     recomputedTotal += costUSD;
+    if (source === pricing.PRICE_SOURCE.UNKNOWN_INGREDIENT || source === pricing.PRICE_SOURCE.UNSUPPORTED_UNIT) {
+      unknownEstimatedCostUSD += costUSD;
+      unknownIngredientCount += 1;
+    }
     seq += 1;
     categories[groceryBucketFor(category)].push({
       id: `g_${String(seq).padStart(3, '0')}`,
       name: row.name,
-      amount: formatGroceryAmountDisplay(row.amountValue, row.amountUnit),
+      amount: formatShoppingAmount({ name: row.name, amountValue: row.amountValue, amountUnit: row.amountUnit, canonicalName }),
       amountValue: row.amountValue,
       amountUnit: row.amountUnit,
       cost: costUSD,
@@ -196,9 +229,27 @@ function buildGroceryList(meals, priceRows, { weekStart, budget, currency, day }
     });
   }
 
+  const roundedTotal = Math.round(recomputedTotal * 100) / 100;
+  // Budget certification — see budgetEngine.classifyBudgetStatus for why
+  // this is a hard 0-unknown threshold rather than a dollar/percentage one.
+  // Never itself a retry trigger; purely a truthful status alongside the
+  // existing totalCost <= budgetAmount number, which is unaffected. Only
+  // meaningful for the enforceable currency (USD) that Budget Engine v1
+  // actually validates against — see budgetEngine.isBudgetEnforceable.
+  const budgetStatus = budgetEngine.isBudgetEnforceable(currency)
+    ? budgetEngine.classifyBudgetStatus({ withinBudget: roundedTotal <= Number(budget), unknownIngredientCount })
+    : budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
+
   return {
     weekStart: weekStart || '',
-    totalCost: Math.round(recomputedTotal * 100) / 100,
+    totalCost: roundedTotal,
+    // Same rationale as pricing.js priceIngredients: lets a caller tell "a
+    // little unverified pantry spend" apart from "a lot of unverified spend
+    // that could be masking an expensive unknown ingredient" instead of
+    // relying on a single all-or-nothing verified/estimated flag.
+    unknownEstimatedCostUSD: Math.round(unknownEstimatedCostUSD * 100) / 100,
+    unknownIngredientCount,
+    budgetStatus,
     budgetAmount: budget,
     currency,
     categories,
@@ -214,6 +265,7 @@ module.exports = {
   priceAggregatedRow,
   groceryBucketFor,
   formatGroceryAmountDisplay,
+  formatShoppingAmount,
   buildGroceryList,
   GROCERY_CATEGORY_KEYS,
 };

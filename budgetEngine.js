@@ -212,6 +212,47 @@ function buildOutcomeEvent({ requestId, mode, succeeded, attempts, evaluation })
   };
 }
 
+// ── Budget certification — SEPARATE from, and evaluated AFTER, the existing
+// withinBudget invariant above. Deliberately does not touch evaluateBudget,
+// runWithBudgetRepair, runWeeklyBudgetRepair, or any repair/analytics logic
+// (see Unknown Price Safety Gate audit — the repair algorithm is frozen).
+//
+// PROBLEM: pricing.js's UNKNOWN_INGREDIENT_ESTIMATE_USD ($0.50) is a flat
+// guess for a genuinely unpriced ingredient — it could be replacing a $0.10
+// herb or a $9.59 venison steak, and there is no way to tell which from the
+// number alone. That means measuring "how risky is this plan's unknown
+// exposure" as a SHARE of the (already fake) unknown dollar total, or of the
+// budget, is measuring a number we already know is fabricated — it would
+// have rated the venison-at-$0.50 case as low-risk (0.50 / a $60 budget is
+// under 1%), which is exactly the silent failure this gate exists to close.
+// The only signal that isn't built on a fabricated number is BINARY: did any
+// ingredient in this estimate get priced from real matched data, or did at
+// least one line item use the flat guess at all. So "certified" requires
+// zero flat-guessed line items — not a percentage threshold.
+//
+// This does NOT reject plans with unknown pricing (current ingredient-price
+// coverage is too incomplete for that to be usable — see the audit). A plan
+// with unresolved prices still returns normally; only its status differs:
+// callers must not represent 'estimated_with_unknowns' as fully budget-
+// validated, but it is not a failure.
+const BUDGET_STATUS = Object.freeze({
+  CERTIFIED: 'certified',                       // within budget AND every ingredient priced from real matched data
+  ESTIMATED_WITH_UNKNOWNS: 'estimated_with_unknowns', // within budget, but >=1 ingredient used the flat unknown-price guess
+  OVER_BUDGET: 'over_budget',                   // the existing withinBudget invariant failed (kept distinct from a pricing-confidence issue)
+  NOT_ENFORCED: 'not_enforced',                 // non-USD currency — Budget Engine v1 doesn't enforce or certify these at all
+});
+
+/** Pure classification, evaluated on an ALREADY-SETTLED cost (i.e. after any
+ * repair loop above has already run/finished) — never itself a retry
+ * trigger. `unknownIngredientCount` must be pricing.js's own count (the
+ * number of grocery/meal line items that fell back to the flat guess), not
+ * a name-based guess. See BUDGET_STATUS above for why this is a hard 0
+ * threshold, not a percentage. */
+function classifyBudgetStatus({ withinBudget, unknownIngredientCount }) {
+  if (!withinBudget) return BUDGET_STATUS.OVER_BUDGET;
+  return (Number(unknownIngredientCount) > 0) ? BUDGET_STATUS.ESTIMATED_WITH_UNKNOWNS : BUDGET_STATUS.CERTIFIED;
+}
+
 /** A fair share of what's actually left, not a rigid 1/7 split of the whole
  * budget — lets an expensive day be balanced by cheaper ones elsewhere in
  * the week, as long as the FINAL weekly total (evaluateWeeklyBudget) still
@@ -350,6 +391,8 @@ module.exports = {
   centsToUSD,
   evaluateBudget,
   evaluateWeeklyBudget,
+  BUDGET_STATUS,
+  classifyBudgetStatus,
   bucketOverage,
   budgetBucket,
   repairDirection,

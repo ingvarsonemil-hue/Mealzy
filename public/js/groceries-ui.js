@@ -108,6 +108,7 @@ function renderGroceryList() {
             const scaledAmount = scaleAmount(item.amount, householdSize);
             const baseCost = item.actualCost ?? item.estimatedCost ?? item.cost;
             const scaledCost = scaleCost(baseCost, householdSize);
+            const isEstimate = isEstimatedGroceryRow(item);
             return `
             <div class="grocery-item ${item.checked ? 'checked' : ''}" id="item-${item.id}">
               <input type="checkbox" ${item.checked ? 'checked' : ''} aria-checked="${item.checked ? 'true' : 'false'}" onchange="toggleItem('${catKey}', '${item.id}', this.checked)" />
@@ -115,6 +116,7 @@ function renderGroceryList() {
               <span class="grocery-item-qty">${escHtml(scaledAmount || '')}</span>
               <span class="grocery-item-cost-wrap" id="cost-wrap-${item.id}">
                 ${typeof scaledCost === 'number' ? `<span class="grocery-item-cost">${sym}${scaledCost.toFixed(2)}</span>` : ''}
+                ${isEstimate ? `<span class="badge badge-muted" title="Not yet in Mealzy's ingredient price dataset — this cost is a rough placeholder">estimate</span>` : ''}
                 <button type="button" class="grocery-item-edit-btn" onclick="startEditCost(event, '${catKey}', '${item.id}')" aria-label="Edit actual cost for ${escHtml(item.name)}" title="Edit cost">${pencilSVG}</button>
               </span>
             </div>`;
@@ -248,7 +250,17 @@ function updateProgress() {
   const remaining = budget - projectedCost;
   const remainingEl = document.getElementById('remainingDisplay');
   remainingEl.textContent = `${sym}${remaining.toFixed(2)}`;
-  remainingEl.style.color = remaining < 0 ? 'var(--clr-error)' : 'var(--color-green)';
+
+  // See budgetConfidenceDisplay.js for the full rationale — this is the
+  // only plan-level surface that renders a confident (green) budget claim,
+  // so it's the one place this classification has to be honored.
+  const { color, note } = getBudgetConfidenceDisplay(groceryList.budgetStatus, remaining);
+  remainingEl.style.color = color;
+  const noteEl = document.getElementById('budgetConfidenceNote');
+  if (noteEl) {
+    noteEl.textContent = note;
+    noteEl.style.display = note ? '' : 'none';
+  }
 }
 
 function addManualItem() {

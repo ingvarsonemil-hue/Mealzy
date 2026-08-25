@@ -2020,7 +2020,7 @@ app.post('/api/email-leads', leadLimiter, async (req, res) => {
  * whenever any ingredient fell back to an unknown/estimated/legacy price. */
 async function calculateMealCost(ingredients) {
   if (!Array.isArray(ingredients) || ingredients.length === 0) {
-    return { totalUSD: 0, allVerified: true, items: [] };
+    return { totalUSD: 0, datasetPricedCostUSD: 0, unknownEstimatedCostUSD: 0, unknownIngredientCount: 0, allVerified: true, items: [] };
   }
   const priceRows = await db.getIngredientPrices();
   return pricing.priceIngredients(ingredients, priceRows);
@@ -2404,6 +2404,8 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
       const priced = await calculateMealCost(meal.ingredients);
       meal.cost = priced.totalUSD;
       meal.costConfidence = priced.allVerified ? 'verified' : 'estimated';
+      meal.unknownEstimatedCostUSD = priced.unknownEstimatedCostUSD;
+      meal.unknownIngredientCount = priced.unknownIngredientCount;
 
       if (process.env.UNSPLASH_ACCESS_KEY) {
         try {
@@ -2553,7 +2555,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
       // ── Macro sanity check + daily sums — computed in code, never trusted from the model ──
       if (mealPlan.meals) {
-        const sums = { calories: 0, protein: 0, carbs: 0, fat: 0, cost: 0, allCostsVerified: true };
+        const sums = { calories: 0, protein: 0, carbs: 0, fat: 0, cost: 0, unknownEstimatedCostUSD: 0, unknownIngredientCount: 0, allCostsVerified: true };
         for (const meal of mealPlan.meals) {
           const p = Number(meal.protein) || 0;
           const c = Number(meal.carbs)   || 0;
@@ -2570,7 +2572,11 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           const priced   = await calculateMealCost(meal.ingredients);
           meal.cost      = priced.totalUSD;
           meal.costConfidence = priced.allVerified ? 'verified' : 'estimated';
+          meal.unknownEstimatedCostUSD = priced.unknownEstimatedCostUSD;
+          meal.unknownIngredientCount = priced.unknownIngredientCount;
           sums.cost     += meal.cost;
+          sums.unknownEstimatedCostUSD += priced.unknownEstimatedCostUSD;
+          sums.unknownIngredientCount  += priced.unknownIngredientCount;
           if (!priced.allVerified) sums.allCostsVerified = false;
         }
         mealPlan.totalCalories = Math.round(sums.calories);
@@ -2579,6 +2585,18 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         mealPlan.totalFat      = Math.round(sums.fat);
         mealPlan.totalCost     = Math.round(sums.cost * 100) / 100;
         mealPlan.totalCostConfidence = sums.allCostsVerified ? 'verified' : 'estimated';
+        // Dollar magnitude of the unverified portion — lets the client (or a
+        // future stricter Budget Engine rule) distinguish "one cheap unknown
+        // spice" from "an expensive protein silently priced at the $0.50
+        // fallback" instead of relying on totalCostConfidence's all-or-
+        // nothing verified/estimated flag. See pricing.js priceIngredients.
+        mealPlan.totalUnknownEstimatedCostUSD = Math.round(sums.unknownEstimatedCostUSD * 100) / 100;
+        // Budget certification signal (see budgetEngine.classifyBudgetStatus)
+        // — a COUNT, not a dollar figure: the $0.50 fallback's own dollar
+        // value is not a trustworthy risk measure (that's the whole bug this
+        // gate exists to close), so certification keys off whether ANY line
+        // item used the flat guess at all.
+        mealPlan.totalUnknownIngredientCount = sums.unknownIngredientCount;
       }
 
       // ── Allergy enforcement — server-side scan after AI generation ──────────
@@ -2697,6 +2715,11 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       // MAX_WEEKLY_REPAIR_ROUNDS times) and re-check. A week that still
       // doesn't fit after that is a controlled failure: it is never saved
       // or returned as successful. ──────────────────────────────────────────
+      // Hoisted so the weekly totals block below (after this if) can read
+      // the settled evaluation for budget certification — see
+      // budgetEngine.classifyBudgetStatus. Stays null for non-enforceable
+      // currencies, handled explicitly below.
+      let settledWeeklyEvaluation = null;
       if (budgetEnforceable) {
         try {
           const { days: settledDays, weeklyEvaluation, attempts, succeeded } = await budgetEngine.runWeeklyBudgetRepair(
@@ -2731,6 +2754,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           }
           days.length = 0;
           days.push(...settledDays);
+          settledWeeklyEvaluation = weeklyEvaluation;
         } catch (err) {
           if (err instanceof AllergyViolationError) {
             await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
@@ -2754,12 +2778,22 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         acc.totalCarbs    += d.totalCarbs    || 0;
         acc.totalFat      += d.totalFat      || 0;
         acc.totalCost     += d.totalCost     || 0;
+        acc.unknownIngredientCount += d.totalUnknownIngredientCount || 0;
         return acc;
-      }, { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0, totalCost: 0 });
+      }, { totalCalories: 0, totalProtein: 0, totalCarbs: 0, totalFat: 0, totalCost: 0, unknownIngredientCount: 0 });
       weeklyTotals.totalCost   = Math.round(weeklyTotals.totalCost * 100) / 100;
       weeklyTotals.avgCalories = Math.round(weeklyTotals.totalCalories / 7);
       weeklyTotals.avgProtein  = Math.round(weeklyTotals.totalProtein  / 7);
       weeklyTotals.avgCarbs    = Math.round(weeklyTotals.totalCarbs    / 7);
+      // Budget certification — see budgetEngine.classifyBudgetStatus. Uses
+      // the FINAL settled weekly evaluation (after any week-level repair),
+      // never triggers a further retry itself.
+      weeklyTotals.budgetStatus = budgetEnforceable
+        ? budgetEngine.classifyBudgetStatus({
+            withinBudget: settledWeeklyEvaluation ? settledWeeklyEvaluation.withinBudget : true,
+            unknownIngredientCount: weeklyTotals.unknownIngredientCount,
+          })
+        : budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
       weeklyTotals.avgFat      = Math.round(weeklyTotals.totalFat      / 7);
 
       // ── Quota consumption — 1 credit for the whole week, only after every
@@ -2830,9 +2864,17 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           return res.status(422).json(budgetUnreachableResponse(evaluation));
         }
         mealPlan = result;
+        // Budget certification — evaluated AFTER the repair loop above has
+        // already settled the plan; never itself a retry trigger (see
+        // budgetEngine.classifyBudgetStatus).
+        mealPlan.budgetStatus = budgetEngine.classifyBudgetStatus({
+          withinBudget: evaluation.withinBudget,
+          unknownIngredientCount: mealPlan.totalUnknownIngredientCount || 0,
+        });
       } else {
         await db.logEvent('budget_enforcement_skipped_currency', { currency, userId: singleDayBudgetTelemetryId }, '');
         mealPlan = await generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed });
+        mealPlan.budgetStatus = budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
       }
     } catch (err) {
       if (err instanceof AllergyViolationError) {

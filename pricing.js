@@ -28,6 +28,21 @@ const PRICE_SOURCE = Object.freeze({
 
 const SUPPORTED_UNITS = new Set(['g', 'ml', 'count']);
 
+// Root-cause fix for the honey $0.50 fallback (Grocery Units + Unknown
+// Pricing v2 audit): the generation prompt classifies honey as a liquid (->
+// ml) because it's poured, but its canonical price row is $/g like every
+// other viscous/solid pantry item — so every honey occurrence hit
+// UNSUPPORTED_UNIT and silently became $0.50 regardless of quantity. Rather
+// than trust `1 ml == 1 g` (explicitly forbidden — different substances have
+// different densities), this converts using honey's real, documented
+// density so honey keeps pricing as VERIFIED. Density source: honey is
+// ~1.42 g/mL (higher than water because of its sugar content) — a
+// well-established, non-controversial physical constant, not a guess.
+// Deliberately a tiny, named allowlist (not a generic ml->g fallback for any
+// mismatched ingredient) so this never silently "fixes" an ingredient whose
+// unit mismatch is a genuine data problem rather than a known density fact.
+const KNOWN_ML_TO_G_DENSITY = { honey: 1.42 };
+
 // Maps the free-text `unit` values already present in ingredient_prices to
 // one of the three canonical units above. Existing rows like "each", "head",
 // "unit" all mean a discrete count; this reads them without requiring a data
@@ -123,7 +138,7 @@ function priceIngredient(ingredient, priceRows) {
   const priceRow = _findPriceRow(ingredient?.name, priceRows);
 
   if (!priceRow) {
-    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNKNOWN_INGREDIENT, category: null };
+    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNKNOWN_INGREDIENT, category: null, canonicalName: null };
   }
 
   // Surfaced alongside cost so callers (e.g. deterministic grocery
@@ -131,6 +146,11 @@ function priceIngredient(ingredient, priceRows) {
   // module's ingredient-name matching. Present whenever a price row matched,
   // regardless of whether the unit itself priced successfully.
   const category = priceRow.category ?? null;
+  // Surfaced so callers can build shopper-facing display conversions (see
+  // shoppingDisplayUnits.js) keyed off the exact resolved canonical row —
+  // never off the AI's raw ingredient text, so "lemon" and "lemon juice"
+  // (two different canonical rows) can never be conflated.
+  const canonicalName = priceRow.name;
 
   const rowUnit = normalizeDbUnit(priceRow.unit);
   const rawAmountUnit = ingredient?.amountUnit;
@@ -141,42 +161,75 @@ function priceIngredient(ingredient, priceRows) {
     // refuse rather than guess. This is the "unsupported unit" path: e.g.
     // the model returned "cup"/"tbsp"/"oz", or a unit that doesn't match
     // what this ingredient is actually priced in.
-    const amountValue = Number(ingredient?.amountValue);
-    const validQuantity = Number.isFinite(amountValue) && amountValue > 0;
+    const rawAmountValue = Number(ingredient?.amountValue);
+    const validQuantity = Number.isFinite(rawAmountValue) && rawAmountValue > 0;
     const unitIsSupported = SUPPORTED_UNITS.has(rawAmountUnit);
-    const unitMatchesPriceRow = rowUnit && rawAmountUnit === rowUnit;
+
+    // Known-density conversion (see KNOWN_ML_TO_G_DENSITY above) — applies
+    // BEFORE the unit-match check so a documented ml->g case (honey) prices
+    // as VERIFIED instead of falling into UNSUPPORTED_UNIT.
+    const density = rowUnit === 'g' && rawAmountUnit === 'ml' ? KNOWN_ML_TO_G_DENSITY[priceRow.name] : null;
+    const amountValue = density ? rawAmountValue * density : rawAmountValue;
+    const unitMatchesPriceRow = rowUnit && (rawAmountUnit === rowUnit || density);
 
     if (!validQuantity || !unitIsSupported || !unitMatchesPriceRow) {
-      return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT, category };
+      return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT, category, canonicalName };
     }
 
-    return { costUSD: _round2(priceRow.price_per_unit * amountValue), source: PRICE_SOURCE.VERIFIED, category };
+    return { costUSD: _round2(priceRow.price_per_unit * amountValue), source: PRICE_SOURCE.VERIFIED, category, canonicalName };
   }
 
   // No amountUnit field at all -> pre-existing data saved before this change.
   if (!rowUnit) {
-    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT, category };
+    return { costUSD: UNKNOWN_INGREDIENT_ESTIMATE_USD, source: PRICE_SOURCE.UNSUPPORTED_UNIT, category, canonicalName };
   }
   const legacyQty = _legacyParseQuantity(ingredient?.amount);
-  return { costUSD: _round2(priceRow.price_per_unit * legacyQty), source: PRICE_SOURCE.LEGACY_ESTIMATE, category };
+  return { costUSD: _round2(priceRow.price_per_unit * legacyQty), source: PRICE_SOURCE.LEGACY_ESTIMATE, category, canonicalName };
 }
 
 /**
  * Prices a full ingredient list (one meal, or one grocery list). Never reads
  * an AI-supplied `cost`/`estimatedCost` field on the ingredient - the
  * returned costUSD is always independently computed here.
+ *
+ * Alongside the existing `allVerified` boolean (which collapses to false the
+ * moment ANY ingredient is non-VERIFIED, regardless of dollar size — a $0.02
+ * spice and a $0.50-masking-a-$9.59-venison-steak read identically), this
+ * also returns the DOLLAR split: `datasetPricedCostUSD` (from VERIFIED/
+ * LEGACY_ESTIMATE rows — a real matched price) vs `unknownEstimatedCostUSD`
+ * (from UNKNOWN_INGREDIENT/UNSUPPORTED_UNIT — the flat $0.50-per-occurrence
+ * guess), plus `unknownIngredientCount`. This is what lets a caller tell
+ * "one cheap unverified spice" apart from "an expensive protein silently
+ * priced at $0.50" without guessing from cost === 0.50 (see Grocery Units +
+ * Unknown Pricing v2 audit, Budget Engine relationship).
  */
 function priceIngredients(ingredients, priceRows) {
   const items = Array.isArray(ingredients) ? ingredients : [];
   let totalUSD = 0;
+  let datasetPricedCostUSD = 0;
+  let unknownEstimatedCostUSD = 0;
+  let unknownIngredientCount = 0;
   let allVerified = items.length > 0;
   const priced = items.map(ing => {
-    const { costUSD, source, category } = priceIngredient(ing, priceRows);
+    const { costUSD, source, category, canonicalName } = priceIngredient(ing, priceRows);
     totalUSD += costUSD;
+    if (source === PRICE_SOURCE.UNKNOWN_INGREDIENT || source === PRICE_SOURCE.UNSUPPORTED_UNIT) {
+      unknownEstimatedCostUSD += costUSD;
+      unknownIngredientCount += 1;
+    } else {
+      datasetPricedCostUSD += costUSD;
+    }
     if (source !== PRICE_SOURCE.VERIFIED) allVerified = false;
-    return { ...ing, costUSD, priceSource: source, category };
+    return { ...ing, costUSD, priceSource: source, category, canonicalName };
   });
-  return { totalUSD: _round2(totalUSD), allVerified, items: priced };
+  return {
+    totalUSD: _round2(totalUSD),
+    datasetPricedCostUSD: _round2(datasetPricedCostUSD),
+    unknownEstimatedCostUSD: _round2(unknownEstimatedCostUSD),
+    unknownIngredientCount,
+    allVerified,
+    items: priced,
+  };
 }
 
 module.exports = {
@@ -186,4 +239,5 @@ module.exports = {
   PRICE_SOURCE,
   SUPPORTED_UNITS,
   UNKNOWN_INGREDIENT_ESTIMATE_USD,
+  KNOWN_ML_TO_G_DENSITY,
 };

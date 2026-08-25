@@ -110,6 +110,10 @@ function makeFullPageSandbox(fetchImpl) {
     scaleAmount: (a) => a,
     scaleCost: (c) => (typeof c === 'number' ? c : 0),
     escHtml: (s) => s,
+    // Stand-in for public/js/budgetConfidenceDisplay.js, loaded separately
+    // on the real page (see Plan-Level Budget Status Truthfulness).
+    getBudgetConfidenceDisplay: () => ({ color: '', note: '' }),
+    isEstimatedGroceryRow: () => false,
     applyNavTranslations: () => {},
     location: { href: '' }, // init() runs unawaited at module load; keeps its redirect no-ops from throwing
   };
