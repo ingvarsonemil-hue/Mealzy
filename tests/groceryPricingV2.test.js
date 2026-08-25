@@ -133,22 +133,29 @@ describe('Honey ml/g density fix (Major Finding #2)', () => {
   });
 });
 
-describe('Salt regression (structural, per Grocery Units v2 audit — root cause NOT changed, only pinned)', () => {
-  // Phase A finding: "salt" resolves via the existing conservative substring
-  // fallback to the real "salt and pepper" row (p.name.includes(norm)) —
-  // this is a correct, intentional match, not the bug. The arithmetic is
-  // linear and deterministic: cost = price_per_unit * amountValue. A single
-  // realistic per-meal seasoning quantity (2-5g) stays trivially cheap; the
-  // ~$1.50 manual observation requires amountValue ~150g, which is only
-  // reachable by aggregating many occurrences across a whole week's meals
-  // (see server.js generateGroceryListForMeals — grocery lists are built
-  // per-day normally, but /api/generate-grocery-list can aggregate a whole
-  // week's meals in one call). This test pins that arithmetic so a future
-  // change to the "salt and pepper" row's matching or price silently
-  // reintroducing the wrong ORDER OF MAGNITUDE would fail loudly. The price
-  // row itself is NOT changed here — Phase A could not confirm from static
-  // code alone whether the row's value or the aggregation quantity is the
-  // deeper problem without a live generation sample (see Phase A report).
+describe('Salt regression (isolated fallback-algorithm pin — Price Coverage v2 root-caused and fixed the PRODUCTION dataset separately, see tests/priceCoverageV2.test.js)', () => {
+  // Phase A finding (still true, and still worth pinning): pricing.js's
+  // substring-fallback ALGORITHM is correct and deterministic — when no
+  // dedicated row exists for a name, "salt" resolves to the best subsuming
+  // candidate ("salt and pepper" here), and cost is linear in quantity. This
+  // describe block intentionally keeps a `priceRows` fixture WITHOUT a
+  // dedicated "salt" row so it continues to pin that fallback mechanism in
+  // isolation, independent of what the real dataset contains.
+  //
+  // Price Coverage v2 went further and proved the deeper problem Phase A
+  // flagged as unresolved: "salt and pepper" is a BLENDED two-ingredient
+  // price, not a real per-gram salt price, so relying on the fallback for
+  // plain salt was itself wrong (~7x too expensive per gram) — and once
+  // grocery aggregation correctly sums salt across a week (~150g, itself
+  // correct behavior), that per-gram error compounds into the observed
+  // ~$1.50 anomaly (150g x $0.01/g = $1.50, reproduced below). The
+  // PRODUCTION fix is additive: ingredientPriceData.js now has a dedicated
+  // "salt" row (see its Price Coverage v2 section) so real "salt" occurrences
+  // resolve via the earlier exact-match step and never reach this fallback at
+  // all — see tests/priceCoverageV2.test.js for that production-dataset
+  // proof. Nothing here changed: this block still isolates and pins the
+  // fallback algorithm alone, using a fixture that deliberately omits a
+  // dedicated salt row.
   test('a single realistic per-meal salt quantity (4g) stays cheap, matching real-world magnitude', () => {
     const result = priceIngredient({ name: 'salt', amountValue: 4, amountUnit: 'g' }, priceRows);
     assert.equal(result.source, PRICE_SOURCE.VERIFIED); // resolves via substring match to "salt and pepper" — correct, not a matching bug

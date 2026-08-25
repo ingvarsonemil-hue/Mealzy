@@ -40,6 +40,16 @@
 const PRICE_COVERAGE_V1_DATE = '2026-08-22';
 const PRICE_COVERAGE_V1_METHOD = 'estimated from general knowledge of typical US supermarket retail pricing, cross-checked for magnitude plausibility; not sourced from a live feed or specific dataset';
 
+// Price Coverage v2 — same methodology and geography assumption as v1
+// (see PRICE_COVERAGE_V1_METHOD/file header). The manual 5-list /
+// 107-observation supermarket audit (tests/fixtures/
+// manualSupermarketObservations.js) was used ONLY to rank which unknowns to
+// prioritize and to sanity-check these estimates land in the right ballpark
+// - never as the source value itself. One shopper's receipt on one occasion
+// in one region is evidence a gap exists, not a universal price.
+const PRICE_COVERAGE_V2_DATE = '2026-08-25';
+const PRICE_COVERAGE_V2_METHOD = 'estimated from general knowledge of typical US supermarket retail pricing, cross-checked for magnitude plausibility and against the manual 107-observation audit for ballpark sanity only; not sourced from a live feed or copied from the single-shopper observation';
+
 // name, category, unit, price_per_unit, source, checked_at, notes
 const PRICES = [
   // ── Pre-existing (Budget Engine v1 baseline) — origin undocumented before
@@ -100,6 +110,46 @@ const PRICES = [
   { name: 'paprika',               category: 'pantry',  unit: 'g', price_per_unit: 0.02,   source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: 'bulk/amortized ground-spice estimate, same basis as cumin' },
   { name: 'cinnamon',               category: 'pantry',  unit: 'g', price_per_unit: 0.02,   source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: 'bulk/amortized ground-spice estimate, same basis as cumin' },
   { name: 'couscous',              category: 'pantry',  unit: 'g', price_per_unit: 0.0055, source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$2.50/lb' },
+
+  // ── Price Coverage v2 — high-impact batch selected by ranking the real
+  // 5-list / 107-observation manual audit (tests/fixtures/
+  // manualSupermarketObservations.js) by financial risk (observed real price
+  // vs the $0.50 fallback) and recurrence, NOT by row count. That fixture is
+  // evidence for prioritization/plausibility only — every price below is
+  // independently estimated using the SAME methodology as Price Coverage v1
+  // (general knowledge of typical US supermarket retail pricing, magnitude
+  // cross-checked; see file header), never copied from the single-shopper
+  // observation. Conservative canonicalization: venison stays its own row
+  // (never aliased to beef), lean chuck stays separate from ground beef,
+  // shrimp stays separate from fish — different products, different prices.
+  { name: 'venison',        category: 'protein', unit: 'g', price_per_unit: 0.0397, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$18/lb, US retail venison steak/cuts range ~$15-22/lb; substring-matches "venison steak" etc. Deliberately its own row, never aliased to beef - materially different product/price' },
+  { name: 'lean chuck',     category: 'meat',    unit: 'g', price_per_unit: 0.0121, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$5.50/lb lean beef chuck roast/steak cuts; kept separate from "ground beef" ($0.013/g) - different cut/prep, not aliased despite similar magnitude' },
+  { name: 'shrimp',         category: 'protein', unit: 'g', price_per_unit: 0.0198, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$9/lb US average frozen peeled/deveined shrimp; deliberately its own row, never aliased to any fish row - different product' },
+  { name: 'hummus',         category: 'pantry',  unit: 'g', price_per_unit: 0.0124, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$3.50 per 10oz/283g tub' },
+  { name: 'eggplant',       category: 'produce', unit: 'g', price_per_unit: 0.0033, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$1.50/lb' },
+  { name: 'feta',           category: 'dairy',   unit: 'g', price_per_unit: 0.022,  source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$5 per 8oz/227g block or crumbled tub' },
+  { name: 'cucumber',       category: 'produce', unit: 'g', price_per_unit: 0.0027, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$0.80/each at ~300g typical' },
+  { name: 'chicken broth',  category: 'pantry',  unit: 'ml', price_per_unit: 0.0028, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$2.65 per 32oz/946ml carton. Kept as its own row rather than aliased to "vegetable broth" - not confident enough in cross-type price parity to alias without evidence' },
+  { name: 'beef broth',     category: 'pantry',  unit: 'ml', price_per_unit: 0.0030, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$2.85 per 32oz/946ml carton, same reasoning as chicken broth - own row, not aliased' },
+  { name: 'rice',           category: 'pantry',  unit: 'g', price_per_unit: 0.0022, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: 'generic dry rice when the generated name does not specify a variety (bare "rice" previously fell to UNKNOWN because it substring-matched BOTH "white rice" and "brown rice" ambiguously - see pricing.js candidate-ambiguity rule). Priced near white rice; exact-match resolution means this never overrides a variety-specific name' },
+  { name: 'rosemary',       category: 'pantry',  unit: 'g', price_per_unit: 0.02,   source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: 'bulk/amortized dried-herb estimate, same basis as cumin/paprika' },
+
+  // ── Salt/pepper structural fix (see report: Salt Root-Cause Investigation).
+  // Proven root cause: bare "salt" had no row of its own, so pricing.js's
+  // conservative substring fallback matched it to "salt and pepper" - a row
+  // deliberately priced as a BLENDED seasoning-pinch estimate for a two-
+  // ingredient combo dish, not a per-gram price for pure salt. That row's
+  // $0.01/g is ~7x real per-gram table salt, and once grocery aggregation
+  // correctly sums salt across a week of meals (~150g, itself correct
+  // behavior, not a bug), the error compounds into the observed ~$1.50
+  // anomaly (150g x $0.01/g = $1.50 - reproduced exactly in
+  // tests/groceryPricingV2.test.js). Fix is additive only: give "salt" (and
+  // "pepper") their own exact-match rows so the exact-match step in
+  // pricing.js's resolution order (checked BEFORE the substring fallback)
+  // always wins - "salt and pepper" stays untouched and still prices actual
+  // salt-and-pepper-labeled dishes correctly.
+  { name: 'salt',           category: 'pantry',  unit: 'g', price_per_unit: 0.0015, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$1.10/lb plain table/kosher salt. Exact-match row added specifically to stop "salt" from falling through to the blended "salt and pepper" row - see Salt Root-Cause Investigation' },
+  { name: 'pepper',         category: 'pantry',  unit: 'g', price_per_unit: 0.045,  source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: 'bulk/amortized ground black pepper estimate (~$4 per 3oz/85g tin) - genuinely much pricier per gram than salt, which is exactly why blending them into one flat rate for pure salt was wrong. Also fixes bare "pepper" previously being ambiguous between "salt and pepper" and "bell peppers" substrings' },
 ];
 
 // Small, curated, exact-name synonym list ONLY — every entry here must name
@@ -113,6 +163,9 @@ const PRICES = [
 const ALIASES = [
   { alias: 'beef mince', canonical: 'ground beef', notes: 'British/Commonwealth term for the same product' },
   { alias: 'capsicum',   canonical: 'bell peppers', notes: 'British/Commonwealth term for the same product' },
+  { alias: 'aubergine',  canonical: 'eggplant', notes: 'British/Commonwealth term for the same product (Price Coverage v2)' },
+  { alias: 'sea salt',   canonical: 'salt', notes: 'a variety of the same product as plain salt, not a materially different price point (Price Coverage v2)' },
+  { alias: 'black pepper', canonical: 'pepper', notes: 'same product as the "pepper" spice row, just the common full name (Price Coverage v2)' },
 ];
 
-module.exports = { PRICES, ALIASES, PRICE_COVERAGE_V1_DATE, PRICE_COVERAGE_V1_METHOD };
+module.exports = { PRICES, ALIASES, PRICE_COVERAGE_V1_DATE, PRICE_COVERAGE_V1_METHOD, PRICE_COVERAGE_V2_DATE, PRICE_COVERAGE_V2_METHOD };
