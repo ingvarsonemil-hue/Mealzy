@@ -335,11 +335,14 @@
   let profile = null;
   let logs = {};
 
-  let proToken = null;
-  function getProToken() {
-    if (proToken === null) proToken = window.prompt('Enter admin/pro token') || '';
-    return proToken;
-  }
+  // Internal admin widgets (conversion funnel, site-wide activity) are disabled
+  // from this page entirely — a customer must never see a token prompt, and a
+  // token passed as a URL query parameter would leak PRO_TOKEN into browser
+  // history, server access logs, and any URL that gets copied/shared/screenshotted.
+  // Until there's a real non-URL internal-admin mechanism, hit the two
+  // PRO_TOKEN-gated endpoints directly (curl/Postman + the x-pro-token header)
+  // instead of through this page. The cards below simply stay hidden.
+  function getProToken() { return ''; }
 
   async function init() {
     localStorage.removeItem('mealzy_pro_token');
@@ -368,8 +371,7 @@
     updateSummaryStats();
     renderWeeklyBreakdown();
     renderGoalsProgress();
-    loadFunnelStats();
-    loadSiteAnalytics();
+    // Admin-only widgets are intentionally never invoked from a customer page load — see above.
   }
 
   async function loadFunnelStats() {
