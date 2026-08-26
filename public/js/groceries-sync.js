@@ -183,7 +183,17 @@ async function init() {
     document.getElementById('proNudgeBanner').style.display = 'flex';
   }
 
-  weekStart = getMondayOfWeek(new Date());
+  await loadWeek(getMondayOfWeek(new Date()));
+}
+
+// Loads the given calendar week (Monday date string) into view: recomputes
+// weekDates, looks up the planId/available-days already stored under this
+// weekStart's own key (same keying dashboard/planner write to when a plan is
+// generated for a date in this week — see savePlanId()), and renders it. Used
+// both by init() (current week) and changeWeek() (navigating to a plan's
+// actual week, which need not be the calendar week containing "today").
+async function loadWeek(newWeekStart) {
+  weekStart = newWeekStart;
   weekDates = getWeekDates(weekStart);
   const fmt = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   document.getElementById('weekLabel').textContent = `Week of ${fmt(weekDates[0].date)} – ${fmt(weekDates[6].date)}`;
@@ -196,7 +206,17 @@ async function init() {
   selectedDay = todayEntry ? todayEntry.dayName : weekDates[0].dayName;
 
   renderDaySwitcher();
-  selectDay(selectedDay);
+  await selectDay(selectedDay);
+}
+
+// Previous/next-week navigation (mirrors the planner's own unbounded
+// day-by-day navigation — see planner-controller.js's changeDate) so a plan
+// generated for a week other than the current calendar week is reachable.
+function changeWeek(deltaWeeks) {
+  const [y, m, day] = weekStart.split('-').map(Number);
+  const base = new Date(y, m - 1, day);
+  base.setDate(base.getDate() + deltaWeeks * 7);
+  return loadWeek(toLocalDateStr(base));
 }
 
 // Fire-and-forget PATCH — the caller has already updated the DOM and local
