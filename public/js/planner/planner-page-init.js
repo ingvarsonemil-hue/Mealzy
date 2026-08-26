@@ -340,6 +340,11 @@ async function generateMealPlan(isRegenerate) {
     document.getElementById('sharePlanPanel').style.display = 'block';
     generateShareLink(currentMeals);
 
+    // "Your week is ready" reveal — same gating as the Dashboard entry point
+    // (logged-in full-week generation only); PlanReveal itself no-ops for
+    // anything that doesn't qualify.
+    if (isPro && window.PlanReveal) window.PlanReveal.show(data, 'meal-planner');
+
     try {
       await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
     } catch(e) { console.error('[XP] Award error:', e); }

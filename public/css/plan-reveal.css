@@ -1,0 +1,218 @@
+/* ================================================================
+   Plan Reveal — "Your week is ready." Shown once after a successful
+   authenticated full-week generation (Dashboard + Meal Planner).
+   Tokens only (public/css/tokens.css); dark mode inherits automatically
+   from the [data-theme="dark"] token overrides already defined there.
+   Mobile-first: full-bleed at phone widths (the screenshot/TikTok
+   surface), a centered card from tablet up.
+   ================================================================ */
+
+body.plan-reveal-open { overflow: hidden; }
+
+.plan-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plan-reveal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-scrim);
+}
+
+.plan-reveal-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 480px;
+  max-height: 100vh;
+  overflow-y: auto;
+  background: var(--clr-surface);
+  box-shadow: var(--shadow-modal);
+  display: flex;
+  flex-direction: column;
+  animation: plan-reveal-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes plan-reveal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.plan-reveal-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.45);
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.plan-reveal-close:hover { background: rgba(15, 23, 42, 0.65); }
+
+/* ---------- Hero: the generated food, visually dominant ---------- */
+.plan-reveal-hero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  flex: 0 0 auto;
+  background: var(--color-muted-bg);
+}
+
+.plan-reveal-thumb {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+.plan-reveal-thumb-main {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 11;
+}
+
+.plan-reveal-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.plan-reveal-thumb-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plan-reveal-thumb-main .plan-reveal-thumb-name {
+  font-size: var(--font-size-sm);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* ---------- Body: headline + stats as the punchline ---------- */
+.plan-reveal-body {
+  padding: var(--space-6) var(--space-5) var(--space-8);
+  text-align: center;
+}
+
+.plan-reveal-eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.plan-reveal-headline {
+  margin: 0 0 var(--space-6);
+  font-family: 'Fraunces', var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 7vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-foreground);
+}
+
+.plan-reveal-stats {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-hairline);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.plan-reveal-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.plan-reveal-stat:not(:last-child) {
+  border-right: 1px solid var(--color-hairline);
+}
+
+.plan-reveal-stat-value {
+  font-family: 'Fraunces', var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.5rem, 6.5vw, 2rem);
+  line-height: 1.1;
+  color: var(--color-forest);
+  letter-spacing: -0.01em;
+}
+[data-theme="dark"] .plan-reveal-stat-value { color: var(--color-green-light); }
+
+.plan-reveal-stat-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted-fg);
+}
+
+.plan-reveal-caveat {
+  margin-top: var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-muted-fg);
+}
+
+.plan-reveal-summary {
+  margin: var(--space-4) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted-fg);
+}
+
+.plan-reveal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.plan-reveal-cta-primary {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--font-size-base);
+}
+
+.plan-reveal-cta-secondary {
+  background: none;
+  border: none;
+  padding: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-green);
+  cursor: pointer;
+}
+.plan-reveal-cta-secondary:hover { text-decoration: underline; }
+
+/* ---------- Tablet / desktop: centered card, not full-bleed ---------- */
+@media (min-width: 640px) {
+  .plan-reveal-overlay { padding: var(--space-6); }
+  .plan-reveal-card {
+    height: auto;
+    max-height: calc(100vh - var(--space-12));
+    border-radius: var(--radius-xl);
+  }
+}

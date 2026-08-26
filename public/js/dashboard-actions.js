@@ -137,6 +137,12 @@ async function generateMealPlan() {
     todayMeals = (plans[today] && plans[today].meals) ? plans[today].meals.map(m => ({ ...m, completed: false })) : [];
     trackEvent('generate_plan', { weekStart });
 
+    // "Your week is ready" reveal — only qualifies for a logged-in full-week
+    // generation (PlanReveal.buildRevealModel checks data.planId/data.days/
+    // data.weeklyTotals itself); everything else falls through to the toast
+    // below unchanged, same as before this reveal existed.
+    const revealShown = isPro && window.PlanReveal && window.PlanReveal.show(data, 'dashboard');
+
     try {
       const xpRes = await fetch('/api/xp/award', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate_plan' }) });
       if (xpRes.ok) {
@@ -161,7 +167,7 @@ async function generateMealPlan() {
     renderRecentPlans();
     cloudSave();
 
-    showToast('Meal plan generated!', 'success');
+    if (!revealShown) showToast('Meal plan generated!', 'success');
 
     // Growth triggers — only show to free users
     if (!isPro) {
