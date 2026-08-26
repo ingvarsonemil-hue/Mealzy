@@ -1,18 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { track } from '@/lib/api';
 import PricingFaq from './PricingFaq';
+import { usePricingCheckout } from './usePricingCheckout';
+import PlanCta from './PlanCta';
 
 /* ───────────────────────────────────────────────
-   Mealzy Pricing Page — CTA routes to /login
+   Mealzy Pricing Page — CTAs route straight to the
+   canonical Stripe Payment Links (see usePricingCheckout.js
+   and client/src/lib/stripe.js). No dead login-scaffold routing.
    Drop into: client/src/pricing/PricingPage.jsx
    ─────────────────────────────────────────────── */
-
-const getLoginUrl = (plan, billing = 'annual') => {
-  const params = new URLSearchParams();
-  params.set('plan', plan);
-  if (plan !== 'free') params.set('billing', billing);
-  return `/login?${params.toString()}`;
-};
 
 const plans = [
   {
@@ -22,7 +19,6 @@ const plans = [
     monthlyPrice: 0,
     annualPrice: 0,
     cta: 'Build My Free Plan',
-    ctaHref: '/onboarding.html', // free users go straight to the app
     ctaVariant: 'outline',
     popular: false,
     features: [
@@ -43,7 +39,6 @@ const plans = [
     monthlyPrice: 8,
     annualPrice: 62,
     cta: 'Upgrade to Pro',
-    ctaHref: getLoginUrl('pro', 'annual'),
     ctaVariant: 'primary',
     popular: true,
     features: [
@@ -64,7 +59,6 @@ const plans = [
     monthlyPrice: 16,
     annualPrice: 128,
     cta: 'Upgrade to Family',
-    ctaHref: getLoginUrl('family', 'annual'),
     ctaVariant: 'primary',
     popular: false,
     features: [
@@ -192,7 +186,7 @@ function TableFeatureValue({ value, label, isFreePlan }) {
   return <FeatureValue value={value} label={label} />;
 }
 
-function PricingCard({ plan, billing }) {
+function PricingCard({ plan, billing, accountState, stripeReady }) {
   const isPopular = plan.popular;
 
   return (
@@ -228,21 +222,24 @@ function PricingCard({ plan, billing }) {
         <PriceDisplay plan={plan} billing={billing} />
       </div>
 
-      <a
-        href={plan.ctaHref}
-        data-track={`plan-cta-${plan.id}`}
-        className={`
-          inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
-          transition-colors duration-150
-          ${plan.ctaVariant === 'primary'
-            ? 'bg-forest text-white hover:bg-emerald-900'
-            : 'bg-white text-forest border-2 border-forest hover:bg-cream'
-          }
-        `}
-      >
-        {plan.cta}
-        <IconArrowRight className="w-4 h-4" />
-      </a>
+      {plan.id === 'free' ? (
+        <a
+          href="/onboarding.html"
+          className={`
+            inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
+            transition-colors duration-150
+            ${plan.ctaVariant === 'primary'
+              ? 'bg-forest text-white hover:bg-emerald-900'
+              : 'bg-white text-forest border-2 border-forest hover:bg-cream'
+            }
+          `}
+        >
+          {plan.cta}
+          <IconArrowRight className="w-4 h-4" />
+        </a>
+      ) : (
+        <PlanCta plan={plan} billing={billing} accountState={accountState} stripeReady={stripeReady} />
+      )}
       {plan.id === 'pro' && (
         <p className="mt-2 text-center text-xs text-slate-400">1-click cancel. No questions asked.</p>
       )}
@@ -264,6 +261,9 @@ function PricingCard({ plan, billing }) {
 export default function Pricing() {
   const [billing, setBilling] = useState('annual');
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+
+  const { accountState, stripeReady } = usePricingCheckout();
+  const proPlan = plans.find((p) => p.id === 'pro');
 
   const trackedView = useRef(false);
   useEffect(() => {
@@ -303,7 +303,6 @@ export default function Pricing() {
             <div className="inline-flex items-center bg-white rounded-full p-1 border border-slate-200 shadow-sm">
               <button
                 onClick={() => setBilling('monthly')}
-                data-track="billing-toggle-monthly"
                 className={`
                   px-5 py-2 text-sm font-semibold rounded-full transition-colors
                   ${billing === 'monthly'
@@ -316,7 +315,6 @@ export default function Pricing() {
               </button>
               <button
                 onClick={() => setBilling('annual')}
-                data-track="billing-toggle-annual"
                 className={`
                   px-5 py-2 text-sm font-semibold rounded-full transition-colors
                   ${billing === 'annual'
@@ -332,7 +330,7 @@ export default function Pricing() {
 
           <div className="grid gap-6 md:gap-8 md:grid-cols-3 items-start">
             {plans.map((plan) => (
-              <PricingCard key={plan.id} plan={plan} billing={billing} />
+              <PricingCard key={plan.id} plan={plan} billing={billing} accountState={accountState} stripeReady={stripeReady} />
             ))}
           </div>
         </div>
@@ -418,17 +416,15 @@ export default function Pricing() {
             Tell Mealzy what you can spend. Get a week of meals that fits.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href={getLoginUrl('pro', 'annual')}
-              data-track="closing-cta-primary"
+            <PlanCta
+              plan={proPlan}
+              billing="annual"
+              accountState={accountState}
+              stripeReady={stripeReady}
               className="inline-flex items-center gap-2 rounded-xl bg-white text-forest px-7 py-3.5 text-sm font-bold hover:bg-cream transition-colors"
-            >
-              Upgrade to Pro
-              <IconArrowRight className="w-4 h-4" />
-            </a>
+            />
             <a
               href="/onboarding.html"
-              data-track="closing-cta-secondary"
               className="inline-flex items-center gap-2 rounded-xl border-2 border-emerald-400 text-white px-7 py-3.5 text-sm font-bold hover:bg-emerald-800 transition-colors"
             >
               Build My Free Plan
@@ -446,13 +442,13 @@ export default function Pricing() {
               <p className="text-sm font-bold text-forest">Pro — $5.17/mo</p>
               <p className="text-xs text-forest/60">Billed monthly, cancel anytime</p>
             </div>
-            <a
-              href={getLoginUrl('pro', 'annual')}
-              data-track="sticky-cta-pro"
+            <PlanCta
+              plan={proPlan}
+              billing="annual"
+              accountState={accountState}
+              stripeReady={stripeReady}
               className="px-5 py-2.5 bg-forest text-white rounded-lg text-sm font-bold whitespace-nowrap"
-            >
-              Upgrade to Pro
-            </a>
+            />
           </div>
         </div>
       )}
