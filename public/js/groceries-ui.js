@@ -341,7 +341,9 @@ document.getElementById('mobileSidebarOverlay').addEventListener('keydown', (e) 
 
 // === PDF EXPORT (Pro only) ===
 function printGroceryList() {
-  const isPro = localStorage.getItem('mealzy_pro') === 'true';
+  // serverUser is declared in groceries-sync.js (loaded before this file —
+  // see grocery-list.html) and shared via the page's global script scope.
+  const isPro = resolveIsPro(serverUser);
   if (!isPro) {
     mealzyTrack('upgrade_click', { source: 'grocery_pdf_btn' });
     const overlay = document.createElement('div');

@@ -234,26 +234,15 @@ function stopLoadingAnimation() {
 // serverUser is the authoritative source (set from /api/auth/me — see
 // dashboard-today.js init()). If the initial fetch failed and this runs
 // before the 2s retry resolves, serverUser is still null — that's an
-// UNKNOWN state, not "Free". Rendering "Free Plan" for a Pro user mid-retry
-// contradicted pages like pricing.html, which treat an unresolved fetch as
-// unknown rather than free. Do not guess from localStorage either — for
-// entitlement/payment UI, unresolved must render as neither Free nor Pro
-// until the server actually answers. checkProStatus() is called again with
+// UNKNOWN state, not "Free". checkProStatus() is called again with
 // serverUser populated the moment the retry succeeds (see init()'s retry
 // path), which replaces this neutral state with the real tier.
+// renderPlanEntitlement()/resolveIsPro() (public/js/pro-status.js) are the
+// shared implementation every authenticated page uses — this wrapper just
+// keeps the existing call sites (dashboard-today.js, dashboard-panels.js)
+// unchanged.
 function checkProStatus() {
-  const proBadge = document.getElementById('proBadge');
-  const planLabel = document.getElementById('planLabel');
-  const mobilePlanLabel = document.getElementById('mobilePlanLabel');
-  if (proBadge) proBadge.style.display = serverUser?.pro ? 'inline-block' : 'none';
-  if (!serverUser) {
-    if (planLabel) planLabel.textContent = 'Checking plan…';
-    if (mobilePlanLabel) mobilePlanLabel.textContent = 'Checking plan…';
-    return;
-  }
-  const isPro = !!serverUser.pro;
-  if (planLabel) planLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
-  if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
+  renderPlanEntitlement(serverUser);
 }
 
 // === WELCOME MESSAGE (?new=true or mealzy_is_new_user flag) ===

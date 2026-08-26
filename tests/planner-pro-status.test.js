@@ -57,6 +57,11 @@ const MEAL_PLANNER_HTML_SRC = fs.readFileSync(MEAL_PLANNER_HTML_PATH, 'utf8');
 const DASHBOARD_ACTIONS_PATH = path.join(__dirname, '..', 'public', 'js', 'dashboard-actions.js');
 const DASHBOARD_ACTIONS_SRC = fs.readFileSync(DASHBOARD_ACTIONS_PATH, 'utf8');
 
+// checkProStatus()/currentIsPro() now delegate to the shared
+// renderPlanEntitlement()/resolveIsPro() (public/js/pro-status.js) — load it
+// into the same vm context so the extracted wrappers can actually run.
+const PRO_STATUS_SRC = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'pro-status.js'), 'utf8');
+
 function extractFn(src, name) {
   const startIdx = src.indexOf(`function ${name}(`);
   assert.notEqual(startIdx, -1, `expected to find function ${name} in source`);
@@ -84,7 +89,7 @@ function runCheckProStatus({ serverUser }) {
     },
   };
   vm.createContext(context);
-  vm.runInContext(`${CHECK_PRO_STATUS_SRC}\ncheckProStatus();`, context, { filename: 'planner-page-init.js-checkProStatus' });
+  vm.runInContext(`${PRO_STATUS_SRC}\n${CHECK_PRO_STATUS_SRC}\ncheckProStatus();`, context, { filename: 'planner-page-init.js-checkProStatus' });
   return els;
 }
 
@@ -99,7 +104,7 @@ function runCurrentIsPro({ serverUser, localStorageProValue }) {
     },
   };
   vm.createContext(context);
-  const result = vm.runInContext(`${CURRENT_IS_PRO_SRC}\ncurrentIsPro();`, context, { filename: 'planner-page-init.js-currentIsPro' });
+  const result = vm.runInContext(`${PRO_STATUS_SRC}\n${CURRENT_IS_PRO_SRC}\ncurrentIsPro();`, context, { filename: 'planner-page-init.js-currentIsPro' });
   return { result, localStorageWasRead: getItemCalledWith !== null };
 }
 
@@ -213,7 +218,7 @@ describe('navigation Dashboard -> Planner: both pages resolve to the identical l
       const els2 = { proBadge: makeEl(), planLabel: makeEl(), mobilePlanLabel: makeEl() };
       const ctx2 = { serverUser: su, document: { getElementById: (id) => els2[id] } };
       vm.createContext(ctx2);
-      vm.runInContext(`${dashboardCheckProStatusSrc}\ncheckProStatus();`, ctx2);
+      vm.runInContext(`${PRO_STATUS_SRC}\n${dashboardCheckProStatusSrc}\ncheckProStatus();`, ctx2);
       assert.equal(plannerEls.planLabel.textContent, els2.planLabel.textContent, `mismatch for serverUser=${JSON.stringify(su)}`);
       assert.equal(plannerEls.proBadge.style.display, els2.proBadge.style.display, `badge mismatch for serverUser=${JSON.stringify(su)}`);
     }

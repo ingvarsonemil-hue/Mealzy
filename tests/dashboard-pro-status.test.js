@@ -38,6 +38,10 @@ const vm = require('vm');
 const GROWTH_JS_PATH = path.join(__dirname, '..', 'public', 'js', 'dashboard-growth.js');
 const GROWTH_SRC = fs.readFileSync(GROWTH_JS_PATH, 'utf8');
 
+// checkProStatus() delegates to the shared renderPlanEntitlement() (public/js/pro-status.js) —
+// load it into the same vm context so the extracted function can actually run.
+const PRO_STATUS_SRC = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'pro-status.js'), 'utf8');
+
 const TODAY_JS_PATH = path.join(__dirname, '..', 'public', 'js', 'dashboard-today.js');
 const TODAY_SRC = fs.readFileSync(TODAY_JS_PATH, 'utf8');
 
@@ -78,7 +82,7 @@ function runCheckProStatus({ serverUser, localStorageProValue }) {
     },
   };
   vm.createContext(context);
-  vm.runInContext(`${CHECK_PRO_STATUS_SRC}\ncheckProStatus();`, context, { filename: 'dashboard-growth.js-checkProStatus' });
+  vm.runInContext(`${PRO_STATUS_SRC}\n${CHECK_PRO_STATUS_SRC}\ncheckProStatus();`, context, { filename: 'dashboard-growth.js-checkProStatus' });
   return { els, localStorageWasRead: getItemCalledWith !== null };
 }
 

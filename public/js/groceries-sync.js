@@ -13,6 +13,11 @@ async function signOut() {
 // -------------------------
 
 let profile = null;
+
+// serverUser is the authoritative source (set below from /api/auth/me) —
+// same pattern as dashboard-today.js/planner-page-init.js. See
+// public/js/pro-status.js for renderPlanEntitlement()/resolveIsPro().
+let serverUser = null;
 let groceryList = null;
 let planId = null;
 let availableDays = new Set();
@@ -163,11 +168,28 @@ async function init() {
     const meRes = await fetch('/api/auth/me');
     if (meRes.ok) {
       const u = await meRes.json();
+      serverUser = u;
       localStorage.setItem('mealzy_user', JSON.stringify({ name: u.name, email: u.email }));
       if (u.pro) localStorage.setItem('mealzy_pro', 'true'); else localStorage.removeItem('mealzy_pro');
       if (u.profile) { const lp = JSON.parse(localStorage.getItem('mealzy_profile')||'{}'); localStorage.setItem('mealzy_profile', JSON.stringify({ ...u.profile, ...lp })); }
     } else { localStorage.removeItem('mealzy_user'); window.location.href = 'login.html'; return; }
-  } catch(e) { if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html'; return; } }
+  } catch(e) {
+    // Server unreachable — fall back to the localStorage cache and retry
+    // once after 2s (same pattern as dashboard-today.js). serverUser stays
+    // null (unresolved) until the retry succeeds.
+    if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html'; return; }
+    setTimeout(async () => {
+      try {
+        const retryRes = await fetch('/api/auth/me');
+        if (retryRes.ok) {
+          serverUser = await retryRes.json();
+          if (serverUser.pro) localStorage.setItem('mealzy_pro', 'true'); else localStorage.removeItem('mealzy_pro');
+          renderPlanEntitlement(serverUser);
+          updateProNudgeBanner();
+        }
+      } catch(_) { /* still offline — leave the neutral/cached state as-is */ }
+    }, 2000);
+  }
   const profileData = localStorage.getItem('mealzy_profile');
   if (!profileData) { window.location.href = 'onboarding.html'; return; }
   profile = JSON.parse(profileData);
@@ -178,12 +200,18 @@ async function init() {
   document.getElementById('userName').textContent = profile.name || 'User';
   document.getElementById('mobileUserName').textContent = profile.name || 'User';
   applyNavTranslations();
-
-  if (localStorage.getItem('mealzy_pro') !== 'true') {
-    document.getElementById('proNudgeBanner').style.display = 'flex';
-  }
+  renderPlanEntitlement(serverUser);
+  updateProNudgeBanner();
 
   await loadWeek(getMondayOfWeek(new Date()));
+}
+
+// Called from init() and again from the retry callback above, so a delayed
+// Pro resolution hides a banner that was shown from a stale/unresolved guess.
+function updateProNudgeBanner() {
+  const banner = document.getElementById('proNudgeBanner');
+  if (!banner) return;
+  banner.style.display = resolveIsPro(serverUser) ? 'none' : 'flex';
 }
 
 // Loads the given calendar week (Monday date string) into view: recomputes

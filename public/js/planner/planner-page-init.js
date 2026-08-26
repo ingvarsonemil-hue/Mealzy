@@ -47,28 +47,16 @@ let profile = null;
 // serverUser value.
 let serverUser = null;
 
+// renderPlanEntitlement()/resolveIsPro() (public/js/pro-status.js, loaded
+// before this file — see meal-planner.html) are the shared implementation
+// every authenticated page uses. These wrappers just keep this file's
+// existing call sites (checkProStatus()/currentIsPro()) unchanged.
 function checkProStatus() {
-  const proBadge = document.getElementById('proBadge');
-  const planLabel = document.getElementById('planLabel');
-  const mobilePlanLabel = document.getElementById('mobilePlanLabel');
-  if (proBadge) proBadge.style.display = serverUser?.pro ? 'inline-block' : 'none';
-  if (!serverUser) {
-    if (planLabel) planLabel.textContent = 'Checking plan…';
-    if (mobilePlanLabel) mobilePlanLabel.textContent = 'Checking plan…';
-    return;
-  }
-  const isPro = !!serverUser.pro;
-  if (planLabel) planLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
-  if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
+  renderPlanEntitlement(serverUser);
 }
 
-// Single source of truth for every Pro/Free feature gate on this page
-// (generation type, free-limit banner, etc). Resolved serverUser always
-// wins; localStorage.mealzy_pro is consulted only while serverUser is still
-// unresolved (e.g. offline, or mid-retry) so a real action isn't blocked
-// outright — but it can never overrule a resolved server answer.
 function currentIsPro() {
-  return serverUser ? !!serverUser.pro : localStorage.getItem('mealzy_pro') === 'true';
+  return resolveIsPro(serverUser);
 }
 
 // Always pulls the server's copy of the profile before meal generation so a
