@@ -36,6 +36,41 @@ async function signOut() {
 
 let profile = null;
 
+// === PRO STATUS ===
+// serverUser is the authoritative source (set from /api/auth/me in init(),
+// below) — same pattern as dashboard-today.js/dashboard-growth.js. While
+// serverUser is null (initial fetch still pending, or it failed and the 2s
+// retry hasn't resolved yet), entitlement is UNKNOWN — never guess Free or
+// Pro from a stale localStorage.mealzy_pro in that window. Once serverUser
+// resolves, it is the only source consulted; localStorage is written back
+// purely as an offline-fallback cache, and can never override a resolved
+// serverUser value.
+let serverUser = null;
+
+function checkProStatus() {
+  const proBadge = document.getElementById('proBadge');
+  const planLabel = document.getElementById('planLabel');
+  const mobilePlanLabel = document.getElementById('mobilePlanLabel');
+  if (proBadge) proBadge.style.display = serverUser?.pro ? 'inline-block' : 'none';
+  if (!serverUser) {
+    if (planLabel) planLabel.textContent = 'Checking plan…';
+    if (mobilePlanLabel) mobilePlanLabel.textContent = 'Checking plan…';
+    return;
+  }
+  const isPro = !!serverUser.pro;
+  if (planLabel) planLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
+  if (mobilePlanLabel) mobilePlanLabel.textContent = isPro ? 'Pro Plan' : 'Free Plan';
+}
+
+// Single source of truth for every Pro/Free feature gate on this page
+// (generation type, free-limit banner, etc). Resolved serverUser always
+// wins; localStorage.mealzy_pro is consulted only while serverUser is still
+// unresolved (e.g. offline, or mid-retry) so a real action isn't blocked
+// outright — but it can never overrule a resolved server answer.
+function currentIsPro() {
+  return serverUser ? !!serverUser.pro : localStorage.getItem('mealzy_pro') === 'true';
+}
+
 // Always pulls the server's copy of the profile before meal generation so a
 // stale localStorage "mealzy_profile" (e.g. old allergy settings) can never
 // cause a false allergy_violation. Falls back to the cached profile if the
@@ -122,11 +157,29 @@ async function init() {
     const meRes = await fetch('/api/auth/me');
     if (meRes.ok) {
       const u = await meRes.json();
+      serverUser = u;
       localStorage.setItem('mealzy_user', JSON.stringify({ name: u.name, email: u.email }));
       if (u.pro) localStorage.setItem('mealzy_pro', 'true'); else localStorage.removeItem('mealzy_pro');
       if (u.profile) { const lp = JSON.parse(localStorage.getItem('mealzy_profile')||'{}'); localStorage.setItem('mealzy_profile', JSON.stringify({ ...u.profile, ...lp })); }
     } else { localStorage.removeItem('mealzy_user'); window.location.href = 'login.html?signup=1'; return; }
-  } catch(e) { if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html?signup=1'; return; } }
+  } catch(e) {
+    // Server unreachable — fall back to the localStorage cache and retry once
+    // after 2s (same pattern as dashboard-today.js). serverUser stays null
+    // (unresolved) until the retry succeeds, so checkProStatus()/currentIsPro()
+    // never guess Free for what could actually be a Pro account.
+    if (!localStorage.getItem('mealzy_user')) { window.location.href = 'login.html?signup=1'; return; }
+    setTimeout(async () => {
+      try {
+        const retryRes = await fetch('/api/auth/me');
+        if (retryRes.ok) {
+          serverUser = await retryRes.json();
+          if (serverUser.pro) localStorage.setItem('mealzy_pro', 'true'); else localStorage.removeItem('mealzy_pro');
+          checkProStatus();
+          checkPlanLimitBanner();
+        }
+      } catch(_) { /* still offline — leave the neutral/cached state as-is */ }
+    }, 2000);
+  }
   const profileData = localStorage.getItem('mealzy_profile');
   if (!profileData) { window.location.href = 'onboarding.html'; return; }
   profile = JSON.parse(profileData);
@@ -138,6 +191,7 @@ async function init() {
   document.getElementById('userName').textContent = profile.name || 'User';
   document.getElementById('mobileUserName').textContent = profile.name || 'User';
   applyNavTranslations();
+  checkProStatus();
   checkPlanLimitBanner();
   checkPendingRecipe();
 
@@ -218,7 +272,7 @@ async function generateMealPlan(isRegenerate) {
   const btn = document.getElementById('generateBtn');
   if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
 
-  const isPro = localStorage.getItem('mealzy_pro') === 'true';
+  const isPro = currentIsPro();
   const weekStart = getMondayStr(currentDate);
   const existingPlans = JSON.parse(localStorage.getItem('mealzy_meal_plans') || '{}');
   const avoidMeals = isRegenerate

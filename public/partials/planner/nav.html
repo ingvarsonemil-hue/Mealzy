@@ -43,7 +43,7 @@
         <div class="sidebar-avatar" id="mobileUserAvatar">A</div>
         <div>
           <div style="font-weight:700;font-size:0.88rem;" id="mobileUserName">User</div>
-          <div class="text-muted text-sm">Free Plan</div>
+          <div class="text-muted text-sm" id="mobilePlanLabel">Checking plan&hellip;</div>
         </div>
       </div>
       <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">
@@ -90,7 +90,10 @@
     <div class="sidebar-user">
       <div>
         <div style="font-weight:700;font-size:0.88rem;" id="userName">User</div>
-        <div class="text-muted text-sm">Free Plan</div>
+        <div class="text-muted text-sm" id="planLabel">Checking plan&hellip;</div>
+        <div style="display:flex;gap:0.35rem;margin-top:0.3rem;">
+          <span id="proBadge" style="display:none;background:var(--clr-primary);color:var(--clr-on-primary);font-size:0.62rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:2rem;letter-spacing:0.04em;">PRO</span>
+        </div>
       </div>
     </div>
     <button onclick="signOut()" style="display:flex;align-items:center;gap:0.4rem;background:none;border:none;cursor:pointer;color:var(--clr-muted-fg);font-size:0.82rem;padding:0.4rem 0;width:100%;margin-top:0.4rem;font-family:inherit;">

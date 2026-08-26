@@ -58,10 +58,17 @@ function dismissPendingRecipe() {
 }
 
 function checkPlanLimitBanner() {
-  const isPro = localStorage.getItem('mealzy_pro') === 'true';
-  if (isPro) return;
-  const count = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0');
+  // currentIsPro()/serverUser are declared in planner-page-init.js (loaded
+  // before this file — see meal-planner.html) and shared via the page's
+  // global script scope, same as currentDateStr/profile already are.
   const banner = document.getElementById('planLimitBanner');
+  if (currentIsPro()) {
+    // Re-run after a delayed /api/auth/me retry resolves Pro — hide a banner
+    // that was shown from a stale/unresolved Free guess.
+    if (banner) banner.style.display = 'none';
+    return;
+  }
+  const count = parseInt(localStorage.getItem('mealzy_plan_count_month') || '0');
   if (banner && count >= 2) banner.style.display = 'flex';
 }
 
