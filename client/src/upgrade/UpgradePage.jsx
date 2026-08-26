@@ -18,7 +18,7 @@ const BENEFIT_GROUPS = [
     Icon: Bowl,
     items: [
       { label: 'Unlimited AI Meal Plans', desc: 'Generate as many times as you want. Every week, every diet change, every goal shift.' },
-      { label: 'Priority queue — plans generate first', desc: 'Free plans run on the standard queue at about 30 seconds. Pro requests are processed ahead of them.' }
+      { label: 'Detailed, restaurant-quality recipes', desc: 'Free plans keep it simple — 4 ingredients, 3 steps. Pro recipes include up to 8 ingredients and professional cooking techniques.' }
     ]
   },
   {

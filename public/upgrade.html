@@ -111,7 +111,37 @@
     </div>
   </div>
 
-  <div class="upgrade-card">
+  <!-- Shown immediately, before /api/auth/me resolves — withholds the purchase
+       CTA so it can never flash to an already-Pro user (see checkAccountAndRenderUpgradeCard). -->
+  <div class="upgrade-card" id="upgradePendingCard">
+    <div class="price-display" style="margin-bottom:0;">
+      <div class="price-annual" style="min-height:0;">Checking your account&hellip;</div>
+    </div>
+  </div>
+
+  <!-- Already-Pro state — no purchase CTA, no auto-redirect to Stripe. -->
+  <div class="upgrade-card" id="upgradeProCard" style="display:none;">
+    <div class="upgrade-card-header"><span class="badge badge-green">Pro</span></div>
+    <div class="price-display">
+      <div class="price-annual" style="min-height:0;font-size:1.05rem;color:var(--color-foreground);">You're already on Mealzy Pro.</div>
+    </div>
+    <div class="cta-stack">
+      <a href="/dashboard.html" class="btn btn-primary btn-lg btn-full">Go to My Dashboard</a>
+      <a href="/settings.html" class="btn btn-quiet btn-full">Manage subscription</a>
+    </div>
+  </div>
+
+  <!-- /api/auth/me failed — fail safe: no purchase CTA until we actually know the account state. -->
+  <div class="upgrade-card" id="upgradeErrorCard" style="display:none;">
+    <div class="price-display">
+      <div class="price-annual" style="min-height:0;font-size:1.05rem;color:var(--color-foreground);">We couldn't check your account. Please try again before upgrading.</div>
+    </div>
+    <div class="cta-stack">
+      <button type="button" class="btn btn-primary btn-lg btn-full" id="upgradeRetryBtn">Retry</button>
+    </div>
+  </div>
+
+  <div class="upgrade-card" id="upgradePurchaseCard" style="display:none;">
     <div class="upgrade-card-header"><span class="badge badge-green">Most popular</span></div>
     <div class="price-display">
       <div>
@@ -130,7 +160,7 @@
         </div>
         <ul>
           <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Unlimited AI Meal Plans</div><div class="desc">Generate as many times as you want. Every week, every diet change, every goal shift.</div></div></li>
-          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Priority queue — plans generate first</div><div class="desc">Free plans run on the standard queue at about 30 seconds. Pro requests are processed ahead of them.</div></div></li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg><div><div>Detailed, restaurant-quality recipes</div><div class="desc">Free plans keep it simple — 4 ingredients, 3 steps. Pro recipes include up to 8 ingredients and professional cooking techniques.</div></div></li>
         </ul>
       </div>
 
@@ -319,14 +349,15 @@
     document.getElementById('upgradeCtaBtn').focus();
   }
 
-  // Abandonment offer — only wired up when a real discount link is configured
-  // (never falls back to the full-price monthly link while advertising $4).
-  // Triggered by exit-intent or reaching the bottom of the page, not a fixed
-  // timer, so it doesn't interrupt someone still reading.
+  // Abandonment offer — only wired up when the purchase card is actually shown
+  // (see wireAbandonOffer below, called only from the free/anonymous branch of
+  // checkAccountAndRenderUpgradeCard). An already-Pro or auth-unresolved visitor
+  // must never have this discount-purchase flow armed.
   let _clicked = false;
   let _offerTriggered = false;
-  document.getElementById('upgradeCtaBtn').addEventListener('click', () => { _clicked = true; });
-  if (window.STRIPE_DISCOUNT) {
+  function wireAbandonOffer() {
+    document.getElementById('upgradeCtaBtn').addEventListener('click', () => { _clicked = true; });
+    if (!window.STRIPE_DISCOUNT) return;
     const showOffer = () => {
       if (_offerTriggered || _clicked) return;
       _offerTriggered = true;
@@ -348,6 +379,57 @@
       if (ao && ao.style.display !== 'none') closeAbandonOffer();
     }
   });
+
+  // ── Already-Pro guard ────────────────────────────────────────────────────
+  // Purchase CTAs (and the Family-plan upsell / abandonment discount, both of
+  // which live inside upgradePurchaseCard or are only wired from this branch)
+  // must never be shown to a user the server already knows is Pro, and must
+  // never flash before that's known. upgradePendingCard is the only card
+  // visible in the initial HTML — every other card starts display:none, so
+  // there is nothing to hide client-side; a card is only ever *revealed*
+  // after /api/auth/me resolves.
+  const CARD_IDS = ['upgradePendingCard', 'upgradeProCard', 'upgradeErrorCard', 'upgradePurchaseCard'];
+  function showCard(id) {
+    for (const cid of CARD_IDS) {
+      document.getElementById(cid).style.display = (cid === id) ? '' : 'none';
+    }
+  }
+
+  async function checkAccountAndRenderUpgradeCard() {
+    showCard('upgradePendingCard');
+    let res;
+    try {
+      res = await fetch('/api/auth/me', { credentials: 'same-origin' });
+    } catch (e) {
+      showCard('upgradeErrorCard');
+      return;
+    }
+    if (res.status === 401 || res.status === 403) {
+      // Unauthenticated visitor — current (pre-guard) behavior: show purchase CTAs.
+      showCard('upgradePurchaseCard');
+      wireAbandonOffer();
+      return;
+    }
+    if (!res.ok) {
+      // Unknown failure — fail safe against accidental double purchase: no CTA.
+      showCard('upgradeErrorCard');
+      return;
+    }
+    let data;
+    try { data = await res.json(); } catch (e) { showCard('upgradeErrorCard'); return; }
+    if (data && data.pro === true) {
+      // Authoritative server state (never localStorage) says this account is
+      // already Pro — no purchase CTA, no auto-redirect to Stripe.
+      showCard('upgradeProCard');
+      return;
+    }
+    // Authenticated but free — current (pre-guard) behavior: show purchase CTAs.
+    showCard('upgradePurchaseCard');
+    wireAbandonOffer();
+  }
+
+  document.getElementById('upgradeRetryBtn').addEventListener('click', checkAccountAndRenderUpgradeCard);
+  checkAccountAndRenderUpgradeCard();
 </script>
 </body>
 </html>
