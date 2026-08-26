@@ -50,6 +50,46 @@ const PRICE_COVERAGE_V1_METHOD = 'estimated from general knowledge of typical US
 const PRICE_COVERAGE_V2_DATE = '2026-08-25';
 const PRICE_COVERAGE_V2_METHOD = 'estimated from general knowledge of typical US supermarket retail pricing, cross-checked for magnitude plausibility and against the manual 107-observation audit for ballpark sanity only; not sourced from a live feed or copied from the single-shopper observation';
 
+// Price Calibration Audit (spinach / greek yogurt / olive oil) — triggered by
+// repeated real-world evidence (5+ historical observations plus one
+// quantity-matched controlled sample) that these three EXISTING dataset-
+// priced rows read as systematically high. Phase A traced the calculation
+// path exactly (150g spinach -> $1.80, 200g greek yogurt -> $1.35, 45ml
+// olive oil -> $0.68, all reproduced from price_per_unit * amountValue with
+// no unit/matcher/aggregation bug involved — see the audit report) and
+// classified all three as pure price-row calibration questions, not
+// structural bugs. Phase B checked each against real named-retailer US
+// prices (web search, 2026-08-26), not just the single shopper's numbers:
+//   - spinach: MIXED evidence. A common purchase format for US shoppers, a
+//     5oz/142g bagged baby-spinach clamshell, runs ~$0.019/g at Walmart —
+//     ABOVE this row's $0.012/g, not below it. Loose bulk spinach runs much
+//     lower (~$0.002-0.005/g per typical retail range). With the two most
+//     common real purchase formats bracketing this row on both sides,
+//     external evidence does not support recalibrating it — left unchanged.
+//   - olive oil: NOT supported by external evidence either. A 2L Kirkland
+//     (Costco) extra-virgin olive oil runs ~$0.014/ml and mainstream 500-750ml
+//     bottles (Bertolli/Pompeian EVOO) run ~$0.016-0.02/ml at Walmart — both
+//     at or above this row's $0.015/ml. Left unchanged.
+//   - greek yogurt: the first pass proposed $0.0045/g off a SINGLE external
+//     anchor (Great Value store brand, $2.94/907g = $0.0032/g) — correctly
+//     flagged in a follow-up gate as insufficient for a production average.
+//     A second pass added 3 more named-retailer observations spanning the
+//     store-brand/branded split: Chobani plain nonfat 32oz $5.97/907g =
+//     $0.00658/g (Walmart); FAGE Total whole-milk plain 32oz $6.96/907g =
+//     $0.00767/g (Walmart); FAGE Total 2% plain 32oz $7.99/907g = $0.00881/g
+//     (Pavilions). Across all 4 observations: min $0.0032/g, max $0.0088/g,
+//     mean $0.0066/g, median $0.0071/g — both close to (mean slightly below,
+//     median slightly above) the ORIGINAL $0.00675/g rate, not the initially
+//     proposed $0.0045/g, which undershoots 3 of the 4 real observations.
+//     Recalibrated to $0.0065/g: within a cent of both the computed mean and
+//     the original rate, reflecting that the fuller evidence set argues for
+//     a much smaller correction than the first pass's single-anchor estimate
+//     - not tuned to minimize the historical manual-observation dataset's
+//     error, which stays only a sanity check (see
+//     tests/fixtures/manualSupermarketObservations.js).
+const PRICE_CALIBRATION_AUDIT_DATE = '2026-08-26';
+const PRICE_CALIBRATION_AUDIT_METHOD = 'recalibrated only where BOTH the calculation-path trace proved the row itself (not a matcher/unit/aggregation bug) causes the observed gap AND a MULTI-OBSERVATION set of independent named-retailer US retail evidence (never a single shopper sample, never a single external anchor) supported the row being materially off; final rate set from the mean/median of at least 4 named-retailer observations spanning store-brand and branded tiers, never set to match the observed sample directly';
+
 // name, category, unit, price_per_unit, source, checked_at, notes
 const PRICES = [
   // ── Pre-existing (Budget Engine v1 baseline) — origin undocumented before
@@ -60,15 +100,15 @@ const PRICES = [
   { name: 'eggs',           category: 'dairy',   unit: 'unit',  price_per_unit: 0.25,    source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$3/dozen, plausible' },
   { name: 'white rice',     category: 'pantry',  unit: 'g',     price_per_unit: 0.002,   source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$2/kg, plausible bulk price' },
   { name: 'oats',           category: 'pantry',  unit: 'g',     price_per_unit: 0.003,   source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$3/kg, plausible' },
-  { name: 'olive oil',      category: 'pantry',  unit: 'ml',    price_per_unit: 0.015,   source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$15/L, plausible mid-tier' },
+  { name: 'olive oil',      category: 'pantry',  unit: 'ml',    price_per_unit: 0.015,   source: 'pre-existing, origin undocumented', checked_at: PRICE_CALIBRATION_AUDIT_DATE, notes: 'kept unchanged; ~$15/L, plausible mid-tier. Re-audited 2026-08-26 (Price Calibration Audit): real Kirkland 2L EVOO (~$0.014/ml) and mainstream Bertolli/Pompeian EVOO (~$0.016-0.02/ml) bracket this rate at or above it - external evidence does not support the "overpriced" hypothesis, left unchanged' },
   { name: 'milk',           category: 'dairy',   unit: 'ml',    price_per_unit: 0.0012,  source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$1.20/L, plausible' },
   { name: 'bread',          category: 'pantry',  unit: 'g',     price_per_unit: 0.0062,  source: 'pre-existing, REPRICED by Price Coverage v1', checked_at: PRICE_COVERAGE_V1_DATE, notes: 'was $0.15/"unit" (ambiguous: 1 loaf or 1 slice? implausible either way). Repriced to $/g (~$3.50 per 567g/20oz loaf), which ALSO matches the unit real Mealzy generations consistently use for bread (see Price Coverage v1 audit finding: 100% of observed bread-family occurrences used grams, never count)' },
   { name: 'banana',         category: 'produce', unit: 'unit',  price_per_unit: 0.25,    source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$0.25/each, plausible. NOT repriced to g: unlike bread, most observed banana occurrences already use count successfully' },
-  { name: 'spinach',        category: 'produce', unit: 'g',     price_per_unit: 0.012,   source: 'pre-existing, origin undocumented', checked_at: '2026-08-04', notes: 'kept unchanged; ~$12/kg, plausible for bagged spinach' },
+  { name: 'spinach',        category: 'produce', unit: 'g',     price_per_unit: 0.012,   source: 'pre-existing, origin undocumented', checked_at: PRICE_CALIBRATION_AUDIT_DATE, notes: 'kept unchanged; ~$12/kg, plausible for bagged spinach. Re-audited 2026-08-26 (Price Calibration Audit): a real 5oz bagged baby-spinach clamshell (~$0.019/g) prices ABOVE this rate while loose bulk spinach prices well below it - mixed evidence brackets this row from both sides, does not support recalibrating' },
   { name: 'broccoli',       category: 'produce', unit: 'head',  price_per_unit: 2.5,     source: 'pre-existing, origin undocumented', checked_at: '2026-08-18', notes: 'kept unchanged; ~$2.50/head, plausible' },
   { name: 'bell peppers',   category: 'produce', unit: 'each',  price_per_unit: 1.2,     source: 'pre-existing, origin undocumented', checked_at: '2026-08-18', notes: 'kept unchanged; ~$1.20/each, plausible' },
   { name: 'salmon fillets', category: 'protein', unit: 'g',     price_per_unit: 0.0198,  source: 'pre-existing, origin undocumented', checked_at: '2026-08-18', notes: 'kept unchanged; fixed from a catastrophic $/lb-as-$/g bug prior to Budget Engine v1; ~$19.80/kg, plausible' },
-  { name: 'greek yogurt',   category: 'dairy',   unit: 'g',     price_per_unit: 0.00675, source: 'pre-existing, origin undocumented', checked_at: '2026-08-18', notes: 'kept unchanged; fixed from a catastrophic $/800g-tub-as-$/g bug prior to Budget Engine v1; ~$6.75/kg, plausible' },
+  { name: 'greek yogurt',   category: 'dairy',   unit: 'g',     price_per_unit: 0.0065,  source: PRICE_CALIBRATION_AUDIT_METHOD, checked_at: PRICE_CALIBRATION_AUDIT_DATE, notes: 'RECALIBRATED 2026-08-26 (Price Calibration Audit, 2nd/final pass) from 0.00675 to 0.0065 - a small downward correction, NOT the first pass\'s 0.0045 (that single-anchor estimate undershot 3 of 4 real named-retailer observations once Chobani/FAGE were added). 4-observation set: Great Value $0.0032/g, Chobani $0.0066/g, FAGE whole $0.0077/g, FAGE 2% $0.0088/g -> mean $0.0066/g, median $0.0071/g. 0.0065/g sits within a cent of both; ~$6.50/kg' },
   { name: 'almond milk',    category: 'dairy',   unit: 'ml',    price_per_unit: 0.0028,  source: 'pre-existing, origin undocumented', checked_at: '2026-08-18', notes: 'kept unchanged; fixed from a catastrophic $/1L-as-$/mL bug prior to Budget Engine v1; ~$2.80/L, plausible mid-premium' },
 
   // ── New rows — Price Coverage v1, selected from the real 373-occurrence
@@ -168,4 +208,4 @@ const ALIASES = [
   { alias: 'black pepper', canonical: 'pepper', notes: 'same product as the "pepper" spice row, just the common full name (Price Coverage v2)' },
 ];
 
-module.exports = { PRICES, ALIASES, PRICE_COVERAGE_V1_DATE, PRICE_COVERAGE_V1_METHOD, PRICE_COVERAGE_V2_DATE, PRICE_COVERAGE_V2_METHOD };
+module.exports = { PRICES, ALIASES, PRICE_COVERAGE_V1_DATE, PRICE_COVERAGE_V1_METHOD, PRICE_COVERAGE_V2_DATE, PRICE_COVERAGE_V2_METHOD, PRICE_CALIBRATION_AUDIT_DATE, PRICE_CALIBRATION_AUDIT_METHOD };
