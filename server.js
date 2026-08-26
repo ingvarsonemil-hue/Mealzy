@@ -29,6 +29,8 @@ const db           = require('./db');
 const { resolveTrackedEventData } = require('./analyticsIdentity');
 const pricing      = require('./pricing');
 const budgetEngine = require('./budgetEngine');
+const macroEngine = require('./macroEngine');
+const planRepairEngine = require('./planRepairEngine');
 const groceryAgg   = require('./groceryAggregation');
 const { getISOWeekKey } = require('./weekKey');
 
@@ -2082,6 +2084,31 @@ function budgetUnreachableResponse(evaluation, extra) {
   };
 }
 
+/** Builds the ONE repair prompt block covering every constraint that failed
+ * on the previous attempt — cost and/or macro, whichever apply — per
+ * planRepairEngine's combined repairContext shape:
+ *   { attempt, maxAttempts, budget: {previousCostUSD, budgetUSD}|null,
+ *     macro: {deviations, worstAxis}|null }
+ * Returns '' when there is no repairContext (first attempt) or neither sub-
+ * object is failing. Never mentions a constraint that isn't currently
+ * failing — a plan that's already within budget never gets told to cut
+ * costs again just because macros still need fixing, and vice versa. */
+function buildRepairBlock(repairContext, currency) {
+  if (!repairContext) return '';
+  const parts = [];
+  if (repairContext.budget) {
+    parts.push(`Cost too high: the previous attempt's authoritative estimated cost was ${currency} ${repairContext.budget.previousCostUSD.toFixed(2)}, over the ${currency} ${repairContext.budget.budgetUSD.toFixed(2)} target for this day. Rebuild using cheaper ingredients or simpler meals so the total fits within budget — do not shrink portion sizes to unrealistic amounts, swap to cheaper ingredients instead.`);
+  }
+  if (repairContext.macro) {
+    const lines = macroEngine.buildDirectionalGuidance(repairContext.macro.deviations);
+    if (lines.length) {
+      parts.push(`Daily macro totals missed target: ${lines.join(', ')}. Adjust ingredient choices and portions (e.g. leaner or fattier protein sources, more or less starchy sides) to close this gap across the 4 meals.`);
+    }
+  }
+  if (!parts.length) return '';
+  return `\n⚠️ REPAIR REQUIRED (attempt ${repairContext.attempt}/${repairContext.maxAttempts}):\n${parts.map(p => `- ${p}`).join('\n')}\nEvery other requirement (diet, allergies, calorie targets, cooking time) still applies exactly as stated.\n`;
+}
+
 /** Thrown when a generated meal contains a declared allergen; the route
  * turns this into a 400 for single-day requests or fails the whole week. */
 class AllergyViolationError extends Error {
@@ -2225,9 +2252,14 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     const allergies          = capList(profile.allergies, 20, 40);
     const cookingSkill       = sanitise(profile.cooking_skill || profile.cookingSkill || 'intermediate', 50);
     const dailyCalories      = Math.min(4000, Math.max(1200, Number(profile.daily_calories || profile.dailyCalories || 2000)));
-    const dailyProtein       = Number(profile.daily_protein  || (profile.macros?.protein) || 150);
-    const dailyCarbs         = Number(profile.daily_carbs    || (profile.macros?.carbs) || 200);
-    const dailyFat           = Number(profile.daily_fat      || (profile.macros?.fat) || 65);
+    // Malformed/missing/impossible values fall back safely to Mealzy's
+    // existing defaults (150/200/65g) rather than an invented fitness
+    // recommendation — see macroEngine.buildDailyMacroTargets.
+    const dailyMacroTargets  = macroEngine.buildDailyMacroTargets(profile);
+    const dailyProtein       = dailyMacroTargets.protein;
+    const dailyCarbs         = dailyMacroTargets.carbs;
+    const dailyFat           = dailyMacroTargets.fat;
+    const mealMacroTargets   = macroEngine.splitMacroTargetsPerMeal(dailyMacroTargets);
     // Clamped the same way /api/generate-grocery-list already clamps `budget`
     // (see groundAndStampGroceryItems' caller) — an unclamped negative/absurd/
     // NaN value would make budgetEngine retry 3 times against an
@@ -2454,12 +2486,14 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
     /** Generates and validates ONE day's 4-meal plan. Throws AllergyViolationError
      * if a generated meal contains a declared allergen. Never trusts AI totals —
      * calorie/macro/cost sums are always recomputed here.
-     * `repairContext` is set only on a budget-repair retry (single-day mode's
-     * budgetEngine.runWithBudgetRepair, or week mode's budgetEngine.
-     * runWeeklyBudgetRepair repairing one day): { attempt, previousCostUSD,
-     * budgetUSD, maxAttempts }. It never relaxes allergy/diet/macro/cooking-
-     * time constraints — those stay identical on every attempt; only the
-     * budget instruction changes.
+     * `repairContext` is set only on a repair retry (single-day mode's
+     * planRepairEngine.runCombinedDayRepair, or week mode's planRepairEngine.
+     * runCombinedWeeklyRepair repairing one day): { attempt, maxAttempts,
+     * budget: {previousCostUSD, budgetUSD}|null, macro: {deviations,
+     * worstAxis}|null } — budget/macro are present only when that specific
+     * constraint failed the previous attempt (see buildRepairBlock). It
+     * never relaxes allergy/diet/cooking-time constraints — those stay
+     * identical on every attempt; only the repair instruction changes.
      * `dailyGuidanceUSD`, when set, overrides the fixed price-tier `dailyBudget`
      * prompt figure — week mode passes the ADAPTIVE remaining-budget/
      * remaining-days share here (see budgetEngine.nextDayGuidanceUSD) instead
@@ -2468,9 +2502,11 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
     async function generateDayMealPlan(dayDate, variety, repairContext, dailyGuidanceUSD) {
       const { todayCuisine, todayProtein, randomSeed } = variety;
 
-      const budgetRepairBlock = repairContext
-        ? `\n⚠️ BUDGET REPAIR — REQUIRED (attempt ${repairContext.attempt}/${repairContext.maxAttempts || budgetEngine.MAX_GENERATION_ATTEMPTS}): The previous attempt's authoritative estimated cost was ${currency} ${repairContext.previousCostUSD.toFixed(2)}, over the ${currency} ${repairContext.budgetUSD.toFixed(2)} target for this day. Rebuild using cheaper ingredients or simpler meals so the total fits within budget. Do not shrink portion sizes to unrealistic amounts — swap to cheaper ingredients instead. Every other requirement (diet, allergies, calories, cooking time) still applies exactly as stated.\n`
-        : '';
+      // Combined repair block — carries EVERY constraint that failed on the
+      // previous attempt (budget and/or macro) in one prompt, since both
+      // ride the same bounded repair loop (see planRepairEngine.js). Never
+      // mentions a constraint that already passed.
+      const budgetRepairBlock = buildRepairBlock(repairContext, currency);
 
       const effectiveDailyBudget   = dailyGuidanceUSD != null ? dailyGuidanceUSD.toFixed(2) : dailyBudget;
       const effectivePerMealBudget = dailyGuidanceUSD != null ? (dailyGuidanceUSD / 4).toFixed(2) : perMealBudget;
@@ -2487,6 +2523,12 @@ User profile:
 - Daily calorie target: ${dailyCalories} kcal TOTAL (Protein ${dailyProtein}g / Carbs ${dailyCarbs}g / Fat ${dailyFat}g)
 - PER-MEAL CALORIE TARGETS (each meal MUST hit within ±15% of its target):
   Breakfast: ${mealCalorieTargets.breakfast} kcal | Lunch: ${mealCalorieTargets.lunch} kcal | Dinner: ${mealCalorieTargets.dinner} kcal | Snack: ${mealCalorieTargets.snack} kcal
+- PER-MEAL MACRO TARGETS (aim within ±15% of each meal's target — the daily totals across all 4 meals matter most):
+  Breakfast: protein ${mealMacroTargets.breakfast.protein}g / carbs ${mealMacroTargets.breakfast.carbs}g / fat ${mealMacroTargets.breakfast.fat}g
+  Lunch: protein ${mealMacroTargets.lunch.protein}g / carbs ${mealMacroTargets.lunch.carbs}g / fat ${mealMacroTargets.lunch.fat}g
+  Dinner: protein ${mealMacroTargets.dinner.protein}g / carbs ${mealMacroTargets.dinner.carbs}g / fat ${mealMacroTargets.dinner.fat}g
+  Snack: protein ${mealMacroTargets.snack.protein}g / carbs ${mealMacroTargets.snack.carbs}g / fat ${mealMacroTargets.snack.fat}g
+  Do not chase calories at the expense of these — a meal that hits its calorie target with the wrong protein/carb/fat mix does not satisfy the user's goal.
 - Cooking skill: ${cookingSkill}
 - Max time per meal: ${cookingTimeMinutes} min
 - STRICT DAILY BUDGET: ${currency} ${effectiveDailyBudget} total. Each meal max ${currency} ${effectivePerMealBudget}. estimatedCost across all 4 meals MUST NOT exceed ${currency} ${effectiveDailyBudget}.
@@ -2719,54 +2761,74 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
       // the settled evaluation for budget certification — see
       // budgetEngine.classifyBudgetStatus. Stays null for non-enforceable
       // currencies, handled explicitly below.
+      //
+      // ONE bounded repair loop covers both budget and macro for EVERY
+      // currency (see planRepairEngine.runCombinedWeeklyRepair) — same
+      // MAX_WEEKLY_REPAIR_ROUNDS ceiling regardless of budgetEnforceable, no
+      // macro loop stacked alongside it. Macro targeting is gram-based, not
+      // currency-gated, so it must not depend on budget enforcement — only
+      // the budget SIDE of the evaluation is skipped for non-USD
+      // (budgetEnforceable: false below), never a second/smaller ceiling.
+      // `succeeded` reflects only the budget invariant, unchanged from
+      // Budget Engine v1 — always true when !budgetEnforceable, so a
+      // macro-only miss can never hard-fail a non-USD week either.
       let settledWeeklyEvaluation = null;
-      if (budgetEnforceable) {
-        try {
-          const { days: settledDays, weeklyEvaluation, attempts, succeeded } = await budgetEngine.runWeeklyBudgetRepair(
-            days,
-            budget,
-            {
-              getDayCost: (d) => d.totalCost || 0,
-              regenerateDay: async (dayIndex, repairContext) => {
-                const oldDay = days[dayIndex];
-                try {
-                  const repairedPlan = await generateDayMealPlan(oldDay.date, dayVarieties[dayIndex], {
-                    attempt: repairContext.attempt,
-                    previousCostUSD: repairContext.previousDayCostUSD,
-                    budgetUSD: repairContext.targetDayCostUSD,
-                    maxAttempts: repairContext.maxAttempts,
-                  });
-                  await attachMealImages(repairedPlan.meals);
-                  return { date: oldDay.date, dayName: oldDay.dayName, ...repairedPlan };
-                } catch (err) {
-                  if (err instanceof AllergyViolationError) err.day = oldDay.date;
-                  throw err;
-                }
-              },
-              onAttempt: logBudgetAttempt('week', weekRequestId),
-            }
-          );
+      const weekAttemptLogger = budgetEnforceable ? logBudgetAttempt('week', weekRequestId) : null;
+      try {
+        const { days: settledDays, weeklyBudgetEval, dayMacroEvals, attempts, succeeded } = await planRepairEngine.runCombinedWeeklyRepair(
+          days,
+          budget,
+          dailyMacroTargets,
+          {
+            budgetEnforceable,
+            getDayCost: (d) => d.totalCost || 0,
+            regenerateDay: async (dayIndex, repairContext) => {
+              const oldDay = days[dayIndex];
+              try {
+                const repairedPlan = await generateDayMealPlan(oldDay.date, dayVarieties[dayIndex], repairContext);
+                await attachMealImages(repairedPlan.meals);
+                return { date: oldDay.date, dayName: oldDay.dayName, ...repairedPlan };
+              } catch (err) {
+                if (err instanceof AllergyViolationError) err.day = oldDay.date;
+                throw err;
+              }
+            },
+            onAttempt: weekAttemptLogger
+              ? (attempt, weeklyBudgetEval2, dayMacroEvals2, maxAttempts) => weekAttemptLogger(attempt, weeklyBudgetEval2, maxAttempts)
+              : undefined,
+          }
+        );
 
-          await logBudgetOutcome('week', weekRequestId, succeeded, attempts, weeklyEvaluation);
-
+        if (budgetEnforceable) {
+          await logBudgetOutcome('week', weekRequestId, succeeded, attempts, weeklyBudgetEval);
           if (!succeeded) {
-            return res.status(422).json(budgetUnreachableResponse(weeklyEvaluation));
+            return res.status(422).json(budgetUnreachableResponse(weeklyBudgetEval));
           }
-          days.length = 0;
-          days.push(...settledDays);
-          settledWeeklyEvaluation = weeklyEvaluation;
-        } catch (err) {
-          if (err instanceof AllergyViolationError) {
-            await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
-            logger.warn(`[allergy] Violation detected: "${err.allergen}" in "${err.mealName}" (week budget repair, day ${err.day || 'unknown'})`);
-            return res.status(400).json({
-              error: 'allergy_violation', retry: true, allergen: err.allergen,
-              message: `Generated meal "${err.mealName}" may contain "${err.allergen}". Please regenerate your plan.`,
-              day: err.day
-            });
-          }
-          throw err;
         }
+        days.length = 0;
+        days.push(...settledDays);
+        settledWeeklyEvaluation = weeklyBudgetEval;
+        // Attach an honest per-day macro status — never "certified"; these
+        // stay model-generated estimates (see macroEngine.js). Populated
+        // regardless of currency: macro repair/evaluation is currency-
+        // independent.
+        days.forEach((d, i) => {
+          const ev = dayMacroEvals[i];
+          d.macroStatus = ev.status;
+          d.macroDeviations = ev.deviations;
+          d.macroWorstAxis = ev.worstAxis;
+        });
+      } catch (err) {
+        if (err instanceof AllergyViolationError) {
+          await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
+          logger.warn(`[allergy] Violation detected: "${err.allergen}" in "${err.mealName}" (week repair, day ${err.day || 'unknown'})`);
+          return res.status(400).json({
+            error: 'allergy_violation', retry: true, allergen: err.allergen,
+            message: `Generated meal "${err.mealName}" may contain "${err.allergen}". Please regenerate your plan.`,
+            day: err.day
+          });
+        }
+        throw err;
       }
 
       // ── Weekly totals — sums and per-day averages computed in code, never
@@ -2795,6 +2857,19 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           })
         : budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
       weeklyTotals.avgFat      = Math.round(weeklyTotals.totalFat      / 7);
+      // Week-level macro status — the average day against the daily target,
+      // never "certified" (see macroEngine.js: these stay model-generated
+      // estimates). Individual days keep their own macroStatus above; this
+      // is the holistic week view.
+      {
+        const weeklyMacroEval = macroEngine.evaluateMacros(
+          { protein: weeklyTotals.avgProtein, carbs: weeklyTotals.avgCarbs, fat: weeklyTotals.avgFat },
+          dailyMacroTargets
+        );
+        weeklyTotals.macroStatus = weeklyMacroEval.status;
+        weeklyTotals.macroDeviations = weeklyMacroEval.deviations;
+        weeklyTotals.macroWorstAxis = weeklyMacroEval.worstAxis;
+      }
 
       // ── Quota consumption — 1 credit for the whole week, only after every
       // day has passed allergy/macro validation. Errors above never reach here.
@@ -2853,29 +2928,55 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
     // require a real requestId rather than a persistent userId in that slot.
     const singleDayRequestId = randomUUID();
     try {
-      if (budgetEnforceable) {
-        const { result, evaluation, attempts, succeeded } = await budgetEngine.runWithBudgetRepair(
-          (repairContext) => generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed }, repairContext),
-          dailyBudgetUSD,
-          { onAttempt: logBudgetAttempt('single_day', singleDayRequestId) }
-        );
-        await logBudgetOutcome('single_day', singleDayRequestId, succeeded, attempts, evaluation);
-        if (!succeeded) {
-          return res.status(422).json(budgetUnreachableResponse(evaluation));
-        }
-        mealPlan = result;
-        // Budget certification — evaluated AFTER the repair loop above has
-        // already settled the plan; never itself a retry trigger (see
-        // budgetEngine.classifyBudgetStatus).
-        mealPlan.budgetStatus = budgetEngine.classifyBudgetStatus({
-          withinBudget: evaluation.withinBudget,
-          unknownIngredientCount: mealPlan.totalUnknownIngredientCount || 0,
-        });
-      } else {
+      // ONE bounded repair loop covers both constraints for EVERY currency
+      // (see planRepairEngine.runCombinedDayRepair) — no separate macro
+      // retry loop stacked on top, and no smaller ceiling for non-USD.
+      // Macro targeting is gram-based, not currency-gated, so it must not
+      // depend on budget enforcement — only the budget SIDE of the
+      // evaluation is skipped for non-USD (budgetEnforceable: false below).
+      // `succeeded` reflects the budget invariant only, unchanged from
+      // Budget Engine v1's contract — always true when !budgetEnforceable,
+      // so a macro-only miss can never hard-fail a non-USD request either.
+      if (!budgetEnforceable) {
         await db.logEvent('budget_enforcement_skipped_currency', { currency, userId: singleDayBudgetTelemetryId }, '');
-        mealPlan = await generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed });
-        mealPlan.budgetStatus = budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
       }
+      const budgetAttemptLogger = budgetEnforceable ? logBudgetAttempt('single_day', singleDayRequestId) : null;
+      const { result, budgetEval, macroEval, attempts, succeeded } = await planRepairEngine.runCombinedDayRepair(
+        (repairContext) => generateDayMealPlan(date, { todayCuisine, todayProtein, randomSeed }, repairContext),
+        {
+          budgetEnforceable,
+          budgetUSD: dailyBudgetUSD,
+          macroTargets: dailyMacroTargets,
+          onAttempt: budgetAttemptLogger
+            ? (attempt, be, me, maxAttempts) => budgetAttemptLogger(attempt, be, maxAttempts)
+            : undefined,
+        }
+      );
+      if (budgetEnforceable) {
+        await logBudgetOutcome('single_day', singleDayRequestId, succeeded, attempts, budgetEval);
+        if (!succeeded) {
+          return res.status(422).json(budgetUnreachableResponse(budgetEval));
+        }
+      }
+      mealPlan = result;
+      // Budget certification — evaluated AFTER the repair loop above has
+      // already settled the plan; never itself a retry trigger (see
+      // budgetEngine.classifyBudgetStatus). NOT_ENFORCED for non-USD,
+      // exactly as before — this refactor only changes whether MACRO
+      // repair runs for non-USD, never whether budget is enforced.
+      mealPlan.budgetStatus = budgetEnforceable
+        ? budgetEngine.classifyBudgetStatus({
+            withinBudget: budgetEval.withinBudget,
+            unknownIngredientCount: mealPlan.totalUnknownIngredientCount || 0,
+          })
+        : budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
+      // Macro status — honest, non-blocking, currency-independent. Never
+      // "certified": per-meal protein/carbs/fat stay model-generated
+      // estimates, never verified against real ingredient nutrition data
+      // (see macroEngine.js).
+      mealPlan.macroStatus = macroEval.status;
+      mealPlan.macroDeviations = macroEval.deviations;
+      mealPlan.macroWorstAxis = macroEval.worstAxis;
     } catch (err) {
       if (err instanceof AllergyViolationError) {
         await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
