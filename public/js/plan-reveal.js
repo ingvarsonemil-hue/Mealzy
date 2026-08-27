@@ -138,27 +138,28 @@ window.PlanReveal = (function () {
   function render(model, source) {
     document.body.setAttribute('data-plan-reveal-source', source || 'unknown');
 
-    var previewHtml = model.preview.map(function (m, i) {
-      var cls = 'plan-reveal-thumb' + (i === 0 ? ' plan-reveal-thumb-main' : '');
-      if (m.image) {
-        return (
-          '<div class="' + cls + '">' +
-            '<img src="' + esc(m.image) + '" alt="" loading="lazy">' +
-            '<span class="plan-reveal-thumb-name">' + esc(m.name) + '</span>' +
-          '</div>'
-        );
-      }
-      // No photo for this meal — an intentional token-styled card, never a
-      // generic food photo that doesn't depict this dish.
+    // Compact meal list — proves the plan is made of real, named dishes
+    // without eating half the screenshot. One row per meal: a small chip
+    // (real photo when the meal came with one, otherwise the branded
+    // no-photo mark — never a generic stock photo), the meal type, and the
+    // full meal name on up to two lines (no mid-word truncation).
+    var mealsHtml = model.preview.map(function (m) {
+      var chipHtml = m.image
+        ? '<span class="plan-reveal-meal-chip"><img src="' + esc(m.image) + '" alt="" loading="lazy"></span>'
+        : '<span class="plan-reveal-meal-chip plan-reveal-meal-chip-noimg">' +
+            '<span class="plan-reveal-meal-mark" aria-hidden="true"></span>' +
+          '</span>';
       var typeHtml = m.type
-        ? '<span class="plan-reveal-thumb-type">' + esc(m.type) + '</span>'
+        ? '<span class="plan-reveal-meal-type">' + esc(m.type) + '</span>'
         : '';
       return (
-        '<div class="' + cls + ' plan-reveal-thumb-noimg">' +
-          '<span class="plan-reveal-thumb-mark" aria-hidden="true"></span>' +
-          typeHtml +
-          '<span class="plan-reveal-thumb-title">' + esc(m.name) + '</span>' +
-        '</div>'
+        '<li class="plan-reveal-meal">' +
+          chipHtml +
+          '<span class="plan-reveal-meal-text">' +
+            typeHtml +
+            '<span class="plan-reveal-meal-name">' + esc(m.name) + '</span>' +
+          '</span>' +
+        '</li>'
       );
     }).join('');
 
@@ -175,9 +176,8 @@ window.PlanReveal = (function () {
       '<div class="plan-reveal-backdrop" data-action="dismiss"></div>' +
       '<div class="plan-reveal-card">' +
         '<button type="button" class="plan-reveal-close" data-action="dismiss" aria-label="Close">&times;</button>' +
-        '<div class="plan-reveal-hero">' + previewHtml + '</div>' +
         '<div class="plan-reveal-body">' +
-          '<p class="plan-reveal-eyebrow">Plan generated</p>' +
+          '<p class="plan-reveal-brand">Mealzy</p>' +
           '<h2 class="plan-reveal-headline">Your week is ready.</h2>' +
           '<div class="plan-reveal-stats">' +
             '<div class="plan-reveal-stat">' +
@@ -194,7 +194,12 @@ window.PlanReveal = (function () {
             '</div>' +
           '</div>' +
           caveatHtml +
-          '<p class="plan-reveal-summary">' + model.days + ' days &middot; ' + model.totalMeals + ' meals &middot; 1 grocery list</p>' +
+          '<div class="plan-reveal-output">' +
+            '<div class="plan-reveal-output-item"><span class="plan-reveal-output-num">' + model.days + '</span> days</div>' +
+            '<div class="plan-reveal-output-item"><span class="plan-reveal-output-num">' + model.totalMeals + '</span> meals</div>' +
+            '<div class="plan-reveal-output-item"><span class="plan-reveal-output-num">1</span> grocery list</div>' +
+          '</div>' +
+          '<ul class="plan-reveal-meals">' + mealsHtml + '</ul>' +
           '<div class="plan-reveal-actions">' +
             '<button type="button" class="btn btn-primary plan-reveal-cta-primary" data-action="view-plan">View my meal plan</button>' +
             '<button type="button" class="plan-reveal-cta-secondary" data-action="view-groceries">View grocery list</button>' +

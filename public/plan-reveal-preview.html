@@ -44,6 +44,11 @@
       pointer-events: none;
     }
     html.bare .preview-marker { display: none; }
+
+    /* Bare = clean product-result capture for Orbit/TikTok, not a screenshot
+       of an open modal. Hide the close control here only; the real
+       production reveal keeps its dismiss button untouched. */
+    html.bare .plan-reveal-close { display: none; }
   </style>
 </head>
 <body>

@@ -63,127 +63,33 @@ body.plan-reveal-open { overflow: hidden; }
 }
 .plan-reveal-close:hover { background: rgba(15, 23, 42, 0.65); }
 
-/* ---------- Hero: the generated food, visually dominant ---------- */
-.plan-reveal-hero {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
-  flex: 0 0 auto;
-  background: var(--color-muted-bg);
-}
-
-.plan-reveal-thumb {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
-}
-.plan-reveal-thumb-main {
-  grid-column: 1 / -1;
-  aspect-ratio: 16 / 11;
-}
-
-.plan-reveal-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.plan-reveal-thumb-name {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  color: #fff;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.plan-reveal-thumb-main .plan-reveal-thumb-name {
-  font-size: var(--font-size-sm);
-  padding: var(--space-3) var(--space-4);
-}
-
-/* ---------- No-photo card: shown for any meal the generator didn't
-   attach an image to. Deliberately branded, not a stock food photo, so it
-   never implies a picture of the actual dish. ---------- */
-.plan-reveal-thumb-noimg {
+/* ---------- Body: brand + headline + numbers are the payoff, and they
+   sit at the top so a one-second screenshot reads them first. ---------- */
+.plan-reveal-body {
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: var(--space-1);
-  padding: var(--space-3);
-  background: var(--gradient-primary);
-  color: var(--clr-on-forest);
-}
-.plan-reveal-thumb-main.plan-reveal-thumb-noimg {
-  gap: var(--space-2);
-  padding: var(--space-5) var(--space-4);
 }
 
-.plan-reveal-thumb-mark {
-  width: 18px;
-  height: 18px;
-  margin-bottom: auto;
-  border-radius: var(--radius-full) var(--radius-full) 2px var(--radius-full);
-  background: var(--clr-on-forest-faint);
-  transform: rotate(45deg);
-}
-.plan-reveal-thumb-main .plan-reveal-thumb-mark {
-  width: 24px;
-  height: 24px;
-}
-
-.plan-reveal-thumb-type {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--clr-on-forest-muted);
-}
-
-.plan-reveal-thumb-title {
-  font-family: 'Fraunces', var(--font-display);
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  line-height: 1.15;
-  color: var(--clr-on-forest);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.plan-reveal-thumb-main .plan-reveal-thumb-title {
+/* Mealzy wordmark — same treatment as the sidebar/footer wordmark
+   (display face, italic, 700) so the screenshot is unmistakably Mealzy. */
+.plan-reveal-brand {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 700;
   font-size: var(--font-size-lg);
-  -webkit-line-clamp: 3;
-}
-
-/* ---------- Body: headline + stats as the punchline ---------- */
-.plan-reveal-body {
-  padding: var(--space-6) var(--space-5) var(--space-8);
-  text-align: center;
-}
-
-.plan-reveal-eyebrow {
-  margin: 0 0 var(--space-1);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: -0.01em;
   color: var(--color-green);
 }
 
 .plan-reveal-headline {
-  margin: 0 0 var(--space-6);
+  margin: 0 0 var(--space-5);
   font-family: 'Fraunces', var(--font-display);
   font-weight: 700;
-  font-size: clamp(1.9rem, 7vw, 2.5rem);
-  line-height: 1.1;
+  font-size: clamp(1.9rem, 7.5vw, 2.5rem);
+  line-height: 1.08;
   letter-spacing: -0.01em;
   color: var(--color-foreground);
 }
@@ -226,23 +132,125 @@ body.plan-reveal-open { overflow: hidden; }
   color: var(--color-muted-fg);
 }
 
+/* Disclosure copy — kept, but small and quiet: it is not the message. */
 .plan-reveal-caveat {
-  margin-top: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--color-muted-fg);
+  opacity: 0.75;
+}
+
+/* ---------- Output quantity — "what Mealzy just produced" ---------- */
+.plan-reveal-output {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.plan-reveal-output-item {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-muted-bg);
+  border: 1px solid var(--color-hairline);
   font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
   color: var(--color-muted-fg);
 }
 
-.plan-reveal-summary {
-  margin: var(--space-4) 0 0;
+.plan-reveal-output-num {
+  display: block;
+  font-family: 'Fraunces', var(--font-display);
+  font-weight: 900;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--color-foreground);
+}
+
+/* ---------- Compact meal list — proof of real dishes, ~1/4 of the
+   screen, and no meal name is ever truncated mid-word. ---------- */
+.plan-reveal-meals {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: left;
+}
+
+.plan-reveal-meal {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-muted-bg);
+}
+
+.plan-reveal-meal-chip {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.plan-reveal-meal-chip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.plan-reveal-meal-chip-noimg { background: var(--gradient-primary); }
+
+.plan-reveal-meal-mark {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full) var(--radius-full) 2px var(--radius-full);
+  background: var(--clr-on-forest-faint);
+  transform: rotate(45deg);
+}
+
+.plan-reveal-meal-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.plan-reveal-meal-type {
+  font-size: 0.625rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-green);
+}
+
+.plan-reveal-meal-name {
   font-size: var(--font-size-sm);
-  color: var(--color-muted-fg);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+  color: var(--color-foreground);
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .plan-reveal-actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
 }
 
 .plan-reveal-cta-primary {

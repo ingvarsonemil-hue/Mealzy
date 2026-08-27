@@ -128,8 +128,19 @@ describe('preview render — real PlanReveal, real numbers, zero side effects', 
     assert.match(html, /2[\s,]148/); // en-locale renders "2,148" in the browser
     assert.match(html, /165g/);
     assert.match(html, /~\$68/);
-    assert.match(html, /7 days &middot; 28 meals &middot; 1 grocery list/);
+    assert.match(html, /plan-reveal-output-num">7<\/span> days/);
+    assert.match(html, /plan-reveal-output-num">28<\/span> meals/);
+    assert.match(html, /plan-reveal-output-num">1<\/span> grocery list/);
+    assert.match(html, /plan-reveal-brand">Mealzy</); // recognizable branding in the shot
     assert.match(html, /prices estimated/i); // estimated_with_unknowns caveat retained
+  });
+
+  test('bare mode (?bare=1) hides the modal close button via preview-page CSS only', () => {
+    assert.match(PAGE_HTML, /html\.bare\s+\.plan-reveal-close\s*\{\s*display:\s*none/);
+    // and the reveal itself always renders the close button — production keeps it
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(previewFixture(), 'preview', { analytics: false, disableNavigation: true });
+    assert.match(appended[0].innerHTML, /plan-reveal-close/);
   });
 
   test('fixture has no image_url, so the preview exercises the no-photo card — same code path as production, zero stock photos', () => {
@@ -141,9 +152,10 @@ describe('preview render — real PlanReveal, real numbers, zero side effects', 
     const html = appended[0].innerHTML;
     assert.doesNotMatch(html, /<img/);                 // no generic food photo
     assert.doesNotMatch(html, /unsplash|pexels/i);
-    assert.match(html, /plan-reveal-thumb-noimg/);
-    assert.match(html, /Greek Yogurt &amp; Berry Bowl/); // meal name still prominent
-    assert.match(html, /plan-reveal-thumb-type">Breakfast</);
+    assert.match(html, /plan-reveal-meal-chip-noimg/);
+    assert.match(html, /plan-reveal-meal-name">Greek Yogurt &amp; Berry Bowl</); // full name, untruncated
+    assert.match(html, /plan-reveal-meal-name">Salmon Traybake with Greens</);   // the name that used to clip
+    assert.match(html, /plan-reveal-meal-type">Breakfast</);
   });
 
   test('no analytics fire in preview mode — not even one call', () => {

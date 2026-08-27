@@ -219,13 +219,13 @@ describe('meal-image truthfulness — a photo only ever appears for the meal it 
     }
   });
 
-  test('the no-photo card still shows the meal name (and its type when present)', () => {
+  test('the no-photo meal row still shows the full meal name (and its type when present)', () => {
     const { sandbox, appended } = makeSandbox();
     sandbox.window.PlanReveal.show(validData(), 'dashboard');
     const html = appended[0].innerHTML;
-    assert.match(html, /plan-reveal-thumb-noimg/);
-    assert.match(html, /plan-reveal-thumb-title">Salmon &amp; Rice</);
-    assert.match(html, /plan-reveal-thumb-type">Dinner</); // Salmon & Rice is type: 'dinner'
+    assert.match(html, /plan-reveal-meal-chip-noimg/);
+    assert.match(html, /plan-reveal-meal-name">Salmon &amp; Rice</); // full name, no truncation in markup
+    assert.match(html, /plan-reveal-meal-type">Dinner</); // Salmon & Rice is type: 'dinner'
   });
 
   test('no <img> tag anywhere when the whole plan came back imageless', () => {
@@ -249,6 +249,63 @@ describe('meal-image truthfulness — a photo only ever appears for the meal it 
     const firstNull = model.preview.findIndex((m) => m.image === null);
     const lastImg = model.preview.map((m) => !!m.image).lastIndexOf(true);
     assert.ok(firstNull > lastImg, 'all image cards come before any no-photo card');
+  });
+});
+
+describe('screenshot hierarchy — payoff first, meal list compact, still all real', () => {
+  test('renders the Mealzy wordmark, the headline, and keeps a dismiss control', () => {
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(validData(), 'dashboard');
+    const html = appended[0].innerHTML;
+    assert.match(html, /plan-reveal-brand">Mealzy</);
+    assert.match(html, /plan-reveal-headline">Your week is ready\.</);
+    assert.match(html, /plan-reveal-close/); // production reveal must stay closable
+  });
+
+  test('the three metrics are rendered verbatim from weeklyTotals — no marketing math', () => {
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(validData(), 'dashboard'); // avg 2150.4 / 164.6 / 68.32
+    const html = appended[0].innerHTML;
+    assert.match(html, /plan-reveal-stat-value">2[\s,]150</); // Math.round(2150.4), locale-grouped
+    assert.match(html, /plan-reveal-stat-value">165g</);  // Math.round(164.6)
+    assert.match(html, /plan-reveal-stat-value">~\$68</); // 68.32 -> ~$68
+  });
+
+  test('output row uses the real day count and real meal count from the model', () => {
+    const { sandbox, appended } = makeSandbox();
+    const data = validData(); // 2 days, 5 meals total
+    const model = sandbox.window.PlanReveal.buildRevealModel(data);
+    sandbox.window.PlanReveal.show(data, 'dashboard');
+    const html = appended[0].innerHTML;
+    assert.equal(model.days, 2);
+    assert.equal(model.totalMeals, 5);
+    assert.match(html, /plan-reveal-output-num">2<\/span> days/);
+    assert.match(html, /plan-reveal-output-num">5<\/span> meals/);
+    assert.match(html, /plan-reveal-output-num">1<\/span> grocery list/);
+  });
+
+  test('exactly the model.preview meals appear as list rows, names unaltered', () => {
+    const { sandbox, appended } = makeSandbox();
+    const data = validData();
+    const model = sandbox.window.PlanReveal.buildRevealModel(data);
+    sandbox.window.PlanReveal.show(data, 'dashboard');
+    const html = appended[0].innerHTML;
+    const rows = [...html.matchAll(/plan-reveal-meal-name">([^<]*)</g)].map((m) => m[1]);
+    assert.equal(rows.join('|'), model.preview.map((m) => m.name.replace(/&/g, '&amp;')).join('|'));
+    assert.ok(rows.length >= 1 && rows.length <= 4);
+  });
+
+  test('the branded no-photo chip carries no <img> and no stock-photo host', () => {
+    const imageless = validData({
+      days: [{ date: '2026-08-24', meals: [{ name: 'Sheet-Pan Harissa Chickpeas & Squash', type: 'dinner' }] }],
+      weeklyTotals: { avgCalories: 2000, avgProtein: 150, totalCost: 60, budgetStatus: 'certified' },
+    });
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(imageless, 'dashboard');
+    const html = appended[0].innerHTML;
+    assert.doesNotMatch(html, /<img/);
+    assert.doesNotMatch(html, /unsplash|pexels|foodiesfeed/i);
+    assert.match(html, /Sheet-Pan Harissa Chickpeas &amp; Squash/); // long name kept whole in markup
   });
 });
 
