@@ -133,6 +133,59 @@ app.use((req, res, next) => {
   next();
 });
 
+// ── Markdown content negotiation (acceptmarkdown.com) ─────────────────────────
+// A handful of key pages can be served as Markdown to agents that ask for it.
+// Files live in public/llm/<name>.md. Every negotiated path carries
+// `Vary: Accept` so a CDN never cross-serves the HTML and Markdown variants.
+const MARKDOWN_PAGES = {
+  '/': 'index.md',
+  '/about': 'about.md',
+  '/contact': 'contact.md',
+  '/privacy': 'privacy.md'
+};
+
+/** True when the client's Accept header prefers Markdown over HTML. */
+function prefersMarkdown(acceptHeader) {
+  if (!acceptHeader) return false;
+  let md = -1, html = -1;
+  for (const raw of String(acceptHeader).split(',')) {
+    const [type, ...params] = raw.trim().toLowerCase().split(';');
+    let q = 1;
+    for (const p of params) {
+      const m = p.trim().match(/^q=([0-9.]+)$/);
+      if (m) q = parseFloat(m[1]);
+    }
+    if (type === 'text/markdown' || type === 'text/x-markdown') md = Math.max(md, q);
+    else if (type === 'text/html' || type === 'application/xhtml+xml') html = Math.max(html, q);
+  }
+  return md >= 0 && md >= html;
+}
+
+const NOT_FOUND_MD = [
+  '# 404 — Page Not Found',
+  '',
+  'This path does not exist on mealzy.org.',
+  '',
+  '- Site map: https://mealzy.org/sitemap.xml',
+  '- Agent guide: https://mealzy.org/llms.txt',
+  '- Homepage: https://mealzy.org/',
+  ''
+].join('\n');
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const key = req.path.length > 1 ? req.path.replace(/\/+$/, '') : req.path;
+  const mdFile = MARKDOWN_PAGES[key];
+  if (!mdFile) return next();
+  res.vary('Accept');
+  if (!prefersMarkdown(req.headers.accept)) return next();
+  const mdPath = path.join(__dirname, 'public', 'llm', mdFile);
+  if (!fs.existsSync(mdPath)) return next();
+  res.type('text/markdown; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  return res.send(fs.readFileSync(mdPath, 'utf8'));
+});
+
 // ── Admin middleware ───────────────────────────────────────────────────────────
 function requireAdmin(req, res, next) {
   const token = req.headers['x-admin-token'];
@@ -3905,12 +3958,31 @@ if (hasDistBuild) {
   }
 }
 
-// ── Catch-all: serve index.html ───────────────────────────────────────────────
-app.get('*', async (req, res) => {
-  if (hasDistBuild) {
-    return res.sendFile(path.join(distDir, 'index.html'));
+// ── Clean-URL trust anchor pages ─────────────────────────────────────────────
+// Agents check /about, /contact, /privacy to verify a business is real. Each
+// maps to an existing full HTML page; content is unchanged.
+const CLEAN_URL_PAGES = {
+  '/about': path.join(__dirname, 'public', 'about.html'),
+  '/contact': path.join(__dirname, 'public', 'support.html'),
+  '/privacy': path.join(__dirname, 'public', 'privacy-policy.html')
+};
+for (const [route, file] of Object.entries(CLEAN_URL_PAGES)) {
+  app.get(route, (req, res) => res.sendFile(file));
+}
+
+// ── Catch-all: real 404 for unknown paths ───────────────────────────────────
+// Never a 200 with the app shell — that makes agents believe every path exists.
+app.use((req, res) => {
+  res.status(404);
+  res.vary('Accept');
+  if (req.path.startsWith('/api/')) {
+    return res.json({ error: 'not_found' });
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (req.method === 'GET' && req.accepts('html') && !prefersMarkdown(req.headers.accept)) {
+    return res.sendFile(path.join(__dirname, 'public', '404.html'));
+  }
+  res.type('text/markdown; charset=utf-8');
+  res.send(NOT_FOUND_MD);
 });
 
 // ── Global error handler — prevents unhandled exceptions from crashing the server ──
