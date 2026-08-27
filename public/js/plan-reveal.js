@@ -9,19 +9,20 @@
 window.PlanReveal = (function () {
   'use strict';
 
-  // Same per-meal-type stock fallbacks already shown on the dashboard today
-  // (dashboard-today.js) when the AI didn't return a real image_url — reused
-  // here so the reveal never shows a fabricated/generic marketing photo that
-  // isn't also what the user sees inside the app itself.
-  var MEAL_FALLBACK_IMAGES = {
-    breakfast: 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80',
-    lunch: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&q=80',
-    dinner: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
-    snack: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'
-  };
+  // Truthfulness rule: the reveal only ever shows a photo that the meal
+  // generation itself attached to this exact meal (meal.image_url). There is
+  // deliberately NO per-type stock fallback — a generic breakfast/lunch photo
+  // next to a specific dish name makes the screen look fabricated. Meals with
+  // no image_url render a polished no-photo card instead (see render()).
+  function validMealImage(meal) {
+    var url = meal && meal.image_url;
+    return (typeof url === 'string' && /^https?:\/\//i.test(url)) ? url : null;
+  }
 
-  function getMealImage(meal) {
-    return (meal && meal.image_url) || MEAL_FALLBACK_IMAGES[meal && meal.type] || MEAL_FALLBACK_IMAGES.lunch;
+  var MEAL_TYPES = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
+
+  function mealTypeLabel(meal) {
+    return (meal && MEAL_TYPES[meal.type]) || null;
   }
 
   // certified/estimated_with_unknowns/over_budget/not_enforced — see
@@ -43,10 +44,12 @@ window.PlanReveal = (function () {
       var name = m && m.name;
       if (!name || seen[name]) continue;
       seen[name] = true;
-      (m.image_url ? withImage : withoutImage).push(m);
+      (validMealImage(m) ? withImage : withoutImage).push(m);
     }
+    // Real photos first (strongest hero), no-photo cards after — never a
+    // stand-in image for a meal that didn't come with one.
     return withImage.concat(withoutImage).slice(0, count).map(function (m) {
-      return { name: m.name, image: getMealImage(m) };
+      return { name: m.name, type: mealTypeLabel(m), image: validMealImage(m) };
     });
   }
 
@@ -136,10 +139,25 @@ window.PlanReveal = (function () {
     document.body.setAttribute('data-plan-reveal-source', source || 'unknown');
 
     var previewHtml = model.preview.map(function (m, i) {
+      var cls = 'plan-reveal-thumb' + (i === 0 ? ' plan-reveal-thumb-main' : '');
+      if (m.image) {
+        return (
+          '<div class="' + cls + '">' +
+            '<img src="' + esc(m.image) + '" alt="" loading="lazy">' +
+            '<span class="plan-reveal-thumb-name">' + esc(m.name) + '</span>' +
+          '</div>'
+        );
+      }
+      // No photo for this meal — an intentional token-styled card, never a
+      // generic food photo that doesn't depict this dish.
+      var typeHtml = m.type
+        ? '<span class="plan-reveal-thumb-type">' + esc(m.type) + '</span>'
+        : '';
       return (
-        '<div class="plan-reveal-thumb' + (i === 0 ? ' plan-reveal-thumb-main' : '') + '">' +
-          '<img src="' + esc(m.image) + '" alt="" loading="lazy">' +
-          '<span class="plan-reveal-thumb-name">' + esc(m.name) + '</span>' +
+        '<div class="' + cls + ' plan-reveal-thumb-noimg">' +
+          '<span class="plan-reveal-thumb-mark" aria-hidden="true"></span>' +
+          typeHtml +
+          '<span class="plan-reveal-thumb-title">' + esc(m.name) + '</span>' +
         '</div>'
       );
     }).join('');

@@ -132,6 +132,20 @@ describe('preview render — real PlanReveal, real numbers, zero side effects', 
     assert.match(html, /prices estimated/i); // estimated_with_unknowns caveat retained
   });
 
+  test('fixture has no image_url, so the preview exercises the no-photo card — same code path as production, zero stock photos', () => {
+    const fx = previewFixture();
+    assert.equal(fx.days.every((d) => d.meals.every((m) => !('image_url' in m))), true);
+
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(fx, 'preview', { analytics: false, disableNavigation: true });
+    const html = appended[0].innerHTML;
+    assert.doesNotMatch(html, /<img/);                 // no generic food photo
+    assert.doesNotMatch(html, /unsplash|pexels/i);
+    assert.match(html, /plan-reveal-thumb-noimg/);
+    assert.match(html, /Greek Yogurt &amp; Berry Bowl/); // meal name still prominent
+    assert.match(html, /plan-reveal-thumb-type">Breakfast</);
+  });
+
   test('no analytics fire in preview mode — not even one call', () => {
     const { sandbox, appended, trackCalls } = makeSandbox();
     sandbox.window.PlanReveal.show(previewFixture(), 'preview', { analytics: false, disableNavigation: true });

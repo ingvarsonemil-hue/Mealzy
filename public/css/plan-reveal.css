@@ -108,6 +108,61 @@ body.plan-reveal-open { overflow: hidden; }
   padding: var(--space-3) var(--space-4);
 }
 
+/* ---------- No-photo card: shown for any meal the generator didn't
+   attach an image to. Deliberately branded, not a stock food photo, so it
+   never implies a picture of the actual dish. ---------- */
+.plan-reveal-thumb-noimg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--gradient-primary);
+  color: var(--clr-on-forest);
+}
+.plan-reveal-thumb-main.plan-reveal-thumb-noimg {
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+}
+
+.plan-reveal-thumb-mark {
+  width: 18px;
+  height: 18px;
+  margin-bottom: auto;
+  border-radius: var(--radius-full) var(--radius-full) 2px var(--radius-full);
+  background: var(--clr-on-forest-faint);
+  transform: rotate(45deg);
+}
+.plan-reveal-thumb-main .plan-reveal-thumb-mark {
+  width: 24px;
+  height: 24px;
+}
+
+.plan-reveal-thumb-type {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--clr-on-forest-muted);
+}
+
+.plan-reveal-thumb-title {
+  font-family: 'Fraunces', var(--font-display);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  line-height: 1.15;
+  color: var(--clr-on-forest);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.plan-reveal-thumb-main .plan-reveal-thumb-title {
+  font-size: var(--font-size-lg);
+  -webkit-line-clamp: 3;
+}
+
 /* ---------- Body: headline + stats as the punchline ---------- */
 .plan-reveal-body {
   padding: var(--space-6) var(--space-5) var(--space-8);

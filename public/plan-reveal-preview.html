@@ -60,8 +60,9 @@
       // ---- Hardcoded, clearly demo-only fixture ---------------------------
       // Shaped exactly like a successful week-mode meal-generation response
       // (server.js week branch): { success, planId, weekStart, days[].meals[],
-      // weeklyTotals }. No image_url on any meal, on purpose — that drives
-      // the reveal's real per-meal-type fallback image path.
+      // weeklyTotals }. No image_url on any meal, on purpose — the reveal
+      // never substitutes a stock photo for a meal the generator didn't
+      // attach one to, so this fixture exercises the real no-photo card state.
       var MEAL_NAMES = [
         ['Greek Yogurt & Berry Bowl', 'Chicken Burrito Bowl', 'Salmon Traybake with Greens', 'Apple & Almond Butter'],
         ['Spinach Feta Scramble', 'Turkey Pesto Wrap', 'Beef & Broccoli Stir-Fry', 'Cottage Cheese & Peach'],

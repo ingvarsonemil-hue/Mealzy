@@ -183,12 +183,72 @@ describe('real meal data populates the preview', () => {
     assert.match(html, /Greek Yogurt Bowl/);
     assert.match(html, /Chicken Burrito Bowl/);
   });
+});
 
-  test('a meal with no image_url still renders, using the shared app fallback image (not a fabricated stock photo)', () => {
+describe('meal-image truthfulness — a photo only ever appears for the meal it belongs to', () => {
+  const STOCK = ['unsplash.com', 'pexels', 'foodiesfeed', 'images.stock'];
+
+  test('a real image_url is rendered as an <img> for that meal', () => {
+    const { sandbox } = makeSandbox();
+    const model = sandbox.window.PlanReveal.buildRevealModel(validData());
+    const withImg = model.preview.find((m) => m.name === 'Greek Yogurt Bowl');
+    assert.equal(withImg.image, 'https://img.example/1.jpg');
+
+    const { sandbox: s2, appended } = makeSandbox();
+    s2.window.PlanReveal.show(validData(), 'dashboard');
+    assert.match(appended[0].innerHTML, /<img src="https:\/\/img\.example\/1\.jpg"/);
+  });
+
+  test('a meal with no image_url gets image:null — never a substituted stock photo', () => {
     const { sandbox } = makeSandbox();
     const model = sandbox.window.PlanReveal.buildRevealModel(validData());
     const salmon = model.preview.find((m) => m.name === 'Salmon & Rice');
-    if (salmon) assert.ok(salmon.image.startsWith('https://images.unsplash.com/'));
+    assert.equal(salmon.image, null);
+    assert.equal(model.preview.some((m) => m.image && STOCK.some((s) => m.image.includes(s))), false);
+  });
+
+  test('a non-http image_url (garbage / relative / data:) is rejected, not rendered', () => {
+    const { sandbox } = makeSandbox();
+    for (const bad of ['', 'not a url', '/local/pic.jpg', 'data:image/png;base64,AAAA', 42, null]) {
+      const data = validData({
+        days: [{ date: '2026-08-24', meals: [{ name: 'X', type: 'lunch', image_url: bad }] }],
+        weeklyTotals: { avgCalories: 2000, avgProtein: 150, totalCost: 60, budgetStatus: 'certified' },
+      });
+      const model = sandbox.window.PlanReveal.buildRevealModel(data);
+      assert.equal(model.preview[0].image, null);
+    }
+  });
+
+  test('the no-photo card still shows the meal name (and its type when present)', () => {
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(validData(), 'dashboard');
+    const html = appended[0].innerHTML;
+    assert.match(html, /plan-reveal-thumb-noimg/);
+    assert.match(html, /plan-reveal-thumb-title">Salmon &amp; Rice</);
+    assert.match(html, /plan-reveal-thumb-type">Dinner</); // Salmon & Rice is type: 'dinner'
+  });
+
+  test('no <img> tag anywhere when the whole plan came back imageless', () => {
+    const imageless = validData({
+      days: [{ date: '2026-08-24', meals: [
+        { name: 'Oat Bowl', type: 'breakfast' },
+        { name: 'Big Salad', type: 'lunch' },
+      ] }],
+      weeklyTotals: { avgCalories: 2000, avgProtein: 150, totalCost: 60, budgetStatus: 'certified' },
+    });
+    const { sandbox, appended } = makeSandbox();
+    sandbox.window.PlanReveal.show(imageless, 'dashboard');
+    assert.doesNotMatch(appended[0].innerHTML, /<img/);
+    assert.match(appended[0].innerHTML, /Oat Bowl/);
+    assert.match(appended[0].innerHTML, /Big Salad/);
+  });
+
+  test('meals that DO carry a photo still sort ahead of the no-photo cards', () => {
+    const { sandbox } = makeSandbox();
+    const model = sandbox.window.PlanReveal.buildRevealModel(validData());
+    const firstNull = model.preview.findIndex((m) => m.image === null);
+    const lastImg = model.preview.map((m) => !!m.image).lastIndexOf(true);
+    assert.ok(firstNull > lastImg, 'all image cards come before any no-photo card');
   });
 });
 
