@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/theme-init.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mealzy — Plan Reveal Preview (internal)</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <!-- Internal marketing-screenshot page. NOT linked from customer navigation.
+       Renders the real PlanReveal component from a hardcoded demo fixture:
+       no Anthropic call, no DB, no auth, no Stripe, no analytics. -->
+  <!-- Same stylesheet chain the real reveal renders under (meal-planner.html),
+       minus planner-only sheets — so the reveal is pixel-identical. -->
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/style-base.css">
+  <link rel="stylesheet" href="/css/style-marketing.css">
+  <link rel="stylesheet" href="/css/style-dashboard.css">
+  <link rel="stylesheet" href="/css/style-overlays.css">
+  <link rel="stylesheet" href="/css/style-theme.css">
+  <link rel="stylesheet" href="/css/style-popups.css">
+  <link rel="stylesheet" href="/css/style-print-utility.css">
+  <link rel="stylesheet" href="/css/app-theme.css">
+  <link rel="stylesheet" href="/css/plan-reveal.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <style>
+    /* Marker only — never touches the reveal card. Hidden with ?bare=1 for a
+       clean screenshot. pointer-events:none so it can't block a CTA click. */
+    .preview-marker {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10001;
+      padding: 3px 10px;
+      font-family: var(--font-body, system-ui, sans-serif);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--clr-on-forest);
+      background: var(--clr-scrim);
+      border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
+      pointer-events: none;
+    }
+    html.bare .preview-marker { display: none; }
+  </style>
+</head>
+<body>
+  <div class="preview-marker">Preview · demo data</div>
+
+  <script src="/js/plan-reveal.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      if (new URLSearchParams(location.search).has('bare')) {
+        document.documentElement.classList.add('bare');
+      }
+
+      // ---- Hardcoded, clearly demo-only fixture ---------------------------
+      // Shaped exactly like a successful week-mode meal-generation response
+      // (server.js week branch): { success, planId, weekStart, days[].meals[],
+      // weeklyTotals }. No image_url on any meal, on purpose — that drives
+      // the reveal's real per-meal-type fallback image path.
+      var MEAL_NAMES = [
+        ['Greek Yogurt & Berry Bowl', 'Chicken Burrito Bowl', 'Salmon Traybake with Greens', 'Apple & Almond Butter'],
+        ['Spinach Feta Scramble', 'Turkey Pesto Wrap', 'Beef & Broccoli Stir-Fry', 'Cottage Cheese & Peach'],
+        ['Overnight Oats with Banana', 'Tuna Nicoise Salad', 'Chickpea Coconut Curry', 'Dark Chocolate & Walnuts'],
+        ['Peanut Butter Protein Smoothie', 'Grilled Halloumi Salad', 'Baked Cod with Potatoes', 'Hummus & Carrot Sticks'],
+        ['Egg & Avocado Toast', 'Chicken Caesar Bowl', 'Pork Tenderloin with Squash', 'Greek Yogurt & Honey'],
+        ['Blueberry Protein Pancakes', 'Lentil & Feta Salad', 'Shrimp Fried Rice', 'Cheese & Grapes'],
+        ['Muesli with Milk', 'Falafel Pita Plate', 'Roast Chicken with Veg', 'Banana & Peanut Butter']
+      ];
+      var TYPES = ['breakfast', 'lunch', 'dinner', 'snack'];
+
+      var days = MEAL_NAMES.map(function (names, d) {
+        return {
+          date: '2026-08-' + (24 + d),
+          meals: names.map(function (name, i) {
+            return { name: name, type: TYPES[i] };
+          })
+        };
+      });
+
+      var FIXTURE = {
+        success: true,
+        planId: 'preview',          // synthetic — no such plan exists in the DB
+        weekStart: '2026-08-24',
+        days: days,                 // 7 days x 4 meals = 28 meals
+        weeklyTotals: {
+          avgCalories: 2148,
+          avgProtein: 165,
+          totalCost: 68,
+          budgetStatus: 'estimated_with_unknowns'
+        }
+      };
+
+      // Real component, real options. analytics:false = track() no-ops even if
+      // an analytics script were present. disableNavigation:true = CTAs only
+      // dismiss; they never route to a page as if plan "preview" existed.
+      function run() {
+        if (!window.PlanReveal) { setTimeout(run, 20); return; }
+        window.PlanReveal.show(FIXTURE, 'preview', { analytics: false, disableNavigation: true });
+      }
+      run();
+    })();
+  </script>
+</body>
+</html>

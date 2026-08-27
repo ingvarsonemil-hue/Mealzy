@@ -87,7 +87,15 @@ window.PlanReveal = (function () {
     });
   }
 
+  // Set by show(); default {} keeps production behavior identical. Only the
+  // internal preview page (plan-reveal-preview.html) passes anything here:
+  //   { analytics: false }      -> track() becomes a no-op
+  //   { disableNavigation: true } -> CTAs just dismiss, never navigate to a
+  //                                  real page as if the fixture plan existed
+  var revealOpts = {};
+
   function track(event) {
+    if (revealOpts.analytics === false) return;
     if (typeof window.mealzyTrack === 'function') {
       // source = which page triggered it. No plan/meal/macro/budget/user data.
       window.mealzyTrack(event, { source: document.body.getAttribute('data-plan-reveal-source') || 'unknown' });
@@ -103,6 +111,7 @@ window.PlanReveal = (function () {
     document.removeEventListener('keydown', onKeydown);
     openEl.remove();
     openEl = null;
+    revealOpts = {};
     document.body.classList.remove('plan-reveal-open');
   }
 
@@ -112,12 +121,14 @@ window.PlanReveal = (function () {
 
   function goToPlan() {
     track('plan_reveal_cta_view_plan');
+    if (revealOpts.disableNavigation) { dismiss(); return; }
     if (/meal-planner\.html/.test(window.location.pathname)) { dismiss(); return; }
     window.location.href = 'meal-planner.html';
   }
 
   function goToGroceries() {
     track('plan_reveal_cta_view_groceries');
+    if (revealOpts.disableNavigation) { dismiss(); return; }
     window.location.href = 'grocery-list.html';
   }
 
@@ -192,12 +203,13 @@ window.PlanReveal = (function () {
   /** source: 'dashboard' | 'meal-planner'. Returns true if it actually
    * rendered. Never shows twice for the same generation (same planId), and
    * never stacks a second overlay while one is already open. */
-  function show(data, source) {
+  function show(data, source, opts) {
     var model = buildRevealModel(data);
     if (!model) return false;
     if (shownPlanIds[model.planId]) return false;
     if (openEl) return false;
     shownPlanIds[model.planId] = true;
+    revealOpts = opts || {};
     render(model, source);
     return true;
   }
