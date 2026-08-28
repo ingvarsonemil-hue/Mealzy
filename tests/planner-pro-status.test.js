@@ -62,7 +62,10 @@ const DASHBOARD_ACTIONS_SRC = fs.readFileSync(DASHBOARD_ACTIONS_PATH, 'utf8');
 // into the same vm context so the extracted wrappers can actually run.
 const PRO_STATUS_SRC = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'pro-status.js'), 'utf8');
 
-function extractFn(src, name) {
+function extractFn(rawSrc, name) {
+  // Normalize line endings — a CRLF checkout (Windows, no .gitattributes) would
+  // otherwise never match the '\n}\n' closing-brace probe below.
+  const src = rawSrc.replace(/\r\n/g, '\n');
   const startIdx = src.indexOf(`function ${name}(`);
   assert.notEqual(startIdx, -1, `expected to find function ${name} in source`);
   const endIdx = src.indexOf('\n}\n', startIdx);
