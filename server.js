@@ -2924,6 +2924,35 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         weeklyTotals.macroWorstAxis = weeklyMacroEval.worstAxis;
       }
 
+      // ── Weekly PURCHASE economics (Phase 2) — the authoritative weekly
+      // budget number. Aggregates the whole week's ingredients by canonical
+      // identity, rounds each up to real package sizes, and prices it in
+      // integer cents (see groceryAggregation.buildWeeklyPurchasePlan). This
+      // is SEPARATE from weeklyTotals.totalCost (the legacy consumed-quantity
+      // estimate, kept for the repair loop and the grocery UI) and from
+      // weeklyTotals.budgetStatus (which certifies that legacy number). A
+      // week is only purchaseBudgetStatus === 'purchase_certified' when every
+      // required ingredient has certification-grade purchase pricing AND the
+      // certified total fits the budget. Persisted in the plan blob below so
+      // a historical plan's purchase economics stay stable.
+      {
+        const purchasePlan = groceryAgg.buildWeeklyPurchasePlan(
+          days.flatMap(d => d.meals || []),
+          { budgetCents: budgetEngine.toCents(budget), currency }
+        );
+        weeklyTotals.coveredPurchaseCostCents = purchasePlan.coveredPurchaseCostCents;
+        weeklyTotals.weeklyPurchaseCostCents = purchasePlan.weeklyPurchaseCostCents;
+        // null unless every required ingredient has certifiable purchase
+        // pricing — a partial subtotal is never the certified estimate.
+        weeklyTotals.certifiedEstimatedPurchaseCostCents = purchasePlan.certifiedEstimatedPurchaseCostCents;
+        weeklyTotals.purchaseBudgetStatus = purchasePlan.purchaseBudgetStatus;
+        weeklyTotals.purchaseCoverage = {
+          covered: purchasePlan.coveredIngredientCount,
+          uncovered: purchasePlan.uncoveredIngredientCount,
+        };
+        weeklyTotals.purchasePlan = purchasePlan;
+      }
+
       // ── Quota consumption — 1 credit for the whole week, only after every
       // day has passed allergy/macro validation. Errors above never reach here.
       if (isPro) {
@@ -3023,6 +3052,14 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
             unknownIngredientCount: mealPlan.totalUnknownIngredientCount || 0,
           })
         : budgetEngine.BUDGET_STATUS.NOT_ENFORCED;
+      // Phase 2: single-day mode has no weekly aggregation, so it cannot
+      // produce a real purchase-cost certification. Label it explicitly so
+      // its consumed-cost-only budgetStatus is never mistaken for the
+      // authoritative weekly purchase certification (see budgetEngine
+      // PURCHASE_BUDGET_STATUS).
+      mealPlan.purchaseBudgetStatus = budgetEnforceable
+        ? budgetEngine.PURCHASE_BUDGET_STATUS.NOT_CERTIFIED_SINGLE_DAY
+        : budgetEngine.PURCHASE_BUDGET_STATUS.NOT_ENFORCED;
       // Macro status — honest, non-blocking, currency-independent. Never
       // "certified": per-meal protein/carbs/fat stay model-generated
       // estimates, never verified against real ingredient nutrition data

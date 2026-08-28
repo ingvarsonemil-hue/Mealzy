@@ -253,6 +253,58 @@ function classifyBudgetStatus({ withinBudget, unknownIngredientCount }) {
   return (Number(unknownIngredientCount) > 0) ? BUDGET_STATUS.ESTIMATED_WITH_UNKNOWNS : BUDGET_STATUS.CERTIFIED;
 }
 
+// ── Purchase-budget certification — Phase 2 (Purchasable Grocery Economics).
+//
+// SEPARATE from classifyBudgetStatus above, which certifies the legacy
+// CONSUMED-quantity cost estimate (recipe grams x per-gram price). Phase 2's
+// authoritative weekly number is the estimated PURCHASE cost: the week's
+// ingredient requirements aggregated by canonical identity, then rounded up
+// to real package sizes (a week needing 650 g of rice buys a 907 g bag), and
+// priced from curated US-supermarket package assumptions
+// (canonicalPurchaseData.js).
+//
+// The invariant becomes:
+//   certifiedEstimatedPurchaseCostCents <= budgetCents
+//
+// A week can only be purchase-certified when EVERY required ingredient has
+// sufficient purchase-price coverage. An ingredient that doesn't resolve to a
+// canonical identity, has no curated package profile, or has a profile whose
+// confidence is not certification-grade (e.g. amortized-rate spices) makes
+// the week "purchase_pricing_incomplete" — never "purchase_certified", even
+// if the partial total happens to fit the budget. No default/placeholder
+// price is ever substituted to reach certification.
+//
+// Single-day mode does NOT aggregate a week, so it cannot produce this
+// certification at all; it is labelled purchase_not_certified_single_day so
+// its consumed-cost-only check is never mistaken for a real purchase
+// certification.
+const PURCHASE_BUDGET_STATUS = Object.freeze({
+  CERTIFIED: 'purchase_certified',                       // enforceable, every ingredient purchase-priced, certified total within budget
+  OVER_BUDGET: 'purchase_over_budget',                   // certified-portion purchase total alone already exceeds the budget
+  PRICING_INCOMPLETE: 'purchase_pricing_incomplete',     // >=1 required ingredient lacks certification-grade purchase pricing
+  NOT_ENFORCED: 'purchase_not_enforced',                 // non-USD currency — not enforced or certified
+  NOT_CERTIFIED_SINGLE_DAY: 'purchase_not_certified_single_day', // single-day mode: no weekly aggregation, so no purchase certification is possible
+});
+
+/** Pure classification of the WEEKLY purchase-cost invariant. Evaluated on an
+ * already-settled plan — never a retry trigger.
+ *
+ * @param {boolean} enforceable  budgetEngine.isBudgetEnforceable(currency)
+ * @param {boolean} allCovered   true only if zero required ingredients lack
+ *                                certification-grade purchase pricing
+ * @param {boolean} withinBudget certifiedEstimatedPurchaseCostCents <= budgetCents
+ *
+ * Ordering rationale (mirrors classifyBudgetStatus): a provable over-budget
+ * wins over an incompleteness note — the certified portion alone exceeding
+ * the budget is a true statement regardless of the unpriced remainder (which
+ * can only add cost). */
+function classifyPurchaseBudgetStatus({ enforceable, allCovered, withinBudget }) {
+  if (!enforceable) return PURCHASE_BUDGET_STATUS.NOT_ENFORCED;
+  if (!withinBudget) return PURCHASE_BUDGET_STATUS.OVER_BUDGET;
+  if (!allCovered) return PURCHASE_BUDGET_STATUS.PRICING_INCOMPLETE;
+  return PURCHASE_BUDGET_STATUS.CERTIFIED;
+}
+
 /** A fair share of what's actually left, not a rigid 1/7 split of the whole
  * budget — lets an expensive day be balanced by cheaper ones elsewhere in
  * the week, as long as the FINAL weekly total (evaluateWeeklyBudget) still
@@ -393,6 +445,8 @@ module.exports = {
   evaluateWeeklyBudget,
   BUDGET_STATUS,
   classifyBudgetStatus,
+  PURCHASE_BUDGET_STATUS,
+  classifyPurchaseBudgetStatus,
   bucketOverage,
   budgetBucket,
   repairDirection,
