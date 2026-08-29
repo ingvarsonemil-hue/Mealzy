@@ -30,8 +30,18 @@ test('1. exact "quinoa" resolves to canonical id "quinoa" (exact, not fuzzy)', (
 
 // ── 2. cooked-quinoa wording stays unresolved ───────────────────────────────
 test('2. cooked / prepared quinoa wording remains unresolved', () => {
-  for (const raw of ['cooked quinoa', 'quinoa, cooked', 'cooked tri-color quinoa', 'quinoa bowl', 'quinoa salad']) {
+  for (const raw of ['cooked quinoa', 'quinoa, cooked', 'cooked tri-color quinoa', 'quinoa bowl', 'quinoa salad', 'quinoa (cooked)']) {
     assert.equal(ci.resolveIngredient(raw).resolved, false, `${raw} must NOT resolve`);
+  }
+});
+
+// ── 2b. Phase 3E: dry/uncooked wording IS identity-safe and aliased ─────────
+test('2b. "quinoa (uncooked)" and "quinoa (dry)" resolve to canonical quinoa (Phase 3E)', () => {
+  for (const raw of ['quinoa (uncooked)', 'quinoa (dry)', 'Quinoa (Uncooked)', '  quinoa (dry) ']) {
+    const r = ci.resolveIngredient(raw);
+    assert.equal(r.resolved, true, `${raw} must resolve`);
+    assert.equal(r.ingredient.id, 'quinoa');
+    assert.equal(r.matchedVia, ci.MATCH.ALIAS);
   }
 });
 
@@ -39,7 +49,8 @@ test('2. cooked / prepared quinoa wording remains unresolved', () => {
 test('3. canonical base unit is g', () => {
   assert.equal(ci.getById('quinoa').baseUnit, 'g');
   assert.equal(ci.getById('quinoa').canonicalName, 'quinoa');
-  assert.deepEqual(ci.getById('quinoa').aliases, []);
+  // Phase 3E: dry/uncooked wording aliased; no cooked forms.
+  assert.deepEqual(ci.getById('quinoa').aliases, ['quinoa (uncooked)', 'quinoa (dry)']);
 });
 
 // ── 4-7. nutrition record ───────────────────────────────────────────────────

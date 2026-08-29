@@ -32,7 +32,24 @@ const budgetEngine = require('./budgetEngine');
 const macroEngine = require('./macroEngine');
 const planRepairEngine = require('./planRepairEngine');
 const groceryAgg   = require('./groceryAggregation');
+const generationVocabulary = require('./generationVocabulary');
+const certificationGate = require('./certificationGate');
 const { getISOWeekKey } = require('./weekKey');
+
+// Phase 3E — deterministic certification gate for WEEK-MODE generation.
+//   'off' (default / any unknown value): no certification behaviour at all —
+//         current prompt, current acceptance.
+//   'shadow': constrained week prompt + deterministic assessment + telemetry;
+//         zero repair calls; never blocks a response.
+//   'on': constrained week prompt + deterministic assessment + at most one
+//         repair + hard 422 failure when still uncertified.
+// `on` is STRUCTURALLY UNREACHABLE while certificationGate.HARD_GATE_PRODUCTION_
+// AUTHORIZED is false (deterministic dietary/allergen enforcement is missing):
+// resolveEffectiveMode downgrades a requested 'on' to EFFECTIVE 'shadow'.
+const CERTIFICATION_GATE_REQUESTED = certificationGate.resolveGateMode(process.env.CERTIFICATION_GATE);
+const _gateModeResolution = certificationGate.resolveEffectiveMode(CERTIFICATION_GATE_REQUESTED);
+const CERTIFICATION_GATE_MODE = _gateModeResolution.effective;
+const CERTIFICATION_GATE_ACTIVE = CERTIFICATION_GATE_MODE !== certificationGate.GATE_MODE.OFF;
 
 // ── Structured logging — replaces console.log/error throughout ──────────────
 const logger = winston.createLogger({
@@ -57,6 +74,24 @@ const logger = winston.createLogger({
 
 // Make logger globally available — Morgan should replace console.log with logger calls over time
 global.log = logger;
+
+// Phase 3E — one-time boot notice: `on` enforces the deterministic
+// ingredient/nutrition/purchase/package-budget gate only. It is NOT the
+// complete Mealzy hard certification gate until deterministic dietary/allergen
+// enforcement exists (certificationGate.HARD_GATE_PRODUCTION_AUTHORIZED).
+if (_gateModeResolution.downgraded) {
+  logger.warn('[certification-gate] ============================================================');
+  logger.warn(`[certification-gate] CERTIFICATION_GATE=on was REQUESTED but is NOT AVAILABLE.`);
+  logger.warn('[certification-gate] Hard enforcement requires the deterministic dietary/allergen');
+  logger.warn('[certification-gate] substrate, which does not exist yet (HARD_GATE_PRODUCTION_');
+  logger.warn('[certification-gate] AUTHORIZED = false). Effective mode is DOWNGRADED to "shadow":');
+  logger.warn('[certification-gate] assessment + telemetry only, ZERO repair calls, never blocks.');
+  logger.warn('[certification-gate] ============================================================');
+} else if (CERTIFICATION_GATE_MODE === certificationGate.GATE_MODE.ON) {
+  logger.warn('[certification-gate] CERTIFICATION_GATE=on enforces the deterministic ingredient/nutrition/purchase/package-budget gate ONLY — NOT the complete Mealzy hard certification gate (deterministic dietary/allergen enforcement is not implemented yet).');
+} else if (CERTIFICATION_GATE_MODE === certificationGate.GATE_MODE.SHADOW) {
+  logger.info('[certification-gate] CERTIFICATION_GATE=shadow — assessing week generation and emitting telemetry; never blocking, never repairing.');
+}
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -2554,8 +2589,17 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
      * remaining-days share here (see budgetEngine.nextDayGuidanceUSD) instead
      * of a rigid 1/7 split. It is guidance only; no day is hard-rejected for
      * missing it — the final weekly total is what's actually enforced. */
-    async function generateDayMealPlan(dayDate, variety, repairContext, dailyGuidanceUSD) {
+    async function generateDayMealPlan(dayDate, variety, repairContext, dailyGuidanceUSD, applyGenerationContract) {
       const { todayCuisine, todayProtein, randomSeed } = variety;
+
+      // Phase 3E — the deterministic ingredient contract. Applied only in
+      // week mode, and only when CERTIFICATION_GATE is 'shadow' or 'on' (the
+      // caller passes CERTIFICATION_GATE_ACTIVE). 'off' -> no prompt change.
+      // Single-day / swap prompts are untouched this phase. Describes the
+      // contract; the certification engine stays authoritative.
+      const generationContractBlock = applyGenerationContract
+        ? '\n' + generationVocabulary.buildGenerationContractBlock() + '\n'
+        : '';
 
       // Combined repair block — carries EVERY constraint that failed on the
       // previous attempt (budget and/or macro) in one prompt, since both
@@ -2599,7 +2643,7 @@ Generate exactly 4 meals: breakfast, lunch, dinner, snack.
  ${dietaryBlock ? `Remember: ${activeDietRules.split('\n')[0]}` : ''}
 
 ${ingredientUnitRule}
-
+${generationContractBlock}
 Respond ONLY with valid JSON (no markdown fences, no extra text):
 {
   "meals": [
@@ -2760,6 +2804,28 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         await db.logEvent('budget_enforcement_skipped_currency', { currency, userId: budgetTelemetryId }, '');
       }
 
+      // Phase 3E — unsupported-currency PRE-GENERATION boundary. Only bites
+      // when the certification gate is EFFECTIVELY 'on' (i.e. hard-gate
+      // production authorized — currently unreachable). A week whose currency
+      // is not enforceable by budgetEngine.isBudgetEnforceable() can never be
+      // package-budget-certified, so under hard mode it must fail BEFORE any
+      // Anthropic generation call. No FX conversion. 'off' legacy behaviour is
+      // untouched; 'shadow' stays non-blocking (handled post-generation).
+      if (CERTIFICATION_GATE_MODE === certificationGate.GATE_MODE.ON && !certificationGate.isCurrencyCertifiable(currency)) {
+        await db.logEvent('certification_gate_result', {
+          weekRequestId, requestedMode: CERTIFICATION_GATE_REQUESTED, mode: CERTIFICATION_GATE_MODE,
+          status: certificationGate.GATE_STATUS.FAILED,
+          failureReason: certificationGate.FAILURE_REASON.UNSUPPORTED_CURRENCY,
+          stage: 'preflight', hardGateComplete: certificationGate.HARD_GATE_PRODUCTION_AUTHORIZED,
+        }, '');
+        return res.status(422).json({
+          error: 'certification_failed',
+          retry: false,
+          reason: certificationGate.FAILURE_REASON.UNSUPPORTED_CURRENCY,
+          message: "Verified weekly plans aren't available for this currency yet.",
+        });
+      }
+
       // Adaptive per-day guidance only — NOT a hard per-day cap. A $60/week
       // budget does not mean every day must cost <= $8.57; Monday can run
       // $11 as long as later days come in cheaper so the FINAL weekly total
@@ -2783,7 +2849,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
 
         let dayMealPlan;
         try {
-          dayMealPlan = await generateDayMealPlan(dayDate, variety, null, dayGuidanceUSD);
+          dayMealPlan = await generateDayMealPlan(dayDate, variety, null, dayGuidanceUSD, CERTIFICATION_GATE_ACTIVE);
         } catch (err) {
           if (err instanceof AllergyViolationError) {
             await db.logEvent('allergy_violation_detected', { allergen: err.allergen, meal: err.mealName, userId: session?.userId || 'anon' }, '');
@@ -2840,7 +2906,7 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
             regenerateDay: async (dayIndex, repairContext) => {
               const oldDay = days[dayIndex];
               try {
-                const repairedPlan = await generateDayMealPlan(oldDay.date, dayVarieties[dayIndex], repairContext);
+                const repairedPlan = await generateDayMealPlan(oldDay.date, dayVarieties[dayIndex], repairContext, undefined, CERTIFICATION_GATE_ACTIVE);
                 await attachMealImages(repairedPlan.meals);
                 return { date: oldDay.date, dayName: oldDay.dayName, ...repairedPlan };
               } catch (err) {
@@ -2884,6 +2950,165 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
           });
         }
         throw err;
+      }
+
+      // ══════════════════════════════════════════════════════════════════════
+      // Phase 3E — DETERMINISTIC CERTIFICATION GATE (week mode only).
+      //   off    -> this whole block is skipped: current prompt, current
+      //             acceptance, no telemetry.
+      //   shadow -> assess + emit telemetry. Zero repair calls. Never blocks.
+      //   on     -> assess + at most ONE bounded repair driven by the
+      //             deterministic failures, then accept the certified week or
+      //             fail with 422. Unsupported currency -> hard fail (never
+      //             accepted as certified). NOT the complete Mealzy hard gate:
+      //             deterministic dietary/allergen enforcement is absent, so
+      //             the result carries hardGateComplete:false.
+      // Runs after the budget/macro repair loop has settled `days`, before
+      // weekly totals / quota / persistence, so a repaired week flows through
+      // the same downstream code and nothing uncertified is ever saved.
+      // certificationAssessment.assessWeek stays the sole authority.
+      // ══════════════════════════════════════════════════════════════════════
+      let certificationResult = null;
+      if (CERTIFICATION_GATE_ACTIVE) {
+        // CERTIFICATION_GATE_MODE is the EFFECTIVE mode — resolveEffectiveMode
+        // guarantees it is never 'on' unless HARD_GATE_PRODUCTION_AUTHORIZED,
+        // so today gateOn is always false (requested 'on' runs as 'shadow').
+        const gateOn = CERTIFICATION_GATE_MODE === certificationGate.GATE_MODE.ON;
+        const requestedBudgetCents = budgetEngine.toCents(budget);
+
+        // Built (and only ever invoked) when mode is 'on'. One paid Anthropic
+        // call: the deterministic failures + instruction go in, corrected
+        // ingredient rows come back and are spliced into `days` with every
+        // other meal field preserved; per-day cost is then refreshed.
+        const generateRepairedWeek = async (gateResult, instruction) => {
+          const compactWeek = days.map((d, di) => ({
+            day: di + 1,
+            meals: (d.meals || []).map((m, mi) => ({
+              meal: mi + 1,
+              ingredients: (m.ingredients || []).map(ing => ({
+                name: ing.name, amountValue: ing.amountValue, amountUnit: ing.amountUnit,
+              })),
+            })),
+          }));
+
+          const repairPrompt = `${dietaryBlock}${allergyBlock}
+${generationVocabulary.buildGenerationContractBlock()}
+
+${instruction}
+
+CURRENT PLAN (JSON):
+${JSON.stringify({ days: compactWeek })}
+
+Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same number of ingredients per meal):
+{ "days": [ { "day": number, "meals": [ { "meal": number, "ingredients": [ { "name": string, "amountValue": number, "amountUnit": "g|ml|count" } ] } ] } ] }`;
+
+          const completion = await callAnthropicWithSpendCap({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 4000,
+            system: [{ type: 'text', text: 'You are a JSON API. Output only valid JSON — no markdown, no explanation. Only change the ingredients the verifier rejected.', cache_control: { type: 'ephemeral' } }],
+            messages: [{ role: 'user', content: repairPrompt }],
+          });
+          const parsed = parseJsonResponse(completion.content[0].text);
+
+          const repairedDays = days.map(d => ({
+            ...d,
+            meals: (d.meals || []).map(m => ({ ...m, ingredients: [...(m.ingredients || [])] })),
+          }));
+          for (const rd of (Array.isArray(parsed.days) ? parsed.days : [])) {
+            const dIdx = Number(rd.day) - 1;
+            if (!repairedDays[dIdx]) continue;
+            for (const rm of (Array.isArray(rd.meals) ? rd.meals : [])) {
+              const mIdx = Number(rm.meal) - 1;
+              const target = repairedDays[dIdx].meals[mIdx];
+              if (!target || !Array.isArray(rm.ingredients)) continue;
+              if (rm.ingredients.length !== target.ingredients.length) continue; // structure must be preserved
+              target.ingredients = rm.ingredients.map((ri, k) => ({
+                ...target.ingredients[k],
+                name: typeof ri.name === 'string' && ri.name.trim() ? ri.name.trim() : target.ingredients[k].name,
+                amountValue: Number.isFinite(Number(ri.amountValue)) && Number(ri.amountValue) > 0 ? Number(ri.amountValue) : target.ingredients[k].amountValue,
+                amountUnit: typeof ri.amountUnit === 'string' && ri.amountUnit.trim() ? ri.amountUnit.trim() : target.ingredients[k].amountUnit,
+              }));
+            }
+          }
+
+          for (const d of repairedDays) {
+            let cost = 0, unknownCount = 0;
+            for (const m of d.meals || []) {
+              const priced = await calculateMealCost(m.ingredients);
+              m.cost = priced.totalUSD;
+              m.costConfidence = priced.allVerified ? 'verified' : 'estimated';
+              cost += priced.totalUSD;
+              unknownCount += priced.unknownIngredientCount;
+            }
+            d.totalCost = Math.round(cost * 100) / 100;
+            d.totalUnknownIngredientCount = unknownCount;
+          }
+          return repairedDays;
+        };
+
+        let gateOutcome = null;
+        try {
+          gateOutcome = await certificationGate.runCertificationGate({
+            days,
+            requestedBudgetCents,
+            currency,
+            mode: CERTIFICATION_GATE_MODE,
+            generateRepairedWeek: gateOn ? generateRepairedWeek : undefined,
+            onEvent: (name, payload) => {
+              db.logEvent(`certification_gate_${name}`, { weekRequestId, requestedMode: CERTIFICATION_GATE_REQUESTED, mode: CERTIFICATION_GATE_MODE, ...payload }, '').catch(() => {});
+            },
+          });
+        } catch (gateErr) {
+          logger.error('[certification-gate] unexpected error:', { message: gateErr.message });
+          if (gateOn) {
+            return res.status(422).json({ error: 'certification_failed', retry: true, message: "Mealzy couldn't build a fully verified plan this time. Please try generating again." });
+          }
+        }
+
+        if (gateOutcome) {
+          await db.logEvent('certification_gate_result', {
+            weekRequestId, requestedMode: CERTIFICATION_GATE_REQUESTED, mode: CERTIFICATION_GATE_MODE,
+            stage: 'postgen', status: gateOutcome.status,
+            repaired: gateOutcome.repaired, repairAttempts: gateOutcome.repairAttempts,
+            failureReason: gateOutcome.failureReason || null,
+            hardGateComplete: gateOutcome.hardGateComplete,
+            weekFailures: gateOutcome.gateResult.weekFailures,
+            failingIngredientCount: gateOutcome.gateResult.failingIngredients.length,
+          }, '');
+
+          if (gateOn && gateOutcome.status === certificationGate.GATE_STATUS.FAILED) {
+            // Existing failure path — nothing persisted, no quota consumed.
+            return res.status(422).json({
+              error: 'certification_failed',
+              retry: gateOutcome.failureReason !== certificationGate.FAILURE_REASON.UNSUPPORTED_CURRENCY,
+              reason: gateOutcome.failureReason || 'uncertified',
+              message: gateOutcome.failureReason === certificationGate.FAILURE_REASON.UNSUPPORTED_CURRENCY
+                ? "Verified weekly plans aren't available for this currency yet."
+                : "Mealzy couldn't build a fully verified plan this time. Please try generating again.",
+            });
+          }
+          if (gateOn && gateOutcome.repaired && Array.isArray(gateOutcome.days)) {
+            days.length = 0;
+            days.push(...gateOutcome.days);
+          }
+
+          certificationResult = {
+            certificationVersion: certificationGate.CERTIFICATION_VERSION,
+            requestedMode: CERTIFICATION_GATE_REQUESTED,
+            mode: CERTIFICATION_GATE_MODE,
+            downgraded: _gateModeResolution.downgraded,
+            enforced: gateOn,
+            status: gateOutcome.status,
+            certified: gateOutcome.status === certificationGate.GATE_STATUS.CERTIFIED,
+            repaired: gateOutcome.repaired,
+            failureReason: gateOutcome.failureReason || null,
+            // Explicit marker: this is NOT the complete Mealzy hard
+            // certification gate until deterministic dietary/allergen
+            // enforcement exists. Downstream must not represent it as such.
+            hardGateComplete: gateOutcome.hardGateComplete,
+            excludes: gateOutcome.excludes,
+          };
+        }
       }
 
       // ── Weekly totals — sums and per-day averages computed in code, never
@@ -2954,6 +3179,13 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         };
         weeklyTotals.purchasePlan = purchasePlan;
       }
+
+      // Phase 3E — deterministic certification verdict for this week (see the
+      // certification gate above). Present in 'shadow' and 'on'; absent in
+      // 'off'. `enforced` is true only in 'on'. `hardGateComplete` is false
+      // until deterministic dietary/allergen enforcement exists — consumers
+      // must not present this as a complete Mealzy hard-certification pass.
+      if (certificationResult) weeklyTotals.certification = certificationResult;
 
       // ── Quota consumption — 1 credit for the whole week, only after every
       // day has passed allergy/macro validation. Errors above never reach here.

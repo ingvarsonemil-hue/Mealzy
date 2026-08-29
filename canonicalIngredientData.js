@@ -352,7 +352,10 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'quinoa',
     canonicalName: 'quinoa',
-    aliases: [], // dry/uncooked only; cooked/prepared forms are NOT identity-safe and stay unresolved (see tests/curatedAliases3E0F1.test.js)
+    // Phase 3E: dry/uncooked wording is identity-safe and explicitly aliased.
+    // Cooked/prepared forms ("cooked quinoa", "quinoa, cooked", "quinoa bowl")
+    // are NOT identity-safe and MUST stay unresolved (see tests/quinoa3E0F3A.test.js).
+    aliases: ['quinoa (uncooked)', 'quinoa (dry)'],
     category: 'pantry',
     baseUnit: 'g',
   },
