@@ -215,7 +215,7 @@ const CANONICAL_INGREDIENTS = [
     canonicalName: 'broccoli',
     aliases: ['broccoli florets'],
     category: 'produce',
-    baseUnit: 'count',
+    baseUnit: 'g', // Phase 3A: migrated from 'count' — "1 broccoli" is too ambiguous (head vs floret) for nutrition/purchase; see canonicalPurchaseData.js broccoli note
   },
   {
     id: 'bell_peppers',

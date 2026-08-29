@@ -93,7 +93,7 @@ const RAW_PACKAGE_ASSUMPTIONS = {
   banana:          { packageType: 'per_unit',       packageQuantity: 1,    packageUnit: 'count', confidence: 'estimated', notes: 'sold individually' },
   apple:           { packageType: 'weight_package', packageQuantity: 1360, packageUnit: 'g', confidence: 'estimated', notes: '~3 lb bag' },
   spinach:         { packageType: 'weight_package', packageQuantity: 142,  packageUnit: 'g', confidence: 'estimated', notes: '5 oz clamshell' },
-  broccoli:        { packageType: 'per_unit',       packageQuantity: 1,    packageUnit: 'count', confidence: 'estimated', notes: 'per head' },
+  broccoli:        { packageType: 'weight_package', packageQuantity: 340,  packageUnit: 'g', confidence: 'estimated', notes: '340 g/head is a Mealzy compatibility assumption chosen for the Phase 3A count->g migration, NOT an externally sourced weight. Same figure used to derive the ingredientPriceData.js broccoli $/g rate from the unchanged pre-existing $2.50/head assumption' },
   bell_peppers:    { packageType: 'per_unit',       packageQuantity: 1,    packageUnit: 'count', confidence: 'estimated', notes: 'sold individually' },
   onion:           { packageType: 'weight_package', packageQuantity: 1360, packageUnit: 'g', confidence: 'estimated', notes: '~3 lb bag' },
   tomato:          { packageType: 'weight_package', packageQuantity: 500,  packageUnit: 'g', confidence: 'estimated', notes: '~1 lb loose/on-the-vine' },

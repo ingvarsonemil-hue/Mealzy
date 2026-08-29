@@ -2447,10 +2447,12 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
   "imageKeyword": "simple English food keyword e.g. scrambled eggs"
 }`;
     // Every ingredient's amountValue/amountUnit MUST be grams for solids, milliliters
-    // for liquids, or count for discrete items (eggs, slices, heads) — never cups,
-    // tablespoons, ounces, or other cooking units. "amount" stays a human-readable
-    // string for display; amountValue/amountUnit are what the server actually prices.
-    const ingredientUnitRule = `Every ingredient's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items like eggs or slices — convert from cups/tbsp/oz yourself, never leave it in those units. Example: "amount": "1 cup rice" -> "amountValue": 185, "amountUnit": "g".`;
+    // for liquids, or count for discrete items (eggs, slices) — never cups,
+    // tablespoons, ounces, or other cooking units. Head/bunch vegetables
+    // (broccoli, cauliflower, lettuce, kale) go in grams, not count. "amount"
+    // stays a human-readable string for display; amountValue/amountUnit are
+    // what the server actually prices.
+    const ingredientUnitRule = `Every ingredient's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items like eggs or slices — convert from cups/tbsp/oz yourself, never leave it in those units. Example: "amount": "1 cup rice" -> "amountValue": 185, "amountUnit": "g". Vegetables sold by the head or bunch (broccoli, cauliflower, lettuce, kale) MUST be given in grams, never as a "count" — e.g. "1 head broccoli" -> "amountValue": 340, "amountUnit": "g".`;
 
     // ═══════════════════════════════════════════════════════════════════════
     // SINGLE MEAL SWAP
@@ -3262,7 +3264,7 @@ async function generateGroceryListForMealsLegacyAI({ meals, profile, weekStart, 
     : `Tag each item's "day" field with the day of the week (Monday..Sunday) it is needed for, inferred from the meal list order. If it can't be determined, use "Unspecified".`;
   const exampleDay  = day || 'Monday';
 
-  const unitRule = `Every item's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items — convert from cups/tbsp/oz yourself, never leave it in those units.`;
+  const unitRule = `Every item's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items — convert from cups/tbsp/oz yourself, never leave it in those units. Vegetables sold by the head or bunch (broccoli, cauliflower, lettuce, kale) MUST be given in grams, never as a "count".`;
 
   const prompt = `Generate a complete grocery list for the following meals:\n\n${mealList}\n\n${prefInfo}\n${allergyInfo}\n${dayLine}\nBudget: ${currency} ${budget}. Keep total cost at or under this amount.\nWrite all ingredient names in ${langName}. JSON keys stay in English.\nConsolidate duplicate ingredients. Group by category.\n${unitRule}\n\nRespond ONLY with valid JSON:\n{\n  "weekStart": "${weekStart || ''}",\n  "totalCost": 85.50,\n  "budgetAmount": ${budget},\n  "currency": "${currency}",\n  "categories": {\n    "produce": [{ "name": "Spinach", "amount": "200g", "amountValue": 200, "amountUnit": "g", "cost": 2.50, "checked": false, "day": "${exampleDay}" }],\n    "protein": [],\n    "dairy": [],\n    "grains": [],\n    "pantry": [],\n    "frozen": [],\n    "beverages": [],\n    "other": []\n  }\n}`;
 
@@ -3364,6 +3366,27 @@ const groceryLimiter = rateLimit({
 
 const GROCERY_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 
+// Historical-plan compatibility (Phase 3A broccoli count->g migration) —
+// SCOPED TO THIS ROUTE ONLY. Old stored meal blobs (localStorage
+// mealzy_meal_plans, replayed into POST /api/generate-grocery-list by
+// public/js/groceries-sync.js) can still carry broccoli as amountUnit:'count'.
+// Canonical broccoli is grams-only now, so without this an old plan's broccoli
+// would price as an unsupported unit. This rewrites ONLY that one legacy shape
+// at this ingestion boundary — using the same frozen 340 g/head assumption the
+// broccoli $/g price was derived from — then hands ordinary grams to the
+// current pricing path. Everywhere else (groceryAggregation, pricing) a
+// broccoli/count is still an honest unit-contract violation; this does not
+// change that.
+const LEGACY_BROCCOLI_HEAD_GRAMS = 340;
+function normalizeLegacyBroccoliCount(ing) {
+  if (!ing || ing.amountUnit !== 'count') return ing;
+  const name = String(ing.name || '').toLowerCase().trim();
+  if (name !== 'broccoli' && name !== 'broccoli florets') return ing;
+  const v = Number(ing.amountValue);
+  if (!Number.isFinite(v) || v <= 0) return ing;
+  return { ...ing, amountValue: v * LEGACY_BROCCOLI_HEAD_GRAMS, amountUnit: 'g' };
+}
+
 app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEmail, groceryLimiter, async (req, res) => {
   try {
     const session = req.grocerySession;
@@ -3386,11 +3409,11 @@ app.post('/api/generate-grocery-list', requireGrocerySession, requireVerifiedEma
           ingredients: Array.isArray(m?.ingredients)
             ? m.ingredients.slice(0, 30).map(ing => {
                 const amountValue = Number(ing?.amountValue);
-                return {
+                return normalizeLegacyBroccoliCount({
                   name: sanitise(ing?.name, 100),
                   amountValue: Number.isFinite(amountValue) && amountValue > 0 ? Math.min(100000, amountValue) : undefined,
                   amountUnit: sanitise(ing?.amountUnit, 20) || undefined,
-                };
+                });
               })
             : [],
         }))

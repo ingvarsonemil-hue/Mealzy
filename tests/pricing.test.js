@@ -16,7 +16,7 @@ const priceRows = [
   { name: 'almond milk',    category: 'dairy',   price_per_unit: 0.0028, unit: 'ml' },  // was 2.8 / 1L
   { name: 'greek yogurt',   category: 'dairy',   price_per_unit: 0.00675, unit: 'g' },  // was 5.4 / 800g tub
   { name: 'eggs',           category: 'dairy',   price_per_unit: 0.25,   unit: 'unit' }, // legacy label -> count
-  { name: 'broccoli',       category: 'produce', price_per_unit: 2.5,    unit: 'head' }, // legacy label -> count
+  { name: 'cabbage',        category: 'produce', price_per_unit: 2.5,    unit: 'head' }, // legacy label -> count (generic; not a real canonical ingredient — broccoli itself is now priced per gram)
 ];
 
 describe('priceIngredient — structured amountValue/amountUnit contract', () => {
@@ -50,8 +50,8 @@ describe('priceIngredient — structured amountValue/amountUnit contract', () =>
     assert.equal(r.source, PRICE_SOURCE.VERIFIED);
   });
 
-  test('1 broccoli head prices correctly, with the legacy "head" db label normalized to count', () => {
-    const r = priceIngredient({ name: 'broccoli', amountValue: 1, amountUnit: 'count' }, priceRows);
+  test('1 head of a head-sold vegetable prices correctly, with the legacy "head" db label normalized to count', () => {
+    const r = priceIngredient({ name: 'cabbage', amountValue: 1, amountUnit: 'count' }, priceRows);
     assert.equal(r.costUSD, 2.50);
     assert.equal(r.source, PRICE_SOURCE.VERIFIED);
   });
