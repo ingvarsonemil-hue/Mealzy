@@ -51,7 +51,11 @@
 const { CANONICAL_INGREDIENTS } = require('./canonicalIngredientData');
 const { PRICES } = require('./ingredientPriceData');
 
-const PACKAGE_TYPES = Object.freeze(['weight_package', 'volume_package', 'count_package', 'per_unit']);
+// 'variable_weight' (F2C-impl): a good bought proportionally by canonical
+// base-unit quantity — no minimum package, no ceil-to-package. Its profile
+// carries { rateQuantity, ratePriceCents } instead of { packageQuantity,
+// packagePriceCents }; see the discriminated validation below.
+const PACKAGE_TYPES = Object.freeze(['weight_package', 'volume_package', 'count_package', 'per_unit', 'variable_weight']);
 const PACKAGE_UNITS = Object.freeze(['g', 'ml', 'count']);
 
 // confidence values that are sufficient to feed authoritative budget
@@ -164,7 +168,16 @@ const _canonicalById = new Map(CANONICAL_INGREDIENTS.map(c => [c.id, c]));
 // ── Build + validate the exported profiles once ────────────────────────────
 const PURCHASE_PROFILES = {};
 
-for (const [canonicalIngredientId, raw] of Object.entries(RAW_PACKAGE_ASSUMPTIONS)) {
+/**
+ * Validate one raw package/rate assumption against its canonical ingredient and
+ * the ingredientPriceData price row, and return the frozen profile — or `null`
+ * when the canonical has no exact-name price row (no coverage, not an error).
+ * Throws on any contradictory/invalid assumption. Pure: reads only the
+ * module-level canonical + price maps; never mutates PURCHASE_PROFILES.
+ * Exported so tests can exercise the discriminated contract without adding a
+ * real RAW_PACKAGE_ASSUMPTIONS entry.
+ */
+function deriveProfile(canonicalIngredientId, raw) {
   const canonical = _canonicalById.get(canonicalIngredientId);
   if (!canonical) {
     throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" is not a canonical ingredient id`);
@@ -178,11 +191,32 @@ for (const [canonicalIngredientId, raw] of Object.entries(RAW_PACKAGE_ASSUMPTION
   if (raw.packageUnit !== canonical.baseUnit) {
     throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" packageUnit "${raw.packageUnit}" != canonical baseUnit "${canonical.baseUnit}"`);
   }
-  if (!Number.isFinite(raw.packageQuantity) || raw.packageQuantity <= 0) {
-    throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" packageQuantity must be a positive number`);
-  }
   if (raw.confidence !== 'estimated' && raw.confidence !== 'unknown') {
     throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" confidence must be 'estimated' or 'unknown'`);
+  }
+
+  const isVariable = raw.packageType === 'variable_weight';
+
+  // Discriminated economics validation: fixed types carry { packageQuantity,
+  // packagePriceCents }; variable_weight carries { rateQuantity, ratePriceCents }.
+  // Neither may carry the other's fields.
+  if (isVariable) {
+    if (canonical.baseUnit === 'count') {
+      throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" variable_weight is not valid for a 'count' baseUnit`);
+    }
+    if ('packageQuantity' in raw || 'packagePriceCents' in raw) {
+      throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" variable_weight profile must not carry packageQuantity/packagePriceCents`);
+    }
+    if (!Number.isFinite(raw.rateQuantity) || raw.rateQuantity <= 0) {
+      throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" rateQuantity must be a positive number`);
+    }
+  } else {
+    if ('rateQuantity' in raw || 'ratePriceCents' in raw) {
+      throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" fixed profile must not carry rateQuantity/ratePriceCents`);
+    }
+    if (!Number.isFinite(raw.packageQuantity) || raw.packageQuantity <= 0) {
+      throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" packageQuantity must be a positive number`);
+    }
   }
 
   const priceRow = _priceByName.get(canonical.canonicalName);
@@ -190,11 +224,29 @@ for (const [canonicalIngredientId, raw] of Object.entries(RAW_PACKAGE_ASSUMPTION
     // Deterministic no-match -> no profile (uncertain -> unresolved). Not an
     // error: a canonical ingredient without an exact-name price row simply
     // has no purchase coverage.
-    continue;
+    return null;
   }
   const rowBaseUnit = DB_UNIT_TO_BASE[String(priceRow.unit || '').toLowerCase().trim()] || null;
   if (rowBaseUnit !== raw.packageUnit) {
     throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" price row unit "${priceRow.unit}" does not normalize to packageUnit "${raw.packageUnit}"`);
+  }
+
+  if (isVariable) {
+    // ratePriceCents: same derivation + positive-integer guard as packagePriceCents,
+    // just against rateQuantity (the price-reference quantity).
+    const ratePriceCents = Math.round(priceRow.price_per_unit * raw.rateQuantity * 100);
+    if (!Number.isInteger(ratePriceCents) || ratePriceCents <= 0) {
+      throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" derived ratePriceCents is not a positive integer (${ratePriceCents})`);
+    }
+    return Object.freeze({
+      canonicalIngredientId,
+      packageType: 'variable_weight',
+      rateQuantity: raw.rateQuantity,
+      ratePriceCents,
+      packageUnit: raw.packageUnit,
+      provenance: `derived from ingredientPriceData.js PRICES "${canonical.canonicalName}" (${priceRow.price_per_unit}/${priceRow.unit}); rate: ${raw.notes}`,
+      confidence: raw.confidence,
+    });
   }
 
   const packagePriceCents = Math.round(priceRow.price_per_unit * raw.packageQuantity * 100);
@@ -202,7 +254,7 @@ for (const [canonicalIngredientId, raw] of Object.entries(RAW_PACKAGE_ASSUMPTION
     throw new Error(`canonicalPurchaseData: "${canonicalIngredientId}" derived packagePriceCents is not a positive integer (${packagePriceCents})`);
   }
 
-  PURCHASE_PROFILES[canonicalIngredientId] = Object.freeze({
+  return Object.freeze({
     canonicalIngredientId,
     packageType: raw.packageType,
     packageQuantity: raw.packageQuantity,
@@ -211,6 +263,11 @@ for (const [canonicalIngredientId, raw] of Object.entries(RAW_PACKAGE_ASSUMPTION
     provenance: `derived from ingredientPriceData.js PRICES "${canonical.canonicalName}" (${priceRow.price_per_unit}/${priceRow.unit}); package: ${raw.notes}`,
     confidence: raw.confidence,
   });
+}
+
+for (const [canonicalIngredientId, raw] of Object.entries(RAW_PACKAGE_ASSUMPTIONS)) {
+  const profile = deriveProfile(canonicalIngredientId, raw);
+  if (profile) PURCHASE_PROFILES[canonicalIngredientId] = profile;
 }
 
 Object.freeze(PURCHASE_PROFILES);
@@ -226,9 +283,14 @@ function getPurchaseProfile(canonicalIngredientId) {
  * budget certification. A profile that exists but is `unknown` still yields
  * purchase quantities — it just can't certify a budget. */
 function isCertifiableProfile(profile) {
-  return !!profile
-    && CERTIFIABLE_CONFIDENCE.has(profile.confidence)
-    && Number.isInteger(profile.packagePriceCents)
+  if (!profile || !CERTIFIABLE_CONFIDENCE.has(profile.confidence)) return false;
+  if (profile.packageType === 'variable_weight') {
+    return Number.isInteger(profile.ratePriceCents)
+      && profile.ratePriceCents > 0
+      && Number.isFinite(profile.rateQuantity)
+      && profile.rateQuantity > 0;
+  }
+  return Number.isInteger(profile.packagePriceCents)
     && profile.packagePriceCents > 0
     && Number.isFinite(profile.packageQuantity)
     && profile.packageQuantity > 0;
@@ -242,4 +304,5 @@ module.exports = {
   PURCHASE_DATA_METHOD,
   getPurchaseProfile,
   isCertifiableProfile,
+  deriveProfile,
 };
