@@ -174,11 +174,14 @@ test('37. a caller cannot rescue an unresolved name with any valid id', () => {
 });
 
 test('38. display / preparation text is not authority: only structured name is resolved', () => {
-  // The prep-laden display string does not resolve; the assessment does not
-  // silently strip it. (Normalization is a FUTURE curated layer, not here.)
-  const r = A.assessIngredient({ name: 'garlic cloves, minced', amountValue: 6, amountUnit: 'g' });
+  // A prep-laden display string not covered by a curated alias does NOT resolve
+  // — the assessment never silently strips it. (Normalization is a FUTURE
+  // curated layer; a small set of exact prep forms ARE curated aliases as of
+  // 3E0-F1, but arbitrary narration is not.)
+  const r = A.assessIngredient({ name: 'garlic, roughly chopped', amountValue: 6, amountUnit: 'g' });
   assert.equal(r.canonicalStatus, A.CANONICAL_STATUS.UNRESOLVED);
-  // whereas the clean structured name does resolve:
+  assert.equal(A.assessIngredient({ name: '2 cloves garlic, minced', amountValue: 6, amountUnit: 'g' }).canonicalStatus, A.CANONICAL_STATUS.UNRESOLVED);
+  // whereas the clean structured name resolves:
   const clean = A.assessIngredient({ name: 'garlic', amountValue: 6, amountUnit: 'g' });
   assert.equal(clean.canonicalIngredientId, 'garlic');
 });

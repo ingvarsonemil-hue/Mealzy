@@ -69,6 +69,7 @@ const CANONICAL_INGREDIENTS = [
       'boneless skinless chicken breast',
       'skinless chicken breast',
       'boneless, skinless chicken breast',
+      'chicken breast (skinless)', // 3E0-F1
     ],
     category: 'meat',
     baseUnit: 'g',
@@ -81,6 +82,8 @@ const CANONICAL_INGREDIENTS = [
       'boneless chicken thighs',
       'boneless skinless chicken thighs',
       'skinless chicken thighs',
+      'chicken thigh (boneless, skinless)', // 3E0-F1
+      'chicken thigh, boneless skinless', // 3E0-F1
     ],
     category: 'meat',
     baseUnit: 'g',
@@ -156,7 +159,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'greek_yogurt',
     canonicalName: 'greek yogurt',
-    aliases: ['greek yoghurt', 'plain greek yogurt', 'nonfat greek yogurt', 'non-fat greek yogurt'],
+    aliases: ['greek yoghurt', 'plain greek yogurt', 'nonfat greek yogurt', 'non-fat greek yogurt', 'greek yogurt, plain nonfat', 'greek yogurt (plain, 0% fat)', 'plain greek yogurt (0% fat)'], // 3E0-F1: last 3
     category: 'dairy',
     baseUnit: 'g',
   },
@@ -184,7 +187,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'feta',
     canonicalName: 'feta',
-    aliases: ['feta cheese', 'crumbled feta'],
+    aliases: ['feta cheese', 'crumbled feta', 'feta cheese, crumbled'], // 3E0-F1: last 1
     category: 'dairy',
     baseUnit: 'g',
   },
@@ -207,14 +210,14 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'spinach',
     canonicalName: 'spinach',
-    aliases: ['baby spinach', 'fresh spinach', 'spinach leaves'],
+    aliases: ['baby spinach', 'fresh spinach', 'spinach leaves', 'fresh spinach (baby)'], // 3E0-F1: last 1
     category: 'produce',
     baseUnit: 'g',
   },
   {
     id: 'broccoli',
     canonicalName: 'broccoli',
-    aliases: ['broccoli florets'],
+    aliases: ['broccoli florets', 'fresh broccoli florets'], // 3E0-F1: last 1
     category: 'produce',
     baseUnit: 'g', // Phase 3A: migrated from 'count' — "1 broccoli" is too ambiguous (head vs floret) for nutrition/purchase; see canonicalPurchaseData.js broccoli note
   },
@@ -242,7 +245,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'carrots',
     canonicalName: 'carrots',
-    aliases: ['carrot', 'diced carrots', 'chopped carrots', 'shredded carrots', 'baby carrots'],
+    aliases: ['carrot', 'diced carrots', 'chopped carrots', 'shredded carrots', 'baby carrots', 'carrots (raw)', 'carrots, raw'], // 3E0-F1: last 2
     category: 'produce',
     baseUnit: 'g',
   },
@@ -277,7 +280,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'garlic',
     canonicalName: 'garlic',
-    aliases: ['garlic cloves', 'garlic clove', 'minced garlic', 'garlic, minced', 'fresh garlic'],
+    aliases: ['garlic cloves', 'garlic clove', 'minced garlic', 'garlic, minced', 'fresh garlic', 'garlic (minced)', 'garlic cloves (minced)', 'garlic cloves, minced'], // 3E0-F1: last 3
     category: 'produce',
     baseUnit: 'g',
   },
@@ -307,14 +310,14 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'white_rice',
     canonicalName: 'white rice',
-    aliases: [],
+    aliases: ['uncooked white rice'], // 3E0-F1
     category: 'pantry',
     baseUnit: 'g',
   },
   {
     id: 'brown_rice',
     canonicalName: 'brown rice',
-    aliases: [],
+    aliases: ['brown rice (uncooked)'], // 3E0-F1
     category: 'pantry',
     baseUnit: 'g',
   },
@@ -363,7 +366,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'almonds',
     canonicalName: 'almonds',
-    aliases: ['raw almonds', 'sliced almonds', 'slivered almonds', 'whole almonds'],
+    aliases: ['raw almonds', 'sliced almonds', 'slivered almonds', 'whole almonds', 'sliced almonds (raw)', 'almonds, sliced'], // 3E0-F1: last 2
     category: 'pantry',
     baseUnit: 'g',
   },
@@ -372,7 +375,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'canned_chickpeas',
     canonicalName: 'canned chickpeas',
-    aliases: ['chickpeas', 'chick peas', 'garbanzo beans', 'canned garbanzo beans', 'chickpeas, canned'],
+    aliases: ['chickpeas', 'chick peas', 'garbanzo beans', 'canned garbanzo beans', 'chickpeas, canned', 'canned chickpeas, drained', 'canned chickpeas (drained)'], // 3E0-F1: last 2
     category: 'pantry',
     baseUnit: 'g',
   },
@@ -386,7 +389,7 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'canned_tomatoes',
     canonicalName: 'canned tomatoes',
-    aliases: ['diced tomatoes', 'crushed tomatoes', 'canned diced tomatoes', 'canned crushed tomatoes', 'tinned tomatoes'],
+    aliases: ['diced tomatoes', 'crushed tomatoes', 'canned diced tomatoes', 'canned crushed tomatoes', 'tinned tomatoes', 'canned tomatoes, crushed'], // 3E0-F1: last 1
     category: 'pantry',
     baseUnit: 'g',
   },
