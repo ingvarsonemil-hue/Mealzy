@@ -115,7 +115,7 @@ const PRICES = [
   // audit sample's top unmatched-by-frequency ingredients (see the audit
   // report). Every row below corresponds to an observed Mealzy generation,
   // not a guessed addition.
-  { name: 'vegetable oil',      category: 'pantry',  unit: 'ml', price_per_unit: 0.0035, source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$3.50/L, e.g. a 48oz bottle ~$4-6' },
+  { name: 'canola oil',        category: 'pantry',  unit: 'ml', price_per_unit: 0.0035, source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$3.50/L, e.g. a 48oz bottle ~$4-6. Phase 3C: row renamed from "vegetable oil" to match canonical `vegetable_oil` whose canonicalName is now "canola oil"; "vegetable oil" retained as an alias below' },
   { name: 'onion',               category: 'produce', unit: 'g', price_per_unit: 0.0025, source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$1-1.5/lb yellow onions' },
   { name: 'tomato',               category: 'produce', unit: 'g', price_per_unit: 0.005,  source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$2-3/lb fresh tomatoes' },
   { name: 'canned chickpeas',     category: 'pantry',  unit: 'g', price_per_unit: 0.0028, source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$1.20 per 15oz/425g can' },
@@ -163,7 +163,7 @@ const PRICES = [
   // (never aliased to beef), lean chuck stays separate from ground beef,
   // shrimp stays separate from fish — different products, different prices.
   { name: 'venison',        category: 'protein', unit: 'g', price_per_unit: 0.0397, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$18/lb, US retail venison steak/cuts range ~$15-22/lb; substring-matches "venison steak" etc. Deliberately its own row, never aliased to beef - materially different product/price' },
-  { name: 'lean chuck',     category: 'meat',    unit: 'g', price_per_unit: 0.0121, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$5.50/lb lean beef chuck roast/steak cuts; kept separate from "ground beef" ($0.013/g) - different cut/prep, not aliased despite similar magnitude' },
+  { name: 'beef chuck',     category: 'meat',    unit: 'g', price_per_unit: 0.0121, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$5.50/lb beef chuck roast/steak cuts; kept separate from "ground beef" ($0.013/g) - different cut/prep, not aliased despite similar magnitude. Phase 3C: row renamed from "lean chuck" to match canonical `beef_chuck`; "lean chuck" retained as an alias below' },
   { name: 'shrimp',         category: 'protein', unit: 'g', price_per_unit: 0.0198, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$9/lb US average frozen peeled/deveined shrimp; deliberately its own row, never aliased to any fish row - different product' },
   { name: 'hummus',         category: 'pantry',  unit: 'g', price_per_unit: 0.0124, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$3.50 per 10oz/283g tub' },
   { name: 'eggplant',       category: 'produce', unit: 'g', price_per_unit: 0.0033, source: PRICE_COVERAGE_V2_METHOD, checked_at: PRICE_COVERAGE_V2_DATE, notes: '~$1.50/lb' },
@@ -206,6 +206,9 @@ const ALIASES = [
   { alias: 'aubergine',  canonical: 'eggplant', notes: 'British/Commonwealth term for the same product (Price Coverage v2)' },
   { alias: 'sea salt',   canonical: 'salt', notes: 'a variety of the same product as plain salt, not a materially different price point (Price Coverage v2)' },
   { alias: 'black pepper', canonical: 'pepper', notes: 'same product as the "pepper" spice row, just the common full name (Price Coverage v2)' },
+  { alias: 'vegetable oil', canonical: 'canola oil', notes: 'Phase 3C: the "vegetable oil" PRICES row was renamed to "canola oil" (canonical `vegetable_oil` now models canola). Legacy/free-text "vegetable oil" keeps pricing VERIFIED via this alias — same product/price' },
+  { alias: 'lean chuck', canonical: 'beef chuck', notes: 'Phase 3C: the "lean chuck" PRICES row was renamed to "beef chuck" (canonical `lean_chuck` -> `beef_chuck`). Legacy/free-text "lean chuck" keeps pricing VERIFIED via this alias - same product/price' },
+  { alias: 'lean chuck meat', canonical: 'beef chuck', notes: 'Phase 3C: pre-existing observed free-text string (see tests/fixtures/manualSupermarketObservations.js); before the rename it matched the "lean chuck" row via pricing.js substring fallback - this exact-alias preserves that VERIFIED pricing' },
 ];
 
 module.exports = { PRICES, ALIASES, PRICE_COVERAGE_V1_DATE, PRICE_COVERAGE_V1_METHOD, PRICE_COVERAGE_V2_DATE, PRICE_COVERAGE_V2_METHOD, PRICE_CALIBRATION_AUDIT_DATE, PRICE_CALIBRATION_AUDIT_METHOD };

@@ -93,9 +93,10 @@ const CANONICAL_INGREDIENTS = [
     baseUnit: 'g',
   },
   {
-    id: 'lean_chuck',
-    canonicalName: 'lean chuck',
-    aliases: ['chuck steak', 'beef chuck', 'lean beef chuck'],
+    // Phase 3C: was id 'lean_chuck'/'lean chuck' — false "separable lean only" precision; nutrition source still unresolved.
+    id: 'beef_chuck',
+    canonicalName: 'beef chuck',
+    aliases: ['lean chuck', 'chuck steak', 'chuck roast', 'lean beef chuck'],
     category: 'meat',
     baseUnit: 'g',
   },
@@ -427,9 +428,10 @@ const CANONICAL_INGREDIENTS = [
     baseUnit: 'ml',
   },
   {
+    // Phase 3C: id stays 'vegetable_oil' (stable); canonicalName narrowed to canola. `olive_oil` is separate.
     id: 'vegetable_oil',
-    canonicalName: 'vegetable oil',
-    aliases: ['canola oil'],
+    canonicalName: 'canola oil',
+    aliases: ['vegetable oil', 'canola', 'rapeseed oil'],
     category: 'pantry',
     baseUnit: 'ml',
   },
@@ -491,13 +493,10 @@ const CANONICAL_INGREDIENTS = [
     category: 'pantry',
     baseUnit: 'g',
   },
-  {
-    id: 'salt_and_pepper',
-    canonicalName: 'salt and pepper',
-    aliases: ['salt & pepper', 'salt and black pepper'],
-    category: 'pantry',
-    baseUnit: 'g',
-  },
+  // Phase 3C: combined pseudo-identity 'salt_and_pepper' removed (no defensible
+  // source; no invented blend). Use separate `salt` + `pepper`; the strings
+  // "salt and pepper"/"salt & pepper"/"salt and black pepper" now resolve
+  // UNRESOLVED (legacy free-text pricing still covers them — ingredientPriceData).
   {
     id: 'cumin',
     canonicalName: 'cumin',
@@ -522,7 +521,8 @@ const CANONICAL_INGREDIENTS = [
   {
     id: 'rosemary',
     canonicalName: 'rosemary',
-    aliases: ['dried rosemary', 'fresh rosemary', 'rosemary leaves'],
+    // Phase 3C: 'fresh rosemary' removed — nutrition convention is DRIED; "fresh rosemary" is now UNRESOLVED.
+    aliases: ['dried rosemary', 'rosemary leaves'],
     category: 'pantry',
     baseUnit: 'g',
   },

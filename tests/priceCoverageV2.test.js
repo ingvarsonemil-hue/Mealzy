@@ -35,8 +35,8 @@ describe('A/D/E/F: new canonical high-impact ingredients resolve VERIFIED, not u
   test('lean chuck meat is no longer an unknown protein', () => {
     const r = price('lean chuck meat', 250, 'g');
     assert.equal(r.source, PRICE_SOURCE.VERIFIED);
-    assert.equal(r.canonicalName, 'lean chuck');
-    assert.equal(r.costUSD, 3.03); // 250 * 0.0121
+    assert.equal(r.canonicalName, 'beef chuck'); // Phase 3C: row renamed lean chuck -> beef chuck
+    assert.equal(r.costUSD, 3.03); // 250 * 0.0121 — price unchanged
   });
 
   test('shrimp is no longer an unknown protein', () => {

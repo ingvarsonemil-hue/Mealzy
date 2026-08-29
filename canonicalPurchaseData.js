@@ -33,13 +33,13 @@
  * budget certification. `confidence: 'unknown'` still yields a purchase
  * quantity (so the grocery math is complete) but CANNOT certify a budget —
  * the week's status becomes "purchase pricing incomplete", never "certified".
- * The five ingredients marked `unknown` here are the amortized-rate spice
- * rows (cumin / paprika / cinnamon / rosemary) and the blended `salt and
- * pepper` pseudo-ingredient: their price_per_unit in ingredientPriceData.js
- * is an explicitly amortized per-recipe-use estimate, NOT a package price, so
- * deriving a package cost from it would understate a real spice jar. Adding
- * real spice-jar package prices is a later-phase call, not a Phase 2
- * invention.
+ * The ingredients marked `unknown` here are the amortized-rate spice rows
+ * (cumin / paprika / cinnamon / rosemary): their price_per_unit in
+ * ingredientPriceData.js is an explicitly amortized per-recipe-use estimate,
+ * NOT a package price, so deriving a package cost from it would understate a
+ * real spice jar. Adding real spice-jar package prices is a later-phase call,
+ * not a Phase 2 invention. (Phase 3C removed the blended `salt and pepper`
+ * pseudo-ingredient entirely.)
  *
  * MONEY: integer cents only, everywhere. No floating-point dollars.
  *
@@ -71,7 +71,7 @@ const RAW_PACKAGE_ASSUMPTIONS = {
   chicken_breast:  { packageType: 'weight_package', packageQuantity: 907,  packageUnit: 'g', confidence: 'estimated', notes: '~2 lb family tray' },
   chicken_thighs:  { packageType: 'weight_package', packageQuantity: 907,  packageUnit: 'g', confidence: 'estimated', notes: '~2 lb pack' },
   ground_beef:     { packageType: 'weight_package', packageQuantity: 454,  packageUnit: 'g', confidence: 'estimated', notes: '~1 lb pack' },
-  lean_chuck:      { packageType: 'weight_package', packageQuantity: 680,  packageUnit: 'g', confidence: 'estimated', notes: '~1.5 lb roast/steak' },
+  beef_chuck:      { packageType: 'weight_package', packageQuantity: 680,  packageUnit: 'g', confidence: 'estimated', notes: '~1.5 lb roast/steak (Phase 3C: was key lean_chuck)' },
 
   // Fish / other protein (weight)
   salmon_fillets:  { packageType: 'weight_package', packageQuantity: 340,  packageUnit: 'g', confidence: 'estimated', notes: '~12 oz two-fillet pack' },
@@ -129,7 +129,7 @@ const RAW_PACKAGE_ASSUMPTIONS = {
 
   // Oils / liquids / broths (volume)
   olive_oil:       { packageType: 'volume_package', packageQuantity: 500,  packageUnit: 'ml', confidence: 'estimated', notes: '500 ml bottle' },
-  vegetable_oil:   { packageType: 'volume_package', packageQuantity: 1420, packageUnit: 'ml', confidence: 'estimated', notes: '48 oz bottle' },
+  vegetable_oil:   { packageType: 'volume_package', packageQuantity: 1420, packageUnit: 'ml', confidence: 'estimated', notes: '48 oz canola bottle (Phase 3C: canonicalName is now "canola oil")' },
   soy_sauce:       { packageType: 'volume_package', packageQuantity: 296,  packageUnit: 'ml', confidence: 'estimated', notes: '10 oz bottle' },
   lemon_juice:     { packageType: 'volume_package', packageQuantity: 444,  packageUnit: 'ml', confidence: 'estimated', notes: '15 oz bottle' },
   lime_juice:      { packageType: 'volume_package', packageQuantity: 444,  packageUnit: 'ml', confidence: 'estimated', notes: '15 oz bottle' },
@@ -138,11 +138,11 @@ const RAW_PACKAGE_ASSUMPTIONS = {
   beef_broth:      { packageType: 'volume_package', packageQuantity: 946,  packageUnit: 'ml', confidence: 'estimated', notes: '32 oz carton' },
 
   // Seasoning — salt & pepper have real per-gram rows (v2) and are
-  // certifiable; the amortized-rate spice rows and the blended pseudo-
-  // ingredient are NOT (see file header).
+  // certifiable; the amortized-rate spice rows are NOT (see file header).
+  // (Phase 3C: the 'salt_and_pepper' pseudo-ingredient profile was removed
+  // with its canonical identity.)
   salt:            { packageType: 'weight_package', packageQuantity: 737,  packageUnit: 'g', confidence: 'estimated', notes: '26 oz canister' },
   pepper:          { packageType: 'weight_package', packageQuantity: 85,   packageUnit: 'g', confidence: 'estimated', notes: '3 oz tin' },
-  salt_and_pepper: { packageType: 'weight_package', packageQuantity: 85,   packageUnit: 'g', confidence: 'unknown', notes: 'blended pseudo-ingredient; ingredientPriceData rate is a blended per-recipe estimate, not a package price' },
   cumin:           { packageType: 'weight_package', packageQuantity: 45,   packageUnit: 'g', confidence: 'unknown', notes: 'ingredientPriceData rate is amortized per-recipe-use, not a jar price' },
   paprika:         { packageType: 'weight_package', packageQuantity: 45,   packageUnit: 'g', confidence: 'unknown', notes: 'ingredientPriceData rate is amortized per-recipe-use, not a jar price' },
   cinnamon:        { packageType: 'weight_package', packageQuantity: 45,   packageUnit: 'g', confidence: 'unknown', notes: 'ingredientPriceData rate is amortized per-recipe-use, not a jar price' },

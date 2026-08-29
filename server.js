@@ -2452,7 +2452,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     // (broccoli, cauliflower, lettuce, kale) go in grams, not count. "amount"
     // stays a human-readable string for display; amountValue/amountUnit are
     // what the server actually prices.
-    const ingredientUnitRule = `Every ingredient's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items like eggs or slices — convert from cups/tbsp/oz yourself, never leave it in those units. Example: "amount": "1 cup rice" -> "amountValue": 185, "amountUnit": "g". Vegetables sold by the head or bunch (broccoli, cauliflower, lettuce, kale) MUST be given in grams, never as a "count" — e.g. "1 head broccoli" -> "amountValue": 340, "amountUnit": "g".`;
+    const ingredientUnitRule = `Every ingredient's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items like eggs or slices — convert from cups/tbsp/oz yourself, never leave it in those units. Example: "amount": "1 cup rice" -> "amountValue": 185, "amountUnit": "g". Vegetables sold by the head or bunch (broccoli, cauliflower, lettuce, kale) MUST be given in grams, never as a "count" — e.g. "1 head broccoli" -> "amountValue": 340, "amountUnit": "g". List "salt" and "pepper" as TWO separate ingredients, each on its own line — never a single combined "salt and pepper" entry.`;
 
     // ═══════════════════════════════════════════════════════════════════════
     // SINGLE MEAL SWAP

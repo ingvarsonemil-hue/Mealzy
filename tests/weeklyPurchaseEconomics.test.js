@@ -271,7 +271,7 @@ describe('14: a missing / invalid package price cannot be falsely certified', ()
   });
 
   test('the amortized-rate spice rows ship as confidence "unknown" and never certify', () => {
-    for (const id of ['cumin', 'paprika', 'cinnamon', 'rosemary', 'salt_and_pepper']) {
+    for (const id of ['cumin', 'paprika', 'cinnamon', 'rosemary']) { // Phase 3C: 'salt_and_pepper' removed (identity + profile gone)
       const p = getPurchaseProfile(id);
       assert.equal(p.confidence, 'unknown', id);
       assert.equal(canonicalPurchaseData.isCertifiableProfile(p), false, id);

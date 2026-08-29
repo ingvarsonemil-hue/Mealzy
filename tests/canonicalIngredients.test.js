@@ -146,11 +146,14 @@ describe('resolveIngredient — ambiguity / overmatching protection', () => {
   });
 
   test('a longer string containing a canonical name does not match it', () => {
-    // "salt" is canonical; "salt and pepper" is a different canonical
-    // ingredient; "roasted salted almonds" must not resolve to "salt".
+    // "salt" is canonical; "roasted salted almonds" must not resolve to "salt".
     assert.equal(resolveIngredient('roasted salted almonds').resolved, false);
     assert.equal(resolveIngredient('salt').ingredient.id, 'salt');
-    assert.equal(resolveIngredient('salt and pepper').ingredient.id, 'salt_and_pepper');
+    // Phase 3C: the combined "salt and pepper" identity was removed — it is
+    // now UNRESOLVED (generation lists salt and pepper as two lines).
+    assert.equal(resolveIngredient('salt and pepper').resolved, false);
+    assert.equal(resolveIngredient('salt & pepper').resolved, false);
+    assert.equal(resolveIngredient('salt and black pepper').resolved, false);
   });
 
   test('distinct-but-related foods stay separate', () => {
@@ -273,11 +276,17 @@ describe('canonical dataset integrity', () => {
     // must resolve — this dataset is a superset of the current Mealzy pricing
     // vocabulary, not a separate taxonomy.
     const { PRICES, ALIASES } = require('../ingredientPriceData.js');
+    // Phase 3C: a small set of entries are DELIBERATELY price-only (legacy /
+    // free-text pricing compatibility) with no canonical identity — canonical
+    // nutrition resolution and legacy free-text pricing are allowed to differ.
+    const PRICE_ONLY = new Set(['salt and pepper', 'lean chuck meat']);
     for (const row of PRICES) {
+      if (PRICE_ONLY.has(row.name)) continue;
       const r = resolveIngredient(row.name);
       assert.equal(r.resolved, true, `price row "${row.name}" is not covered by canonical data`);
     }
     for (const a of ALIASES) {
+      if (PRICE_ONLY.has(a.alias)) continue;
       const r = resolveIngredient(a.alias);
       assert.equal(r.resolved, true, `price alias "${a.alias}" is not covered by canonical data`);
     }
