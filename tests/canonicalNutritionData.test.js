@@ -139,17 +139,17 @@ describe('canonicalNutritionData: structural integrity', () => {
 describe('canonicalNutritionData: coverage counts (10.)', () => {
   const cov = nutritionEngine.coverageSummary();
 
-  test('canonical vocabulary = 62', () => {
-    assert.equal(cov.canonicalCount, 62);
+  test('canonical vocabulary = 63', () => {
+    assert.equal(cov.canonicalCount, 63);
   });
 
-  test('nutrition record count = 62 (every canonical id has a record)', () => {
-    assert.equal(cov.recordCount, 62);
+  test('nutrition record count = 63 (every canonical id has a record)', () => {
+    assert.equal(cov.recordCount, 63);
     assert.equal(cov.missing.length, 0);
   });
 
-  test('eligible = 59', () => {
-    assert.equal(cov.eligible.length, 59);
+  test('eligible = 60', () => {
+    assert.equal(cov.eligible.length, 60);
   });
 
   test('ineligible = 3 and exactly {beef_chuck, halloumi_cheese, harissa_paste}', () => {
@@ -157,10 +157,10 @@ describe('canonicalNutritionData: coverage counts (10.)', () => {
     assert.deepEqual(cov.ineligible, ['beef_chuck', 'halloumi_cheese', 'harissa_paste']);
   });
 
-  test('base-unit split of records is 48 g / 10 ml / 4 count', () => {
+  test('base-unit split of records is 49 g / 10 ml / 4 count', () => {
     const by = {};
     for (const r of NUTRITION_RECORDS) by[r.basisUnit] = (by[r.basisUnit] || 0) + 1;
-    assert.deepEqual(by, { g: 48, ml: 10, count: 4 });
+    assert.deepEqual(by, { g: 49, ml: 10, count: 4 });
   });
 });
 
@@ -261,6 +261,6 @@ describe('canonicalNutritionData: kcal-vs-macro is a diagnostic, not a gate', ()
       if (d && d.exceedsTolerance) flagged += 1;
     }
     assert.ok(flagged >= 0); // informational only; no assertion on the count
-    assert.equal(NUTRITION_RECORDS.length, 62); // and the dataset is intact
+    assert.equal(NUTRITION_RECORDS.length, 63); // and the dataset is intact
   });
 });

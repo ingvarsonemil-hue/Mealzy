@@ -87,6 +87,16 @@ const PRICE_COVERAGE_V2_METHOD = 'estimated from general knowledge of typical US
 //     - not tuned to minimize the historical manual-observation dataset's
 //     error, which stays only a sanity check (see
 //     tests/fixtures/manualSupermarketObservations.js).
+// Phase 3E0-F3A — single-ingredient addition (`quinoa`). Not a coverage batch.
+// The rate is BACK-DERIVED from one representative fixed sealed package that a
+// prior F2 phase's retail research identified (Target Good & Gather Organic
+// Quinoa, 30 oz, $6.19 — 30 oz normalized to ~850 g for Mealzy's gram model):
+// $6.19 / 850 g = ~$0.00728/g. This is a prior-observation-based Mealzy v1
+// representative assumption, NOT a live retailer feed, NOT a national average,
+// and was NOT re-verified against the retailer's page in the F3A session.
+const PHASE_3E0_F3A_DATE = '2026-08-29';
+const PHASE_3E0_F3A_METHOD = 'rate back-derived from one representative fixed sealed package recorded by prior F2 retail research (Target Good & Gather Organic Quinoa, 30 oz / ~850 g, $6.19); a Mealzy v1 representative purchase assumption, not a live retailer feed, not a national average, retailer page not re-verified in the F3A session';
+
 const PRICE_CALIBRATION_AUDIT_DATE = '2026-08-26';
 const PRICE_CALIBRATION_AUDIT_METHOD = 'recalibrated only where BOTH the calculation-path trace proved the row itself (not a matcher/unit/aggregation bug) causes the observed gap AND a MULTI-OBSERVATION set of independent named-retailer US retail evidence (never a single shopper sample, never a single external anchor) supported the row being materially off; final rate set from the mean/median of at least 4 named-retailer observations spanning store-brand and branded tiers, never set to match the observed sample directly';
 
@@ -150,6 +160,7 @@ const PRICES = [
   { name: 'paprika',               category: 'pantry',  unit: 'g', price_per_unit: 0.02,   source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: 'bulk/amortized ground-spice estimate, same basis as cumin' },
   { name: 'cinnamon',               category: 'pantry',  unit: 'g', price_per_unit: 0.02,   source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: 'bulk/amortized ground-spice estimate, same basis as cumin' },
   { name: 'couscous',              category: 'pantry',  unit: 'g', price_per_unit: 0.0055, source: PRICE_COVERAGE_V1_METHOD, checked_at: PRICE_COVERAGE_V1_DATE, notes: '~$2.50/lb' },
+  { name: 'quinoa',                category: 'pantry',  unit: 'g', price_per_unit: 0.00728, source: PHASE_3E0_F3A_METHOD, checked_at: PHASE_3E0_F3A_DATE, notes: 'dry/uncooked. $6.19 / ~850 g (Target Good & Gather Organic Quinoa 30 oz, prior F2 retail observation) = ~$0.00728/g. Representative Mealzy v1 assumption from ONE sealed package, not a live feed or national average; retailer page not re-verified in F3A. Derived 850 g package price = round(0.00728 * 850 * 100) = 619 cents' },
 
   // ── Price Coverage v2 — high-impact batch selected by ranking the real
   // 5-list / 107-observation manual audit (tests/fixtures/

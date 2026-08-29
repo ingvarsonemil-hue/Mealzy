@@ -273,16 +273,16 @@ test('50. Phase 2 buildWeeklyPurchasePlan output shape unchanged', () => {
   }
 });
 
-test('51. Phase 3A/3C canonical vocabulary unchanged (62 ids, broccoli in grams)', () => {
-  assert.equal(canonicalIngredients.allCanonicalIngredients().length, 62);
+test('51. canonical vocabulary is 63 ids (62 + quinoa 3E0-F3A), broccoli in grams', () => {
+  assert.equal(canonicalIngredients.allCanonicalIngredients().length, 63);
   assert.equal(canonicalIngredients.getById('broccoli').baseUnit, 'g');
   assert.equal(canonicalIngredients.getById('salt_and_pepper'), null); // deleted in 3C
 });
 
-test('52. Phase 3D nutrition engine STATUS + coverage unchanged', () => {
+test('52. Phase 3D nutrition engine STATUS + coverage (63 canonical, 60 eligible after quinoa)', () => {
   const s = nutritionEngine.coverageSummary();
-  assert.equal(s.canonicalCount, 62);
-  assert.equal(s.eligible.length, 59);
+  assert.equal(s.canonicalCount, 63);
+  assert.equal(s.eligible.length, 60);
   assert.equal(s.ineligible.length, 3);
   assert.equal(s.missing.length, 0);
   assert.equal(nutritionEngine.STATUS.COVERED, 'covered');
@@ -301,7 +301,7 @@ test('53. importing certificationAssessment does not monkeypatch any frozen engi
 test('extra: consumption pricing is reported but never referenced by `certified`', () => {
   // Force a week that is purchase-certified; flip an ingredient to one that
   // prices as $0.50 unknown at consumption level but is still fully canonical.
-  // (There is no such case among the 62 — every canonical name has a price row —
+  // (There is no such case among the 63 — every canonical name has a price row —
   // so instead assert the structural guarantee: certified is a pure function of
   // the non-pricing dimensions.)
   const r = A.assessWeek(goodWeek(500000));

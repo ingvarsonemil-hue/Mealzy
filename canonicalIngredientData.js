@@ -350,6 +350,13 @@ const CANONICAL_INGREDIENTS = [
     baseUnit: 'g',
   },
   {
+    id: 'quinoa',
+    canonicalName: 'quinoa',
+    aliases: [], // dry/uncooked only; cooked/prepared forms are NOT identity-safe and stay unresolved (see tests/curatedAliases3E0F1.test.js)
+    category: 'pantry',
+    baseUnit: 'g',
+  },
+  {
     id: 'corn_tortillas',
     canonicalName: 'corn tortillas',
     aliases: ['corn tortilla'],

@@ -82,7 +82,7 @@ test('2. no alias changes the canonical base unit', () => {
   for (const [id, unit] of Object.entries(expected)) {
     assert.equal(ci.getById(id).baseUnit, unit, `${id} baseUnit unchanged`);
   }
-  assert.equal(ci.allCanonicalIngredients().length, 62, 'no new canonical records');
+  assert.equal(ci.allCanonicalIngredients().length, 63, 'canonical vocabulary size (62 F1 + quinoa F3A)');
 });
 
 test('3. an alias establishes identity only — a wrong generated unit still fails certification', () => {
@@ -163,7 +163,7 @@ test('8. Phase 1 resolver behavior stays deterministic and exact-after-normaliza
   assert.equal(a.ingredient.id, 'feta');
   assert.equal(b.ingredient.id, 'feta', 'normalization is still just lowercase + whitespace collapse');
   assert.equal(ci.resolveIngredient('zucchini').resolved, false, 'still no zucchini canonical');
-  assert.equal(ci.allCanonicalIngredients().length, 62);
+  assert.equal(ci.allCanonicalIngredients().length, 63);
 });
 
 test('regression: no alias collides with a canonical name or another ingredient\'s alias', () => {

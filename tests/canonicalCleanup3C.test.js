@@ -29,15 +29,15 @@ const rid = (s) => { const r = canon.resolveIngredient(s); return r.resolved ? r
 const price = (name, v, u) => priceIngredient({ name, amountValue: v, amountUnit: u }, PRICES);
 
 describe('Phase 3C: canonical count + integrity', () => {
-  test('1. canonical count is 62', () => {
-    assert.equal(canonData.CANONICAL_INGREDIENTS.length, 62);
-    assert.equal(canon.allCanonicalIngredients().length, 62);
+  test('1. canonical count is 63', () => {
+    assert.equal(canonData.CANONICAL_INGREDIENTS.length, 63);
+    assert.equal(canon.allCanonicalIngredients().length, 63);
   });
 
-  test('baseUnit distribution is 48 g / 10 ml / 4 count', () => {
+  test('baseUnit distribution is 49 g / 10 ml / 4 count', () => {
     const by = {};
     for (const r of canonData.CANONICAL_INGREDIENTS) by[r.baseUnit] = (by[r.baseUnit] || 0) + 1;
-    assert.deepEqual(by, { g: 48, ml: 10, count: 4 });
+    assert.deepEqual(by, { g: 49, ml: 10, count: 4 });
   });
 
   test('21. load-time collision/integrity checks pass (module required without throwing)', () => {

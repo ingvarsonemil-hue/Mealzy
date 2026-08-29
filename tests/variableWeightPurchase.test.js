@@ -94,8 +94,8 @@ test('6. variable profile rejects a count canonical baseUnit', () => {
 });
 
 test('7. fixed profile validation is unchanged (and rejects rate fields)', () => {
-  // real fixed profiles still build; count = 62 with price rows
-  assert.equal(Object.keys(cp.PURCHASE_PROFILES).length, 62);
+  // real fixed profiles still build; count = 63 with price rows (62 + quinoa 3E0-F3A)
+  assert.equal(Object.keys(cp.PURCHASE_PROFILES).length, 63);
   assert.equal(cp.PURCHASE_PROFILES.tomato.packageType, 'weight_package');
   assert.equal(cp.PURCHASE_PROFILES.tomato.packageQuantity, 500);
   assert.throws(

@@ -118,6 +118,7 @@ const RAW_PACKAGE_ASSUMPTIONS = {
   oats:            { packageType: 'weight_package', packageQuantity: 1190, packageUnit: 'g', confidence: 'estimated', notes: '42 oz canister' },
   bread:           { packageType: 'weight_package', packageQuantity: 567,  packageUnit: 'g', confidence: 'estimated', notes: '20 oz loaf' },
   couscous:        { packageType: 'weight_package', packageQuantity: 454,  packageUnit: 'g', confidence: 'estimated', notes: '1 lb box' },
+  quinoa:          { packageType: 'weight_package', packageQuantity: 850,  packageUnit: 'g', confidence: 'estimated', notes: '30 oz sealed box (~850 g), representative Mealzy v1 assumption from a prior F2 Target Good & Gather Organic Quinoa observation ($6.19); not every retailer sells this size/price' },
   corn_tortillas:  { packageType: 'count_package',  packageQuantity: 30,   packageUnit: 'count', confidence: 'estimated', notes: '30-count pack' },
   red_lentils:     { packageType: 'weight_package', packageQuantity: 454,  packageUnit: 'g', confidence: 'estimated', notes: '1 lb bag dry' },
   almonds:         { packageType: 'weight_package', packageQuantity: 454,  packageUnit: 'g', confidence: 'estimated', notes: '1 lb bag' },

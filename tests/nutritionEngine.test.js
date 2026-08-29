@@ -149,7 +149,7 @@ describe('failure states — never a silent authoritative zero', () => {
     // Instead: assert the contract directly against a canonical id that would
     // have no record if the dataset shrank. Use a stub canonical id present in
     // canonicalIngredientData but (hypothetically) absent from nutrition data.
-    // Since coverage is currently 62/62, we prove the branch with a spy.
+    // Since coverage is currently 63/63, we prove the branch with a spy.
     const orig = canon.getById;
     t.after(() => { canon.getById = orig; });
     canon.getById = (id) => (id === '__ghost__' ? { id: '__ghost__', baseUnit: 'g' } : orig(id));
@@ -259,8 +259,8 @@ describe('meal aggregation', () => {
 });
 
 describe('regression: canonical vocabulary + prior phases untouched', () => {
-  test('39. canonical count remains 62', () => {
-    assert.equal(canon.allCanonicalIngredients().length, 62);
+  test('39. canonical count is 63 (62 + quinoa, 3E0-F3A)', () => {
+    assert.equal(canon.allCanonicalIngredients().length, 63);
   });
   test('40 + 41. vegetable_oil id valid; canola_oil id does not exist', () => {
     assert.ok(canon.getById('vegetable_oil'));
