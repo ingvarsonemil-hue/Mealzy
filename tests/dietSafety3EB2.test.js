@@ -45,12 +45,19 @@ test('1. supported hard diets normalise as supported', () => {
   assert.deepEqual(norm(['dairy_free']).activeDietIds, ['dairy-free']);
 });
 
-test('2. keto/halal/kosher/paleo/mediterranean/low_carb/high_protein are known-but-unsupported', () => {
-  for (const raw of ['keto', 'halal', 'kosher', 'paleo', 'mediterranean', 'low_carb', 'high_protein']) {
+test('2. keto/halal/kosher/paleo are recognised unsupported hard rules; mediterranean/low_carb/high_protein are preference-only', () => {
+  for (const raw of ['keto', 'halal', 'kosher', 'paleo']) {
     const n = norm([raw]);
     assert.deepEqual(n.activeDietIds, [], `${raw} must not be an active diet`);
     assert.equal(n.hasUnsupported, true);
-    assert.equal(n.unsupported[0].reason, contract.UNSUPPORTED_REASON.KNOWN_UNSUPPORTED_DIET);
+    assert.equal(n.unsupported[0].reason, contract.UNSUPPORTED_REASON.UNSUPPORTED_HARD_RULE);
+  }
+  for (const raw of ['mediterranean', 'low_carb', 'high_protein']) {
+    const n = norm([raw]);
+    assert.deepEqual(n.activeDietIds, [], `${raw} must not be an active diet`);
+    assert.equal(n.hasUnsupported, false, `${raw} must not set hasUnsupported`);
+    assert.equal(n.unsupported.length, 0);
+    assert.ok(n.activePreferenceOnlyIds.includes(raw === 'low_carb' ? 'low_carb' : raw === 'high_protein' ? 'high_protein' : 'mediterranean'));
   }
 });
 

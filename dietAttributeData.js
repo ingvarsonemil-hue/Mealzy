@@ -51,6 +51,19 @@
  *                        'unresolved').
  *   peanut, treeNut, soy, fish, crustaceanShellfish, sesame
  *                        the remaining supported allergen tags.
+ *   pork                 the ingredient IS pork (or a pork-derived product).
+ *                        Authority for the PORK-FREE diet. This is an
+ *                        ingredient-IDENTITY fact, NOT an allergen.
+ *                        The generic record helpers (`plant`, `rec`, `_meat`,
+ *                        `_finfish`, `_dairyProduct`) CANNOT set pork — it is
+ *                        supplied ONLY by the exhaustive, hand-audited
+ *                        PORK_STATUS_BY_CANONICAL_ID table, merged in at
+ *                        assembly. Load validation fails if that table does not
+ *                        cover every canonical id exactly once. A future pork
+ *                        ingredient must be added to the table as
+ *                        `pork: 'present'`; a future non-pork ingredient must
+ *                        be added as `pork: 'absent'`. Neither can be inherited
+ *                        silently from a category/helper constructor.
  *
  * All frozen product conventions below are Phase 3E-B2 MODELING DEFINITIONS
  * from the B2 brief, not claims about every supermarket product.
@@ -78,20 +91,30 @@ const SAFETY_PROPERTIES = Object.freeze([
   'fish',
   'crustaceanShellfish',
   'sesame',
+  'pork',
 ]);
 
+// `pork` is EXCLUDED from every generic helper. It is a hard-diet identity
+// fact that must be an intentional per-ingredient decision, never inherited
+// from a category constructor — so helpers physically cannot express it and
+// the assembly step (below) is the sole place pork is set, from the exhaustive
+// PORK_STATUS_BY_CANONICAL_ID table.
+const _HELPER_PROPERTIES = Object.freeze(SAFETY_PROPERTIES.filter((k) => k !== 'pork'));
+
 const _ALL_UNRESOLVED = Object.freeze(
-  SAFETY_PROPERTIES.reduce((o, k) => { o[k] = U; return o; }, {}),
+  _HELPER_PROPERTIES.reduce((o, k) => { o[k] = U; return o; }, {}),
 );
 
 // Unambiguous whole food of plant origin with no supported allergen present:
-// every property deterministically 'absent'. Used only for simple canonical
-// ingredients whose relevant properties are unambiguous from identity. No
-// "may contain" / cross-contamination semantics are ever added.
+// every helper-assignable property deterministically 'absent'. Used only for
+// simple canonical ingredients whose relevant properties are unambiguous from
+// identity. No "may contain" / cross-contamination semantics are ever added.
 const _PLANT_WHOLE_FOOD = Object.freeze(
-  SAFETY_PROPERTIES.reduce((o, k) => { o[k] = A; return o; }, {}),
+  _HELPER_PROPERTIES.reduce((o, k) => { o[k] = A; return o; }, {}),
 );
 
+// Helpers build the NON-pork portion of a record. A `pork` key here is a
+// programming error (caught at assembly) — pork comes only from the table.
 function rec(overrides) {
   return Object.freeze({ ..._ALL_UNRESOLVED, ...overrides });
 }
@@ -105,8 +128,10 @@ const _finfish = () => plant({ animalSlaughter: P, animalDerived: P, fish: P });
 const _dairyProduct = () => plant({ animalDerived: P, dairyMilk: P });
 
 // ── The records ──────────────────────────────────────────────────────────
+// Base records carry every property EXCEPT `pork` (helpers cannot express it).
+// `pork` is merged in from PORK_STATUS_BY_CANONICAL_ID by _assembleRecords().
 
-const SAFETY_RECORDS = Object.freeze({
+const _BASE_RECORDS = Object.freeze({
   // ── Meat / poultry / game (slaughter-derived; plain raw flesh carries no
   //    supported allergen) ────────────────────────────────────────────────
   chicken_breast: _meat(),
@@ -200,7 +225,8 @@ const SAFETY_RECORDS = Object.freeze({
   // FROZEN (B2 §12): do NOT assert every hummus contains tahini, and do NOT
   // make a broad positive dietary claim. sesame 'unresolved'; vegan and
   // vegetarian relevant properties 'unresolved' (restaurant hummus can carry
-  // dairy or a meat garnish). Everything stays 'unresolved'.
+  // dairy or a meat garnish). Everything stays 'unresolved' (pork is set
+  // separately from PORK_STATUS_BY_CANONICAL_ID).
   hummus: rec({}),
   // harissa = chilli paste. No frozen convention and not an unambiguous single
   // food (compounded paste + spices + oil) → everything 'unresolved'.
@@ -226,7 +252,7 @@ const SAFETY_RECORDS = Object.freeze({
   // ── Broths / stocks (FROZEN B2 §7) ────────────────────────────────────
   // vegetable_broth: animal-derived / vegan / vegetarian suitability all
   // UNRESOLVED — commercial vegetable broth is not deterministically
-  // vegetarian/vegan. Everything unresolved.
+  // vegetarian/vegan. Everything unresolved (pork set from the table).
   vegetable_broth: rec({}),
   // chicken_broth / beef_broth: animal-derived = true (→ not vegan) AND
   // slaughter-derived (→ not vegetarian). Unrelated allergens are NOT
@@ -234,6 +260,57 @@ const SAFETY_RECORDS = Object.freeze({
   chicken_broth: rec({ animalSlaughter: P, animalDerived: P }),
   beef_broth: rec({ animalSlaughter: P, animalDerived: P }),
 });
+
+// ── Pork authority — exhaustive, hand-audited, ONE entry per canonical id ──
+//
+// pork-free is a hard diet whose authority is an ingredient-IDENTITY fact, so
+// it must be an explicit decision per ingredient — never inherited from a
+// helper. This table is the SOLE source of the `pork` property. Load
+// validation (below) fails if it does not map every canonical id exactly once,
+// contains an unknown id, or carries an invalid value. Every current canonical
+// is deliberately 'absent': the frozen vocabulary contains no pork ingredient
+// or pork-derived product. A FUTURE pork ingredient (e.g. pork_loin, bacon,
+// chorizo, lard) MUST be added here as PROPERTY_VALUE.PRESENT before the
+// module will load.
+const PORK_STATUS_BY_CANONICAL_ID = Object.freeze({
+  chicken_breast: A, chicken_thighs: A, ground_beef: A, beef_chuck: A, salmon_fillets: A,
+  cod_fillet: A, shrimp: A, venison: A, eggs: A, milk: A,
+  almond_milk: A, greek_yogurt: A, plain_yogurt: A, butter: A, halloumi_cheese: A,
+  feta: A, banana: A, apple: A, spinach: A, broccoli: A,
+  bell_peppers: A, onion: A, tomato: A, carrots: A, potato: A,
+  sweet_potato: A, lemon: A, lime: A, garlic: A, cilantro: A,
+  cucumber: A, eggplant: A, white_rice: A, brown_rice: A, rice: A,
+  oats: A, bread: A, couscous: A, quinoa: A, corn_tortillas: A,
+  red_lentils: A, almonds: A, canned_chickpeas: A, black_beans_canned: A, canned_tomatoes: A,
+  hummus: A, harissa_paste: A, peanut_butter: A, honey: A, olive_oil: A,
+  vegetable_oil: A, soy_sauce: A, lemon_juice: A, lime_juice: A, vegetable_broth: A,
+  chicken_broth: A, beef_broth: A, salt: A, pepper: A, cumin: A,
+  paprika: A, cinnamon: A, rosemary: A,
+});
+
+// Merge the explicit pork authority into each base record. Throws on any base
+// record that already carries a `pork` key (helper misuse) or that lacks a
+// pork classification in the table.
+function _assembleRecords() {
+  const validValues = new Set(Object.values(PROPERTY_VALUE));
+  const out = {};
+  for (const [id, base] of Object.entries(_BASE_RECORDS)) {
+    if (Object.prototype.hasOwnProperty.call(base, 'pork')) {
+      throw new Error(`dietAttributeData: base record "${id}" set 'pork' via a helper — pork must come only from PORK_STATUS_BY_CANONICAL_ID`);
+    }
+    if (!Object.prototype.hasOwnProperty.call(PORK_STATUS_BY_CANONICAL_ID, id)) {
+      throw new Error(`dietAttributeData: canonical "${id}" has no explicit pork classification in PORK_STATUS_BY_CANONICAL_ID`);
+    }
+    const porkStatus = PORK_STATUS_BY_CANONICAL_ID[id];
+    if (!validValues.has(porkStatus)) {
+      throw new Error(`dietAttributeData: PORK_STATUS_BY_CANONICAL_ID["${id}"] has invalid value ${JSON.stringify(porkStatus)}`);
+    }
+    out[id] = Object.freeze({ ...base, pork: porkStatus });
+  }
+  return Object.freeze(out);
+}
+
+const SAFETY_RECORDS = _assembleRecords();
 
 // ── Load-time validation ─────────────────────────────────────────────────
 
@@ -276,6 +353,38 @@ function _validate() {
       throw new Error(`dietAttributeData: record "${id}" violates invariant animalSlaughter=present ⇒ animalDerived=present`);
     }
   }
+
+  // 4. The pork authority is EXHAUSTIVE and EXACT against the canonical
+  //    vocabulary (see _auditPorkAuthority).
+  _auditPorkAuthority(canonicalIds);
+}
+
+/**
+ * The pork authority must map EVERY given canonical id exactly once, contain
+ * NO id outside that set, and carry only valid tri-state values. This is the
+ * guarantee that forces an intentional pork decision for any future canonical
+ * ingredient — a new id with no entry here fails module load — and forbids a
+ * helper-inherited default. Exported (as __auditPorkAuthority) so a test can
+ * prove the "developer forgot to classify the new ingredient" case fails.
+ *
+ * @param {string[]} canonicalIds  the full canonical vocabulary id list
+ */
+function _auditPorkAuthority(canonicalIds) {
+  const validValues = new Set(Object.values(PROPERTY_VALUE));
+  const canonicalIdSet = new Set(canonicalIds);
+  for (const id of canonicalIds) {
+    if (!Object.prototype.hasOwnProperty.call(PORK_STATUS_BY_CANONICAL_ID, id)) {
+      throw new Error(`dietAttributeData: canonical "${id}" is missing from PORK_STATUS_BY_CANONICAL_ID — pork-free needs an explicit per-ingredient decision`);
+    }
+  }
+  for (const id of Object.keys(PORK_STATUS_BY_CANONICAL_ID)) {
+    if (!canonicalIdSet.has(id)) {
+      throw new Error(`dietAttributeData: PORK_STATUS_BY_CANONICAL_ID has entry "${id}" that is not a canonical ingredient`);
+    }
+    if (!validValues.has(PORK_STATUS_BY_CANONICAL_ID[id])) {
+      throw new Error(`dietAttributeData: PORK_STATUS_BY_CANONICAL_ID["${id}"] has invalid value ${JSON.stringify(PORK_STATUS_BY_CANONICAL_ID[id])}`);
+    }
+  }
 }
 
 _validate();
@@ -300,8 +409,10 @@ module.exports = {
   PROPERTY_VALUE,
   SAFETY_PROPERTIES,
   SAFETY_RECORDS,
+  PORK_STATUS_BY_CANONICAL_ID,
   getSafetyRecord,
   allSafetyRecords,
   // exported for the completeness test — throws on any coverage gap
   __validate: _validate,
+  __auditPorkAuthority: _auditPorkAuthority,
 };

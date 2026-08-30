@@ -42,6 +42,23 @@ const certificationAssessment = require('./certificationAssessment');
 const budgetEngine = require('./budgetEngine');
 const { CERTIFICATION_VERSION } = require('./certificationStatus');
 
+// Phase 3E-C1 — the deterministic dietary/allergen substrate (dietSafety /
+// dietRestrictionContract / dietAttributeData) is wired SHADOW-ONLY and is
+// LAZY-LOADED: it is `require`d only inside assessGeneratedWeekDietSafetyShadow,
+// which runs only for effective mode 'shadow' (incl. downgraded 'on'). With
+// CERTIFICATION_GATE=off the server never reaches that path, so the substrate
+// and its load-time validation are never pulled into the runtime dependency
+// graph — a malformed future dietary-data change cannot stop an off-mode boot.
+let _dietSafety = null;
+let _dietRestrictionContract = null;
+function _loadDietSubstrate() {
+  if (_dietSafety === null) {
+    _dietSafety = require('./dietSafety');
+    _dietRestrictionContract = require('./dietRestrictionContract');
+  }
+  return { dietSafety: _dietSafety, dietRestrictionContract: _dietRestrictionContract };
+}
+
 const GATE_MODE = Object.freeze({ OFF: 'off', SHADOW: 'shadow', ON: 'on' });
 const _KNOWN_MODES = new Set(Object.values(GATE_MODE));
 const MAX_REPAIR_ROUNDS = 1;
@@ -209,6 +226,65 @@ function _result(status, extra) {
 }
 
 /**
+ * SHADOW-ONLY deterministic dietary/allergen observation of a generated week.
+ *
+ * Runs B2 (dietSafety) against the settled week + the user's normalised
+ * restriction set and returns a small, privacy-safe summary. This is evidence
+ * only: the caller MUST NOT compose `dietSafetyCertified` into acceptance,
+ * block persistence, trigger repair, or return a 422 because of it.
+ *
+ * Privacy: the returned summary is BOTH the analytics payload and the persisted
+ * diagnostic, so it contains ONLY aggregate signal — enum statuses, integer
+ * counts, enum failure reasons, and the generic canonical INGREDIENT ids that
+ * are already inside the certification analytics boundary. It deliberately does
+ * NOT include the user's normalised restriction selections
+ * (activeDietIds / activeAllergenIds / activePreferenceOnlyIds) or any raw
+ * restriction text — those are the user's health/profile choices and already
+ * live in the profile; the shadow checkpoint does not need them duplicated.
+ *
+ * @param {{days:Array}} week
+ * @param {{diets?:Array, allergens?:Array}} restrictions  raw Mealzy channels
+ */
+function assessGeneratedWeekDietSafetyShadow(week, restrictions) {
+  const { dietSafety, dietRestrictionContract } = _loadDietSubstrate();
+
+  const days = Array.isArray(week && week.days) ? week.days : [];
+  const raw = restrictions && typeof restrictions === 'object' ? restrictions : {};
+  const diets = Array.isArray(raw.diets) ? raw.diets : [];
+  const allergens = Array.isArray(raw.allergens) ? raw.allergens : [];
+
+  const normalized = dietRestrictionContract.normalizeRestrictions({ diets, allergens });
+  const assessment = dietSafety.assessWeek(
+    { days: days.map((d) => ({ meals: Array.isArray(d && d.meals) ? d.meals : [] })) },
+    normalized,
+  );
+
+  const fails = assessment.failures || [];
+  const countType = (t) => fails.filter((f) => f.type === t).length;
+  const FT = dietSafety.FAILURE_TYPE;
+
+  return Object.freeze({
+    observationalOnly: true, // NEVER an acceptance input in C1
+    dietSubstrateVersion: dietRestrictionContract.DIET_SUBSTRATE_VERSION,
+    dietSafetyCertified: assessment.certified === true,
+    dietSafetyStatus: assessment.status,
+    supportedDietCount: assessment.activeDietIds.length,
+    supportedAllergenCount: assessment.activeAllergenIds.length,
+    preferenceOnlyCount: (assessment.activePreferenceOnlyIds || []).length,
+    unsupportedRestrictionCount: assessment.unsupportedRestrictionCount,
+    dietViolationCount: countType(FT.DIET_VIOLATION),
+    allergenViolationCount: countType(FT.ALLERGEN_VIOLATION),
+    unresolvedSafetyCount:
+      countType(FT.DIET_UNRESOLVED) + countType(FT.ALLERGEN_UNRESOLVED) + countType(FT.UNRESOLVED_INGREDIENT),
+    // canonical INGREDIENT ids only — generic Mealzy vocabulary, same boundary
+    // as the existing certification failure logging. NOT the user's selections.
+    failingCanonicalIngredientIds: [...new Set(fails.map((f) => f.canonicalIngredientId).filter(Boolean))],
+    // enum reason + channel only — NEVER the raw restriction text or its id.
+    unsupportedReasons: assessment.unsupportedRestrictions.map((u) => ({ reason: u.reason, channel: u.channel })),
+  });
+}
+
+/**
  * Run the gate. The caller invokes this ONLY for mode 'shadow' or 'on'
  * (mode 'off' means this module is never touched).
  *
@@ -225,6 +301,11 @@ function _result(status, extra) {
  *                   (server.js) never passes it, so hard enforcement stays
  *                   structurally unreachable until the constant flips. Tests
  *                   pass `true` to exercise the eventual 'on' state machine.
+ * @param {Array}    [opts.diets]                 raw diet-channel restriction strings
+ * @param {Array}    [opts.allergens]             raw allergy-channel restriction strings
+ *                   Phase 3E-C1: used ONLY for the SHADOW dietary/allergen
+ *                   observation attached as `result.dietSafety`. Never composed
+ *                   into acceptance, never blocks, never repairs, never 422s.
  */
 async function runCertificationGate({
   days,
@@ -234,6 +315,8 @@ async function runCertificationGate({
   generateRepairedWeek,
   onEvent,
   hardGateAuthorized,
+  diets,
+  allergens,
 } = {}) {
   const emit = typeof onEvent === 'function' ? onEvent : () => {};
   // Defense in depth: hard enforcement is unreachable unless production
@@ -243,6 +326,12 @@ async function runCertificationGate({
 
   const first = assessGeneratedWeek({ days, requestedBudgetCents, currency });
   const budgetEnforceable = first.budgetEnforceable;
+
+  // SHADOW-ONLY dietary/allergen observation. Computed once against the settled
+  // week; attached to every return value; NEVER an acceptance input in C1.
+  const dietSafetyShadow = assessGeneratedWeekDietSafetyShadow({ days }, { diets, allergens });
+  emit('diet_assessed', { round: 0, ...dietSafetyShadow });
+  const withDiet = (status, extra) => _result(status, { dietSafety: dietSafetyShadow, ...extra });
 
   emit('assessed', {
     round: 0,
@@ -254,12 +343,12 @@ async function runCertificationGate({
   });
 
   if (first.certified) {
-    return _result(GATE_STATUS.CERTIFIED, { days, assessment: first.assessment, gateResult: first });
+    return withDiet(GATE_STATUS.CERTIFIED, { days, assessment: first.assessment, gateResult: first });
   }
 
   // ── mode 'shadow': observe only, never block, never repair ───────────────
   if (!isOn) {
-    return _result(GATE_STATUS.SHADOW_UNCERTIFIED, { days, assessment: first.assessment, gateResult: first });
+    return withDiet(GATE_STATUS.SHADOW_UNCERTIFIED, { days, assessment: first.assessment, gateResult: first });
   }
 
   // ── mode 'on' from here ─────────────────────────────────────────────────
@@ -272,13 +361,13 @@ async function runCertificationGate({
   // repair call.
   if (!budgetEnforceable) {
     emit('failed', { reason: FAILURE_REASON.UNSUPPORTED_CURRENCY });
-    return _result(GATE_STATUS.FAILED, {
+    return withDiet(GATE_STATUS.FAILED, {
       days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNSUPPORTED_CURRENCY,
     });
   }
 
   if (typeof generateRepairedWeek !== 'function') {
-    return _result(GATE_STATUS.FAILED, {
+    return withDiet(GATE_STATUS.FAILED, {
       days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNCERTIFIED_NO_REPAIR,
     });
   }
@@ -292,7 +381,7 @@ async function runCertificationGate({
     repairedDays = await generateRepairedWeek(first, instruction);
   } catch (err) {
     emit('repair_failed', { round: 1, reason: FAILURE_REASON.REPAIR_GENERATION_ERROR });
-    return _result(GATE_STATUS.FAILED, {
+    return withDiet(GATE_STATUS.FAILED, {
       days, assessment: first.assessment, gateResult: first,
       repairAttempts: 1, failureReason: FAILURE_REASON.REPAIR_GENERATION_ERROR, repairError: err,
     });
@@ -310,13 +399,13 @@ async function runCertificationGate({
 
   if (second.certified) {
     emit('repair_succeeded', { round: 1 });
-    return _result(GATE_STATUS.CERTIFIED, {
+    return withDiet(GATE_STATUS.CERTIFIED, {
       days: repairedDays, assessment: second.assessment, gateResult: second, repaired: true, repairAttempts: 1,
     });
   }
 
   emit('repair_failed', { round: 1, reason: FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR });
-  return _result(GATE_STATUS.FAILED, {
+  return withDiet(GATE_STATUS.FAILED, {
     days: repairedDays, assessment: second.assessment, gateResult: second,
     repaired: true, repairAttempts: 1, failureReason: FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR,
   });
@@ -335,6 +424,7 @@ module.exports = {
   resolveEffectiveMode,
   isCurrencyCertifiable,
   assessGeneratedWeek,
+  assessGeneratedWeekDietSafetyShadow,
   buildRepairInstruction,
   runCertificationGate,
 };

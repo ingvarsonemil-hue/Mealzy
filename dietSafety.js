@@ -70,6 +70,7 @@ const DIET_AUTHORITY = Object.freeze({
   vegan: { property: 'animalDerived' },
   'gluten-free': { property: 'glutenGrain' },
   'dairy-free': { property: 'dairyMilk' },
+  'pork-free': { property: 'pork' },
 });
 
 // Supported allergen id → authoritative safety-record property.
@@ -312,6 +313,10 @@ function assessWeek(week, restrictions) {
     status: overallStatus,
     activeDietIds: normalized.activeDietIds,
     activeAllergenIds: normalized.activeAllergenIds,
+    // Recognised preference-only styles. Non-blocking: they are NOT hard
+    // restrictions and never affect `certified`. Surfaced for telemetry /
+    // prompt reuse only.
+    activePreferenceOnlyIds: normalized.activePreferenceOnlyIds || Object.freeze([]),
     unsupportedRestrictions: normalized.unsupported,
     unsupportedRestrictionCount: normalized.unsupported.length,
     hasUnsupportedRestrictions: normalized.hasUnsupported,

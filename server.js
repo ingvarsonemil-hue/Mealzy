@@ -3053,6 +3053,11 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             requestedBudgetCents,
             currency,
             mode: CERTIFICATION_GATE_MODE,
+            // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. These feed
+            // certificationGate's `result.dietSafety` summary only; they never
+            // affect acceptance, repair, persistence, quota, or status codes.
+            diets: dietaryPrefs,
+            allergens,
             generateRepairedWeek: gateOn ? generateRepairedWeek : undefined,
             onEvent: (name, payload) => {
               db.logEvent(`certification_gate_${name}`, { weekRequestId, requestedMode: CERTIFICATION_GATE_REQUESTED, mode: CERTIFICATION_GATE_MODE, ...payload }, '').catch(() => {});
@@ -3074,6 +3079,9 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             hardGateComplete: gateOutcome.hardGateComplete,
             weekFailures: gateOutcome.gateResult.weekFailures,
             failingIngredientCount: gateOutcome.gateResult.failingIngredients.length,
+            // Phase 3E-C1 — SHADOW dietary/allergen observation. Enum statuses,
+            // counts and canonical ids only; no raw restriction/allergy text.
+            dietSafety: gateOutcome.dietSafety || null,
           }, '');
 
           if (gateOn && gateOutcome.status === certificationGate.GATE_STATUS.FAILED) {
@@ -3107,6 +3115,10 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             // enforcement exists. Downstream must not represent it as such.
             hardGateComplete: gateOutcome.hardGateComplete,
             excludes: gateOutcome.excludes,
+            // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. Named to
+            // make its status explicit: this is NOT proof the week was
+            // diet-certified. It never contributes to `certified` above.
+            dietSafety: gateOutcome.dietSafety || null,
           };
         }
       }
