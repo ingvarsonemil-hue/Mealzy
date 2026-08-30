@@ -3057,7 +3057,7 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             // certificationGate's `result.dietSafety` summary only; they never
             // affect acceptance, repair, persistence, quota, or status codes.
             diets: dietaryPrefs,
-            allergens,
+            allergens: allergies,
             generateRepairedWeek: gateOn ? generateRepairedWeek : undefined,
             onEvent: (name, payload) => {
               db.logEvent(`certification_gate_${name}`, { weekRequestId, requestedMode: CERTIFICATION_GATE_REQUESTED, mode: CERTIFICATION_GATE_MODE, ...payload }, '').catch(() => {});

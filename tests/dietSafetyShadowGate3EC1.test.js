@@ -189,6 +189,79 @@ test('31/32. off-mode + legacy regex isolation (static guards)', () => {
   assert.ok(idxGuard > 0 && idxCall > idxGuard);
 });
 
+test('route wiring: /api/generate-meal week mode reaches runCertificationGate with only declared identifiers (regression: allergens was undeclared)', () => {
+  const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
+
+  // 1. The call is reached: it sits inside the week-mode branch of the
+  //    /api/generate-meal handler, under the CERTIFICATION_GATE_ACTIVE guard.
+  const idxRoute = server.indexOf("app.post('/api/generate-meal'");
+  const idxWeekMode = server.indexOf('if (weekStart) {', idxRoute);
+  const idxGuard = server.indexOf('if (CERTIFICATION_GATE_ACTIVE) {', idxWeekMode);
+  const idxCall = server.indexOf('certificationGate.runCertificationGate({', idxGuard);
+  assert.ok(idxRoute > 0, 'generate-meal route present');
+  assert.ok(idxWeekMode > idxRoute, 'week-mode branch is inside the route');
+  assert.ok(idxGuard > idxWeekMode, 'gate guard is inside week mode');
+  assert.ok(idxCall > idxGuard, 'runCertificationGate is called under the guard');
+
+  // 2. runCertificationGate is called exactly once in server.js.
+  assert.equal(
+    server.split('certificationGate.runCertificationGate({').length - 1, 1,
+    'exactly one runCertificationGate call site',
+  );
+
+  // 3. Extract the call's argument object by brace-matching.
+  const open = server.indexOf('{', idxCall);
+  let depth = 0; let end = -1;
+  for (let i = open; i < server.length; i++) {
+    if (server[i] === '{') depth++;
+    else if (server[i] === '}') { depth--; if (depth === 0) { end = i; break; } }
+  }
+  assert.ok(end > open, 'call argument object braces matched');
+  const argSrc = server.slice(open + 1, end);
+
+  // 4. Every identifier passed as an argument value must be a real binding in
+  //    server.js — a bare undeclared identifier (the `allergens` bug) throws
+  //    ReferenceError at runtime and silently kills the whole shadow gate.
+  const declared = new Set();
+  for (const m of server.matchAll(/\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g)) declared.add(m[1]);
+  // route-handler destructured params + loop bindings
+  for (const m of server.matchAll(/\b(?:const|let)\s*\{([^}]*)\}\s*=/g)) {
+    for (const part of m[1].split(',')) {
+      const name = part.split(':').pop().trim().replace(/\s*=.*$/, '');
+      if (/^[A-Za-z_$][\w$]*$/.test(name)) declared.add(name);
+    }
+  }
+
+  const valuesToCheck = [];
+  for (const line of argSrc.split('\n')) {
+    const s = line.replace(/\/\/.*$/, '').trim();
+    if (!s || s.startsWith('//')) continue;
+    const kv = s.match(/^([A-Za-z_$][\w$]*)\s*:\s*(.+?),?\s*$/);
+    if (kv) {
+      valuesToCheck.push({ key: kv[1], expr: kv[2].replace(/,\s*$/, '') });
+      continue;
+    }
+    const shorthand = s.match(/^([A-Za-z_$][\w$]*),?\s*$/);
+    if (shorthand) valuesToCheck.push({ key: shorthand[1], expr: shorthand[1] });
+  }
+
+  for (const { key, expr } of valuesToCheck) {
+    const idMatch = expr.match(/^([A-Za-z_$][\w$]*)$/);
+    if (!idMatch) continue; // inline expression / ternary / arrow — not a bare identifier
+    assert.ok(
+      declared.has(idMatch[1]),
+      `runCertificationGate arg "${key}: ${expr}" — "${idMatch[1]}" is not a declared binding in server.js`,
+    );
+  }
+
+  // 5. Explicit regression pin: the allergen channel is fed from the route's
+  //    `allergies` variable, never a bare `allergens` (which never existed).
+  assert.ok(/\ballergens\s*:\s*allergies\b/.test(argSrc), 'allergens: allergies wiring present');
+  assert.ok(!/^\s*allergens\s*,?\s*$/m.test(argSrc), 'no bare undeclared `allergens` shorthand');
+  assert.ok(declared.has('allergies'), '`allergies` is declared in the route');
+  assert.ok(/\bdiets\s*:\s*dietaryPrefs\b/.test(argSrc) && declared.has('dietaryPrefs'), 'diets: dietaryPrefs wiring intact');
+});
+
 test('adversarial: canonical scenarios resolve as expected in shadow', async () => {
   const one = (ings, diets = [], allergens = []) => gate.runCertificationGate({
     days: [{ meals: [{ type: 'dinner', name: 'x', ingredients: ings.map((n) => ({ name: n, amountValue: 50, amountUnit: 'g' })) }] }],
