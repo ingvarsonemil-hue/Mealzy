@@ -176,6 +176,20 @@ test('1. week-mode /api/generate-meal executes end to end and returns a certific
   assert.equal(cert.dietSafety.supportedAllergenCount, 1,
     'peanut allergy normalized through the single gate boundary');
 
+  // ── C3A-2 combined result shape, surfaced verbatim from runCertificationGate
+  assert.equal(typeof cert.certified, 'boolean', 'certified surfaced');
+  assert.equal(typeof cert.acceptable, 'boolean', 'acceptable surfaced');
+  assert.equal(typeof cert.dietSafety.dietSafetyCertified, 'boolean', 'diet sub-verdict surfaced');
+  assert.deepEqual(Object.keys(cert.deterministicStatus).sort(),
+    ['canonicalCoverage', 'nutritionCoverage', 'purchase', 'structure'],
+    'deterministicStatus surfaced separately from the gate status');
+  // shadow: no authorized hard diet ⇒ acceptable is exactly the deterministic verdict
+  assert.equal(cert.acceptable, cert.certified,
+    'in shadow, acceptable === certified (dietSafety is observational only)');
+  assert.equal(cert.certified, cert.status === 'certified',
+    'certified still means the deterministic-only verdict');
+  assert.equal(cert.hardGateComplete, false, 'hard gate never complete before C4');
+
   // ── (8) shadow did not reject ─────────────────────────────────────────
   assert.notEqual(res.status, 422);
   assert.notEqual(res.body.error, 'certification_failed');

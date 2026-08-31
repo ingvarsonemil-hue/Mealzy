@@ -314,6 +314,15 @@ function assessGeneratedWeekDietSafetyShadow(week, restrictions) {
  *                   Phase 3E-C1: used ONLY for the SHADOW dietary/allergen
  *                   observation attached as `result.dietSafety`. Never composed
  *                   into acceptance, never blocks, never repairs, never 422s.
+ *
+ * @returns Every return carries the Phase 3E-C3A-2 combined shape:
+ *   certified            deterministic-only verdict (unchanged meaning)
+ *   deterministicStatus  { structure, canonicalCoverage, nutritionCoverage, purchase }
+ *   dietSafetyCertified  dietary/allergen sub-verdict (never composed into `certified`)
+ *   acceptable           certified && (!authorizedHardDiet || dietSafetyCertified)
+ *   hardGateComplete     authorizedHardDiet && acceptable  (false until C4)
+ *   status               GATE_STATUS (unchanged vocabulary)
+ *   dietSafety           the privacy-safe shadow summary
  */
 async function runCertificationGate({
   days,
@@ -351,6 +360,38 @@ async function runCertificationGate({
   emit('diet_assessed', { round: 0, ...dietSafetyShadow });
   const withDiet = (status, extra) => _result(status, { dietSafety: dietSafetyShadow, ...extra });
 
+  // Phase 3E-C3A-2 — the frozen COMBINED result shape. Composed HERE and ONLY
+  // here; server.js consumes these fields verbatim and never recomposes them.
+  //
+  //   authorizedHardDiet := effective mode is 'on' AND production-authorized.
+  //     Structurally unreachable today (HARD_GATE_PRODUCTION_AUTHORIZED === false
+  //     ⇒ isOn === false), so in every reachable mode:
+  //       acceptable        === deterministic.certified
+  //       hardGateComplete  === false
+  //     Dietary safety therefore stays observational until the C4 authorization
+  //     checkpoint flips the constant and bumps CERTIFICATION_VERSION.
+  const authorizedHardDiet = isOn;
+  const combined = (det) => {
+    const certified = det.certified === true;                       // deterministic-only — UNCHANGED meaning
+    const dietSafetyCertified = dietSafetyShadow.dietSafetyCertified === true;
+    const acceptable = certified && (!authorizedHardDiet || dietSafetyCertified);
+    return {
+      certified,
+      // The deterministic assessment's own status, surfaced separately from the
+      // overall gate `status` so callers can tell WHICH dimension failed.
+      // Existing enums from certificationAssessment.assessWeek — no new vocabulary.
+      deterministicStatus: {
+        structure: det.assessment.structureStatus,
+        canonicalCoverage: det.assessment.canonicalCoverage,
+        nutritionCoverage: det.assessment.nutritionCoverage,
+        purchase: det.assessment.purchase.status,
+      },
+      dietSafetyCertified,      // dietary/allergen SUB-verdict — never composed into `certified`
+      acceptable,
+      hardGateComplete: authorizedHardDiet && acceptable,
+    };
+  };
+
   emit('assessed', {
     round: 0,
     certified: first.certified,
@@ -361,12 +402,12 @@ async function runCertificationGate({
   });
 
   if (first.certified) {
-    return withDiet(GATE_STATUS.CERTIFIED, { days, assessment: first.assessment, gateResult: first });
+    return withDiet(GATE_STATUS.CERTIFIED, { ...combined(first), days, assessment: first.assessment, gateResult: first });
   }
 
   // ── mode 'shadow': observe only, never block, never repair ───────────────
   if (!isOn) {
-    return withDiet(GATE_STATUS.SHADOW_UNCERTIFIED, { days, assessment: first.assessment, gateResult: first });
+    return withDiet(GATE_STATUS.SHADOW_UNCERTIFIED, { ...combined(first), days, assessment: first.assessment, gateResult: first });
   }
 
   // ── mode 'on' from here ─────────────────────────────────────────────────
@@ -380,13 +421,13 @@ async function runCertificationGate({
   if (!budgetEnforceable) {
     emit('failed', { reason: FAILURE_REASON.UNSUPPORTED_CURRENCY });
     return withDiet(GATE_STATUS.FAILED, {
-      days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNSUPPORTED_CURRENCY,
+      ...combined(first), days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNSUPPORTED_CURRENCY,
     });
   }
 
   if (typeof generateRepairedWeek !== 'function') {
     return withDiet(GATE_STATUS.FAILED, {
-      days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNCERTIFIED_NO_REPAIR,
+      ...combined(first), days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNCERTIFIED_NO_REPAIR,
     });
   }
 
@@ -418,13 +459,13 @@ async function runCertificationGate({
   if (second.certified) {
     emit('repair_succeeded', { round: 1 });
     return withDiet(GATE_STATUS.CERTIFIED, {
-      days: repairedDays, assessment: second.assessment, gateResult: second, repaired: true, repairAttempts: 1,
+      ...combined(second), days: repairedDays, assessment: second.assessment, gateResult: second, repaired: true, repairAttempts: 1,
     });
   }
 
   emit('repair_failed', { round: 1, reason: FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR });
   return withDiet(GATE_STATUS.FAILED, {
-    days: repairedDays, assessment: second.assessment, gateResult: second,
+    ...combined(second), days: repairedDays, assessment: second.assessment, gateResult: second,
     repaired: true, repairAttempts: 1, failureReason: FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR,
   });
 }

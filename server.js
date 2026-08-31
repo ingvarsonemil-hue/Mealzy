@@ -3090,7 +3090,11 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             stage: 'postgen', status: gateOutcome.status,
             repaired: gateOutcome.repaired, repairAttempts: gateOutcome.repairAttempts,
             failureReason: gateOutcome.failureReason || null,
+            // Phase 3E-C3A-2 combined shape — all composed inside runCertificationGate.
+            certified: gateOutcome.certified,
+            acceptable: gateOutcome.acceptable,
             hardGateComplete: gateOutcome.hardGateComplete,
+            deterministicStatus: gateOutcome.deterministicStatus,
             weekFailures: gateOutcome.gateResult.weekFailures,
             failingIngredientCount: gateOutcome.gateResult.failingIngredients.length,
             // Phase 3E-C1 — SHADOW dietary/allergen observation. Enum statuses,
@@ -3121,12 +3125,21 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             downgraded: _gateModeResolution.downgraded,
             enforced: gateOn,
             status: gateOutcome.status,
-            certified: gateOutcome.status === certificationGate.GATE_STATUS.CERTIFIED,
+            // Phase 3E-C3A-2 — the combined verdict shape, composed ONLY inside
+            // runCertificationGate. server.js surfaces these fields verbatim and
+            // never recomposes them.
+            //   certified          deterministic-only verdict (unchanged meaning)
+            //   acceptable         combined verdict; === certified while hard
+            //                      authorization is unavailable (all reachable modes)
+            //   deterministicStatus which deterministic dimension passed/failed
+            certified: gateOutcome.certified,
+            acceptable: gateOutcome.acceptable,
+            deterministicStatus: gateOutcome.deterministicStatus,
             repaired: gateOutcome.repaired,
             failureReason: gateOutcome.failureReason || null,
             // Explicit marker: this is NOT the complete Mealzy hard
             // certification gate until deterministic dietary/allergen
-            // enforcement exists. Downstream must not represent it as such.
+            // enforcement exists. false until the C4 authorization checkpoint.
             hardGateComplete: gateOutcome.hardGateComplete,
             excludes: gateOutcome.excludes,
             // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. Named to
