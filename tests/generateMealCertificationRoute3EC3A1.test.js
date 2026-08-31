@@ -168,15 +168,15 @@ test('1. week-mode /api/generate-meal executes end to end and returns a certific
   const cert = res.body.weeklyTotals.certification;
   assert.ok(cert, 'weeklyTotals.certification is populated — the gate block executed without a caught ReferenceError');
   assert.equal(cert.requestedMode, 'shadow');
-  assert.equal(cert.mode, 'shadow');
+  assert.equal(cert.effectiveMode, 'shadow');       // C3C: renamed from `mode`
   assert.equal(cert.enforced, false);
   assert.equal(cert.hardGateComplete, false);
   assert.equal(cert.certificationVersion, 1);
+  assert.equal(cert.dietSubstrateVersion, 1);        // C3C: lifted to top level
 
   // ── (6)(7) dietSafety observational result present ─────────────────────
   assert.ok(cert.dietSafety, 'dietSafety summary attached');
   assert.equal(cert.dietSafety.observationalOnly, true);
-  assert.equal(cert.dietSafety.dietSubstrateVersion, 1);
   // the raw ['peanut'] allergy channel reached the gate and normalized once
   assert.equal(cert.dietSafety.supportedAllergenCount, 1,
     'peanut allergy normalized through the single gate boundary');
@@ -274,14 +274,14 @@ test('3. C3A-3: an unsupported hard restriction (keto) preflights BEFORE generat
   assert.equal(res.body.days.length, 7);
   assert.equal(anthropicCalls.length, 7, 'generation proceeded — 7 day calls, unchanged');
 
-  // ── (2) preflight detected the unsupported restriction ─────────────────
+  // ── (2) unsupported restriction recorded in the snapshot's dietSafety ──
+  // C3C: the historical snapshot carries no top-level `preflight`; unsupported
+  // info lives in dietSafety.unsupportedRestrictionCount / unsupportedReasons.
   const cert = res.body.weeklyTotals.certification;
-  assert.ok(cert.preflight, 'preflight surfaced on the certification result');
-  assert.equal(cert.preflight.hasUnsupported, true);
-  assert.equal(cert.preflight.unsupportedRestrictionCount, 1);
-  assert.equal(cert.preflight.observationalOnly, true, 'inert while unauthorized');
-  assert.equal(cert.preflight.unsupportedReasons[0].reason, 'unsupported_hard_rule');
-  assert.equal(cert.preflight.unsupportedReasons[0].channel, 'diets');
+  assert.equal(cert.preflight, undefined, 'no top-level preflight on the C3C snapshot');
+  assert.equal(cert.dietSafety.unsupportedRestrictionCount, 1);
+  assert.equal(cert.dietSafety.unsupportedReasons[0].reason, 'unsupported_hard_rule');
+  assert.equal(cert.dietSafety.unsupportedReasons[0].channel, 'diets');
 
   // ── (18) execution order: preflight log precedes the first Anthropic call ─
   const iPreflight = execOrder.findIndex((e) => e.kind === 'logEvent' && e.event === 'certification_gate_preflight');
@@ -300,10 +300,10 @@ test('3. C3A-3: an unsupported hard restriction (keto) preflights BEFORE generat
   // ── (9)(10) persistence + quota still succeed ─────────────────────────
   assert.ok(res.body.planId);
   const saved = await db.getPlanById(res.body.planId, proUserId);
-  assert.ok(saved && saved.weeklyTotals.certification.preflight.hasUnsupported === true);
+  assert.ok(saved && saved.weeklyTotals.certification.dietSafety.unsupportedRestrictionCount === 1);
 
-  // ── (13) preflight output carries no raw restriction strings ──────────
-  assert.equal(JSON.stringify(cert.preflight).toLowerCase().includes('keto'), false);
+  // ── (13) snapshot carries no raw restriction strings ─────────────────
+  assert.equal(JSON.stringify(cert).toLowerCase().includes('keto'), false);
 });
 
 test('4. C3B: server rejects on `enforced && !acceptable` ONLY — not status, not certified', async () => {

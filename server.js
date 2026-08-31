@@ -3148,39 +3148,52 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             days.push(...gateOutcome.days);
           }
 
+          // Phase 3E-C3C — the IMMUTABLE / VERSIONED historical certification
+          // snapshot. Frozen 15-key schema. server.js is a RECORDER: every value
+          // is copied verbatim from the authoritative gate outcome or from
+          // server-owned mode resolution (requestedMode / effectiveMode /
+          // downgraded). Nothing here is recomputed or reinterpreted. This one
+          // object is what both the generation response and db.savePlan store,
+          // so response and persisted snapshot are byte-identical (same ref).
+          const _ds = gateOutcome.dietSafety || {};
           certificationResult = {
-            certificationVersion: certificationGate.CERTIFICATION_VERSION,
+            certificationVersion: gateOutcome.certificationVersion,
+            dietSubstrateVersion: gateOutcome.dietSubstrateVersion,
+            certifiedAt: gateOutcome.certifiedAt,
+
             requestedMode: CERTIFICATION_GATE_REQUESTED,
-            mode: CERTIFICATION_GATE_MODE,
+            effectiveMode: CERTIFICATION_GATE_MODE,
             downgraded: _gateModeResolution.downgraded,
             enforced: gateOutcome.enforced,
-            retry: gateOutcome.retry ?? null,
+
             status: gateOutcome.status,
-            // Phase 3E-C3A-2 — the combined verdict shape, composed ONLY inside
-            // runCertificationGate. server.js surfaces these fields verbatim and
-            // never recomposes them.
-            //   certified          deterministic-only verdict (unchanged meaning)
-            //   acceptable         combined verdict; === certified while hard
-            //                      authorization is unavailable (all reachable modes)
-            //   deterministicStatus which deterministic dimension passed/failed
             certified: gateOutcome.certified,
             acceptable: gateOutcome.acceptable,
-            deterministicStatus: gateOutcome.deterministicStatus,
-            repaired: gateOutcome.repaired,
-            failureReason: gateOutcome.failureReason || null,
-            // Explicit marker: this is NOT the complete Mealzy hard
-            // certification gate until deterministic dietary/allergen
-            // enforcement exists. false until the C4 authorization checkpoint.
             hardGateComplete: gateOutcome.hardGateComplete,
-            excludes: gateOutcome.excludes,
-            // Phase 3E-C3A-3 — the pre-generation restriction preflight,
-            // observational only (observationalOnly === true while unauthorized).
-            // Detected unsupported restrictions never rejected this request.
-            preflight: gateOutcome.preflight || null,
-            // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. Named to
-            // make its status explicit: this is NOT proof the week was
-            // diet-certified. It never contributes to `certified` above.
-            dietSafety: gateOutcome.dietSafety || null,
+
+            repaired: gateOutcome.repaired,
+            repairAttempts: gateOutcome.repairAttempts,
+
+            deterministicStatus: gateOutcome.deterministicStatus,
+
+            // Frozen 12-key projection of the gate's privacy-safe dietary
+            // summary — copies gate values, drops the gate-internal nested
+            // dietSubstrateVersion (lifted to top level above). No raw
+            // restrictions, no raw ingredient names.
+            dietSafety: {
+              observationalOnly: _ds.observationalOnly,
+              dietSafetyCertified: _ds.dietSafetyCertified,
+              dietSafetyStatus: _ds.dietSafetyStatus,
+              supportedDietCount: _ds.supportedDietCount,
+              supportedAllergenCount: _ds.supportedAllergenCount,
+              preferenceOnlyCount: _ds.preferenceOnlyCount,
+              unsupportedRestrictionCount: _ds.unsupportedRestrictionCount,
+              dietViolationCount: _ds.dietViolationCount,
+              allergenViolationCount: _ds.allergenViolationCount,
+              unresolvedSafetyCount: _ds.unresolvedSafetyCount,
+              failingCanonicalIngredientIds: _ds.failingCanonicalIngredientIds,
+              unsupportedReasons: _ds.unsupportedReasons,
+            },
           };
         }
       }

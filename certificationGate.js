@@ -457,6 +457,11 @@ async function runCertificationGate({
   const preflight = _ctx.preflight;
   emit('preflight_assessed', { ...preflight });
 
+  // Phase 3E-C3C — the historical certification-snapshot stamp. Generated ONCE
+  // per gate execution and carried verbatim on every return, so the response
+  // and the persisted copy share the exact same timestamp and version pair.
+  const certifiedAt = new Date().toISOString();
+
   const first = assessGeneratedWeek({ days, requestedBudgetCents, currency });
   const budgetEnforceable = first.budgetEnforceable;
 
@@ -503,10 +508,13 @@ async function runCertificationGate({
       enforced: authorizedHardDiet,
       hardGateComplete: authorizedHardDiet && acceptable,
       // Phase 3E-C3A-3 — the pre-generation restriction preflight, echoed onto
-      // every gate result so the persisted certification picture is complete.
-      // Observational only: it never contributed to `acceptable` above and never
-      // caused a rejection (observationalOnly === true while unauthorized).
+      // every gate result so the caller can log it. NOT part of the C3C
+      // historical snapshot (unsupported info lives in the dietSafety summary).
       preflight,
+      // Phase 3E-C3C — version/timestamp stamp for the historical snapshot.
+      certificationVersion: CERTIFICATION_VERSION,
+      dietSubstrateVersion: dietSummary.dietSubstrateVersion,
+      certifiedAt,
     };
   };
   // Every FAILED return carries the frozen retry hint (server.js reads
