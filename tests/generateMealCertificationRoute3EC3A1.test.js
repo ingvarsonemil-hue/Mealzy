@@ -36,6 +36,7 @@ const PRO_EMAIL = `pro-${randomUUID().slice(0, 8)}@example.test`;
 process.env.DEV_PRO_EMAIL = PRO_EMAIL;
 
 const db = require('../db.js');
+const certificationGate = require('../certificationGate');
 const app = require('../server.js');
 
 // ── deterministic Anthropic stub ─────────────────────────────────────────
@@ -303,4 +304,91 @@ test('3. C3A-3: an unsupported hard restriction (keto) preflights BEFORE generat
 
   // ── (13) preflight output carries no raw restriction strings ──────────
   assert.equal(JSON.stringify(cert.preflight).toLowerCase().includes('keto'), false);
+});
+
+test('4. C3B: server rejects on `enforced && !acceptable` ONLY — not status, not certified', async () => {
+  anthropicCalls.length = 0;
+  const realRunGate = certificationGate.runCertificationGate;
+
+  // Adversarial synthetic outcome: status/certified would read as SUCCESS if
+  // server.js recomputed the verdict, but enforced && !acceptable must reject.
+  const synthetic = {
+    status: certificationGate.GATE_STATUS.CERTIFIED,   // misleading on purpose
+    certified: true,                                    // deterministic "passed"
+    dietSafetyCertified: false,
+    acceptable: false,                                  // the ONLY field that matters
+    enforced: true,                                     // authorized hard mode
+    hardGateComplete: false,
+    retry: true,
+    repaired: true,
+    repairAttempts: 1,
+    failureReason: certificationGate.FAILURE_REASON.DIET_UNCERTIFIED_AFTER_REPAIR,
+    deterministicStatus: { structure: 'ok', canonicalCoverage: 'covered', nutritionCoverage: 'complete', purchase: 'certified' },
+    preflight: { observationalOnly: false, hasUnsupported: false, unsupportedRestrictionCount: 0, unsupportedReasons: [] },
+    dietSafety: { observationalOnly: true, dietSafetyCertified: false, dietViolationCount: 3 },
+    excludes: ['dietary_safety', 'allergen_safety'],
+    days: [],
+    assessment: {},
+    gateResult: { weekFailures: [], failingIngredients: [] },
+  };
+  certificationGate.runCertificationGate = async () => synthetic;
+
+  const beforePlans = (await db.getRecentPlans(proUserId, 50)).length;
+  const beforeGenEvents = (await db.getAnalytics()).filter((e) => e.event === 'generate_plan').length;
+
+  let res;
+  try {
+    res = await postGenerateMeal({
+      weekStart: '2026-09-14',
+      profile: { name: 'Pro Tester', daily_calories: 1800, dietary_preferences: [], allergies: [], currency: 'SEK', budget_weekly: 900 },
+    }, { Cookie: proCookie() });
+  } finally {
+    certificationGate.runCertificationGate = realRunGate;
+  }
+
+  assert.equal(res.status, 422, 'enforced && !acceptable → 422 despite status:CERTIFIED / certified:true');
+  assert.equal(res.body.error, 'certification_failed');
+  assert.equal(res.body.retry, true, 'retry comes from the gate verdict');
+  assert.equal(res.body.reason, 'diet_uncertified_after_repair');
+  assert.ok(!res.body.planId && !res.body.success, 'no successful plan returned');
+
+  // no persistence, no quota consumption
+  const afterPlans = (await db.getRecentPlans(proUserId, 50)).length;
+  const afterGenEvents = (await db.getAnalytics()).filter((e) => e.event === 'generate_plan').length;
+  assert.equal(afterPlans, beforePlans, 'no plan persisted');
+  assert.equal(afterGenEvents, beforeGenEvents, 'no generate_plan quota event');
+
+  // no second certification repair path was invoked in server.js (the stub is
+  // the whole gate; server must not call it twice)
+});
+
+test('5. C3B: shadow route regression — enforced=false, guard never fires, success unchanged', async () => {
+  anthropicCalls.length = 0;
+  const res = await postGenerateMeal(WEEK_BODY, { Cookie: proCookie() });
+  assert.equal(res.status, 200);
+  assert.equal(res.body.success, true);
+  const cert = res.body.weeklyTotals.certification;
+  assert.equal(cert.enforced, false, 'shadow: not enforced → server guard cannot reject');
+  assert.equal(cert.acceptable, cert.certified);
+  assert.equal(cert.hardGateComplete, false);
+  assert.equal(cert.repaired, false);
+  assert.equal(anthropicCalls.length, 7, 'no certification repair call added');
+  assert.ok(res.body.planId, 'persistence still succeeds');
+});
+
+test('6. C3B: legacy allergy regex is NOT merged into certification — fires during generation, retry=true, no gate involvement', async () => {
+  anthropicCalls.length = 0;
+  // stub meals contain "white rice"; the legacy regex matches \brice\b and
+  // throws AllergyViolationError inside generateDayMealPlan, before the gate.
+  const res = await postGenerateMeal({
+    weekStart: '2026-09-21',
+    profile: { name: 'Pro Tester', daily_calories: 1800, dietary_preferences: [], allergies: ['rice'], currency: 'SEK', budget_weekly: 900 },
+  }, { Cookie: proCookie() });
+
+  assert.equal(res.status, 400, 'legacy allergy path uses its existing 400');
+  assert.equal(res.body.error, 'allergy_violation', 'NOT certification_failed');
+  assert.equal(res.body.retry, true, 'legacy regex → retry=true (distinct from unsupported-restriction retry=false)');
+  assert.notEqual(res.body.reason, 'diet_uncertified_after_repair', 'generation-stage allergy error is not reclassified as a post-repair diet failure');
+  assert.ok(!res.body.weeklyTotals, 'certification gate never ran — no weeklyTotals.certification');
+  assert.ok(anthropicCalls.length >= 1 && anthropicCalls.length <= 7, 'generation started but was aborted by the regex; no repair loop');
 });

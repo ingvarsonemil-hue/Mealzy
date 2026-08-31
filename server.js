@@ -3113,9 +3113,10 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             stage: 'postgen', status: gateOutcome.status,
             repaired: gateOutcome.repaired, repairAttempts: gateOutcome.repairAttempts,
             failureReason: gateOutcome.failureReason || null,
-            // Phase 3E-C3A-2 combined shape — all composed inside runCertificationGate.
+            // Phase 3E-C3A-2 / C3B combined shape — all composed inside runCertificationGate.
             certified: gateOutcome.certified,
             acceptable: gateOutcome.acceptable,
+            enforced: gateOutcome.enforced,
             hardGateComplete: gateOutcome.hardGateComplete,
             deterministicStatus: gateOutcome.deterministicStatus,
             weekFailures: gateOutcome.gateResult.weekFailures,
@@ -3125,18 +3126,24 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             dietSafety: gateOutcome.dietSafety || null,
           }, '');
 
-          if (gateOn && gateOutcome.status === certificationGate.GATE_STATUS.FAILED) {
-            // Existing failure path — nothing persisted, no quota consumed.
+          // Phase 3E-C3B — the SOLE certification rejection boundary. Keyed
+          // ONLY on the gate's own combined verdict: enforced (this run was in
+          // authorized hard mode) AND !acceptable. NOT on status, NOT on
+          // certified, NOT on dietSafetyCertified, NOT on preflight — server.js
+          // never re-derives the verdict. `enforced` is false in every reachable
+          // production mode, so this never fires today.
+          if (gateOutcome.enforced && !gateOutcome.acceptable) {
+            // No plan persisted, no quota consumed (both happen further below).
             return res.status(422).json({
               error: 'certification_failed',
-              retry: gateOutcome.failureReason !== certificationGate.FAILURE_REASON.UNSUPPORTED_CURRENCY,
+              retry: gateOutcome.retry === true,       // frozen retry hint from the gate
               reason: gateOutcome.failureReason || 'uncertified',
               message: gateOutcome.failureReason === certificationGate.FAILURE_REASON.UNSUPPORTED_CURRENCY
                 ? "Verified weekly plans aren't available for this currency yet."
                 : "Mealzy couldn't build a fully verified plan this time. Please try generating again.",
             });
           }
-          if (gateOn && gateOutcome.repaired && Array.isArray(gateOutcome.days)) {
+          if (gateOutcome.enforced && gateOutcome.repaired && Array.isArray(gateOutcome.days)) {
             days.length = 0;
             days.push(...gateOutcome.days);
           }
@@ -3146,7 +3153,8 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             requestedMode: CERTIFICATION_GATE_REQUESTED,
             mode: CERTIFICATION_GATE_MODE,
             downgraded: _gateModeResolution.downgraded,
-            enforced: gateOn,
+            enforced: gateOutcome.enforced,
+            retry: gateOutcome.retry ?? null,
             status: gateOutcome.status,
             // Phase 3E-C3A-2 — the combined verdict shape, composed ONLY inside
             // runCertificationGate. server.js surfaces these fields verbatim and

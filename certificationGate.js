@@ -80,15 +80,27 @@ const GATE_STATUS = Object.freeze({
 
 const FAILURE_REASON = Object.freeze({
   UNSUPPORTED_CURRENCY: 'unsupported_currency', // package-budget certification cannot run for this currency
-  UNCERTIFIED_AFTER_REPAIR: 'uncertified_after_repair',
+  UNCERTIFIED_AFTER_REPAIR: 'uncertified_after_repair',       // deterministic still uncertified after the ONE repair
   UNCERTIFIED_NO_REPAIR: 'uncertified_no_repair_fn',
   REPAIR_GENERATION_ERROR: 'repair_generation_error',
+  // Phase 3E-C3B — deterministic certification passed after the ONE combined
+  // repair but AUTHORIZED dietary/allergen safety did not. Distinct from the
+  // deterministic reason so telemetry can tell which dimension failed.
+  DIET_UNCERTIFIED_AFTER_REPAIR: 'diet_uncertified_after_repair',
   // Phase 3E-C3A-3 — RESERVED for the C4 authorized-hard preflight. The
   // machinery that would emit this (a BEFORE-Anthropic 422 when
   // normalized.hasUnsupported) is NOT implemented here; while
   // HARD_GATE_PRODUCTION_AUTHORIZED is false this value is never produced.
   UNSUPPORTED_HARD_RESTRICTION: 'unsupported_hard_restriction',
 });
+
+// Frozen retry contract consumed by server.js on an enforced rejection. Only a
+// currency/restriction mismatch is non-retryable (regenerating cannot help);
+// everything else invites another generation attempt.
+const _NON_RETRYABLE = new Set([FAILURE_REASON.UNSUPPORTED_CURRENCY, FAILURE_REASON.UNSUPPORTED_HARD_RESTRICTION]);
+function _retryable(failureReason) {
+  return !_NON_RETRYABLE.has(failureReason);
+}
 
 /** Normalise the raw env value to the REQUESTED mode. Only exactly
  * 'off' | 'shadow' | 'on' (case-insensitive, trimmed) are honoured; anything
@@ -197,10 +209,19 @@ const _FAILURE_HINT = {
 };
 
 /**
- * Deterministic, PII-free repair instruction built purely from the assessment
- * failures. Never invents replacement ingredients or authoritative values.
+ * Deterministic, PII-free repair instruction for the ONE combined certification
+ * repair. Built purely from the assessment outputs — never invents replacement
+ * ingredients or authoritative values, never restates the user's restriction
+ * selections (server.js prepends the human-readable dietary/allergy rules to the
+ * prompt separately).
+ *
+ * @param {object} gateResult  assessGeneratedWeek() output (deterministic)
+ * @param {object} [dietSummary]  Phase 3E-C3B — assessGeneratedWeekDietSafetyShadow()
+ *   output. When present AND `dietSafetyCertified === false`, an aggregate
+ *   dietary/allergen section is appended (counts + already-permitted canonical
+ *   ingredient ids only). Both dimensions share this single repair.
  */
-function buildRepairInstruction(gateResult) {
+function buildRepairInstruction(gateResult, dietSummary) {
   const lines = gateResult.failingIngredients.slice(0, 60).map((f) => {
     const why = (f.failures.length ? f.failures : ['structure_invalid'])
       .map((code) => _FAILURE_HINT[code] || code)
@@ -212,13 +233,37 @@ function buildRepairInstruction(gateResult) {
     ? '\nThe full weekly grocery package cost is over budget — prefer cheaper allowed ingredients and reuse ingredients already used elsewhere in the week.'
     : '';
 
+  const detBlock = gateResult.failingIngredients.length
+    ? [
+      'The server\'s deterministic verifier rejected the following ingredients from the plan you generated:',
+      lines.join('\n'),
+      budgetLine,
+    ].filter(Boolean).join('\n')
+    : '';
+
+  let dietBlock = '';
+  if (dietSummary && dietSummary.dietSafetyCertified === false) {
+    const dl = [];
+    if (dietSummary.dietViolationCount > 0) dl.push(`- ${dietSummary.dietViolationCount} ingredient use(s) violate an active dietary restriction`);
+    if (dietSummary.allergenViolationCount > 0) dl.push(`- ${dietSummary.allergenViolationCount} ingredient use(s) contain a declared allergen`);
+    if (dietSummary.unresolvedSafetyCount > 0) dl.push(`- ${dietSummary.unresolvedSafetyCount} ingredient(s) could not be safety-verified`);
+    if (dietSummary.unsupportedRestrictionCount > 0) dl.push(`- ${dietSummary.unsupportedRestrictionCount} requested restriction(s) cannot be guaranteed and must be avoided by construction`);
+    const ids = Array.isArray(dietSummary.failingCanonicalIngredientIds) ? dietSummary.failingCanonicalIngredientIds.slice(0, 40) : [];
+    dietBlock = [
+      'The plan also failed deterministic dietary/allergen safety verification:',
+      dl.join('\n'),
+      ids.length ? `Unsafe/unverifiable ingredient ids: ${ids.join(', ')}` : '',
+      'Replace every unsafe or unverifiable ingredient so that EVERY meal in the week satisfies ALL of the user\'s active dietary and allergen restrictions stated above.',
+    ].filter(Boolean).join('\n');
+  }
+
   return [
-    'The server\'s deterministic verifier rejected the following ingredients from the plan you generated:',
-    lines.join('\n'),
-    budgetLine,
+    detBlock,
+    detBlock && dietBlock ? '' : '',
+    dietBlock,
     '',
-    'Return the SAME plan structure with ONLY these failing ingredients changed (fix the name, unit, or amount, or swap an unverifiable ingredient for an allowed one). Keep every meal, every passing ingredient, and every count identical. The ingredient contract still applies in full.',
-  ].filter(Boolean).join('\n');
+    'Return the SAME plan structure with ONLY the failing ingredients changed (fix the name, unit, or amount, or swap an unverifiable/unsafe ingredient for an allowed one). Keep every meal, every passing ingredient, and every count identical. The ingredient contract still applies in full.',
+  ].filter((s) => s !== undefined).join('\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 
 function _result(status, extra) {
@@ -420,22 +465,24 @@ async function runCertificationGate({
   // Receives the already-normalised object — no second normalization.
   const dietSafetyShadow = assessGeneratedWeekDietSafetyShadow({ days }, normalizedRestrictions);
   emit('diet_assessed', { round: 0, ...dietSafetyShadow });
-  const withDiet = (status, extra) => _result(status, { dietSafety: dietSafetyShadow, ...extra });
+  const withDiet = (status, dietSummary, extra) => _result(status, { dietSafety: dietSummary, ...extra });
 
-  // Phase 3E-C3A-2 — the frozen COMBINED result shape. Composed HERE and ONLY
-  // here; server.js consumes these fields verbatim and never recomposes them.
+  // Phase 3E-C3A-2 / C3B — the frozen COMBINED result shape. Composed HERE and
+  // ONLY here; server.js consumes these fields verbatim and never recomposes them.
   //
-  //   authorizedHardDiet := effective mode is 'on' AND production-authorized.
-  //     Structurally unreachable today (HARD_GATE_PRODUCTION_AUTHORIZED === false
-  //     ⇒ isOn === false), so in every reachable mode:
-  //       acceptable        === deterministic.certified
-  //       hardGateComplete  === false
-  //     Dietary safety therefore stays observational until the C4 authorization
-  //     checkpoint flips the constant and bumps CERTIFICATION_VERSION.
+  //   authorizedHardDiet := effective mode is 'on' AND production-authorized
+  //     (isOn). Structurally unreachable in production (HARD_GATE_PRODUCTION_
+  //     AUTHORIZED === false ⇒ isOn === false), so in every reachable mode:
+  //       acceptable       === deterministic.certified
+  //       hardGateComplete === false
+  //       enforced         === false   (server's rejection guard never fires)
+  //   `combined` takes BOTH the deterministic assessment and the diet summary
+  //   for that same round, so a repaired week is judged on the repaired diet
+  //   result, not the round-0 one.
   const authorizedHardDiet = isOn;
-  const combined = (det) => {
+  const combined = (det, dietSummary) => {
     const certified = det.certified === true;                       // deterministic-only — UNCHANGED meaning
-    const dietSafetyCertified = dietSafetyShadow.dietSafetyCertified === true;
+    const dietSafetyCertified = dietSummary.dietSafetyCertified === true;
     const acceptable = certified && (!authorizedHardDiet || dietSafetyCertified);
     return {
       certified,
@@ -450,6 +497,10 @@ async function runCertificationGate({
       },
       dietSafetyCertified,      // dietary/allergen SUB-verdict — never composed into `certified`
       acceptable,
+      // Phase 3E-C3B — server.js's rejection guard is exactly
+      // `enforced && !acceptable`. `enforced` is true only when this gate run
+      // was in authorized hard-enforcement mode (isOn). false in production.
+      enforced: authorizedHardDiet,
       hardGateComplete: authorizedHardDiet && acceptable,
       // Phase 3E-C3A-3 — the pre-generation restriction preflight, echoed onto
       // every gate result so the persisted certification picture is complete.
@@ -458,6 +509,10 @@ async function runCertificationGate({
       preflight,
     };
   };
+  // Every FAILED return carries the frozen retry hint (server.js reads
+  // `gateOutcome.retry` and never re-derives it).
+  const failed = (reason, dietSummary, extra) =>
+    withDiet(GATE_STATUS.FAILED, dietSummary, { ...extra, failureReason: reason, retry: _retryable(reason) });
 
   emit('assessed', {
     round: 0,
@@ -468,52 +523,60 @@ async function runCertificationGate({
     hardGateComplete: first.hardGateComplete,
   });
 
-  if (first.certified) {
-    return withDiet(GATE_STATUS.CERTIFIED, { ...combined(first), days, assessment: first.assessment, gateResult: first });
+  const c0 = combined(first, dietSafetyShadow);
+
+  // Accept on the COMBINED verdict (C3A-2). In shadow acceptable === certified,
+  // so this is behaviourally identical to the old `if (first.certified)`.
+  if (c0.acceptable) {
+    return withDiet(GATE_STATUS.CERTIFIED, dietSafetyShadow, { ...c0, days, assessment: first.assessment, gateResult: first });
   }
 
   // ── mode 'shadow': observe only, never block, never repair ───────────────
   if (!isOn) {
-    return withDiet(GATE_STATUS.SHADOW_UNCERTIFIED, { ...combined(first), days, assessment: first.assessment, gateResult: first });
+    return withDiet(GATE_STATUS.SHADOW_UNCERTIFIED, dietSafetyShadow, { ...c0, days, assessment: first.assessment, gateResult: first });
   }
 
-  // ── mode 'on' from here ─────────────────────────────────────────────────
+  // ── mode 'on' (authorized) from here — the ONE combined repair ──────────
 
   // Unsupported currency safety net. The AUTHORITATIVE check runs at the
   // pre-generation boundary in the caller (before any Anthropic call); this
   // is the last-resort guard if a non-enforceable currency ever reaches here.
-  // The week CANNOT be certified (package-budget certification cannot run), it
-  // must NOT be accepted, and an ingredient edit cannot fix a currency — so no
-  // repair call.
+  // An ingredient edit cannot fix a currency — so no repair call.
   if (!budgetEnforceable) {
     emit('failed', { reason: FAILURE_REASON.UNSUPPORTED_CURRENCY });
-    return withDiet(GATE_STATUS.FAILED, {
-      ...combined(first), days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNSUPPORTED_CURRENCY,
-    });
+    return failed(FAILURE_REASON.UNSUPPORTED_CURRENCY, dietSafetyShadow, { ...c0, days, assessment: first.assessment, gateResult: first });
   }
 
   if (typeof generateRepairedWeek !== 'function') {
-    return withDiet(GATE_STATUS.FAILED, {
-      ...combined(first), days, assessment: first.assessment, gateResult: first, failureReason: FAILURE_REASON.UNCERTIFIED_NO_REPAIR,
-    });
+    emit('failed', { reason: FAILURE_REASON.UNCERTIFIED_NO_REPAIR });
+    return failed(FAILURE_REASON.UNCERTIFIED_NO_REPAIR, dietSafetyShadow, { ...c0, days, assessment: first.assessment, gateResult: first });
   }
 
-  // Exactly one bounded repair pass.
-  const instruction = buildRepairInstruction(first);
-  emit('repair_started', { round: 1, weekFailures: first.weekFailures, failingIngredientCount: first.failingIngredients.length });
+  // Exactly ONE bounded repair pass, shared by deterministic AND dietary
+  // failures. The instruction carries both dimensions' aggregate failures.
+  const instruction = buildRepairInstruction(first, dietSafetyShadow);
+  emit('repair_started', {
+    round: 1,
+    weekFailures: first.weekFailures,
+    failingIngredientCount: first.failingIngredients.length,
+    dietUncertified: dietSafetyShadow.dietSafetyCertified === false,
+  });
 
   let repairedDays;
   try {
     repairedDays = await generateRepairedWeek(first, instruction);
   } catch (err) {
     emit('repair_failed', { round: 1, reason: FAILURE_REASON.REPAIR_GENERATION_ERROR });
-    return withDiet(GATE_STATUS.FAILED, {
-      ...combined(first), days, assessment: first.assessment, gateResult: first,
-      repairAttempts: 1, failureReason: FAILURE_REASON.REPAIR_GENERATION_ERROR, repairError: err,
+    return failed(FAILURE_REASON.REPAIR_GENERATION_ERROR, dietSafetyShadow, {
+      ...c0, days, assessment: first.assessment, gateResult: first, repairAttempts: 1, repairError: err,
     });
   }
 
+  // Post-repair: reassess BOTH dimensions against the SAME normalized context.
+  // No second normalization, no second repair.
   const second = assessGeneratedWeek({ days: repairedDays, requestedBudgetCents, currency });
+  const secondDiet = assessGeneratedWeekDietSafetyShadow({ days: repairedDays }, normalizedRestrictions);
+  emit('diet_assessed', { round: 1, ...secondDiet });
   emit('assessed', {
     round: 1,
     certified: second.certified,
@@ -522,19 +585,25 @@ async function runCertificationGate({
     budgetEnforceable,
     hardGateComplete: second.hardGateComplete,
   });
+  const c1 = combined(second, secondDiet);
+  const repairEnvelope = { days: repairedDays, assessment: second.assessment, gateResult: second, repaired: true, repairAttempts: 1 };
 
-  if (second.certified) {
+  if (c1.acceptable) {
     emit('repair_succeeded', { round: 1 });
-    return withDiet(GATE_STATUS.CERTIFIED, {
-      ...combined(second), days: repairedDays, assessment: second.assessment, gateResult: second, repaired: true, repairAttempts: 1,
-    });
+    return withDiet(GATE_STATUS.CERTIFIED, secondDiet, { ...c1, ...repairEnvelope });
   }
 
-  emit('repair_failed', { round: 1, reason: FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR });
-  return withDiet(GATE_STATUS.FAILED, {
-    ...combined(second), days: repairedDays, assessment: second.assessment, gateResult: second,
-    repaired: true, repairAttempts: 1, failureReason: FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR,
-  });
+  // Still unacceptable after the ONE repair — NO second repair. Failure-reason
+  // precedence: a remaining DETERMINISTIC failure is reported as the
+  // deterministic reason; if deterministic now passes but AUTHORIZED dietary
+  // safety still fails, it is diet_uncertified_after_repair. Both fail →
+  // deterministic wins (deterministicStatus still carries the diet-independent
+  // detail).
+  const reason = !second.certified
+    ? FAILURE_REASON.UNCERTIFIED_AFTER_REPAIR
+    : FAILURE_REASON.DIET_UNCERTIFIED_AFTER_REPAIR;
+  emit('repair_failed', { round: 1, reason });
+  return failed(reason, secondDiet, { ...c1, ...repairEnvelope });
 }
 
 module.exports = {
