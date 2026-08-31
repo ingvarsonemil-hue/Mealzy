@@ -34,10 +34,13 @@
  *   diet or allergen violation exists in any meal. Anything else →
  *   `certified: false`. No partial certification.
  *
- * ── NOT WIRED IN ─────────────────────────────────────────────────────────
- * B2 is substrate only. This module is not imported by server.js or
- * certificationGate.js and changes no runtime behaviour. It does not log or
- * persist anything.
+ * ── WIRING (Phase 3E-C1 / C3A-1) ─────────────────────────────────────────
+ * SHADOW-ONLY. Lazy-loaded by certificationGate.js (never by server.js) and
+ * run only for effective gate mode 'shadow' (incl. downgraded 'on'). Its
+ * verdict is observational: it is surfaced as `result.dietSafety` for
+ * telemetry / persisted diagnostics and NEVER composed into acceptance,
+ * persistence, quota, repair, or status codes. This module still does not log
+ * or persist anything itself.
  */
 
 const canonicalIngredients = require('./canonicalIngredients');

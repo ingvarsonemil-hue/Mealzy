@@ -96,6 +96,13 @@ if (_gateModeResolution.downgraded) {
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+// Export the configured Express app so integration tests can drive the real
+// registered routes (see tests/generateMealCertificationRoute3EC3A1.test.js).
+// The production process still starts normally via the `require.main === module`
+// guard at the bottom of this file — importing server.js binds no port and
+// runs no DB init.
+module.exports = app;
+
 // Trust Render's proxy so express-rate-limit can read the real client IP
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -727,7 +734,14 @@ const _anthropicKey = (process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_AP
   || '';
 if (!_anthropicKey) logger.warn('[WARN] ANTHROPIC_API_KEY is not set — AI features will fail');
 else logger.info('[OK] ANTHROPIC_API_KEY loaded (len=' + _anthropicKey.length + ')');
-const anthropic = new Anthropic({ apiKey: _anthropicKey });
+let anthropic = new Anthropic({ apiKey: _anthropicKey });
+
+// Test-only seam. NOT reachable over HTTP and NOT part of any route. Integration
+// tests call this to swap in a deterministic stub so the real /api/generate-meal
+// route can be exercised without making (or paying for) an Anthropic request.
+// Production always keeps the real client constructed above; nothing else
+// reassigns `anthropic`.
+app.__setAnthropicClientForTests = (client) => { anthropic = client; };
 
 const DAILY_SPEND_CAP_USD = Number(process.env.DAILY_SPEND_CAP_USD) || 5;
 // Per-model pricing, confirmed current as of August 2026.
@@ -4308,6 +4322,10 @@ process.on('uncaughtException', (err) => {
 });
 
 // ── Start server after DB is ready ────────────────────────────────────────────
+// Guarded so `require('./server')` (integration tests) binds no port and runs
+// no DB init. `node server.js` in production is unaffected — require.main is
+// this module, so the block runs exactly as before.
+if (require.main === module) {
 db.initDb().then(async () => {
   app.listen(PORT, async () => {
     logger.info(`Mealzy running on http://localhost:${PORT}`);
@@ -4353,3 +4371,4 @@ db.initDb().then(async () => {
   console.error('[FATAL] Failed to initialise database:', err);
   process.exit(1);
 });
+}

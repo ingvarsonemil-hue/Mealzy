@@ -44,11 +44,13 @@ const { CERTIFICATION_VERSION } = require('./certificationStatus');
 
 // Phase 3E-C1 — the deterministic dietary/allergen substrate (dietSafety /
 // dietRestrictionContract / dietAttributeData) is wired SHADOW-ONLY and is
-// LAZY-LOADED: it is `require`d only inside assessGeneratedWeekDietSafetyShadow,
-// which runs only for effective mode 'shadow' (incl. downgraded 'on'). With
-// CERTIFICATION_GATE=off the server never reaches that path, so the substrate
-// and its load-time validation are never pulled into the runtime dependency
-// graph — a malformed future dietary-data change cannot stop an off-mode boot.
+// LAZY-LOADED: it is `require`d only inside runCertificationGate (via
+// _loadDietSubstrate — once, for the single normalization boundary — and again
+// inside assessGeneratedWeekDietSafetyShadow), which the server invokes only for
+// effective mode 'shadow' (incl. downgraded 'on'). With CERTIFICATION_GATE=off
+// the server never reaches that path, so the substrate and its load-time
+// validation are never pulled into the runtime dependency graph — a malformed
+// future dietary-data change cannot stop an off-mode boot.
 let _dietSafety = null;
 let _dietRestrictionContract = null;
 function _loadDietSubstrate() {
@@ -243,17 +245,23 @@ function _result(status, extra) {
  * live in the profile; the shadow checkpoint does not need them duplicated.
  *
  * @param {{days:Array}} week
- * @param {{diets?:Array, allergens?:Array}} restrictions  raw Mealzy channels
+ * @param {{diets?:Array, allergens?:Array} | object} restrictions
+ *   Either the raw Mealzy channels ({ diets, allergens }) OR an object already
+ *   returned by dietRestrictionContract.normalizeRestrictions (detected by the
+ *   presence of `activeDietIds`). When runCertificationGate calls this it passes
+ *   the ALREADY-normalised object it built once for the whole gate execution, so
+ *   normalizeRestrictions runs exactly once per gate run. Standalone callers may
+ *   still pass raw channels.
  */
 function assessGeneratedWeekDietSafetyShadow(week, restrictions) {
   const { dietSafety, dietRestrictionContract } = _loadDietSubstrate();
 
   const days = Array.isArray(week && week.days) ? week.days : [];
-  const raw = restrictions && typeof restrictions === 'object' ? restrictions : {};
-  const diets = Array.isArray(raw.diets) ? raw.diets : [];
-  const allergens = Array.isArray(raw.allergens) ? raw.allergens : [];
-
-  const normalized = dietRestrictionContract.normalizeRestrictions({ diets, allergens });
+  const normalized = restrictions && Array.isArray(restrictions.activeDietIds)
+    ? restrictions
+    : dietRestrictionContract.normalizeRestrictions(
+      restrictions && typeof restrictions === 'object' ? restrictions : {},
+    );
   const assessment = dietSafety.assessWeek(
     { days: days.map((d) => ({ meals: Array.isArray(d && d.meals) ? d.meals : [] })) },
     normalized,
@@ -324,12 +332,22 @@ async function runCertificationGate({
   const authorized = hardGateAuthorized === undefined ? HARD_GATE_PRODUCTION_AUTHORIZED : hardGateAuthorized === true;
   const isOn = mode === GATE_MODE.ON && authorized;
 
+  // Phase 3E-C3A-1 — SINGLE normalization boundary. runCertificationGate owns
+  // the gate's interpretation of the raw diet/allergen channels: server.js
+  // passes the raw request/profile values straight in and never normalises them
+  // itself. normalizeRestrictions runs EXACTLY ONCE here; the frozen result is
+  // reused for the whole gate execution (today: the shadow assessment; later:
+  // preflight and repair-payload construction too).
+  const { dietRestrictionContract } = _loadDietSubstrate();
+  const normalizedRestrictions = dietRestrictionContract.normalizeRestrictions({ diets, allergens });
+
   const first = assessGeneratedWeek({ days, requestedBudgetCents, currency });
   const budgetEnforceable = first.budgetEnforceable;
 
   // SHADOW-ONLY dietary/allergen observation. Computed once against the settled
   // week; attached to every return value; NEVER an acceptance input in C1.
-  const dietSafetyShadow = assessGeneratedWeekDietSafetyShadow({ days }, { diets, allergens });
+  // Receives the already-normalised object — no second normalization.
+  const dietSafetyShadow = assessGeneratedWeekDietSafetyShadow({ days }, normalizedRestrictions);
   emit('diet_assessed', { round: 0, ...dietSafetyShadow });
   const withDiet = (status, extra) => _result(status, { dietSafety: dietSafetyShadow, ...extra });
 
