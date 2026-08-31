@@ -62,10 +62,14 @@ const STUB_DAY = {
 };
 
 const anthropicCalls = [];
+// Shared execution-order log: every Anthropic call and (when a test opts in via
+// `recordLogEvents`) every db.logEvent lands here in call order.
+const execOrder = [];
 const stubAnthropic = {
   messages: {
     create: async (params) => {
       anthropicCalls.push(params);
+      execOrder.push({ kind: 'anthropic' });
       return {
         content: [{ type: 'text', text: JSON.stringify(STUB_DAY) }],
         usage: { input_tokens: 10, output_tokens: 10 },
@@ -233,4 +237,70 @@ test('2. STRUCTURAL C2.1 regression proof — the assertion chain depends on the
   // fail. This test documents that dependency; the live proof is test 1 passing
   // now (verified separately by a temporary local revert during C3A-1R).
   assert.ok(true);
+});
+
+test('3. C3A-3: an unsupported hard restriction (keto) preflights BEFORE generation and stays INERT in shadow', async () => {
+  anthropicCalls.length = 0;
+  execOrder.length = 0;
+
+  // record every db.logEvent into the shared execution-order log
+  const origLogEvent = db.logEvent;
+  db.logEvent = async function (event, data, ipTail) {
+    execOrder.push({ kind: 'logEvent', event });
+    return origLogEvent.call(db, event, data, ipTail);
+  };
+
+  let res;
+  try {
+    res = await postGenerateMeal({
+      weekStart: '2026-09-07',
+      profile: {
+        name: 'Pro Tester',
+        daily_calories: 1800,
+        dietary_preferences: ['keto'],   // unsupported hard rule — diet channel
+        allergies: [],
+        currency: 'SEK',
+        budget_weekly: 900,
+      },
+    }, { Cookie: proCookie() });
+  } finally {
+    db.logEvent = origLogEvent;
+  }
+
+  // ── (1)(3)(4) route executed, generation STILL occurred, no pre-gen 422 ──
+  assert.equal(res.status, 200, `expected 200, got ${res.status} — ${res.raw.slice(0, 300)}`);
+  assert.equal(res.body.success, true);
+  assert.equal(res.body.days.length, 7);
+  assert.equal(anthropicCalls.length, 7, 'generation proceeded — 7 day calls, unchanged');
+
+  // ── (2) preflight detected the unsupported restriction ─────────────────
+  const cert = res.body.weeklyTotals.certification;
+  assert.ok(cert.preflight, 'preflight surfaced on the certification result');
+  assert.equal(cert.preflight.hasUnsupported, true);
+  assert.equal(cert.preflight.unsupportedRestrictionCount, 1);
+  assert.equal(cert.preflight.observationalOnly, true, 'inert while unauthorized');
+  assert.equal(cert.preflight.unsupportedReasons[0].reason, 'unsupported_hard_rule');
+  assert.equal(cert.preflight.unsupportedReasons[0].channel, 'diets');
+
+  // ── (18) execution order: preflight log precedes the first Anthropic call ─
+  const iPreflight = execOrder.findIndex((e) => e.kind === 'logEvent' && e.event === 'certification_gate_preflight');
+  const iFirstGen = execOrder.findIndex((e) => e.kind === 'anthropic');
+  assert.ok(iPreflight >= 0, 'certification_gate_preflight event was logged');
+  assert.ok(iFirstGen >= 0, 'a generation call happened');
+  assert.ok(iPreflight < iFirstGen, 'preflight ran BEFORE the first generation call');
+
+  // ── (5)(6)(7)(8) no certification rejection; C3A-2 shadow semantics hold ─
+  assert.notEqual(res.status, 422);
+  assert.notEqual(res.body.error, 'certification_failed');
+  assert.equal(cert.acceptable, cert.certified, 'acceptable === certified in shadow (unsupported restriction did not change it)');
+  assert.equal(cert.hardGateComplete, false);
+  assert.equal(cert.repaired, false);
+
+  // ── (9)(10) persistence + quota still succeed ─────────────────────────
+  assert.ok(res.body.planId);
+  const saved = await db.getPlanById(res.body.planId, proUserId);
+  assert.ok(saved && saved.weeklyTotals.certification.preflight.hasUnsupported === true);
+
+  // ── (13) preflight output carries no raw restriction strings ──────────
+  assert.equal(JSON.stringify(cert.preflight).toLowerCase().includes('keto'), false);
 });

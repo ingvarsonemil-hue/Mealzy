@@ -83,6 +83,11 @@ const FAILURE_REASON = Object.freeze({
   UNCERTIFIED_AFTER_REPAIR: 'uncertified_after_repair',
   UNCERTIFIED_NO_REPAIR: 'uncertified_no_repair_fn',
   REPAIR_GENERATION_ERROR: 'repair_generation_error',
+  // Phase 3E-C3A-3 — RESERVED for the C4 authorized-hard preflight. The
+  // machinery that would emit this (a BEFORE-Anthropic 422 when
+  // normalized.hasUnsupported) is NOT implemented here; while
+  // HARD_GATE_PRODUCTION_AUTHORIZED is false this value is never produced.
+  UNSUPPORTED_HARD_RESTRICTION: 'unsupported_hard_restriction',
 });
 
 /** Normalise the raw env value to the REQUESTED mode. Only exactly
@@ -293,6 +298,51 @@ function assessGeneratedWeekDietSafetyShadow(week, restrictions) {
 }
 
 /**
+ * Phase 3E-C3A-3 — privacy-safe PREFLIGHT diagnostic for a normalized
+ * restriction set. Pure function of the normalized object; performs no
+ * normalization and no I/O.
+ *
+ *   observationalOnly           true whenever hard enforcement is unreachable
+ *                               (HARD_GATE_PRODUCTION_AUTHORIZED !== true). While
+ *                               true the preflight NEVER rejects — the caller
+ *                               logs it and continues to generation unchanged.
+ *   hasUnsupported              normalized.hasUnsupported
+ *   unsupportedRestrictionCount deterministic count
+ *   unsupportedReasons          [{ reason, channel }] — enum + channel ONLY,
+ *                               never raw restriction text, never ids.
+ */
+function _preflightDiagnostic(normalized) {
+  const unsupported = Array.isArray(normalized && normalized.unsupported) ? normalized.unsupported : [];
+  return Object.freeze({
+    observationalOnly: HARD_GATE_PRODUCTION_AUTHORIZED !== true,
+    hasUnsupported: (normalized && normalized.hasUnsupported) === true,
+    unsupportedRestrictionCount: unsupported.length,
+    unsupportedReasons: Object.freeze(unsupported.map((u) => Object.freeze({ reason: u.reason, channel: u.channel }))),
+  });
+}
+
+/**
+ * Phase 3E-C3A-3 — the gate-owned PRE-GENERATION entry point. server.js calls
+ * this ONCE, before the generation loop, with the raw diet/allergen channels.
+ * It performs the SINGLE normalization boundary and returns a request-scoped
+ * context:
+ *
+ *   { normalized, preflight }
+ *
+ * The caller treats `normalized` as an opaque token — it must NOT read
+ * activeDietIds / hasUnsupported off it — and hands it straight back to
+ * runCertificationGate as `restrictionContext`, so normalizeRestrictions runs
+ * EXACTLY ONCE per generation request. `preflight` is the privacy-safe
+ * diagnostic (see _preflightDiagnostic); the caller may log it and, once
+ * HARD_GATE_PRODUCTION_AUTHORIZED flips (C4), act on it. Today it is inert.
+ */
+function preflightRestrictions({ diets, allergens } = {}) {
+  const { dietRestrictionContract } = _loadDietSubstrate();
+  const normalized = dietRestrictionContract.normalizeRestrictions({ diets, allergens });
+  return { normalized, preflight: _preflightDiagnostic(normalized) };
+}
+
+/**
  * Run the gate. The caller invokes this ONLY for mode 'shadow' or 'on'
  * (mode 'off' means this module is never touched).
  *
@@ -309,18 +359,25 @@ function assessGeneratedWeekDietSafetyShadow(week, restrictions) {
  *                   (server.js) never passes it, so hard enforcement stays
  *                   structurally unreachable until the constant flips. Tests
  *                   pass `true` to exercise the eventual 'on' state machine.
+ * @param {object}   [opts.restrictionContext]    { normalized, preflight } from
+ *                   preflightRestrictions() — the request-scoped context server.js
+ *                   builds ONCE before generation. When present its `normalized`
+ *                   is reused (no second normalization); when absent the gate
+ *                   normalizes `diets`/`allergens` itself.
  * @param {Array}    [opts.diets]                 raw diet-channel restriction strings
  * @param {Array}    [opts.allergens]             raw allergy-channel restriction strings
  *                   Phase 3E-C1: used ONLY for the SHADOW dietary/allergen
  *                   observation attached as `result.dietSafety`. Never composed
  *                   into acceptance, never blocks, never repairs, never 422s.
  *
- * @returns Every return carries the Phase 3E-C3A-2 combined shape:
+ * @returns Every return carries the Phase 3E-C3A-2/C3A-3 shape:
  *   certified            deterministic-only verdict (unchanged meaning)
  *   deterministicStatus  { structure, canonicalCoverage, nutritionCoverage, purchase }
  *   dietSafetyCertified  dietary/allergen sub-verdict (never composed into `certified`)
  *   acceptable           certified && (!authorizedHardDiet || dietSafetyCertified)
  *   hardGateComplete     authorizedHardDiet && acceptable  (false until C4)
+ *   preflight            { observationalOnly, hasUnsupported, unsupportedRestrictionCount,
+ *                          unsupportedReasons } — inert while unauthorized
  *   status               GATE_STATUS (unchanged vocabulary)
  *   dietSafety           the privacy-safe shadow summary
  */
@@ -332,6 +389,7 @@ async function runCertificationGate({
   generateRepairedWeek,
   onEvent,
   hardGateAuthorized,
+  restrictionContext,
   diets,
   allergens,
 } = {}) {
@@ -341,14 +399,18 @@ async function runCertificationGate({
   const authorized = hardGateAuthorized === undefined ? HARD_GATE_PRODUCTION_AUTHORIZED : hardGateAuthorized === true;
   const isOn = mode === GATE_MODE.ON && authorized;
 
-  // Phase 3E-C3A-1 — SINGLE normalization boundary. runCertificationGate owns
-  // the gate's interpretation of the raw diet/allergen channels: server.js
-  // passes the raw request/profile values straight in and never normalises them
-  // itself. normalizeRestrictions runs EXACTLY ONCE here; the frozen result is
-  // reused for the whole gate execution (today: the shadow assessment; later:
-  // preflight and repair-payload construction too).
-  const { dietRestrictionContract } = _loadDietSubstrate();
-  const normalizedRestrictions = dietRestrictionContract.normalizeRestrictions({ diets, allergens });
+  // Phase 3E-C3A-1/C3A-3 — SINGLE normalization boundary. When server.js has
+  // already run the gate-owned pre-generation preflight it passes that
+  // request-scoped context back here as `restrictionContext`, so
+  // normalizeRestrictions runs EXACTLY ONCE per generation request. Direct
+  // callers (tests, standalone use) may still pass raw `diets` / `allergens`
+  // and this normalizes them itself — still exactly once per gate execution.
+  const _ctx = restrictionContext && restrictionContext.normalized
+    ? restrictionContext
+    : preflightRestrictions({ diets, allergens });
+  const normalizedRestrictions = _ctx.normalized;
+  const preflight = _ctx.preflight;
+  emit('preflight_assessed', { ...preflight });
 
   const first = assessGeneratedWeek({ days, requestedBudgetCents, currency });
   const budgetEnforceable = first.budgetEnforceable;
@@ -389,6 +451,11 @@ async function runCertificationGate({
       dietSafetyCertified,      // dietary/allergen SUB-verdict — never composed into `certified`
       acceptable,
       hardGateComplete: authorizedHardDiet && acceptable,
+      // Phase 3E-C3A-3 — the pre-generation restriction preflight, echoed onto
+      // every gate result so the persisted certification picture is complete.
+      // Observational only: it never contributed to `acceptable` above and never
+      // caused a rejection (observationalOnly === true while unauthorized).
+      preflight,
     };
   };
 
@@ -441,7 +508,7 @@ async function runCertificationGate({
   } catch (err) {
     emit('repair_failed', { round: 1, reason: FAILURE_REASON.REPAIR_GENERATION_ERROR });
     return withDiet(GATE_STATUS.FAILED, {
-      days, assessment: first.assessment, gateResult: first,
+      ...combined(first), days, assessment: first.assessment, gateResult: first,
       repairAttempts: 1, failureReason: FAILURE_REASON.REPAIR_GENERATION_ERROR, repairError: err,
     });
   }
@@ -484,6 +551,7 @@ module.exports = {
   isCurrencyCertifiable,
   assessGeneratedWeek,
   assessGeneratedWeekDietSafetyShadow,
+  preflightRestrictions,
   buildRepairInstruction,
   runCertificationGate,
 };

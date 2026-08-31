@@ -2840,6 +2840,25 @@ Respond ONLY with valid JSON (no markdown fences, no extra text):
         });
       }
 
+      // Phase 3E-C3A-3 — gate-owned restriction PREFLIGHT. Runs BEFORE the
+      // generation loop. server.js hands the raw diet/allergen channels to the
+      // gate, which performs the single normalization boundary and returns a
+      // request-scoped { normalized, preflight } context. OBSERVATIONAL ONLY
+      // while HARD_GATE_PRODUCTION_AUTHORIZED is false: an unsupported hard
+      // restriction is detected and logged here but NEVER rejects — generation,
+      // certification, quota and save all proceed exactly as before. The
+      // context's `normalized` is handed back to runCertificationGate below so
+      // normalizeRestrictions runs exactly once per request. server.js treats
+      // `normalized` as opaque and never interprets it.
+      let gateRestrictionContext = null;
+      if (CERTIFICATION_GATE_ACTIVE) {
+        gateRestrictionContext = certificationGate.preflightRestrictions({ diets: dietaryPrefs, allergens: allergies });
+        await db.logEvent('certification_gate_preflight', {
+          weekRequestId, requestedMode: CERTIFICATION_GATE_REQUESTED, mode: CERTIFICATION_GATE_MODE,
+          stage: 'pregen', ...gateRestrictionContext.preflight,
+        }, '');
+      }
+
       // Adaptive per-day guidance only — NOT a hard per-day cap. A $60/week
       // budget does not mean every day must cost <= $8.57; Monday can run
       // $11 as long as later days come in cheaper so the FINAL weekly total
@@ -3067,9 +3086,13 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             requestedBudgetCents,
             currency,
             mode: CERTIFICATION_GATE_MODE,
-            // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. These feed
-            // certificationGate's `result.dietSafety` summary only; they never
-            // affect acceptance, repair, persistence, quota, or status codes.
+            // Phase 3E-C3A-3 — reuse the pre-generation preflight's normalized
+            // object so normalizeRestrictions runs exactly once per request.
+            restrictionContext: gateRestrictionContext,
+            // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. Kept as the
+            // gate's internal-normalization fallback for direct callers; the
+            // context above wins when present. They never affect acceptance,
+            // repair, persistence, quota, or status codes.
             diets: dietaryPrefs,
             allergens: allergies,
             generateRepairedWeek: gateOn ? generateRepairedWeek : undefined,
@@ -3142,6 +3165,10 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
             // enforcement exists. false until the C4 authorization checkpoint.
             hardGateComplete: gateOutcome.hardGateComplete,
             excludes: gateOutcome.excludes,
+            // Phase 3E-C3A-3 — the pre-generation restriction preflight,
+            // observational only (observationalOnly === true while unauthorized).
+            // Detected unsupported restrictions never rejected this request.
+            preflight: gateOutcome.preflight || null,
             // Phase 3E-C1 — SHADOW-ONLY dietary/allergen observation. Named to
             // make its status explicit: this is NOT proof the week was
             // diet-certified. It never contributes to `certified` above.
