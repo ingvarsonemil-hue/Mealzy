@@ -111,6 +111,7 @@ const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
 const NATIVE_JWT_EXPIRES = '7d'; // native (Bearer) sessions — fixed, no refresh, no renewal
 const MAX_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const FREE_WEEK_RESERVATION_TTL_MS = 15 * 60 * 1000; // M4E — exact 15-minute free-week reservation TTL
 // Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
 // ── Explicit output shapes — define exactly what each endpoint returns to clients ──
@@ -546,6 +547,50 @@ async function optionalSession(req, res, next) {
       // fall through as anonymous — do not fail the request
     }
   }
+  next();
+}
+
+// True iff the request carries ANY session credential (cookie or Bearer),
+// regardless of whether it is valid. Used to tell a genuinely anonymous
+// caller apart from one presenting a broken/expired/revoked credential.
+function reqHasAnyCredential(req) {
+  try {
+    if (parseCookies(req).mealzy_session) return true;
+  } catch (e) { /* no cookies */ }
+  return !!extractBearerToken(req);
+}
+
+// M4E task 5 — STRICT optional authentication for /api/generate-meal.
+//   no credential            -> anonymous (req.session = null), continue
+//   valid cookie             -> authenticated
+//   valid Bearer, no cookie  -> authenticated
+//   any invalid/expired/revoked credential -> 401, NO anonymous fallback
+//   cookie always wins over Bearer (M3C precedence, frozen): a bad cookie is
+//   a 401 even when a valid Bearer is also present.
+// Reuses getSessionFromReq (cookie-first + JWT verify), MAX_SESSION_MS and the
+// token_version check exactly as requireSession does.
+async function strictOptionalSession(req, res, next) {
+  req.session = null;
+  if (!reqHasAnyCredential(req)) return next(); // truly credential-less -> anonymous
+
+  const decoded = getSessionFromReq(req);
+  if (!decoded) return res.status(401).json({ error: 'not_authenticated' });
+  if (decoded.loginAt && (Date.now() - decoded.loginAt) > MAX_SESSION_MS) {
+    clearJwtCookie(res);
+    return res.status(401).json({ error: 'session_expired' });
+  }
+  let user;
+  try {
+    user = await db.getUserById(decoded.userId);
+  } catch (err) {
+    logger.error('[session] strict optional lookup error', { message: err.message });
+    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+  if (!user || (user.token_version || 0) !== (decoded.tv || 0)) {
+    clearJwtCookie(res);
+    return res.status(401).json({ error: 'session_revoked' });
+  }
+  req.session = decoded;
   next();
 }
 
@@ -2331,13 +2376,18 @@ function addDaysToDateStr(dateStr, n) {
 
 const WEEK_START_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res) => {
+app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (req, res) => {
+  // M4E — free-week entitlement bookkeeping for the authenticated verified
+  // non-Pro WEEK path only. Declared here so the terminal cleanup in `finally`
+  // can release a reservation this request owns but never promoted.
+  let freeWeekOwned = null;   // { requestId } once this request owns a reservation
+  let freeWeekPromoted = false;
   try {
     const { profile, date: rawDate, weekStart: rawWeekStart, swap_meal_type, plan_token, user_email, avoid_meals } = req.body;
     const date = sanitise(rawDate, 40);
     const weekStart = (!swap_meal_type && typeof rawWeekStart === 'string' && WEEK_START_RE.test(rawWeekStart)) ? rawWeekStart : null;
 
-    if (!profile) return res.status(400).json({ error: 'Profile is required' });
+    if (!profile) return res.status(400).json({ error: 'profile_required' });
 
     // ── Freemium gate: server-side pro check is authoritative ──────────────
     const session = req.session;
@@ -2372,14 +2422,67 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
     let trialLocalDate = null;
     if (!swap_meal_type && !isPro) {
       if (session) {
-        // ── Logged-in free users: 30-day daily trial, 1 plan per local calendar day ──
         if (weekStart) {
-          return res.status(400).json({
-            error: 'week_mode_unavailable_on_trial',
-            message: 'Full week generation isn\'t available on the free plan yet. Generate today\'s plan instead.',
-          });
-        }
+          // ── M4E — authenticated, email-verified, non-Pro WEEK generation:
+          // the one-free-week entitlement. The single-day trial (else branch)
+          // is independent and unchanged.
+          const ent = await db.getFreeWeekEntitlement(session.userId);
 
+          if (ent && ent.status === 'consumed') {
+            if (ent.week_start && ent.week_start === weekStart) {
+              // B — same week: return the already-persisted plan, ZERO Anthropic calls.
+              const saved = ent.plan_id ? await db.getPlanById(ent.plan_id, session.userId) : null;
+              if (saved && Array.isArray(saved.days)) {
+                await db.logEvent('free_week_consumed', { userId: session.userId, replay: true }, '');
+                return res.status(200).json({
+                  success: true,
+                  regenerated: false,
+                  entitlement: 'free_week_consumed',
+                  weekStart: saved.weekStart,
+                  days: saved.days,
+                  weeklyTotals: saved.weeklyTotals,
+                  planId: ent.plan_id,
+                });
+              }
+              // Persisted plan row is gone — fail closed rather than silently
+              // handing out a second free week.
+              await db.logEvent('free_week_blocked_pro_required', { userId: session.userId, reason: 'plan_missing' }, '');
+              return res.status(402).json({ error: 'pro_required', reason: 'free_week_consumed' });
+            }
+            // C — different week: Pro required. ZERO Anthropic calls.
+            await db.logEvent('free_week_blocked_pro_required', { userId: session.userId }, '');
+            return res.status(402).json({ error: 'pro_required', reason: 'free_week_consumed' });
+          }
+
+          const freeWeekRequestId = randomUUID();
+          if (ent && ent.status === 'reserved') {
+            const reservedAtMs = Date.parse(String(ent.reserved_at).replace(' ', 'T') + 'Z');
+            const isStale = Number.isFinite(reservedAtMs)
+              && (Date.now() - reservedAtMs) >= FREE_WEEK_RESERVATION_TTL_MS;
+            if (!isStale) {
+              // D — a fresh reservation owned by another request. ZERO Anthropic calls.
+              return res.status(409).json({ error: 'free_week_generation_in_progress', retry: true });
+            }
+            // E — stale (older than the exact 15-minute cutoff): exactly one
+            // request may take ownership.
+            const { reclaimed } = await db.reclaimStaleFreeWeekReservation(
+              session.userId, freeWeekRequestId, weekStart, Date.now() - FREE_WEEK_RESERVATION_TTL_MS
+            );
+            if (!reclaimed) {
+              return res.status(409).json({ error: 'free_week_generation_in_progress', retry: true });
+            }
+          } else {
+            // A — no entitlement row: reserve atomically BEFORE expensive generation.
+            const { reserved } = await db.reserveFreeWeek(session.userId, freeWeekRequestId, weekStart);
+            if (!reserved) {
+              // Another request won the insert race in the same window.
+              return res.status(409).json({ error: 'free_week_generation_in_progress', retry: true });
+            }
+          }
+          freeWeekOwned = { requestId: freeWeekRequestId };
+          await db.logEvent('free_week_reserved', { userId: session.userId }, '');
+        } else {
+        // ── Logged-in free users: 30-day daily trial, 1 plan per local calendar day ──
         const timezone = resolveClientTimezone(req.body.timezone);
         trialLocalDate = getLocalDateString(timezone);
 
@@ -2431,6 +2534,7 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
             }
           }
         }
+        } // end single-day trial (non-week) branch
       } else {
         // Anonymous user: track by IP (in-memory, resets on server restart)
         anonUsage = getUsage(ip);
@@ -3390,7 +3494,76 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
 
       // Save the whole week as one plan row so days can't drift out of sync.
       const weekPlanId = randomUUID();
-      if (session) {
+
+      if (freeWeekOwned) {
+        // ── M4E — persistence IS the consumption boundary. The plan INSERT and
+        // the reservation -> consumed promotion run in ONE write transaction
+        // (db.promoteFreeWeekWithPlan) so a persisted free weekly plan and the
+        // entitlement's consumed state can never diverge.
+        const previousWeekKey = await getPreviousPlanWeekKey(session.userId); // read before save
+
+        let atomic;
+        try {
+          atomic = await db.promoteFreeWeekWithPlan({
+            userId: session.userId,
+            requestId: freeWeekOwned.requestId,
+            planId: weekPlanId,
+            weekStart,
+            planObj: { weekStart, days, weeklyTotals, savedAt: new Date().toISOString() },
+          });
+        } catch (persistErr) {
+          // A genuine DB/transaction failure (rolled back — nothing committed)
+          // or the atomic invariant-violation throw. Either way: fail closed,
+          // release ONLY our own reservation, entitlement stays available.
+          console.error('[generate-meal] free-week atomic persist error:', persistErr && persistErr.message);
+          await db.releaseFreeWeekReservation(session.userId, freeWeekOwned.requestId).catch(() => {});
+          db.logEvent('free_week_generation_failed', { userId: session.userId, stage: 'persist' }, '').catch(() => {});
+          freeWeekOwned = null;
+          return res.status(500).json({ error: 'save_failed', message: 'Something went wrong saving your plan. Please try again.' });
+        }
+
+        if (atomic.outcome === 'committed') {
+          freeWeekPromoted = true;
+          await db.logEvent('free_week_consumed', { userId: session.userId }, '').catch(() => {});
+          maybeLogWeekReturn(session.userId, previousWeekKey).catch(() => {});
+          res.json({
+            success: true,
+            regenerated: false,
+            entitlement: 'free_week_consumed',
+            weekStart,
+            days,
+            weeklyTotals,
+            planId: weekPlanId,
+          });
+        } else {
+          // outcome === 'ownership_lost' — this request no longer holds the
+          // reservation (another request reclaimed a stale one). Nothing was
+          // persisted or promoted by us. Do NOT retry promotion, delete another
+          // request's reservation, or report save_failed. Re-read the row and
+          // resolve deterministically against the actual winner's state.
+          freeWeekOwned = null; // we own nothing — `finally` must not release
+          const cur = await db.getFreeWeekEntitlement(session.userId);
+          if (cur && cur.status === 'consumed' && cur.week_start === weekStart && cur.plan_id) {
+            const saved = await db.getPlanById(cur.plan_id, session.userId);
+            if (saved && Array.isArray(saved.days)) {
+              await db.logEvent('free_week_consumed', { userId: session.userId, replay: true }, '').catch(() => {});
+              res.json({
+                success: true, regenerated: false, entitlement: 'free_week_consumed',
+                weekStart: saved.weekStart, days: saved.days, weeklyTotals: saved.weeklyTotals, planId: cur.plan_id,
+              });
+            } else {
+              return res.status(500).json({ error: 'entitlement_error', message: 'Something went wrong finalizing your free week. Please try again.' });
+            }
+          } else if (cur && cur.status === 'consumed') {
+            await db.logEvent('free_week_blocked_pro_required', { userId: session.userId }, '').catch(() => {});
+            return res.status(402).json({ error: 'pro_required', reason: 'free_week_consumed' });
+          } else if (cur && cur.status === 'reserved') {
+            return res.status(409).json({ error: 'free_week_generation_in_progress', retry: true });
+          } else {
+            return res.status(500).json({ error: 'entitlement_error', message: 'Something went wrong finalizing your free week. Please try again.' });
+          }
+        }
+      } else if (session) {
         const previousWeekKey = await getPreviousPlanWeekKey(session.userId); // read before save
         try {
           await db.savePlan(weekPlanId, session.userId, { weekStart, days, weeklyTotals, savedAt: new Date().toISOString() });
@@ -3398,12 +3571,11 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
         } catch (saveErr) {
           console.error('[generate-meal] week DB save error (non-fatal):', saveErr);
         }
+        res.json({ success: true, weekStart, days, weeklyTotals, planId: weekPlanId });
+      } else {
+        // Anonymous week generation — nothing persisted, so no planId.
+        res.json({ success: true, weekStart, days, weeklyTotals });
       }
-
-      // Expose the plan id only when it's actually backed by a saved plan/grocery
-      // rows (requires a session — see the `if (session)` savePlan call above).
-      // A planId with nothing behind it would send the frontend chasing a 404.
-      res.json({ success: true, weekStart, days, weeklyTotals, ...(session ? { planId: weekPlanId } : {}) });
 
       // Auto-generate and persist each day's grocery list in the background —
       // fire-and-forget so it never slows down or fails the plan response.
@@ -3560,6 +3732,20 @@ Respond ONLY with valid JSON, same shape, ingredient arrays only (keep the same 
       error: 'Something went wrong. Please try again.',
       fallback: generateFallbackMealPlan(req.body.profile)
     });
+  } finally {
+    // M4E — any terminal path (early return, thrown exception, spend cap,
+    // certification/budget/allergy rejection) that left this request owning a
+    // free-week reservation it never promoted must release ONLY its own
+    // reservation, leaving the entitlement available for a retry.
+    if (freeWeekOwned && !freeWeekPromoted) {
+      const uid = req.session && req.session.userId;
+      try {
+        if (uid) await db.releaseFreeWeekReservation(uid, freeWeekOwned.requestId);
+        if (uid) db.logEvent('free_week_generation_failed', { userId: uid }, '').catch(() => {});
+      } catch (relErr) {
+        console.error('[generate-meal] free-week reservation release error:', relErr && relErr.message);
+      }
+    }
   }
 });
 

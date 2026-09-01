@@ -154,6 +154,20 @@ async function _applySchema() {
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (user_id, local_date)
     )`,
+    // ── Mealzy Mobile M4E — one-free-week entitlement ─────────────────────────
+    // Exactly one row per user (user_id PRIMARY KEY). status is 'reserved'
+    // (a week generation is in flight) or 'consumed' (a complete weekly plan
+    // was successfully persisted for free). request_id scopes ownership so one
+    // request can never release or promote another request's reservation.
+    `CREATE TABLE IF NOT EXISTS free_week_entitlement (
+      user_id     TEXT PRIMARY KEY,
+      status      TEXT NOT NULL,
+      request_id  TEXT NOT NULL,
+      week_start  TEXT,
+      plan_id     TEXT,
+      reserved_at TEXT NOT NULL DEFAULT (datetime('now')),
+      consumed_at TEXT
+    )`,
   ];
 
   for (const sql of tables) {
@@ -220,6 +234,16 @@ async function _applySchema() {
         args: [fix.newPrice, fix.newUnit, fix.name, fix.oldUnit],
       });
     } catch(e) { /* best-effort, non-fatal */ }
+  }
+
+  // ── Mealzy Mobile M4E — historical free-week entitlement backfill ──────────
+  // Idempotent: only inserts a 'consumed' row for a user who does not already
+  // have an entitlement row and who has at least one genuine historical weekly
+  // plan. Best-effort — a failure here must never block boot.
+  try {
+    await backfillFreeWeekEntitlements();
+  } catch (e) {
+    console.error('[db] free_week_entitlement backfill error (non-fatal):', e && e.message);
   }
 }
 
@@ -557,6 +581,7 @@ async function deleteUserAccount(userId, email) {
     { sql: 'DELETE FROM family_profiles WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM share_links WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM coach_usage WHERE user_id = ?', args: [userId] },
+    { sql: 'DELETE FROM free_week_entitlement WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM reset_tokens WHERE user_id = ?', args: [userId] },
     { sql: 'DELETE FROM leads WHERE email = ?', args: [lowerEmail] },
     { sql: 'DELETE FROM email_queue WHERE to_email = ?', args: [lowerEmail] },
@@ -953,6 +978,168 @@ async function getUserDislikedMeals(userId) {
   return rows.map(r => r.meal_name);
 }
 
+// ── Mealzy Mobile M4E — free-week entitlement ─────────────────────────────────
+//
+// A narrowly-scoped write helper that surfaces rowsAffected from the underlying
+// libSQL execute result. The module-level run() contract (returns undefined) is
+// deliberately left untouched; only this family of helpers needs atomic
+// rows-affected visibility to make reserve/promote/release/reclaim races safe.
+async function _writeAffected(sql, args = []) {
+  const r = await _client.execute({ sql, args });
+  return Number(r.rowsAffected || 0);
+}
+
+const FREE_WEEK_WEEKSTART_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Atomically reserve the free week for a user. INSERT keyed by user_id — a
+ * pre-existing row (reserved OR consumed) makes this a no-op. Returns
+ * { reserved: true } only for the request that actually created the row. */
+async function reserveFreeWeek(userId, requestId, weekStart) {
+  const n = await _writeAffected(
+    `INSERT INTO free_week_entitlement (user_id, status, request_id, week_start, reserved_at)
+     VALUES (?, 'reserved', ?, ?, datetime('now'))
+     ON CONFLICT(user_id) DO NOTHING`,
+    [userId, requestId, weekStart || null]
+  );
+  return { reserved: n > 0 };
+}
+
+async function getFreeWeekEntitlement(userId) {
+  return get(
+    `SELECT user_id, status, request_id, week_start, plan_id, reserved_at, consumed_at
+       FROM free_week_entitlement WHERE user_id = ?`,
+    [userId]
+  );
+}
+
+/** reserved -> consumed. Requires matching user_id AND request_id AND
+ * status='reserved' — a different request can never promote this reservation. */
+async function promoteFreeWeek(userId, requestId, planId, weekStart) {
+  const n = await _writeAffected(
+    `UPDATE free_week_entitlement
+        SET status = 'consumed', plan_id = ?, week_start = ?, consumed_at = datetime('now')
+      WHERE user_id = ? AND request_id = ? AND status = 'reserved'`,
+    [planId || null, weekStart || null, userId, requestId]
+  );
+  return { promoted: n > 0 };
+}
+
+/** Deletes ONLY a reservation owned by this exact request. Never touches a
+ * consumed row, never touches another request's reservation. */
+async function releaseFreeWeekReservation(userId, requestId) {
+  const n = await _writeAffected(
+    `DELETE FROM free_week_entitlement
+      WHERE user_id = ? AND request_id = ? AND status = 'reserved'`,
+    [userId, requestId]
+  );
+  return { released: n > 0 };
+}
+
+/** Take ownership of a stale reservation (status='reserved' AND older than the
+ * exact 15-minute cutoff). `cutoffMs` is a JS epoch-ms instant; the row's
+ * reserved_at is compared against it in UTC. Exactly one concurrent caller can
+ * win — the UPDATE's WHERE clause stops matching once request_id/reserved_at
+ * are rewritten. Returns { reclaimed: true } for the winner only. */
+async function reclaimStaleFreeWeekReservation(userId, requestId, weekStart, cutoffMs) {
+  const cutoffEpochSec = Math.floor(Number(cutoffMs) / 1000);
+  const n = await _writeAffected(
+    `UPDATE free_week_entitlement
+        SET request_id = ?, week_start = ?, reserved_at = datetime('now')
+      WHERE user_id = ? AND status = 'reserved'
+        AND reserved_at <= datetime(?, 'unixepoch')`,
+    [requestId, weekStart || null, userId, cutoffEpochSec]
+  );
+  return { reclaimed: n > 0 };
+}
+
+/** THE atomicity primitive (M4E task 11). Persists the weekly plan AND promotes
+ * the reservation to consumed in ONE libSQL write transaction
+ * (`_client.batch([...], 'write')` — statements applied all-or-nothing; a
+ * failing statement rejects the promise AND rolls the transaction back, so no
+ * partial state ever commits).
+ *
+ * Both statements share the identical ownership predicate
+ * (user_id = ? AND request_id = ? AND status = 'reserved'), so after a
+ * successful commit the only reachable rowsAffected pairs are (1,1) and (0,0):
+ *   - (1,1) -> { outcome: 'committed' }  — this request owned the reservation,
+ *              the plan is persisted and the entitlement is consumed
+ *   - (0,0) -> { outcome: 'ownership_lost' } — the reservation is no longer
+ *              owned by this request (e.g. a stale-reclaim by another request);
+ *              nothing was persisted, nothing was promoted. This is NOT a
+ *              persistence failure.
+ * A mixed (1,0) / (0,1) pair is impossible given the shared predicate + single
+ * transaction; if it is ever observed it is a hard invariant violation and this
+ * throws (the caller fails the request closed — it never invents recovery). */
+async function promoteFreeWeekWithPlan({ userId, requestId, planId, weekStart, planObj }) {
+  const guard = `EXISTS (SELECT 1 FROM free_week_entitlement
+                           WHERE user_id = ? AND request_id = ? AND status = 'reserved')`;
+  const res = await _client.batch([
+    {
+      sql: `INSERT INTO plans (id, user_id, data)
+            SELECT ?, ?, ? WHERE ${guard}`,
+      args: [planId, userId, JSON.stringify(planObj), userId, requestId],
+    },
+    {
+      sql: `UPDATE free_week_entitlement
+               SET status = 'consumed', plan_id = ?, week_start = ?, consumed_at = datetime('now')
+             WHERE user_id = ? AND request_id = ? AND status = 'reserved'`,
+      args: [planId, weekStart || null, userId, requestId],
+    },
+  ], 'write');
+
+  // rowsAffected is the ONLY reliable per-statement signal here. lastInsertRowid
+  // is not — libSQL reports the previous rowid for a zero-row INSERT ... SELECT.
+  const insertAffected = Number(res[0] && res[0].rowsAffected || 0);
+  const updateAffected = Number(res[1] && res[1].rowsAffected || 0);
+
+  if (insertAffected === 1 && updateAffected === 1) return { outcome: 'committed' };
+  if (insertAffected === 0 && updateAffected === 0) return { outcome: 'ownership_lost' };
+
+  const err = new Error('free_week_atomic_invariant_violation');
+  err.code = 'FREE_WEEK_ATOMIC_INVARIANT';
+  err.detail = { insertAffected, updateAffected };
+  throw err;
+}
+
+/** Idempotent historical classification. Parses each plan's data as JSON and
+ * inserts a 'consumed' entitlement row for every user whose history contains a
+ * genuine weekly plan (parsed object, weekStart matching YYYY-MM-DD, days is an
+ * array). Single-day blobs, malformed JSON and ambiguous strings never qualify.
+ * Never overwrites an existing entitlement row. */
+async function backfillFreeWeekEntitlements() {
+  const rows = await all(
+    `SELECT p.user_id AS user_id, p.id AS plan_id, p.data AS data
+       FROM plans p
+      WHERE NOT EXISTS (
+        SELECT 1 FROM free_week_entitlement f WHERE f.user_id = p.user_id
+      )
+      ORDER BY p.created_at ASC`
+  );
+
+  let inserted = 0;
+  const done = new Set();
+  for (const r of rows) {
+    if (done.has(r.user_id)) continue;
+
+    let parsed;
+    try { parsed = JSON.parse(r.data); } catch (e) { continue; }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) continue;
+    if (typeof parsed.weekStart !== 'string' || !FREE_WEEK_WEEKSTART_RE.test(parsed.weekStart)) continue;
+    if (!Array.isArray(parsed.days)) continue;
+
+    done.add(r.user_id);
+    const n = await _writeAffected(
+      `INSERT INTO free_week_entitlement
+         (user_id, status, request_id, week_start, plan_id, reserved_at, consumed_at)
+       VALUES (?, 'consumed', 'backfill', ?, ?, datetime('now'), datetime('now'))
+       ON CONFLICT(user_id) DO NOTHING`,
+      [r.user_id, parsed.weekStart, r.plan_id]
+    );
+    inserted += n;
+  }
+  return { inserted };
+}
+
 // ── Health ────────────────────────────────────────────────────────────────────
 
 async function ping() {
@@ -1001,6 +1188,9 @@ module.exports = {
   getPlanGenerationCount, incrementPlanGeneration,
   // free-tier 30-day daily trial
   setTrialStart, getTrialGenerationByDate, recordTrialGeneration, getTrialPlanIdsForUser, getLastTrialGeneration,
+  // free-week entitlement (M4E)
+  reserveFreeWeek, getFreeWeekEntitlement, promoteFreeWeek, releaseFreeWeekReservation,
+  reclaimStaleFreeWeekReservation, promoteFreeWeekWithPlan, backfillFreeWeekEntitlements,
   // daily API spend
   getDailySpend, addDailySpend,
   // ingredient prices
