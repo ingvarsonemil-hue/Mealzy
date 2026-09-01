@@ -18,6 +18,12 @@ export type AuthUser = {
   email: string;
   pro: boolean;
   email_verified?: boolean;
+  /**
+   * The raw profile object GET /api/auth/me already returns, passed through
+   * untouched. Server-owned input: never normalised or interpreted on the
+   * client. null when the user has not completed a profile yet.
+   */
+  profile?: unknown | null;
 };
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
