@@ -109,6 +109,7 @@ app.disable('x-powered-by');
 
 const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
+const NATIVE_JWT_EXPIRES = '7d'; // native (Bearer) sessions — fixed, no refresh, no renewal
 const MAX_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 // Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
@@ -432,6 +433,33 @@ function clearJwtCookie(res) {
   res.setHeader('Set-Cookie', 'mealzy_session=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/');
 }
 
+/**
+ * Native (Bearer) session token. Used ONLY by /api/auth/mobile/* routes.
+ * Same JWT_SECRET and payload shape as the web cookie, but a fixed 7-day
+ * expiry and no cookie, no renewal, no refresh. loginAt is stamped once by
+ * buildSessionPayload at signup/signin.
+ */
+function issueNativeSessionToken(payload) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: NATIVE_JWT_EXPIRES });
+}
+
+/**
+ * Extract a native Bearer credential from the Authorization header.
+ * Strict: exactly "<scheme> <credential>", scheme case-insensitively "bearer",
+ * a single non-empty credential with no comma and no extra components.
+ * Returns the raw token string, or null. jwt.verify remains authoritative.
+ */
+function extractBearerToken(req) {
+  const raw = req.headers && req.headers['authorization'];
+  if (typeof raw !== 'string') return null; // absent, or multiple headers (array)
+  const parts = raw.trim().split(' ');
+  if (parts.length !== 2) return null;                 // reject extra components / extra whitespace
+  if (parts[0].toLowerCase() !== 'bearer') return null;
+  const token = parts[1];
+  if (!token || token.indexOf(',') !== -1) return null; // reject empty / multiple credentials
+  return token;
+}
+
 function buildSessionPayload(user, existingLoginAt) {
   return {
     userId: user.id,
@@ -449,10 +477,16 @@ function buildSessionPayload(user, existingLoginAt) {
  */
 function getSessionFromReq(req) {
   try {
-    const cookies = parseCookies(req);
-    const token   = cookies.mealzy_session;
-    if (!token) return null;
-    return jwt.verify(token, JWT_SECRET); // throws if expired/tampered
+    const cookieToken = parseCookies(req).mealzy_session;
+    if (cookieToken) {
+      // Cookie present -> cookie wins. A bad cookie does NOT fall through to Bearer.
+      if (req) req._authTransport = 'cookie';
+      return jwt.verify(cookieToken, JWT_SECRET); // throws if expired/tampered
+    }
+    const bearer = extractBearerToken(req);
+    if (!bearer) return null;
+    if (req) req._authTransport = 'bearer';
+    return jwt.verify(bearer, JWT_SECRET); // throws if expired/tampered
   } catch(e) {
     return null;
   }
@@ -1046,51 +1080,137 @@ app.get('/stripe-config.js', async (req, res) => {
 // AUTH ENDPOINTS
 // ════════════════════════════════════════════════════════════════════════════
 
+/**
+ * Transport-independent signup. Performs sanitisation, email + password-policy
+ * validation, enumeration-safe duplicate handling, bcrypt(12), user creation,
+ * referral code, signup_date, verification token/email, and the signup event.
+ * Never writes a response, cookie, or token.
+ *
+ * Returns one of:
+ *   { ok: false, status, body }                       — validation error
+ *   { ok: true, duplicate: true, body }               — enumeration-safe existing account
+ *   { ok: true, duplicate: false, user, sessionPayload } — new account created
+ */
+async function performSignup(input) {
+  const src = input || {};
+  const name     = sanitise(src.name,  100);
+  const email    = sanitise(src.email, 254).toLowerCase();
+  const password = typeof src.password === 'string' ? src.password : '';
+
+  if (!name || !email || !password) {
+    return { ok: false, status: 400, body: { error: 'missing_fields', message: 'name, email, and password are required.' } };
+  }
+  if (!isValidEmail(email)) {
+    return { ok: false, status: 400, body: { error: 'invalid_email', message: 'Please enter a valid email address.' } };
+  }
+  const passwordCheck = validatePasswordStrength(password);
+  if (!passwordCheck.valid) {
+    return { ok: false, status: 400, body: { error: 'password_weak', message: passwordCheck.message } };
+  }
+
+  const existing = await db.getUserByEmail(email);
+  if (existing) {
+    await sendEmail(existing.email, 'Someone tried to sign up with your email', emailAccountExists(existing.name)).catch(() => {});
+    return { ok: true, duplicate: true, body: { success: true, message: 'If an account exists with this email, we\'ve sent a notice to it. Sign in or reset your password if this was you.' } };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+  const userId = randomUUID();
+  await db.createUser({ id: userId, name, email, hashedPassword });
+
+  // Generate short referral code ref_[6 alphanumeric chars]
+  const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  try { await db.setUserRefCode(userId, refCode); } catch(e) {}
+  try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
+
+  const rawVerifyToken = randomUUID();
+  const verifyTokenHash = require('crypto').createHash('sha256').update(rawVerifyToken).digest('hex');
+  const verifyExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  try { await db.createVerificationToken(verifyTokenHash, userId, verifyExpiresAt); } catch(e) {}
+  const verifyHost = process.env.APP_URL || 'https://mealzy.org';
+  const verifyUrl = `${verifyHost}/verify-email.html?token=${rawVerifyToken}`;
+  sendEmail(email, 'Verify your email — Mealzy', emailVerifyAddress(name, verifyUrl)).catch(() => {});
+
+  await db.logEvent('signup', { userId }, '');
+
+  return {
+    ok: true,
+    duplicate: false,
+    user: { id: userId, name, email, pro: false, ref_code: refCode },
+    sessionPayload: buildSessionPayload({ id: userId, email, pro: false, token_version: 0 }),
+  };
+}
+
+/**
+ * Transport-independent signin. Performs sanitisation, missing-field handling,
+ * per-account + per-IP lockout checks, dummy-hash timing equalisation, failed-
+ * login recording with Retry-After semantics, bcrypt verification, and
+ * clearFailedLogins on success. Never writes a response, cookie, or token.
+ *
+ * Returns one of:
+ *   { ok: false, status, body, retryAfter? }   — rejected (400 / 401 / 429)
+ *   { ok: true, user, sessionPayload }          — authenticated
+ */
+async function performSignin(input) {
+  const src = input || {};
+  const email    = sanitise(src.email, 254).toLowerCase();
+  const password = typeof src.password === 'string' ? src.password : '';
+  const ip       = src.ip;
+
+  if (!email || !password) {
+    return { ok: false, status: 400, body: { error: 'missing_fields', message: 'email and password are required.' } };
+  }
+
+  // Per-account lockout (15 min after 10 failed attempts) and the IP-wide
+  // backstop (15 min after 50 failed attempts across accounts).
+  if (isAccountLocked(email, ip) || isIpLocked(ip)) {
+    return { ok: false, status: 429, retryAfter: 900, body: { error: 'invalid_credentials', message: 'Email or password is incorrect.' } };
+  }
+
+  const user = await db.getUserByEmail(email);
+  if (!user) {
+    await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
+    const lockResult = recordFailedLogin(email, ip);
+    if (lockResult.accountLocked || lockResult.ipLocked) {
+      return { ok: false, status: 429, retryAfter: 900, body: { error: 'invalid_credentials', message: 'Email or password is incorrect.' } };
+    }
+    return { ok: false, status: 401, retryAfter: 60, body: { error: 'invalid_credentials', message: 'Email or password is incorrect.' } };
+  }
+
+  const storedHash = user.hashed_password || '';
+
+  if (!/^\$2[aby]\$/.test(storedHash)) {
+    // Pre-migration account — no bcrypt hash to compare against.
+    logger.warn('[auth] Legacy pre-bcrypt account attempted login', { email });
+    await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
+    return { ok: false, status: 401, body: { error: 'invalid_credentials', message: 'Email or password is incorrect.' } };
+  }
+
+  const valid = await bcrypt.compare(password, storedHash);
+
+  if (!valid) {
+    const lockResult = recordFailedLogin(email, ip);
+    if (lockResult.accountLocked || lockResult.ipLocked) {
+      const retryAfter = lockResult.lockedUntil
+        ? Math.ceil((lockResult.lockedUntil - Date.now()) / 1000)
+        : 900;
+      return { ok: false, status: 429, retryAfter, body: { error: 'invalid_credentials', message: 'Email or password is incorrect.' } };
+    }
+    return { ok: false, status: 401, retryAfter: 60, body: { error: 'invalid_credentials', message: 'Email or password is incorrect.' } };
+  }
+
+  clearFailedLogins(email, ip);
+  return { ok: true, user, sessionPayload: buildSessionPayload(user) };
+}
+
 // POST /api/auth/signup
 app.post('/api/auth/signup', authLimiter, async (req, res) => {
   try {
-    const name     = sanitise(req.body.name,  100);
-    const email    = sanitise(req.body.email, 254).toLowerCase();
-    const password = typeof req.body.password === 'string' ? req.body.password : '';
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: 'missing_fields', message: 'name, email, and password are required.' });
-    }
-    if (!isValidEmail(email)) {
-      return res.status(400).json({ error: 'invalid_email', message: 'Please enter a valid email address.' });
-    }
-    const passwordCheck = validatePasswordStrength(password);
-    if (!passwordCheck.valid) {
-      return res.status(400).json({ error: 'password_weak', message: passwordCheck.message });
-    }
-
-    const existing = await db.getUserByEmail(email);
-    if (existing) {
-      await sendEmail(existing.email, 'Someone tried to sign up with your email', emailAccountExists(existing.name)).catch(() => {});
-      return res.json({ success: true, message: 'If an account exists with this email, we\'ve sent a notice to it. Sign in or reset your password if this was you.' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 12);
-    const userId = randomUUID();
-    await db.createUser({ id: userId, name, email, hashedPassword });
-
-    // Generate short referral code ref_[6 alphanumeric chars]
-    const refCode = 'ref_' + Math.random().toString(36).slice(2, 8).toUpperCase();
-    try { await db.setUserRefCode(userId, refCode); } catch(e) {}
-    try { await db.run('UPDATE users SET signup_date = ? WHERE id = ?', [new Date().toISOString(), userId]); } catch(e) {}
-
-    const rawVerifyToken = randomUUID();
-    const verifyTokenHash = require('crypto').createHash('sha256').update(rawVerifyToken).digest('hex');
-    const verifyExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    try { await db.createVerificationToken(verifyTokenHash, userId, verifyExpiresAt); } catch(e) {}
-    const verifyHost = process.env.APP_URL || 'https://mealzy.org';
-    const verifyUrl = `${verifyHost}/verify-email.html?token=${rawVerifyToken}`;
-    sendEmail(email, 'Verify your email — Mealzy', emailVerifyAddress(name, verifyUrl)).catch(() => {});
-
-    await db.logEvent('signup', { userId }, '');
-
-    setJwtCookie(res, buildSessionPayload({ id: userId, email, pro: false, token_version: 0 }));
-    res.json({ success: true, user: { id: userId, name, email, pro: false, ref_code: refCode } });
+    const result = await performSignup(req.body || {});
+    if (!result.ok) return res.status(result.status).json(result.body);
+    if (result.duplicate) return res.json(result.body);
+    setJwtCookie(res, result.sessionPayload);
+    res.json({ success: true, user: result.user });
   } catch(err) {
     console.error('Signup error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
@@ -1100,71 +1220,49 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
 // POST /api/auth/signin
 app.post('/api/auth/signin', authLimiter, async (req, res) => {
   try {
-    const email    = sanitise(req.body.email, 254).toLowerCase();
-    const password = typeof req.body.password === 'string' ? req.body.password : '';
-
-    if (!email || !password) {
-      return res.status(400).json({ error: 'missing_fields', message: 'email and password are required.' });
+    const result = await performSignin({ email: (req.body || {}).email, password: (req.body || {}).password, ip: clientIp(req) });
+    if (!result.ok) {
+      if (result.retryAfter) res.setHeader('Retry-After', result.retryAfter);
+      return res.status(result.status).json(result.body);
     }
-
-    const ip = clientIp(req);
-
-    // Check per-account lockout (15 minutes after 10 failed attempts) and
-    // the IP-wide backstop (15 minutes after 50 failed attempts across accounts)
-    if (isAccountLocked(email, ip) || isIpLocked(ip)) {
-      const retryAfter = 900; // 15 minutes in seconds
-      res.setHeader('Retry-After', retryAfter);
-      return res.status(429).json({
-        error: 'invalid_credentials',
-        message: 'Email or password is incorrect.'
-      });
-    }
-
-    const user = await db.getUserByEmail(email);
-    if (!user) {
-      await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
-
-      const lockResult = recordFailedLogin(email, ip);
-      if (lockResult.accountLocked || lockResult.ipLocked) {
-        res.setHeader('Retry-After', 900);
-        return res.status(429).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
-      }
-      res.setHeader('Retry-After', 60);
-      
-      return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
-    }
-
-    const storedHash = user.hashed_password || '';
-
-    if (!/^\$2[aby]\$/.test(storedHash)) {
-      // Pre-migration account — no bcrypt hash to compare against. Reject up front
-      // rather than falling through to a comparison that can never succeed.
-      logger.warn('[auth] Legacy pre-bcrypt account attempted login', { email });
-      await bcrypt.compare(password, DUMMY_HASH); // match timing of the real-user path
-      return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
-    }
-
-    const valid = await bcrypt.compare(password, storedHash);
-
-    if (!valid) {
-      const lockResult = recordFailedLogin(email, ip);
-      if (lockResult.accountLocked || lockResult.ipLocked) {
-        const retryAfter = lockResult.lockedUntil
-          ? Math.ceil((lockResult.lockedUntil - Date.now()) / 1000)
-          : 900;
-        res.setHeader('Retry-After', retryAfter);
-        return res.status(429).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
-      }
-      res.setHeader('Retry-After', 60);
-      return res.status(401).json({ error: 'invalid_credentials', message: 'Email or password is incorrect.' });
-    }
-
-    // Success — clear failed login attempts for this account
-    clearFailedLogins(email, ip);
-    setJwtCookie(res, buildSessionPayload(user));
-    res.json({ success: true, user: OutputShapes.User(user) });
+    setJwtCookie(res, result.sessionPayload);
+    res.json({ success: true, user: OutputShapes.User(result.user) });
   } catch(err) {
     console.error('Signin error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/auth/mobile/signup — native (Bearer) client. Same behaviour as
+// /api/auth/signup, but returns a fixed 7-day Bearer token in the body and
+// never sets a session cookie.
+app.post('/api/auth/mobile/signup', authLimiter, async (req, res) => {
+  try {
+    const result = await performSignup(req.body || {});
+    if (!result.ok) return res.status(result.status).json(result.body);
+    if (result.duplicate) return res.json(result.body);
+    const token = issueNativeSessionToken(result.sessionPayload);
+    res.json({ success: true, token, user: result.user });
+  } catch(err) {
+    console.error('Mobile signup error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// POST /api/auth/mobile/signin — native (Bearer) client. Same behaviour as
+// /api/auth/signin, but returns a fixed 7-day Bearer token in the body and
+// never sets a session cookie.
+app.post('/api/auth/mobile/signin', authLimiter, async (req, res) => {
+  try {
+    const result = await performSignin({ email: (req.body || {}).email, password: (req.body || {}).password, ip: clientIp(req) });
+    if (!result.ok) {
+      if (result.retryAfter) res.setHeader('Retry-After', result.retryAfter);
+      return res.status(result.status).json(result.body);
+    }
+    const token = issueNativeSessionToken(result.sessionPayload);
+    res.json({ success: true, token, user: OutputShapes.User(result.user) });
+  } catch(err) {
+    console.error('Mobile signin error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
@@ -1179,8 +1277,11 @@ app.get('/api/auth/me', requireSession, async (req, res) => {
     return res.status(401).json({ error: 'user_not_found' });
   }
 
-  // Always refresh the cookie to extend the session while the user is active
-  setJwtCookie(res, buildSessionPayload(user, session.loginAt));
+  // Cookie (web) callers get a sliding renewal with the original loginAt.
+  // Bearer (native) callers get no replacement token and no Set-Cookie.
+  if (req._authTransport !== 'bearer') {
+    setJwtCookie(res, buildSessionPayload(user, session.loginAt));
+  }
 
   const profile = await db.getProfile(user.id);
   const shape = OutputShapes.UserWithProfile(user, profile);
