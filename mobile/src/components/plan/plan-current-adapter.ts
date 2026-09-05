@@ -11,16 +11,19 @@
  *
  * Known gaps versus the locked design, all because the current WeekPlan
  * contract does not carry the field (not something this adapter can fix):
- *   - PlanMealViewModel.durationMinutes: no prep-time field on PlanMeal.
  *   - BudgetViewModel.target: no numeric weekly budget target on WeekPlan
  *     (only the opaque `weeklyTotals.budgetStatus` string).
  *   - GroceryViewModel.itemCount: no grocery-list count anywhere yet (see
  *     mobile/src/app/shop.tsx - groceries are not generated server-side yet).
  *   - PlanMealViewModel.usesIngredientsElsewhere: no cross-meal overlap
  *     signal from the backend.
+ *
+ * PlanMealViewModel.durationMinutes IS available (from PlanMeal.cookTime -
+ * see the Phase B audit note in @/lib/plan) and is mapped below.
  */
 
 import type { PlanDay, WeekPlan } from '@/lib/plan';
+import { formatDateRangeLabel, parseYmdLocal } from '@/lib/date-format';
 import type {
   BudgetViewModel,
   PlanCurrentViewModel,
@@ -28,26 +31,6 @@ import type {
   PlanMealViewModel,
   WeekSelectorDayViewModel,
 } from './types';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-function parseYmdLocal(s: string): Date | null {
-  const [y, m, d] = s.split('-').map((n) => Number(n));
-  if (!y || !m || !d) return null;
-  return new Date(y, m - 1, d);
-}
-
-/** "Sep 7–13" when the week stays in one month, "Sep 28 – Oct 4" otherwise. */
-function formatRangeLabel(days: PlanDay[]): string {
-  if (days.length === 0) return '';
-  const start = parseYmdLocal(days[0].date);
-  const end = parseYmdLocal(days[days.length - 1].date);
-  if (!start || !end) return '';
-
-  const startLabel = `${MONTHS[start.getMonth()]} ${start.getDate()}`;
-  if (start.getMonth() === end.getMonth()) return `${startLabel}–${end.getDate()}`;
-  return `${startLabel} – ${MONTHS[end.getMonth()]} ${end.getDate()}`;
-}
 
 function toSelectorDays(days: PlanDay[], selectedIndex: number): WeekSelectorDayViewModel[] {
   return days.map((day, i) => {
@@ -70,10 +53,10 @@ function toMealViewModels(day: PlanDay): PlanMealViewModel[] {
     id: `${day.date}-${i}`,
     type: capitalize(meal.type || 'meal'),
     name: meal.name,
-    // durationMinutes intentionally omitted: not in the backend contract.
+    durationMinutes: meal.cookTime && meal.cookTime > 0 ? meal.cookTime : undefined,
     estimatedCost: meal.cost,
-    calories: Math.round(meal.calories),
-    proteinGrams: Math.round(meal.protein),
+    calories: meal.calories !== undefined ? Math.round(meal.calories) : undefined,
+    proteinGrams: meal.protein !== undefined ? Math.round(meal.protein) : undefined,
     // usesIngredientsElsewhere intentionally omitted: see file header.
   }));
 }
@@ -107,8 +90,13 @@ export function toPlanCurrentViewModel(week: WeekPlan, today: Date = new Date())
     meals: day ? toMealViewModels(day) : [],
   };
 
+  const rangeLabel =
+    week.days.length > 0
+      ? formatDateRangeLabel(week.days[0].date, week.days[week.days.length - 1].date)
+      : '';
+
   return {
-    rangeLabel: formatRangeLabel(week.days),
+    rangeLabel,
     selectorDays: toSelectorDays(week.days, index),
     day: dayViewModel,
     budget: toBudget(week),

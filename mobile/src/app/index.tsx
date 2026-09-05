@@ -144,10 +144,15 @@ export default function PlanScreen() {
     return (
       <PlanCurrentView
         viewModel={toPlanCurrentViewModel(state.week)}
-        onOpenMeal={() => {
-          // Meal Detail does not exist yet. Intentionally a no-op so the row
-          // stays tappable at the component level without navigating
-          // anywhere unsafe.
+        onOpenMeal={(mealId) => {
+          // mealId is `${date}-${mealIndex}` from plan-current-adapter.ts;
+          // date itself contains dashes, so split on the last one. Meal
+          // Detail re-loads the week itself from just these two values -
+          // no recipe content travels through navigation.
+          const lastDash = mealId.lastIndexOf('-');
+          const date = mealId.slice(0, lastDash);
+          const mealIndex = mealId.slice(lastDash + 1);
+          router.push({ pathname: '/meal-detail', params: { date, mealIndex } });
         }}
         onOpenGroceries={() => router.navigate('/shop')}
         onGenerateNextWeek={() => {

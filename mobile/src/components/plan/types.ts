@@ -27,9 +27,10 @@ export type PlanMealViewModel = {
    * fixture provides it so the locked design can still be reviewed in full.
    */
   durationMinutes?: number;
-  estimatedCost: number;
-  calories: number;
-  proteinGrams: number;
+  /** undefined when the backend didn't send a valid cost - never shown as $0. */
+  estimatedCost?: number;
+  calories?: number;
+  proteinGrams?: number;
   /**
    * Not derivable from the current backend contract (no cross-meal
    * ingredient-overlap signal is sent). Always undefined for real data.

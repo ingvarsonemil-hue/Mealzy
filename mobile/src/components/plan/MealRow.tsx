@@ -17,10 +17,15 @@ const FALLBACK_SIZE = 100;
  * placeholder until the real Meal Detail route exists.
  */
 export function MealRow({ meal, onPress }: MealRowProps) {
-  const detail =
-    meal.durationMinutes !== undefined
-      ? `${meal.durationMinutes} min · ~${formatMoney(meal.estimatedCost)}`
-      : `~${formatMoney(meal.estimatedCost)}`;
+  const costParts: string[] = [];
+  if (meal.durationMinutes !== undefined) costParts.push(`${meal.durationMinutes} min`);
+  if (meal.estimatedCost !== undefined) costParts.push(`~${formatMoney(meal.estimatedCost)}`);
+  const costLine = costParts.length > 0 ? costParts.join(' · ') : null;
+
+  const nutritionParts: string[] = [];
+  if (meal.calories !== undefined) nutritionParts.push(`${meal.calories} cal`);
+  if (meal.proteinGrams !== undefined) nutritionParts.push(`${meal.proteinGrams}g protein`);
+  const nutritionLine = nutritionParts.length > 0 ? nutritionParts.join(' · ') : null;
 
   return (
     <Pressable
@@ -33,10 +38,8 @@ export function MealRow({ meal, onPress }: MealRowProps) {
       <View style={styles.info}>
         <Text style={styles.type}>{meal.type}</Text>
         <Text style={styles.name}>{meal.name}</Text>
-        <Text style={styles.detail}>{detail}</Text>
-        <Text style={styles.detail}>
-          {meal.calories} cal · {meal.proteinGrams}g protein
-        </Text>
+        {costLine ? <Text style={styles.detail}>{costLine}</Text> : null}
+        {nutritionLine ? <Text style={styles.detail}>{nutritionLine}</Text> : null}
         {meal.usesIngredientsElsewhere ? (
           <Text style={styles.note}>Uses ingredients elsewhere this week</Text>
         ) : null}

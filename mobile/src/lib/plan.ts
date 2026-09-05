@@ -6,6 +6,18 @@
  * M4B actually consumes. `weeklyTotals.certification`, `weeklyTotals.purchasePlan`
  * and everything else on the wire are deliberately left out and never
  * interpreted on the client.
+ *
+ * Phase B audit (Meal Detail): server.js's meal generation schema
+ * (mealSchema, ~server.js:2687) already includes `cookTime` and
+ * `instructions` on every generated meal, and they flow through the plan
+ * object unmodified into the `/api/generate-meal` and `/api/plans`
+ * responses. They were previously dropped here as out of scope for M4B;
+ * Meal Detail needs them, so they're now parsed like everything else.
+ * `servings` and `image_url` also exist server-side but are not added here:
+ * this screen has no use for `servings`, and `image_url` is a keyword-matched
+ * Unsplash stock photo (server.js's attachMealImages), not a photo of the
+ * actual cooked meal - using it would risk presenting a generic image as
+ * "the meal", which the locked design explicitly rules out.
  */
 
 // ── Narrow domain types ─────────────────────────────────────────────────────
@@ -19,13 +31,17 @@ export type PlanMeal = {
   type: string;
   name: string;
   description: string;
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-  /** authoritative server-priced meal cost */
-  cost: number;
+  /** undefined when the backend didn't send a valid number - never coerced to 0. */
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  /** authoritative server-priced meal cost; undefined when absent/invalid, never coerced to 0. */
+  cost?: number;
   ingredients: PlanIngredient[];
+  /** Minutes, 0 when the backend didn't provide one. */
+  cookTime: number;
+  instructions: string[];
 };
 
 export type PlanDay = {
@@ -68,8 +84,20 @@ function num(v: unknown): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Like num(), but a missing/invalid value stays undefined instead of becoming 0. */
+function optNum(v: unknown): number | undefined {
+  if (v === null || v === undefined) return undefined;
+  if (typeof v === 'string' && v.trim() === '') return undefined;
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 function str(v: unknown): string {
   return typeof v === 'string' ? v : '';
+}
+
+function strArray(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
 }
 
 function toIngredient(v: unknown): PlanIngredient {
@@ -83,12 +111,14 @@ function toMeal(v: unknown): PlanMeal {
     type: str(r.type),
     name: str(r.name),
     description: str(r.description),
-    calories: num(r.calories),
-    protein: num(r.protein),
-    carbs: num(r.carbs),
-    fat: num(r.fat),
-    cost: num(r.cost),
+    calories: optNum(r.calories),
+    protein: optNum(r.protein),
+    carbs: optNum(r.carbs),
+    fat: optNum(r.fat),
+    cost: optNum(r.cost),
     ingredients: Array.isArray(r.ingredients) ? r.ingredients.map(toIngredient) : [],
+    cookTime: num(r.cookTime),
+    instructions: strArray(r.instructions),
   };
 }
 

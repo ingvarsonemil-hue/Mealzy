@@ -52,6 +52,11 @@ function RootTabs() {
           functionality, not this task's call to remove. */}
       <Tabs.Screen name="eat" options={{ href: null }} />
       <Tabs.Screen name="history" options={{ href: null }} />
+      {/* Pushed detail screen, not a primary tab: hidden from the tab list
+          and its tab bar is always hidden (not just when unauthenticated,
+          unlike sign-in/sign-up below), so it never shows the
+          Plan/Groceries/Settings bar underneath it. */}
+      <Tabs.Screen name="meal-detail" options={{ href: null, tabBarStyle: { display: 'none' } }} />
       <Tabs.Screen
         name="sign-in"
         options={{ href: null, tabBarStyle: hideTabBar ? { display: 'none' } : undefined }}
