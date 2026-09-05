@@ -1,6 +1,8 @@
 import { Tabs, usePathname, useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 
+import { BrandColors } from '@/constants/theme';
 import { AuthProvider, useAuth } from '@/lib/auth-context';
 
 const AUTH_ROUTES = ['/sign-in', '/sign-up'];
@@ -26,19 +28,37 @@ function RootTabs() {
   const hideTabBar = status !== 'authenticated';
 
   return (
-    <Tabs screenOptions={{ headerShown: true }}>
+    <Tabs
+      screenOptions={{
+        // Screens render their own locked-design header; the native one
+        // would double up with it.
+        headerShown: false,
+        tabBarActiveTintColor: BrandColors.green,
+        tabBarInactiveTintColor: BrandColors.inkMuted,
+        tabBarStyle: {
+          backgroundColor: BrandColors.cream,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: BrandColors.separator,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarLabelStyle: { fontSize: 13, fontWeight: '500' },
+      }}>
       <Tabs.Screen name="index" options={{ title: 'Plan' }} />
-      <Tabs.Screen name="shop" options={{ title: 'Shop' }} />
-      <Tabs.Screen name="eat" options={{ title: 'Eat' }} />
-      <Tabs.Screen name="history" options={{ title: 'History' }} />
+      <Tabs.Screen name="shop" options={{ title: 'Groceries' }} />
       <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
+      {/* Not part of the locked 3-tab shell (Plan / Groceries / Settings).
+          Kept navigable but hidden rather than deleted - unrelated
+          functionality, not this task's call to remove. */}
+      <Tabs.Screen name="eat" options={{ href: null }} />
+      <Tabs.Screen name="history" options={{ href: null }} />
       <Tabs.Screen
         name="sign-in"
-        options={{ href: null, headerShown: false, tabBarStyle: hideTabBar ? { display: 'none' } : undefined }}
+        options={{ href: null, tabBarStyle: hideTabBar ? { display: 'none' } : undefined }}
       />
       <Tabs.Screen
         name="sign-up"
-        options={{ href: null, headerShown: false, tabBarStyle: hideTabBar ? { display: 'none' } : undefined }}
+        options={{ href: null, tabBarStyle: hideTabBar ? { display: 'none' } : undefined }}
       />
     </Tabs>
   );

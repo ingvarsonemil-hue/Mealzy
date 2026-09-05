@@ -1,20 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-  useColorScheme,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/lib/auth-context';
 import { currentWeekStart, weekDateRange, type SavedWeekResult, type WeekPlan } from '@/lib/plan';
 import { fetchSavedWeek, generateWeek } from '@/lib/plan-api';
+import { PlanCurrentView } from '@/components/plan/PlanCurrentView';
+import { toPlanCurrentViewModel } from '@/components/plan/plan-current-adapter';
 
 type ScreenState =
   | { s: 'loading' }
@@ -33,10 +26,6 @@ type ScreenState =
   | { s: 'lookup_error'; mode: 'initial' | 'check' };
 
 type LoadResult = SavedWeekResult | { kind: 'blocked' };
-
-function money(n: number): string {
-  return `$${n.toFixed(2)}`;
-}
 
 export default function PlanScreen() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
@@ -151,6 +140,28 @@ export default function PlanScreen() {
     }
   }, [loadCurrentWeek]);
 
+  if (state.s === 'existing_plan') {
+    return (
+      <PlanCurrentView
+        viewModel={toPlanCurrentViewModel(state.week)}
+        onOpenMeal={() => {
+          // Meal Detail does not exist yet. Intentionally a no-op so the row
+          // stays tappable at the component level without navigating
+          // anywhere unsafe.
+        }}
+        onOpenGroceries={() => router.navigate('/shop')}
+        onGenerateNextWeek={() => {
+          // "Next week" generation does not exist yet - the app only
+          // supports generating the current week (onGenerate above).
+          // Isolated placeholder so wiring it up later only touches this
+          // handler, never PlanCurrentView.
+        }}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
@@ -163,8 +174,6 @@ export default function PlanScreen() {
       <Body
         state={state}
         colors={colors}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
         onGenerate={onGenerate}
         onCheckForPlan={checkForPlan}
         onRetryLoad={initialLoad}
@@ -176,20 +185,19 @@ export default function PlanScreen() {
 
 type BodyColors = { background: string; text: string; textSecondary: string };
 
+/** Every ScreenState except 'existing_plan', which PlanScreen renders directly via PlanCurrentView above. */
+type NonPlanState = Exclude<ScreenState, { s: 'existing_plan' }>;
+
 function Body({
   state,
   colors,
-  refreshing,
-  onRefresh,
   onGenerate,
   onCheckForPlan,
   onRetryLoad,
   onOpenSettings,
 }: {
-  state: ScreenState;
+  state: NonPlanState;
   colors: BodyColors;
-  refreshing: boolean;
-  onRefresh: () => void;
   onGenerate: () => void;
   onCheckForPlan: () => void;
   onRetryLoad: () => void;
@@ -279,11 +287,6 @@ function Body({
 
     case 'terminal_error':
       return <Message colors={colors} text={state.message} />;
-
-    case 'existing_plan':
-      return (
-        <WeekView week={state.week} colors={colors} refreshing={refreshing} onRefresh={onRefresh} />
-      );
   }
 }
 
@@ -307,69 +310,6 @@ function Message({
         </Pressable>
       ) : null}
     </View>
-  );
-}
-
-function WeekView({
-  week,
-  colors,
-  refreshing,
-  onRefresh,
-}: {
-  week: WeekPlan;
-  colors: BodyColors;
-  refreshing: boolean;
-  onRefresh: () => void;
-}) {
-  const t = week.weeklyTotals;
-  return (
-    <ScrollView
-      contentContainerStyle={styles.scroll}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-      {week.days.map((day, i) => (
-        <View key={`${day.date}-${i}`} style={[styles.day, { borderColor: colors.textSecondary }]}>
-          <View style={styles.dayHead}>
-            <Text style={[styles.dayName, { color: colors.text }]}>{day.dayName || day.date}</Text>
-            <Text style={[styles.daySub, { color: colors.textSecondary }]}>{day.date}</Text>
-          </View>
-          <Text style={[styles.daySub, { color: colors.textSecondary }]}>
-            {Math.round(day.totalCalories)} cal   {money(day.totalCost)}
-          </Text>
-
-          {day.meals.map((meal, j) => (
-            <View key={`${meal.name}-${j}`} style={styles.meal}>
-              <Text style={[styles.mealType, { color: colors.textSecondary }]}>
-                {meal.type || 'meal'}
-              </Text>
-              <Text style={[styles.mealName, { color: colors.text }]}>{meal.name}</Text>
-              {meal.description ? (
-                <Text style={[styles.mealDesc, { color: colors.textSecondary }]}>
-                  {meal.description}
-                </Text>
-              ) : null}
-              <Text style={[styles.mealStats, { color: colors.textSecondary }]}>
-                {Math.round(meal.calories)} cal   P {Math.round(meal.protein)}g   C{' '}
-                {Math.round(meal.carbs)}g   F {Math.round(meal.fat)}g   {money(meal.cost)}
-              </Text>
-            </View>
-          ))}
-        </View>
-      ))}
-
-      <View style={[styles.footer, { borderColor: colors.textSecondary }]}>
-        <Text style={[styles.footerLine, { color: colors.text }]}>
-          Weekly total cost   {money(t.totalCost)}
-        </Text>
-        <Text style={[styles.footerLine, { color: colors.textSecondary }]}>
-          Average calories per day   {Math.round(t.avgCalories)}
-        </Text>
-        {t.budgetStatus ? (
-          <Text style={[styles.footerLine, { color: colors.textSecondary }]}>
-            Budget status   {t.budgetStatus}
-          </Text>
-        ) : null}
-      </View>
-    </ScrollView>
   );
 }
 
@@ -401,28 +341,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: { fontSize: 16, fontWeight: '500' },
-
-  scroll: { padding: Spacing.four, gap: Spacing.three },
-  day: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 8,
-    padding: Spacing.three,
-    gap: Spacing.two,
-  },
-  dayHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  dayName: { fontSize: 17, fontWeight: '600' },
-  daySub: { fontSize: 13 },
-
-  meal: { gap: 2, paddingTop: Spacing.two },
-  mealType: { fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
-  mealName: { fontSize: 15, fontWeight: '500' },
-  mealDesc: { fontSize: 13, lineHeight: 18 },
-  mealStats: { fontSize: 12 },
-
-  footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: Spacing.three,
-    gap: Spacing.one,
-  },
-  footerLine: { fontSize: 14 },
 });
