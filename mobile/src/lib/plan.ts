@@ -18,6 +18,26 @@
  * Unsplash stock photo (server.js's attachMealImages), not a photo of the
  * actual cooked meal - using it would risk presenting a generic image as
  * "the meal", which the locked design explicitly rules out.
+ *
+ * Phase C audit (Groceries): server.js unconditionally computes
+ * `weeklyTotals.purchasePlan` for every generated week (weeklyPurchasePlan.js
+ * buildWeeklyPurchasePlan, ~server.js:3455) and saves it verbatim in the plan
+ * blob, so it comes back on both /api/generate-meal and /api/plans - it was
+ * simply never parsed here. This is a DIFFERENT number from
+ * `weeklyTotals.totalCost`: totalCost is the legacy recipe-CONSUMPTION
+ * estimate (sum of what the recipes use); purchasePlan is the real
+ * PURCHASE/package economics (ingredients aggregated for the whole week,
+ * rounded up to actual store package sizes, priced in integer cents). Only
+ * purchasePlan is appropriate for a "how much groceries will cost" figure -
+ * see the Phase C report for why Groceries and the Plan handoff use it
+ * instead of totalCost.
+ *
+ * Phase C backend follow-up: purchasePlan.rows now DOES carry a real
+ * `category` (server.js's groceryCategories.js, the same authoritative
+ * bucket mapping the separate per-day /api/generate-grocery-list system
+ * uses) and `canonicalIngredientId` (the stable identity checked-state
+ * persistence keys on - see @/lib/plan-api's grocery-checks calls). Both
+ * are parsed below.
  */
 
 // ── Narrow domain types ─────────────────────────────────────────────────────
@@ -55,6 +75,49 @@ export type PlanDay = {
   totalCost: number;
 };
 
+/**
+ * One ingredient's real weekly PURCHASE row (weeklyPurchasePlan.js
+ * computeRowPurchase). `packageCount`/`purchaseQuantity`/`purchaseCostCents`
+ * are real supermarket purchase amounts (whole packages, rounded up), never
+ * the raw recipe-consumption quantity - null on any row the backend
+ * couldn't price (unresolved ingredient, no purchase profile, unit
+ * mismatch, invalid quantity). `pricingStatus` is the opaque
+ * PURCHASE_PRICING_STATUS value; only 'covered' and 'uncertified_pricing'
+ * rows carry a purchaseCostCents.
+ */
+export type GroceryPurchaseRow = {
+  name: string;
+  /**
+   * Stable identity for checked-state persistence (@/lib/plan-api's
+   * grocery-checks calls) - the same canonical id weeklyPurchasePlan.js
+   * itself keys on. Null for an unresolved ingredient, which has no stable
+   * identity and so cannot support persisted checked state.
+   */
+  canonicalIngredientId: string | null;
+  /** Authoritative bucket from the backend (groceryCategories.js) - never a client-side guess. One of produce/protein/dairy/grains/pantry/frozen/beverages/other. */
+  category: string;
+  packageType: string | null;
+  packageQuantity: number | null;
+  packageUnit: string | null;
+  packageCount: number | null;
+  purchaseQuantity: number | null;
+  purchaseUnit: string | null;
+  /** Integer cents. Null when this row has no trustworthy purchase price. */
+  purchaseCostCents: number | null;
+  pricingStatus: string;
+};
+
+export type WeeklyPurchasePlan = {
+  rows: GroceryPurchaseRow[];
+  /** Sum of only the fully-trustworthy ('covered') rows' purchaseCostCents. */
+  coveredPurchaseCostCents: number;
+  /** Best-effort total across every priceable row; server.js's own comment calls this "observability only, never certified". */
+  weeklyPurchaseCostCents: number;
+  /** The authoritative total - null unless every required ingredient has certification-grade purchase pricing. */
+  certifiedEstimatedPurchaseCostCents: number | null;
+  allCovered: boolean;
+};
+
 export type WeekWeeklyTotals = {
   totalCost: number;
   avgCalories: number;
@@ -63,11 +126,20 @@ export type WeekWeeklyTotals = {
   avgFat: number;
   /** opaque server string, shown verbatim if shown at all */
   budgetStatus?: string;
+  /** Real weekly purchase/package economics. Absent only if the backend response is malformed - server.js always computes it. */
+  purchasePlan?: WeeklyPurchasePlan;
 };
 
 export type WeekPlan = {
   weekStart: string;
-  /** present on a fresh generation response; absent on a plan read back from GET /api/plans */
+  /**
+   * Present on a fresh generation response AND (Phase C backend follow-up)
+   * on a plan read back from GET /api/plans - db.getRecentPlans now merges
+   * the row's own id in as planId, since grocery-checks persistence needs a
+   * real planId and previously had no way to get one outside a fresh
+   * generation. Still optional: stays undefined if the backend response is
+   * malformed, never fabricated.
+   */
   planId?: string;
   days: PlanDay[];
   weeklyTotals: WeekWeeklyTotals;
@@ -136,6 +208,41 @@ function toDay(v: unknown): PlanDay {
   };
 }
 
+function optInt(v: unknown): number | null {
+  const n = optNum(v);
+  return n !== undefined && Number.isInteger(n) ? n : null;
+}
+
+function toGroceryPurchaseRow(v: unknown): GroceryPurchaseRow | null {
+  const r = isRecord(v) ? v : null;
+  if (!r || typeof r.pricingStatus !== 'string') return null;
+  return {
+    name: str(r.name),
+    canonicalIngredientId: typeof r.canonicalIngredientId === 'string' ? r.canonicalIngredientId : null,
+    category: typeof r.category === 'string' ? r.category : 'other',
+    packageType: typeof r.packageType === 'string' ? r.packageType : null,
+    packageQuantity: optNum(r.packageQuantity) ?? null,
+    packageUnit: typeof r.packageUnit === 'string' ? r.packageUnit : null,
+    packageCount: optInt(r.packageCount),
+    purchaseQuantity: optNum(r.purchaseQuantity) ?? null,
+    purchaseUnit: typeof r.purchaseUnit === 'string' ? r.purchaseUnit : null,
+    purchaseCostCents: optInt(r.purchaseCostCents),
+    pricingStatus: r.pricingStatus,
+  };
+}
+
+function toWeeklyPurchasePlan(v: unknown): WeeklyPurchasePlan | undefined {
+  const r = isRecord(v) ? v : null;
+  if (!r || !Array.isArray(r.rows)) return undefined;
+  return {
+    rows: r.rows.map(toGroceryPurchaseRow).filter((row): row is GroceryPurchaseRow => row !== null),
+    coveredPurchaseCostCents: num(r.coveredPurchaseCostCents),
+    weeklyPurchaseCostCents: num(r.weeklyPurchaseCostCents),
+    certifiedEstimatedPurchaseCostCents: optInt(r.certifiedEstimatedPurchaseCostCents),
+    allCovered: r.allCovered === true,
+  };
+}
+
 function toWeeklyTotals(v: unknown): WeekWeeklyTotals {
   const r = isRecord(v) ? v : {};
   const out: WeekWeeklyTotals = {
@@ -146,6 +253,8 @@ function toWeeklyTotals(v: unknown): WeekWeeklyTotals {
     avgFat: num(r.avgFat),
   };
   if (typeof r.budgetStatus === 'string') out.budgetStatus = r.budgetStatus;
+  const purchasePlan = toWeeklyPurchasePlan(r.purchasePlan);
+  if (purchasePlan) out.purchasePlan = purchasePlan;
   return out;
 }
 
@@ -198,6 +307,35 @@ export function classifySavedWeekResponse(
   if (res.data.success !== true || !Array.isArray(res.data.plans)) return { kind: 'error' };
   const week = selectWeeklyPlan(res.data.plans, weekStart);
   return week ? { kind: 'found', week } : { kind: 'none' };
+}
+
+// ── Grocery checked-state (weekly purchase-plan rows) ───────────────────────
+//
+// GET /api/plans/:planId/grocery-checks and
+// PATCH /api/plans/:planId/grocery-checks/:canonicalIngredientId - see
+// server.js. Keyed by canonicalIngredientId, never array position.
+
+export type GroceryChecksResult =
+  | { kind: 'found'; checkedIds: Set<string> }
+  | { kind: 'error' };
+
+/** Pure classifier for the GET response. Only checked===true rows end up in the set - GET may also return checked:false rows once an item has been unchecked at least once. */
+export function classifyGroceryChecksResponse(res: { status: number; data: unknown }): GroceryChecksResult {
+  if (res.status !== 200 || !isRecord(res.data)) return { kind: 'error' };
+  if (res.data.success !== true || !Array.isArray(res.data.checks)) return { kind: 'error' };
+
+  const checkedIds = new Set<string>();
+  for (const item of res.data.checks) {
+    if (isRecord(item) && typeof item.canonicalIngredientId === 'string' && item.checked === true) {
+      checkedIds.add(item.canonicalIngredientId);
+    }
+  }
+  return { kind: 'found', checkedIds };
+}
+
+/** Pure classifier for the PATCH response - true only on a genuine 200 success. */
+export function classifyGroceryCheckPatchResponse(res: { status: number; data: unknown }): boolean {
+  return res.status === 200 && isRecord(res.data) && res.data.success === true;
 }
 
 // ── Saved-plan selection ────────────────────────────────────────────────────

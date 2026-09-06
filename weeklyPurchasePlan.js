@@ -23,6 +23,7 @@
 const budgetEngine = require('./budgetEngine');
 const canonicalIngredients = require('./canonicalIngredients');
 const canonicalPurchaseData = require('./canonicalPurchaseData');
+const { groceryBucketFor } = require('./groceryCategories'); // Phase C: mobile Groceries category
 
 const PURCHASE_PRICING_STATUS = Object.freeze({
   COVERED: 'covered',                         // resolved canonical id + certification-grade profile + compatible unit + valid quantity
@@ -42,8 +43,14 @@ const _COVERED = PURCHASE_PRICING_STATUS.COVERED;
  *
  * Row shape:
  *   { canonicalIngredientId | null, displayName, requiredQuantity,
- *     requiredUnit | null, occurrenceCount,
+ *     requiredUnit | null, rawCategory | null, occurrenceCount,
  *     flags: { unresolved, unitMismatch, invalidQuantity, negativeQuantity } }
+ *
+ * rawCategory is the resolved canonical ingredient's own `category` field
+ * (canonicalIngredients.js's authoritative per-ingredient classification -
+ * one of VALID_CATEGORIES, e.g. 'meat'/'produce'/'dairy'/'pantry') - null
+ * when unresolved. computeRowPurchase below buckets it through
+ * groceryCategories.groceryBucketFor into the grocery-UI taxonomy.
  *
  * requiredQuantity is the SUM of every occurrence's amount, each occurrence
  * first clamped at 0 (a negative amount can never reduce the requirement —
@@ -69,6 +76,7 @@ function aggregateWeeklyRequirements(meals) {
           displayName: resolved ? resolved.canonicalName : resolution.normalized,
           requiredQuantity: 0,
           requiredUnit: resolved ? resolved.baseUnit : null,
+          rawCategory: resolved ? resolved.category : null,
           occurrenceCount: 0,
           flags: { unresolved: !resolved, unitMismatch: false, invalidQuantity: false, negativeQuantity: false },
         });
@@ -113,6 +121,11 @@ function computeRowPurchase(requirementRow, getProfile = canonicalPurchaseData.g
   const base = {
     canonicalIngredientId: requirementRow.canonicalIngredientId,
     name: requirementRow.displayName,
+    // Bucketed via the same authoritative mapping groceryAggregation.js
+    // uses - never a client-side guess. 'other' for an unresolved
+    // ingredient (rawCategory null) or any category outside the closed
+    // vocabulary, exactly like groceryBucketFor's existing fallback.
+    category: groceryBucketFor(requirementRow.rawCategory),
     requiredQuantity: Math.round(requirementRow.requiredQuantity * 1000) / 1000,
     requiredUnit: requirementRow.requiredUnit,
     occurrenceCount: requirementRow.occurrenceCount,

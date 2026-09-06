@@ -24,6 +24,7 @@ const pricing = require('./pricing');
 const shoppingDisplay = require('./shoppingDisplayUnits');
 const budgetEngine = require('./budgetEngine');
 const weeklyPurchasePlan = require('./weeklyPurchasePlan'); // Phase 2 purchase economics (split out F2C-impl); re-exported below for compat
+const { GROCERY_CATEGORY_KEYS, groceryBucketFor } = require('./groceryCategories'); // shared with weeklyPurchasePlan.js - see that file for why
 
 function normalizeIngredientName(name) {
   return String(name || '').toLowerCase().trim().replace(/\s+/g, ' ');
@@ -142,17 +143,6 @@ function priceAggregatedRow(row, priceRows) {
     ? costUSD
     : Math.round(costUSD * row.occurrenceCount * 100) / 100;
   return { costUSD: finalCostUSD, source, category, canonicalName };
-}
-
-const GROCERY_CATEGORY_KEYS = ['produce', 'protein', 'dairy', 'grains', 'pantry', 'frozen', 'beverages', 'other'];
-
-// ingredient_prices.category only ever holds a handful of values (see
-// db.getIngredientPrices) — a small closed map, not a general taxonomy.
-// Anything unmapped (including "no price row matched at all") lands in
-// 'other' rather than guessing.
-const DB_CATEGORY_TO_GROCERY_BUCKET = { meat: 'protein', protein: 'protein', dairy: 'dairy', produce: 'produce', pantry: 'pantry' };
-function groceryBucketFor(dbCategory) {
-  return DB_CATEGORY_TO_GROCERY_BUCKET[dbCategory] || 'other';
 }
 
 /** Deterministic display string for an aggregated row's merged quantity —

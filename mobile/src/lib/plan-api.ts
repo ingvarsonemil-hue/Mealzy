@@ -10,7 +10,15 @@
  * is_pro.
  */
 import { apiFetch } from './api';
-import { classifyGenerateOutcome, classifySavedWeekResponse, type GenerateOutcome, type SavedWeekResult } from './plan';
+import {
+  classifyGenerateOutcome,
+  classifyGroceryCheckPatchResponse,
+  classifyGroceryChecksResponse,
+  classifySavedWeekResponse,
+  type GenerateOutcome,
+  type GroceryChecksResult,
+  type SavedWeekResult,
+} from './plan';
 
 /**
  * GET /api/plans and classify the result for the current week.
@@ -54,5 +62,36 @@ export async function generateWeek(
     // AbortError (screen unmounted) or a genuine network failure. 401 never
     // lands here — apiFetch resolves it and the auth context takes over.
     return { kind: 'network' };
+  }
+}
+
+/** GET /api/plans/:planId/grocery-checks - read-only, no side effects. */
+export async function fetchGroceryChecks(planId: string): Promise<GroceryChecksResult> {
+  try {
+    const res = await apiFetch(`/api/plans/${encodeURIComponent(planId)}/grocery-checks`);
+    return classifyGroceryChecksResponse(res);
+  } catch {
+    return { kind: 'error' };
+  }
+}
+
+/**
+ * PATCH /api/plans/:planId/grocery-checks/:canonicalIngredientId - checked
+ * state only. Returns whether it actually saved; the caller (shop.tsx) owns
+ * rolling back its optimistic UI update on false.
+ */
+export async function setGroceryChecked(
+  planId: string,
+  canonicalIngredientId: string,
+  checked: boolean,
+): Promise<boolean> {
+  try {
+    const res = await apiFetch(
+      `/api/plans/${encodeURIComponent(planId)}/grocery-checks/${encodeURIComponent(canonicalIngredientId)}`,
+      { method: 'PATCH', body: JSON.stringify({ checked }) },
+    );
+    return classifyGroceryCheckPatchResponse(res);
+  } catch {
+    return false;
   }
 }

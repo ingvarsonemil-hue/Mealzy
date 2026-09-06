@@ -11,10 +11,10 @@ type GroceryHandoffProps = {
 
 /** "Your groceries" row handing off to the grocery list. Groceries itself is not implemented yet. */
 export function GroceryHandoff({ groceries, onPress }: GroceryHandoffProps) {
-  const subtitle =
-    groceries.itemCount !== undefined
-      ? `${groceries.itemCount} items · ~${formatMoney(groceries.estimatedCost)}`
-      : `~${formatMoney(groceries.estimatedCost)}`;
+  const parts: string[] = [];
+  if (groceries.itemCount !== undefined) parts.push(`${groceries.itemCount} items`);
+  if (groceries.estimatedCost !== undefined) parts.push(`~${formatMoney(groceries.estimatedCost)}`);
+  const subtitle = parts.length > 0 ? parts.join(' · ') : null;
 
   return (
     <Pressable
@@ -24,7 +24,7 @@ export function GroceryHandoff({ groceries, onPress }: GroceryHandoffProps) {
       accessibilityLabel="Your groceries">
       <View style={styles.text}>
         <Text style={styles.title}>Your groceries</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
       <Text style={styles.chevron}>›</Text>
     </Pressable>

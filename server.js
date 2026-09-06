@@ -32,6 +32,7 @@ const budgetEngine = require('./budgetEngine');
 const macroEngine = require('./macroEngine');
 const planRepairEngine = require('./planRepairEngine');
 const groceryAgg   = require('./groceryAggregation');
+const canonicalIngredients = require('./canonicalIngredients'); // Phase C: validates grocery-check ingredient ids
 const generationVocabulary = require('./generationVocabulary');
 const certificationGate = require('./certificationGate');
 const { getISOWeekKey } = require('./weekKey');
@@ -4160,6 +4161,61 @@ app.patch('/api/grocery-list/:planId/:day/items/:itemId', requireSession, async 
     res.json({ success: true, item: updatedItem });
   } catch(err) {
     console.error('[grocery-list] item patch error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// ── Weekly purchase-plan checked state (mobile Groceries) ───────────────────
+// Unrelated to the per-day /api/grocery-list endpoints above (different
+// table, different list). Checked state here belongs to
+// weeklyTotals.purchasePlan.rows, keyed by canonical_ingredient_id - see
+// weeklyPurchasePlan.js and db.js's grocery_checks table. Read-only GET,
+// checked-only PATCH; ownership is enforced by db.getPlanById scoping its
+// query to (id, user_id) - a plan owned by someone else simply doesn't come
+// back, same pattern as every other plan-scoped endpoint in this file.
+
+// GET /api/plans/:planId/grocery-checks
+app.get('/api/plans/:planId/grocery-checks', requireSession, async (req, res) => {
+  const session = req.session;
+  try {
+    const plan = await db.getPlanById(req.params.planId, session.userId);
+    if (!plan) return res.status(404).json({ error: 'not_found' });
+
+    const checks = await db.getGroceryChecks(session.userId, req.params.planId);
+    res.json({ success: true, checks });
+  } catch (err) {
+    console.error('[grocery-checks] fetch error:', err);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// PATCH /api/plans/:planId/grocery-checks/:canonicalIngredientId — checked
+// state only, nothing else. canonicalIngredientId must be a real canonical
+// ingredient id (canonicalIngredients.getById) - this bounds the value to a
+// known closed vocabulary rather than storing arbitrary client strings; it
+// does not need to belong to THIS specific plan's own rows, since the
+// mobile client only ever sends ids it already read from this plan's own
+// purchase plan.
+app.patch('/api/plans/:planId/grocery-checks/:canonicalIngredientId', requireSession, async (req, res) => {
+  const session = req.session;
+  try {
+    const plan = await db.getPlanById(req.params.planId, session.userId);
+    if (!plan) return res.status(404).json({ error: 'not_found' });
+
+    const canonicalIngredientId = sanitise(req.params.canonicalIngredientId, 60);
+    if (!canonicalIngredientId || !canonicalIngredients.getById(canonicalIngredientId)) {
+      return res.status(400).json({ error: 'Unknown ingredient id' });
+    }
+
+    const { checked } = req.body || {};
+    if (typeof checked !== 'boolean') {
+      return res.status(400).json({ error: 'checked must be a boolean' });
+    }
+
+    await db.setGroceryCheck(session.userId, req.params.planId, canonicalIngredientId, checked);
+    res.json({ success: true, canonicalIngredientId, checked });
+  } catch (err) {
+    console.error('[grocery-checks] patch error:', err);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });

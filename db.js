@@ -110,6 +110,19 @@ async function _applySchema() {
       data       TEXT NOT NULL,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )`,
+    // Checked state for the WEEKLY purchase-plan grocery list (mobile
+    // Groceries) — unrelated to grocery_lists above, which belongs to the
+    // separate per-day recipe-consumption list. One row per (user, plan,
+    // canonical ingredient); canonical_ingredient_id is the stable identity
+    // already used by weeklyPurchasePlan.js, never an array position.
+    `CREATE TABLE IF NOT EXISTS grocery_checks (
+      id                      TEXT PRIMARY KEY,
+      user_id                 TEXT NOT NULL,
+      plan_id                 TEXT NOT NULL,
+      canonical_ingredient_id TEXT NOT NULL,
+      checked                 INTEGER NOT NULL DEFAULT 0,
+      updated_at              TEXT DEFAULT CURRENT_TIMESTAMP
+    )`,
     `CREATE TABLE IF NOT EXISTS processed_webhook_events (
       event_id     TEXT PRIMARY KEY,
       processed_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -194,6 +207,7 @@ async function _applySchema() {
 
   const indexes = [
     `CREATE INDEX IF NOT EXISTS idx_grocery_user_plan_day ON grocery_lists(user_id, plan_id, day)`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_grocery_checks_user_plan_item ON grocery_checks(user_id, plan_id, canonical_ingredient_id)`,
     `CREATE INDEX IF NOT EXISTS idx_ingredient_prices_name ON ingredient_prices(name)`,
     `CREATE INDEX IF NOT EXISTS idx_meal_feedback_user_action ON meal_feedback(user_id, action)`,
     `CREATE INDEX IF NOT EXISTS idx_meal_feedback_user_id ON meal_feedback(user_id)`,
@@ -366,12 +380,20 @@ async function getLastPlanCreatedAt(userId) {
   return get('SELECT created_at FROM plans WHERE user_id = ? ORDER BY created_at DESC LIMIT 1', [userId]);
 }
 
+// Phase C: also selects id so callers (mobile GET /api/plans) can address
+// this specific saved plan afterward - e.g. the grocery-checks endpoints,
+// which need a real planId and previously had no way to get one for a plan
+// read back this way (only a fresh POST /api/generate-meal response carried
+// one). Merged in as `planId` rather than `id` to match the field name the
+// mobile client (@/lib/plan toWeekPlan) already looks for.
 async function getRecentPlans(userId, limit = 10) {
   const rows = await all(
-    'SELECT data FROM plans WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
+    'SELECT id, data FROM plans WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
     [userId, limit]
   );
-  return rows.map(r => { try { return JSON.parse(r.data); } catch(e) { return null; } }).filter(Boolean);
+  return rows.map(r => {
+    try { return { ...JSON.parse(r.data), planId: r.id }; } catch(e) { return null; }
+  }).filter(Boolean);
 }
 
 /** Looks up one plan by id, scoped to userId so a plan_id can never be used
@@ -887,6 +909,33 @@ async function updateGroceryItem(planId, day, userId, itemId, updates) {
   return item;
 }
 
+// ── Weekly purchase-plan checked state (mobile Groceries) ───────────────────
+// Unrelated to grocery_lists/updateGroceryItem above (per-day recipe-
+// consumption list); this is for the whole-week purchase-plan list, keyed by
+// the stable canonical_ingredient_id, never an array position.
+
+/** Every checked purchase-plan row for one user's plan. Unchecked rows have
+ * no row at all (checked defaults to false client-side), so this only ever
+ * returns the ones that are actually checked. */
+async function getGroceryChecks(userId, planId) {
+  const rows = await all(
+    'SELECT canonical_ingredient_id, checked FROM grocery_checks WHERE user_id = ? AND plan_id = ?',
+    [userId, planId]
+  );
+  return rows.map(r => ({ canonicalIngredientId: r.canonical_ingredient_id, checked: !!r.checked }));
+}
+
+/** Upserts one purchase-plan row's checked state. Idempotent - setting the
+ * same value twice is a no-op past the first write. */
+async function setGroceryCheck(userId, planId, canonicalIngredientId, checked) {
+  await run(
+    `INSERT INTO grocery_checks (id, user_id, plan_id, canonical_ingredient_id, checked, updated_at)
+     VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+     ON CONFLICT(user_id, plan_id, canonical_ingredient_id) DO UPDATE SET checked = excluded.checked, updated_at = CURRENT_TIMESTAMP`,
+    [randomUUID(), userId, planId, canonicalIngredientId, checked ? 1 : 0]
+  );
+}
+
 /** Aggregates grocery lists across every day the user has generated so far in
  * their trial (each daily generation gets its own plan_id, unlike week-mode
  * where 7 days share one plan_id) — reuses the same per-row shape as
@@ -1200,6 +1249,7 @@ module.exports = {
   saveMealFeedback, getUserDislikedMeals,
   // grocery lists
   saveGroceryList, getGroceryListsForPlan, getGroceryListsForUserTrial, getGroceryListByDay, deleteGroceryListForPlanDay, updateGroceryItem,
+  getGroceryChecks, setGroceryCheck,
   // health
   ping,
   // webhook idempotency

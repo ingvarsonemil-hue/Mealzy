@@ -13,13 +13,18 @@
  * contract does not carry the field (not something this adapter can fix):
  *   - BudgetViewModel.target: no numeric weekly budget target on WeekPlan
  *     (only the opaque `weeklyTotals.budgetStatus` string).
- *   - GroceryViewModel.itemCount: no grocery-list count anywhere yet (see
- *     mobile/src/app/shop.tsx - groceries are not generated server-side yet).
  *   - PlanMealViewModel.usesIngredientsElsewhere: no cross-meal overlap
  *     signal from the backend.
  *
  * PlanMealViewModel.durationMinutes IS available (from PlanMeal.cookTime -
  * see the Phase B audit note in @/lib/plan) and is mapped below.
+ *
+ * GroceryViewModel.itemCount/estimatedCost (Phase C audit): real, from
+ * weeklyTotals.purchasePlan - see @/lib/plan's Phase C note and
+ * @/components/groceries/groceries-adapter.ts for why this is the correct
+ * source (real purchase/package economics, not recipe-consumption cost).
+ * Both stay undefined only if the backend response is malformed and carries
+ * no purchasePlan at all.
  */
 
 import type { PlanDay, WeekPlan } from '@/lib/plan';
@@ -70,6 +75,22 @@ function toBudget(week: WeekPlan): BudgetViewModel {
 }
 
 /**
+ * Real purchase-cost estimate for the "Your groceries" handoff - same
+ * source and certified/best-effort distinction as
+ * @/components/groceries/groceries-adapter.ts's toSummary, kept in sync
+ * with it deliberately (this handoff and the real Groceries screen must
+ * never show two different cost philosophies for the same week).
+ */
+function groceryEstimatedCost(week: WeekPlan): number | undefined {
+  const plan = week.weeklyTotals.purchasePlan;
+  if (!plan) return undefined;
+  if (plan.allCovered && plan.certifiedEstimatedPurchaseCostCents !== null) {
+    return plan.certifiedEstimatedPurchaseCostCents / 100;
+  }
+  return plan.weeklyPurchaseCostCents > 0 ? plan.weeklyPurchaseCostCents / 100 : undefined;
+}
+
+/**
  * Which day to display. Phase A does not implement day switching, so this
  * just picks "today" if it falls within the week, else the first day.
  */
@@ -101,8 +122,8 @@ export function toPlanCurrentViewModel(week: WeekPlan, today: Date = new Date())
     day: dayViewModel,
     budget: toBudget(week),
     groceries: {
-      // itemCount intentionally omitted: see file header.
-      estimatedCost: week.weeklyTotals.totalCost,
+      itemCount: week.weeklyTotals.purchasePlan?.rows.length,
+      estimatedCost: groceryEstimatedCost(week),
     },
   };
 }

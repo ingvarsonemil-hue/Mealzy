@@ -58,13 +58,10 @@ export type BudgetViewModel = {
 };
 
 export type GroceryViewModel = {
-  /**
-   * Not provided by the current backend (no grocery-list endpoint/count
-   * exists yet - see mobile/src/app/shop.tsx). Real data always leaves this
-   * undefined; the fixture provides it for full-design review.
-   */
+  /** Real item count (weeklyTotals.purchasePlan.rows.length) - see plan-current-adapter.ts's Phase C note. Undefined only if the backend sent no purchase plan at all. */
   itemCount?: number;
-  estimatedCost: number;
+  /** Real purchase-cost estimate, same source as itemCount. Undefined under the same condition. */
+  estimatedCost?: number;
 };
 
 export type PlanCurrentViewModel = {
