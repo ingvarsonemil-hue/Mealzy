@@ -48,6 +48,7 @@ type AuthContextValue = {
   signUp: (name: string, email: string, password: string) => Promise<ActionResult>;
   signOutLocal: () => Promise<void>;
   signOutEverywhere: () => Promise<void>;
+  deleteAccount: () => Promise<ActionResult>;
   retry: () => Promise<void>;
 };
 
@@ -216,6 +217,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOutLocal();
   }, [signOutLocal]);
 
+  // DELETE /api/account (GDPR erasure) - mirrors public/settings.html's real
+  // web flow exactly: confirm, call the endpoint, clear the local session
+  // only on a genuine 200. A 409 means an active Stripe subscription blocks
+  // deletion - the session stays intact so the user can act on the message.
+  const deleteAccount = useCallback(async (): Promise<ActionResult> => {
+    let res;
+    try {
+      res = await apiFetch<{ error?: string; message?: string }>('/api/account', { method: 'DELETE' });
+    } catch {
+      return { ok: false, message: OFFLINE_MESSAGE };
+    }
+    if (res.status === 200) {
+      await signOutLocal();
+      return { ok: true };
+    }
+    if (res.status === 409) {
+      return {
+        ok: false,
+        message: res.data?.message || 'Please cancel your Pro subscription before deleting your account.',
+      };
+    }
+    if (res.status >= 500) return { ok: false, message: OFFLINE_MESSAGE };
+    return { ok: false, message: res.data?.message || 'Could not delete your account. Please try again.' };
+  }, [signOutLocal]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       status,
@@ -225,9 +251,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp,
       signOutLocal,
       signOutEverywhere,
+      deleteAccount,
       retry: bootstrap,
     }),
-    [status, user, error, signIn, signUp, signOutLocal, signOutEverywhere, bootstrap],
+    [status, user, error, signIn, signUp, signOutLocal, signOutEverywhere, deleteAccount, bootstrap],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

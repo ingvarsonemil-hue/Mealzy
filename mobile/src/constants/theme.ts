@@ -22,10 +22,10 @@ export const Spacing = {
 
 /**
  * Locked brand tokens shared with the web app's public/css/tokens.css
- * (--color-cream, --color-green, --color-green-muted). Additive only: these
- * do not replace the generic light/dark `Colors` above, which existing
- * screens still use. Scoped for now to the Phase A locked-design screens
- * (starting with Plan) rather than applied app-wide.
+ * (--color-cream, --color-green, --color-green-muted, --color-error).
+ * Additive only: these do not replace the generic light/dark `Colors`
+ * above, which existing screens still use. Scoped for now to the locked-
+ * design screens (Plan, Groceries, Settings) rather than applied app-wide.
  */
 export const BrandColors = {
   cream: '#f8f5f0',
@@ -34,4 +34,6 @@ export const BrandColors = {
   ink: '#11181c',
   inkMuted: '#5a6672',
   separator: '#e8e1d4',
+  /** Restrained red, reserved for destructive actions (e.g. Delete account) - same value as web's --color-error. */
+  danger: '#ef4444',
 } as const;
