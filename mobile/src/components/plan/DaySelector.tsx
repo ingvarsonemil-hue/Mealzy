@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.four,
   },
   day: { alignItems: 'center', gap: Spacing.two, minWidth: 36 },
-  label: { fontSize: 12, color: BrandColors.inkMuted, fontWeight: '500' },
+  label: { fontSize: 12, color: BrandColors.muted, fontWeight: '500' },
   circle: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
@@ -47,6 +47,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   circleSelected: { backgroundColor: BrandColors.green },
-  number: { fontSize: 15, color: BrandColors.ink, fontWeight: '500' },
-  numberSelected: { color: BrandColors.cream, fontWeight: '600' },
+  number: { fontSize: 15, color: BrandColors.foreground, fontWeight: '500' },
+  numberSelected: { color: BrandColors.white, fontWeight: '600' },
 });

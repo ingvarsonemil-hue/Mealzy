@@ -112,6 +112,7 @@ const JWT_SECRET    = process.env.JWT_SECRET;
 const JWT_EXPIRES   = '24h';
 const NATIVE_JWT_EXPIRES = '7d'; // native (Bearer) sessions — fixed, no refresh, no renewal
 const MAX_SESSION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const ACCOUNT_DELETE_RECENCY_MS = 15 * 60 * 1000; // account deletion requires a sign-in within the last 15 minutes
 const FREE_WEEK_RESERVATION_TTL_MS = 15 * 60 * 1000; // M4E — exact 15-minute free-week reservation TTL
 // Note: analytics.json and leads.json were legacy flat-file stores — all analytics now live in SQLite via await db.logEvent()
 
@@ -1246,6 +1247,14 @@ async function performSignin(input) {
   }
 
   clearFailedLogins(email, ip);
+
+  if (user.deactivated_at) {
+    return {
+      ok: false, status: 403,
+      body: { error: 'account_deleted', message: 'This account was deleted. Email support@mealzy.org within 30 days of deletion to restore it.' }
+    };
+  }
+
   return { ok: true, user, sessionPayload: buildSessionPayload(user) };
 }
 
@@ -1331,6 +1340,12 @@ app.get('/api/auth/me', requireSession, async (req, res) => {
 
   const profile = await db.getProfile(user.id);
   const shape = OutputShapes.UserWithProfile(user, profile);
+  // Phase E.2 — normalized onboarding settings, additive alongside the raw
+  // `profile` field above (kept unchanged for backward compatibility). null
+  // for a user who has never written any normalized settings - this must
+  // never be read as "onboarding complete", only as "unknown". See
+  // buildOnboardingSettingsView.
+  shape.settings = buildOnboardingSettingsView(await db.getProfileSettings(user.id));
 
   // Free-plan usage, surfaced so the dashboard can show "X of Y used" and
   // disable Generate before the user hits the 402 instead of after.
@@ -1557,6 +1572,154 @@ app.get('/auth/google/callback', async (req, res) => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════
+// NORMALIZED ONBOARDING SETTINGS (Phase E.2)
+// ════════════════════════════════════════════════════════════════════════════
+//
+// Canonical, server-owned shape (see db.js's profiles.settings_data column
+// comment for storage). Every new write uses exactly these camelCase keys -
+// no snake_case is ever written here. Legacy dual-named profile.* fields are
+// untouched and still readable via the existing /api/profile endpoints.
+
+const ONBOARDING_DIETARY_RESTRICTIONS = new Set(['vegan', 'vegetarian', 'gluten-free', 'keto', 'halal', 'dairy-free']);
+const ONBOARDING_COOKING_SKILLS = new Set(['beginner', 'intermediate', 'advanced']);
+// budgetEngine.ENFORCEABLE_CURRENCY — the only currency the budget/purchase
+// economics engines actually certify. Accepting any other ISO code into this
+// normalized contract would claim multi-currency support that does not
+// genuinely exist, so it is rejected rather than silently accepted like the
+// legacy profile.currency field.
+const ONBOARDING_ENFORCEABLE_CURRENCY = budgetEngine.ENFORCEABLE_CURRENCY;
+
+function normalizeOnboardingWhitespace(s) {
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Validates one PATCH /api/profile/settings body. Returns { patch } with
+ * only the keys that were present in `body` (partial-update semantics -
+ * omitted keys are left for the caller to leave untouched), or { error }
+ * with a human-readable message. Never clamps or silently mutates an
+ * out-of-range value - out-of-range is always a rejection, per the Phase
+ * E.2 correction. Unknown keys in `body` are silently ignored, matching the
+ * existing convention at the grocery-list item PATCH route (which also only
+ * destructures known fields).
+ */
+function validateOnboardingSettingsPatch(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return { error: 'A settings object is required.' };
+  }
+  const patch = {};
+
+  if ('weeklyBudget' in body) {
+    const n = Number(body.weeklyBudget);
+    if (!Number.isFinite(n) || n < 1 || n > 10000) {
+      return { error: 'weeklyBudget must be a finite number between 1 and 10000.' };
+    }
+    patch.weeklyBudget = n;
+  }
+
+  if ('currency' in body) {
+    if (body.currency !== ONBOARDING_ENFORCEABLE_CURRENCY) {
+      return { error: `currency must be "${ONBOARDING_ENFORCEABLE_CURRENCY}" - Mealzy's budget and purchase economics are not certified for other currencies yet.` };
+    }
+    patch.currency = ONBOARDING_ENFORCEABLE_CURRENCY;
+  }
+
+  if ('dietaryRestrictions' in body) {
+    const arr = body.dietaryRestrictions;
+    if (!Array.isArray(arr) || arr.length > 6 || arr.some((v) => typeof v !== 'string' || !ONBOARDING_DIETARY_RESTRICTIONS.has(v))) {
+      return { error: `dietaryRestrictions must be an array of up to 6 values from: ${[...ONBOARDING_DIETARY_RESTRICTIONS].join(', ')}.` };
+    }
+    patch.dietaryRestrictions = arr;
+  }
+
+  if ('allergies' in body) {
+    const arr = body.allergies;
+    if (!Array.isArray(arr) || arr.length > 20) {
+      return { error: 'allergies must be an array of up to 20 items.' };
+    }
+    const normalized = [];
+    for (const item of arr) {
+      if (typeof item !== 'string') return { error: 'Each allergy must be a string.' };
+      const cleaned = normalizeOnboardingWhitespace(item);
+      if (!cleaned || cleaned.length > 40) {
+        return { error: 'Each allergy must be a non-empty string of 40 characters or fewer.' };
+      }
+      normalized.push(cleaned);
+    }
+    patch.allergies = normalized;
+  }
+
+  if ('allergiesReviewed' in body) {
+    if (typeof body.allergiesReviewed !== 'boolean') {
+      return { error: 'allergiesReviewed must be a boolean.' };
+    }
+    patch.allergiesReviewed = body.allergiesReviewed;
+  }
+
+  // Same-request consistency check only (partial PATCH semantics mean this
+  // cannot see fields omitted from this request, so it is not a full
+  // stored-state invariant - see the Phase E.2 report).
+  if (patch.allergiesReviewed === false && Array.isArray(patch.allergies) && patch.allergies.length > 0) {
+    return { error: 'allergiesReviewed cannot be false while allergies is non-empty.' };
+  }
+
+  if ('cookingSkill' in body) {
+    if (body.cookingSkill !== null && !ONBOARDING_COOKING_SKILLS.has(body.cookingSkill)) {
+      return { error: `cookingSkill must be one of: ${[...ONBOARDING_COOKING_SKILLS].join(', ')}, or null.` };
+    }
+    patch.cookingSkill = body.cookingSkill;
+  }
+
+  if ('cookingTimeMinutes' in body) {
+    if (body.cookingTimeMinutes === null) {
+      patch.cookingTimeMinutes = null;
+    } else {
+      const n = Number(body.cookingTimeMinutes);
+      if (!Number.isFinite(n) || n < 5 || n > 180) {
+        return { error: 'cookingTimeMinutes must be a finite number between 5 and 180, or null.' };
+      }
+      patch.cookingTimeMinutes = n;
+    }
+  }
+
+  if ('batchCooking' in body) {
+    if (body.batchCooking !== null && typeof body.batchCooking !== 'boolean') {
+      return { error: 'batchCooking must be a boolean or null.' };
+    }
+    patch.batchCooking = body.batchCooking;
+  }
+
+  if ('preferredCuisine' in body) {
+    if (body.preferredCuisine === null) {
+      patch.preferredCuisine = null;
+    } else if (typeof body.preferredCuisine !== 'string') {
+      return { error: 'preferredCuisine must be a string or null.' };
+    } else {
+      const cleaned = normalizeOnboardingWhitespace(body.preferredCuisine);
+      if (cleaned.length > 60) return { error: 'preferredCuisine must be 60 characters or fewer.' };
+      patch.preferredCuisine = cleaned.length > 0 ? cleaned : null;
+    }
+  }
+
+  return { patch };
+}
+
+/**
+ * Shapes a raw stored (or freshly-merged) settings_data object for a client
+ * response. Returns null when the user has never written any normalized
+ * settings at all - callers must NOT treat null as "onboarding complete
+ * with no answers"; it means "unknown", full stop (see GET /api/auth/me).
+ * Any individual key not yet written is simply absent from the returned
+ * object - never fabricated as 0/[]/false - EXCEPT allergiesReviewed, which
+ * always defaults to false, per the explicit "must remain false until
+ * genuinely answered" requirement.
+ */
+function buildOnboardingSettingsView(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  return { ...raw, allergiesReviewed: raw.allergiesReviewed === true };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // PROFILE ENDPOINTS
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -1587,6 +1750,23 @@ app.delete('/api/profile', requireSession, async (req, res) => {
   const session = req.session;
   await db.run('DELETE FROM profiles WHERE user_id = ?', [session.userId]);
   res.json({ success: true });
+});
+
+// PATCH /api/profile/settings — normalized onboarding settings (Phase E.2).
+// requireSession only (no requireVerifiedEmail): an authenticated-but-
+// unverified user CAN write settings here - verification gates generation
+// itself (/api/generate-meal's email_verified check), not settings storage.
+// This preserves the intended sequencing: Create Account -> PATCH settings
+// -> Verify Email if required -> Create First Week.
+app.patch('/api/profile/settings', requireSession, async (req, res) => {
+  const session = req.session;
+  const { error, patch } = validateOnboardingSettingsPatch(req.body);
+  if (error) return res.status(400).json({ error: 'invalid_settings', message: error });
+  if (Object.keys(patch).length === 0) {
+    return res.status(400).json({ error: 'invalid_settings', message: 'No valid settings fields were provided.' });
+  }
+  const settings = await db.setProfileSettings(session.userId, patch);
+  res.json({ success: true, settings: buildOnboardingSettingsView(settings) });
 });
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1908,6 +2088,63 @@ app.delete('/api/account', authLimiter, requireSession, async (req, res) => {
     res.json({ success: true });
   } catch (e) {
     logger.error('[delete-account] deletion error:', e.message);
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+  }
+});
+
+// ── DELETE /api/delete-account ────────────────────────────────────────────────
+// Soft-deletes the account (mobile account-deletion flow). Deactivates
+// immediately and blocks sign-in; the row and its data are hard-purged 30
+// days later by /api/cron/purge-deleted-accounts. Requires a session
+// established within the last ACCOUNT_DELETE_RECENCY_MS — an older session
+// must sign in again first, since this isn't gated behind a second
+// password prompt.
+//
+// Adapty note: mobile subscriptions aren't wired up yet (no Adapty.identify
+// call anywhere in mobile/src, no server-side Adapty credentials), so there
+// is nothing to check there today. Only the existing Stripe (web Pro) path
+// is gated, matching /api/account. Add an Adapty active-subscription check
+// here once mobile IAP is actually integrated.
+app.delete('/api/delete-account', authLimiter, requireSession, async (req, res) => {
+  const session = req.session;
+
+  if (!session.loginAt || (Date.now() - session.loginAt) > ACCOUNT_DELETE_RECENCY_MS) {
+    return res.status(403).json({
+      error: 'reauth_required',
+      message: 'For your security, please sign in again before deleting your account.'
+    });
+  }
+
+  const user = await db.getUserById(session.userId);
+  if (!user) return res.status(404).json({ error: 'user_not_found' });
+
+  if (user.stripe_customer_id && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      const subscriptions = await stripe.subscriptions.list({
+        customer: user.stripe_customer_id,
+        status:   'active',
+        limit:    1
+      });
+      if (subscriptions.data.length > 0) {
+        return res.status(409).json({
+          error: 'active_subscription',
+          message: 'Please cancel your Pro subscription before deleting your account.'
+        });
+      }
+    } catch (e) {
+      logger.error('[delete-account] Stripe check error:', e.message);
+      return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    }
+  }
+
+  try {
+    await db.deactivateUserAccount(user.id);
+    await db.bumpTokenVersion(user.id); // invalidate this and every other outstanding session/token
+    clearJwtCookie(res);
+    res.json({ success: true });
+  } catch (e) {
+    logger.error('[delete-account] deactivation error:', e.message);
     res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 });
@@ -2404,6 +2641,17 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
       }
     }
 
+    // ── Phase E.2 — normalized onboarding settings (see the "Profile field
+    // extraction" block below) take precedence over the request-body
+    // `profile` object's legacy dual-named fields when present, which in
+    // turn take precedence over the hardcoded defaults. Anonymous requests
+    // (no session) have nothing persisted to fetch, matching existing
+    // behavior — anonymous generation has always relied on the request-body
+    // profile alone. This does not change budget economics, DIET_RULES
+    // enforcement, allergy prompt behavior, AllergyViolationError/retry, or
+    // calorie/macro defaults — only WHERE each value is read from first.
+    const normalizedSettings = session ? await db.getProfileSettings(session.userId) : null;
+
     const PRO_TOKEN = process.env.PRO_TOKEN || '';
     let isPro = !!(
       PRO_TOKEN.length >= 32 &&
@@ -2556,9 +2804,14 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
     // ── Profile field extraction ──────────────────────────────────────────
     const name               = sanitise(profile.name || 'User', 100);
     const goal               = sanitise(profile.fitness_goal || profile.goal || 'eat healthier', 200);
-    const dietaryPrefs       = Array.isArray(profile.dietary_preferences || profile.dietaryPrefs) ? (profile.dietary_preferences || profile.dietaryPrefs) : [];
-    const allergies          = capList(profile.allergies, 20, 40);
-    const cookingSkill       = sanitise(profile.cooking_skill || profile.cookingSkill || 'intermediate', 50);
+    const dietaryPrefs       = Array.isArray(normalizedSettings?.dietaryRestrictions)
+      ? normalizedSettings.dietaryRestrictions
+      : (Array.isArray(profile.dietary_preferences || profile.dietaryPrefs) ? (profile.dietary_preferences || profile.dietaryPrefs) : []);
+    const allergies          = Array.isArray(normalizedSettings?.allergies)
+      ? capList(normalizedSettings.allergies, 20, 40)
+      : capList(profile.allergies, 20, 40);
+    const cookingSkill       = normalizedSettings?.cookingSkill
+      || sanitise(profile.cooking_skill || profile.cookingSkill || 'intermediate', 50);
     const dailyCalories      = Math.min(4000, Math.max(1200, Number(profile.daily_calories || profile.dailyCalories || 2000)));
     // Malformed/missing/impossible values fall back safely to Mealzy's
     // existing defaults (150/200/65g) rather than an invented fitness
@@ -2572,10 +2825,10 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
     // (see groundAndStampGroceryItems' caller) — an unclamped negative/absurd/
     // NaN value would make budgetEngine retry 3 times against an
     // unsatisfiable target, burning real Anthropic spend for no reason.
-    let budget                = Number(profile.budget_weekly || profile.budget || 100);
+    let budget                = Number(normalizedSettings?.weeklyBudget ?? (profile.budget_weekly || profile.budget) ?? 100);
     if (Number.isNaN(budget)) budget = 100;
     budget                    = Math.min(10000, Math.max(1, budget));
-    const currency           = sanitise(profile.currency || 'USD', 10);
+    const currency           = normalizedSettings?.currency || sanitise(profile.currency || 'USD', 10);
     // Budget Engine v1 enforcement threshold for SINGLE-DAY mode only.
     // Deliberately the RAW weekly budget divided by 7 — NOT the
     // price-tier-multiplied `dailyBudget` used in the prompt below (that
@@ -2590,7 +2843,7 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
     // whole-week invariant check) further down in this route.
     const dailyBudgetUSD     = budget / 7;
     const budgetEnforceable  = budgetEngine.isBudgetEnforceable(currency);
-    const cookingTimeMinutes = Number(profile.cooking_time_minutes || profile.cookingTimeMinutes || 30);
+    const cookingTimeMinutes = Number(normalizedSettings?.cookingTimeMinutes ?? (profile.cooking_time_minutes || profile.cookingTimeMinutes) ?? 30);
     const language           = sanitise(profile.language || 'en', 10);
     const languageNames = { en:'English',sv:'Swedish',no:'Norwegian',da:'Danish',de:'German',fr:'French',es:'Spanish',it:'Italian',pt:'Portuguese',nl:'Dutch',ja:'Japanese',fi:'Finnish',pl:'Polish',tr:'Turkish',ko:'Korean',zh:'Chinese',ar:'Arabic',hi:'Hindi',ru:'Russian' };
     const languageName   = languageNames[language] || 'English';
@@ -2645,7 +2898,7 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
     };
     const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines','halloumi','duck','venison'];
 
-    const preferredCuisine = sanitise(profile.preferred_cuisine, 60) || null;
+    const preferredCuisine = (normalizedSettings?.preferredCuisine ?? sanitise(profile.preferred_cuisine, 60)) || null;
     const allCuisinesFlat = Object.values(cuisineGroups).flat();
     // Filter protein suggestions to match dietary restrictions — prevents biasing the model with forbidden proteins
     const proteinsByDiet = {
@@ -2782,7 +3035,8 @@ Respond ONLY with valid JSON matching this exact schema (no markdown, no extra t
     };
 
     const ingredientOverlapLine = `Ingredient efficiency: prioritize reusing ingredients across meals. If spinach is used at breakfast, use the remainder at lunch or dinner. If chicken is used at dinner, use leftovers in tomorrow's lunch. Minimize the number of unique ingredients across the 4 meals.`;
-    const batchCookingLine = profile.batch_cooking
+    const batchCooking = normalizedSettings?.batchCooking ?? profile.batch_cooking;
+    const batchCookingLine = batchCooking
       ? `BATCH COOKING MODE: Make dinner yield 3 servings. Schedule the leftovers as Tuesday and Wednesday lunch automatically — label them as 'Leftover: [dinner name]' with identical macros. This reduces daily cooking time significantly.`
       : '';
 
@@ -4650,6 +4904,30 @@ app.post('/api/cron/weekly-digest', cronLimiter, async (req, res) => {
     res.json({ ok: true, sent, total: users.length });
   } catch(err) {
     console.error('[cron/weekly-digest] error:', err);
+    res.status(500).json({ error: 'cron_failed' });
+  }
+});
+
+// POST /api/cron/purge-deleted-accounts — permanently erases accounts whose
+// 30-day soft-delete grace period (set by DELETE /api/delete-account) has
+// elapsed. Deletes the same rows as the GDPR erasure path (DELETE
+// /api/account): profile, plans, grocery lists, recipes, favorites, family
+// profiles, share links, coach usage, free-week entitlement, reset tokens,
+// leads/email-queue/referrals/analytics rows keyed by email, and the user
+// row itself. See db.deleteUserAccount for the exact table list.
+app.post('/api/cron/purge-deleted-accounts', cronLimiter, async (req, res) => {
+  if (!cronAuth(req, res)) return;
+  try {
+    const candidates = await db.getAccountsPendingPurge();
+    let purged = 0;
+    for (const u of candidates) {
+      await db.deleteUserAccount(u.id, u.email);
+      purged++;
+    }
+    await db.logEvent('cron_purge_deleted_accounts', { purged, total: candidates.length }, '');
+    res.json({ ok: true, purged, total: candidates.length });
+  } catch(err) {
+    console.error('[cron/purge-deleted-accounts] error:', err);
     res.status(500).json({ error: 'cron_failed' });
   }
 });

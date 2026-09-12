@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: '700',
-    color: BrandColors.ink,
+    color: BrandColors.foreground,
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.two,
   },
@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.four,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: BrandColors.separator,
+    borderTopColor: BrandColors.hairline,
   },
   rowFirst: { borderTopWidth: 0 },
   number: { fontSize: 15, fontWeight: '700', color: BrandColors.green, minWidth: 26 },
-  step: { fontSize: 16, lineHeight: 24, color: BrandColors.ink, flex: 1 },
+  step: { fontSize: 16, lineHeight: 24, color: BrandColors.foreground, flex: 1 },
 });

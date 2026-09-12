@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: BrandColors.inkMuted,
+    color: BrandColors.muted,
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.one,
   },

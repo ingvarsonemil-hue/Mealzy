@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
     gap: 2,
   },
-  countLine: { fontSize: 14, color: BrandColors.inkMuted },
-  costLine: { fontSize: 17, fontWeight: '700', color: BrandColors.ink, marginTop: Spacing.one },
-  costLabel: { fontSize: 12, color: BrandColors.inkMuted },
+  countLine: { fontSize: 14, color: BrandColors.muted },
+  costLine: { fontSize: 17, fontWeight: '700', color: BrandColors.foreground, marginTop: Spacing.one },
+  costLabel: { fontSize: 12, color: BrandColors.muted },
 });

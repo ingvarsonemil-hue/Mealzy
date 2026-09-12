@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native';
+import { Platform, StyleSheet, Text } from 'react-native';
 
 import { BrandColors, Spacing } from '@/constants/theme';
 import { BudgetSummary } from './BudgetSummary';
@@ -63,11 +63,14 @@ export function PlanCurrentView({
   );
 }
 
+const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' });
+
 const styles = StyleSheet.create({
   dayHeading: {
     fontSize: 26,
     fontWeight: '700',
-    color: BrandColors.ink,
+    color: BrandColors.foreground,
+    fontFamily: serif,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.four,
   },

@@ -21,19 +21,22 @@ export const Spacing = {
 } as const;
 
 /**
- * Locked brand tokens shared with the web app's public/css/tokens.css
- * (--color-cream, --color-green, --color-green-muted, --color-error).
- * Additive only: these do not replace the generic light/dark `Colors`
- * above, which existing screens still use. Scoped for now to the locked-
- * design screens (Plan, Groceries, Settings) rather than applied app-wide.
+ * Locked Mealzy mobile brand tokens.
+ *
+ * Forest is the singular primary CTA color. Green is reserved for
+ * selection/state/accent. Keep those roles distinct when consuming these
+ * tokens in screens and components.
  */
 export const BrandColors = {
-  cream: '#f8f5f0',
-  green: '#059669',
-  greenMuted: '#a8d5ba',
-  ink: '#11181c',
-  inkMuted: '#5a6672',
-  separator: '#e8e1d4',
-  /** Restrained red, reserved for destructive actions (e.g. Delete account) - same value as web's --color-error. */
-  danger: '#ef4444',
+  cream: '#F8F5F0',
+  forest: '#253C2D',
+  green: '#3D8B5E',
+  paleGreen: '#EEF3EE',
+  parchment: '#F2EDE6',
+  white: '#FFFFFF',
+  foreground: '#1A1A1A',
+  muted: '#4B5563',
+  border: '#E5E0D8',
+  hairline: '#EDE8E0',
+  destructive: '#8C2F2F',
 } as const;

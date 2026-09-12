@@ -1,13 +1,14 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandColors, Spacing } from '@/constants/theme';
 import { formatMoney } from '@/components/plan/format';
 import { IngredientList } from './IngredientList';
 import { InstructionList } from './InstructionList';
-import { MealHero } from './MealHero';
 import { NutritionRow } from './NutritionRow';
 import type { MealDetailViewModel } from './types';
+
+const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' });
 
 type MealDetailViewProps = {
   viewModel: MealDetailViewModel;
@@ -40,13 +41,11 @@ export function MealDetailView({ viewModel, onBack, onSwap }: MealDetailViewProp
         </Pressable>
 
         <View style={styles.titleBlock}>
-          <Text style={styles.eyebrow}>
-            {viewModel.type} · {viewModel.dayLabel}
+          <Text style={styles.subtitle}>
+            {viewModel.type} for {viewModel.dayLabel}
           </Text>
           <Text style={styles.title}>{viewModel.name}</Text>
         </View>
-
-        <MealHero />
 
         {costLine ? <Text style={styles.costLine}>{costLine}</Text> : null}
 
@@ -85,21 +84,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pressed: { opacity: 0.6 },
-  backArrow: { fontSize: 28, color: BrandColors.ink, fontWeight: '400' },
+  backArrow: { fontSize: 28, color: BrandColors.foreground, fontWeight: '400' },
 
   titleBlock: { paddingHorizontal: Spacing.four, paddingTop: Spacing.two, gap: Spacing.two },
-  eyebrow: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    color: BrandColors.green,
+  subtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: BrandColors.muted,
   },
-  title: { fontSize: 28, fontWeight: '700', color: BrandColors.ink },
+  title: { fontSize: 28, fontWeight: '700', color: BrandColors.foreground, fontFamily: serif },
 
   costLine: {
     fontSize: 14,
-    color: BrandColors.inkMuted,
+    color: BrandColors.muted,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
   },

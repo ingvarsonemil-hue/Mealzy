@@ -43,6 +43,6 @@ const styles = StyleSheet.create({
     gap: Spacing.four,
   },
   stat: { gap: 2 },
-  value: { fontSize: 17, fontWeight: '700', color: BrandColors.ink },
-  label: { fontSize: 12, color: BrandColors.inkMuted },
+  value: { fontSize: 17, fontWeight: '700', color: BrandColors.foreground },
+  label: { fontSize: 12, color: BrandColors.muted },
 });

@@ -15,7 +15,7 @@ Target: 10 paying subscribers, ~$50 MRR at 49 kr/month. Not $200 — hold me to 
 - Stripe — Free (anonymous: 3 plans/month by IP; logged-in: 1 plan/day for the first 30 days, then 1/week) · Pro $8/mo or $62/yr · Family $16/mo or $128/yr. Stripe account is in my dad's name — never touch live keys, and anything with legal/tax/contract/refund weight gets flagged for him or a professional. I'm 16 and can't sign for this.
 - Anthropic API — claude-haiku-4-5-20251001 (meal generation + AI coach "Mia"). Every generation is a paid call. Before adding a call, a retry loop, a per-item call, or a larger model: tell me what it costs. Bootstrapped budget.
 - Resend — transactional email (custom domain, DNS on Namecheap)
-- Render free tier (Ohio) — no auto-deploy; deploys triggered manually. Cold starts (~30-60s after ~15 min idle) and ephemeral local disk — persistent data must go through Turso, never local disk expecting it to survive a restart.
+- Render Starter tier (Ohio) — auto-deploy is ON: a push to `main` deploys to production automatically, no manual trigger step. Treat `git push` to `main` as a production deploy, not just a repo update. No idle spin-down/cold starts (Starter tier, unlike free). Local disk is still ephemeral on redeploy — persistent data must go through Turso, never local disk expecting it to survive one.
 - Frontend — two parts. The homepage and other marketing/app pages (pricing, login, legal, plan tools, blog) are a React 19 + Vite app in /client/, built with `npm run build` to /dist/ and served by server.js when /dist/index.html exists (see `hasDistBuild` in server.js). The rest of the app (dashboard, meal-planner, grocery-list, analytics, ai-coach, settings — 18 pages) is vanilla HTML/CSS/JS in /public/, no framework. Winston logger.
 - Repo: ingvarsonemil-hue/Mealzy · My machine: C:\Users\emili\Documents\mealzy\
 - Shell: PowerShell locally — never chain commands with `&&`, use `;` or separate lines. Remote/cloud sessions run bash and may chain normally.
@@ -78,6 +78,11 @@ Agent status and routing live there, not duplicated here — it has drifted from
 ## Skills to read before design/UI work
 .claude/skills/mealzy-design.md, .claude/skills/impeccable/SKILL.md, .claude/skills/ui-ux-pro-max/SKILL.md, .claude/skills/ui-audit/SKILL.md
 Check each exists and is non-empty (`wc -c <file>`) before relying on it.
+
+## gstack
+Use the `/browse` skill from gstack for all web browsing. Never use `mcp__claude-in-chrome__*` tools.
+
+Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /setup-gbrain, /retro, /investigate, /document-release, /document-generate, /codex, /cso, /autoplan, /plan-devex-review, /devex-review, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, /learn.
 
 ## File access
 Project files at C:\Users\emili\Documents\mealzy\ — always use the full path. Always read before editing. Never assume file contents.

@@ -1,10 +1,12 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BrandColors, Spacing } from '@/constants/theme';
 import { BrandMark } from '@/components/plan/BrandMark';
 import { PlanScreenContainer } from '@/components/plan/PlanScreenContainer';
 import { SettingsSection } from './SettingsSection';
 import type { SettingsViewModel } from './types';
+
+const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' });
 
 type SettingsViewProps = {
   viewModel: SettingsViewModel;
@@ -57,13 +59,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
   },
-  title: { fontSize: 28, fontWeight: '700', color: BrandColors.ink },
+  title: { fontSize: 28, fontWeight: '700', color: BrandColors.foreground, fontFamily: serif },
   actions: { paddingTop: Spacing.four, paddingBottom: Spacing.four * 2 },
   heading: {
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: BrandColors.inkMuted,
+    color: BrandColors.muted,
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.one,
   },
@@ -73,9 +75,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.two,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: BrandColors.separator,
+    borderTopColor: BrandColors.hairline,
   },
   pressed: { opacity: 0.6 },
-  actionLabel: { fontSize: 16, color: BrandColors.ink },
-  actionLabelDestructive: { color: BrandColors.danger },
+  actionLabel: { fontSize: 16, color: BrandColors.foreground },
+  actionLabelDestructive: { color: BrandColors.destructive },
 });

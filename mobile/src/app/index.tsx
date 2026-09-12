@@ -47,7 +47,13 @@ export default function PlanScreen() {
   // callers decide how each outcome maps to screen state. Never generates.
   const loadCurrentWeek = useCallback(async (): Promise<LoadResult> => {
     if (!user) return { kind: 'blocked' };
-    if (user.profile == null) {
+    // Slice 3 integration note: onboarding now writes the normalized
+    // settings_data contract (user.settings) via PATCH /api/profile/settings
+    // instead of the legacy POST /api/profile (user.profile). Either one
+    // being present means onboarding is complete - checking `profile` alone
+    // would wrongly show profile_required forever for anyone who onboarded
+    // through the mobile app.
+    if (user.profile == null && user.settings == null) {
       setState({ s: 'profile_required' });
       return { kind: 'blocked' };
     }
@@ -94,7 +100,13 @@ export default function PlanScreen() {
     abort.current = new AbortController();
     setState({ s: 'generating' });
 
-    const result = await generateWeek(user.profile, weekStart, { signal: abort.current.signal });
+    // user.profile is only ever populated by the legacy web onboarding POST
+    // /api/profile; a mobile-onboarded user's real answers live in
+    // settings_data instead (see the loadCurrentWeek note above) and take
+    // precedence server-side, but the endpoint still requires a truthy
+    // `profile` value in the body - `?? {}` satisfies that without
+    // fabricating any field values.
+    const result = await generateWeek(user.profile ?? {}, weekStart, { signal: abort.current.signal });
     inFlight.current = false;
     if (!mounted.current) return;
 

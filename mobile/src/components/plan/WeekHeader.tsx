@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { BrandColors, Spacing } from '@/constants/theme';
 import { BrandMark } from './BrandMark';
+
+const serif = Platform.select({ ios: 'Georgia', android: 'serif', default: 'serif' });
 
 type WeekHeaderProps = {
   rangeLabel: string;
@@ -29,6 +31,6 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
   },
   text: { gap: 2 },
-  title: { fontSize: 22, fontWeight: '600', color: BrandColors.ink },
-  range: { fontSize: 14, color: BrandColors.inkMuted },
+  title: { fontSize: 22, fontWeight: '600', color: BrandColors.foreground, fontFamily: serif },
+  range: { fontSize: 14, color: BrandColors.muted },
 });

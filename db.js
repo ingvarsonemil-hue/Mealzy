@@ -31,6 +31,12 @@ async function _applySchema() {
       data       TEXT NOT NULL,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )`,
+    // settings_data (added via ALTER below, not here, since this table
+    // already exists in production) holds the Phase E.2 normalized
+    // onboarding-settings JSON, deliberately isolated from `data` — see
+    // getProfileSettings/setProfileSettings. Neither column's writer ever
+    // touches the other: saveProfile (existing web onboarding) only ever
+    // sets `data`; setProfileSettings only ever sets `settings_data`.
     `CREATE TABLE IF NOT EXISTS plans (
       id         TEXT PRIMARY KEY,
       user_id    TEXT NOT NULL,
@@ -200,6 +206,11 @@ async function _applySchema() {
     `ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0`,
     `ALTER TABLE users ADD COLUMN email_verified INTEGER`,
     `ALTER TABLE users ADD COLUMN trial_started_at TEXT`,
+    `ALTER TABLE users ADD COLUMN deactivated_at TEXT`,
+    `ALTER TABLE users ADD COLUMN deletion_requested_at TEXT`,
+    // Phase E.2 — normalized onboarding settings, additive/isolated from
+    // profiles.data (see the profiles table comment above).
+    `ALTER TABLE profiles ADD COLUMN settings_data TEXT`,
   ];
   for (const sql of alters) {
     try { await _client.execute(sql); } catch(e) { /* column already exists */ }
@@ -363,6 +374,42 @@ async function getProfile(userId) {
   const row = await get('SELECT data FROM profiles WHERE user_id = ?', [userId]);
   if (!row) return null;
   try { return JSON.parse(row.data); } catch(e) { return null; }
+}
+
+// ── Normalized onboarding settings (Phase E.2) ──────────────────────────────
+// Isolated column (profiles.settings_data) - never read or written by
+// saveProfile/getProfile above, and vice versa. See the profiles table
+// comment in the schema block.
+
+/** Raw stored object (whatever keys have been set so far), or null if the
+ * user has never written any normalized settings. Callers apply their own
+ * per-field "not answered" defaults - this function never fabricates one. */
+async function getProfileSettings(userId) {
+  const row = await get('SELECT settings_data FROM profiles WHERE user_id = ?', [userId]);
+  if (!row || !row.settings_data) return null;
+  try { return JSON.parse(row.settings_data); } catch(e) { return null; }
+}
+
+/**
+ * Atomic partial merge via SQLite's json_patch (RFC 7396 shallow merge) in a
+ * single statement - no separate read-modify-write round trip, so two
+ * concurrent PATCH requests each merge their own patch against whatever the
+ * column holds at commit time rather than racing on a client-side read. The
+ * INSERT branch (no profiles row yet at all) seeds `data` with '{}' ONLY on
+ * first creation - it is never touched again by this function, satisfying
+ * "settings writes must not overwrite profiles.data" even for a brand-new
+ * user who has never called POST /api/profile.
+ */
+async function setProfileSettings(userId, patch) {
+  await run(
+    `INSERT INTO profiles (user_id, data, settings_data, updated_at)
+     VALUES (?, '{}', ?, datetime('now'))
+     ON CONFLICT(user_id) DO UPDATE SET
+       settings_data = json_patch(COALESCE(profiles.settings_data, '{}'), excluded.settings_data),
+       updated_at = datetime('now')`,
+    [userId, JSON.stringify(patch)]
+  );
+  return getProfileSettings(userId);
 }
 
 // ── Plans ─────────────────────────────────────────────────────────────────────
@@ -590,6 +637,26 @@ async function setStripeCustomerId(userId, customerId) {
 
 async function removeUserPro(userId) {
   await run('UPDATE users SET pro = 0, pro_until = NULL WHERE id = ?', [userId]);
+}
+
+// Soft delete: deactivates the account immediately and stamps the timestamp
+// the 30-day purge grace period counts from. The account row and its data
+// are NOT removed here — see getAccountsPendingPurge/deleteUserAccount.
+async function deactivateUserAccount(userId) {
+  await run(
+    "UPDATE users SET deactivated_at = datetime('now'), deletion_requested_at = datetime('now') WHERE id = ?",
+    [userId]
+  );
+}
+
+async function getAccountsPendingPurge(limit) {
+  return all(
+    `SELECT id, email FROM users
+     WHERE deletion_requested_at IS NOT NULL
+       AND datetime(deletion_requested_at) <= datetime('now', '-30 days')
+     LIMIT ?`,
+    [limit || 100]
+  );
 }
 
 async function deleteUserAccount(userId, email) {
@@ -1205,12 +1272,13 @@ module.exports = {
   createUser, getUserByEmail, getUserById, getUserByGoogleId, createUserGoogle, linkGoogleId,
   setUserPro, updatePassword, getAllUsers, bumpTokenVersion,
   removeUserPro, setStripeCustomerId, setUserProUntil, deleteUserAccount,
+  deactivateUserAccount, getAccountsPendingPurge,
   // ref codes
   setUserRefCode, getUserByRefCode,
   // nurture
   getUsersNeedingNudge, markNudgeSent, getUsersForWeeklyDigest,
   // profiles
-  saveProfile, getProfile,
+  saveProfile, getProfile, getProfileSettings, setProfileSettings,
   // plans
   savePlan, getRecentPlans, getLastPlanCreatedAt, getPlanById,
   // share links

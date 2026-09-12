@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: '700',
-    color: BrandColors.ink,
+    color: BrandColors.foreground,
     paddingHorizontal: Spacing.four,
     paddingBottom: Spacing.two,
   },
@@ -40,9 +40,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.three,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: BrandColors.separator,
+    borderTopColor: BrandColors.hairline,
   },
   rowFirst: { borderTopWidth: 0 },
-  name: { fontSize: 15, color: BrandColors.ink, flexShrink: 1, paddingRight: Spacing.three },
-  quantity: { fontSize: 15, color: BrandColors.inkMuted },
+  name: { fontSize: 15, color: BrandColors.foreground, flexShrink: 1, paddingRight: Spacing.three },
+  quantity: { fontSize: 15, color: BrandColors.muted },
 });

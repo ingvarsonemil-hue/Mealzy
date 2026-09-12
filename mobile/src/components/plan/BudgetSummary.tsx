@@ -8,6 +8,13 @@ type BudgetSummaryProps = {
   budget: BudgetViewModel;
 };
 
+/** Under-budget renders Green, over-budget Destructive, on-budget Muted. */
+export function resolveBudgetStatusColor(remaining: number): string {
+  if (remaining > 0) return BrandColors.green;
+  if (remaining < 0) return BrandColors.destructive;
+  return BrandColors.muted;
+}
+
 /**
  * Compact budget readout. Renders the full "estimated / budget / under-over"
  * line when a numeric target is known (currently only the fixture supplies
@@ -16,14 +23,17 @@ type BudgetSummaryProps = {
  */
 export function BudgetSummary({ budget }: BudgetSummaryProps) {
   const parts = [`${formatMoney(budget.estimated)} estimated`];
+  let statusPart: string | null = null;
+  let statusColor: string = BrandColors.muted;
 
   if (budget.target !== undefined) {
     parts.push(`${formatMoney(budget.target)} budget`);
     const remaining = budget.remaining ?? budget.target - budget.estimated;
     const status = remaining > 0 ? 'under' : remaining < 0 ? 'over' : 'on budget';
-    parts.push(status === 'on budget' ? status : `${formatMoney(Math.abs(remaining))} ${status}`);
+    statusPart = status === 'on budget' ? status : `${formatMoney(Math.abs(remaining))} ${status}`;
+    statusColor = resolveBudgetStatusColor(remaining);
   } else if (budget.statusLabel) {
-    parts.push(budget.statusLabel);
+    statusPart = budget.statusLabel;
   }
 
   return (
@@ -34,6 +44,9 @@ export function BudgetSummary({ budget }: BudgetSummaryProps) {
           {part}
         </Text>
       ))}
+      {statusPart ? (
+        <Text style={[styles.text, { color: statusColor }]}>· {statusPart}</Text>
+      ) : null}
     </View>
   );
 }
@@ -47,5 +60,5 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
     gap: Spacing.two,
   },
-  text: { fontSize: 13, color: BrandColors.inkMuted },
+  text: { fontSize: 13, color: BrandColors.muted },
 });

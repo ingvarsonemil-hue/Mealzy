@@ -109,5 +109,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: Spacing.four,
   },
-  centreText: { fontSize: 15, color: BrandColors.inkMuted, textAlign: 'center' },
+  centreText: { fontSize: 15, color: BrandColors.muted, textAlign: 'center' },
 });

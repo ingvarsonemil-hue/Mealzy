@@ -64,7 +64,8 @@ export default function SettingsScreen() {
   const handleDeleteAccount = useCallback(() => {
     Alert.alert(
       'Delete account',
-      'Are you sure you want to delete your account? This cannot be undone.',
+      "Your account will be deactivated immediately and you won't be able to sign back in. " +
+        'Your data is kept for 30 days - contact support@mealzy.org within that window if you want it back.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

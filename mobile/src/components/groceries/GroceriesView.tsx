@@ -46,7 +46,7 @@ export function GroceriesView({
       <View style={styles.header}>
         <BrandMark />
         <View style={styles.headerText}>
-          <Text style={styles.title}>Groceries</Text>
+          <Text style={styles.title}>Shop</Text>
           <Text style={styles.context}>This week · {viewModel.rangeLabel}</Text>
         </View>
       </View>
@@ -77,18 +77,18 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
   },
   headerText: { gap: 2 },
-  title: { fontSize: 28, fontWeight: '700', color: BrandColors.ink },
-  context: { fontSize: 14, color: BrandColors.inkMuted },
+  title: { fontSize: 28, fontWeight: '700', color: BrandColors.foreground },
+  context: { fontSize: 14, color: BrandColors.muted },
   notice: {
     fontSize: 12,
-    color: BrandColors.inkMuted,
+    color: BrandColors.muted,
     fontStyle: 'italic',
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.three,
   },
   empty: {
     fontSize: 14,
-    color: BrandColors.inkMuted,
+    color: BrandColors.muted,
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.four * 1.5,
   },

@@ -10,6 +10,7 @@ import {
 } from 'react';
 
 import { apiFetch, resetSessionInvalidated, setUnauthorizedHandler } from './api';
+import { DELETE_ACCOUNT_ENDPOINT, resolveDeleteAccountOutcome } from './delete-account';
 import { clearToken, getToken, setToken } from './session';
 
 export type AuthUser = {
@@ -24,6 +25,14 @@ export type AuthUser = {
    * client. null when the user has not completed a profile yet.
    */
   profile?: unknown | null;
+  /**
+   * Phase E.2 normalized onboarding settings (server.js's
+   * buildOnboardingSettingsView) - the shape Slice 3's onboarding actually
+   * writes via PATCH /api/profile/settings. Also a raw passthrough; null
+   * means "unknown", never "onboarding complete". Kept alongside `profile`
+   * rather than replacing it - the two are independent, server-owned fields.
+   */
+  settings?: unknown | null;
 };
 
 type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated' | 'error';
@@ -217,29 +226,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOutLocal();
   }, [signOutLocal]);
 
-  // DELETE /api/account (GDPR erasure) - mirrors public/settings.html's real
-  // web flow exactly: confirm, call the endpoint, clear the local session
-  // only on a genuine 200. A 409 means an active Stripe subscription blocks
-  // deletion - the session stays intact so the user can act on the message.
+  // DELETE /api/delete-account (mobile soft-delete, 30-day grace period) -
+  // NOT /api/account, the web's immediate hard-delete route. A 403 means the
+  // session is too old and needs a fresh sign-in; a 409 means an active
+  // Stripe subscription blocks deletion - either way the local session stays
+  // intact so the user can act on the message. Only a genuine 200 signs out.
   const deleteAccount = useCallback(async (): Promise<ActionResult> => {
     let res;
     try {
-      res = await apiFetch<{ error?: string; message?: string }>('/api/account', { method: 'DELETE' });
+      res = await apiFetch<{ error?: string; message?: string }>(DELETE_ACCOUNT_ENDPOINT, {
+        method: 'DELETE',
+      });
     } catch {
       return { ok: false, message: OFFLINE_MESSAGE };
     }
-    if (res.status === 200) {
-      await signOutLocal();
-      return { ok: true };
-    }
-    if (res.status === 409) {
-      return {
-        ok: false,
-        message: res.data?.message || 'Please cancel your Pro subscription before deleting your account.',
-      };
-    }
-    if (res.status >= 500) return { ok: false, message: OFFLINE_MESSAGE };
-    return { ok: false, message: res.data?.message || 'Could not delete your account. Please try again.' };
+    const outcome = resolveDeleteAccountOutcome(res.status, res.data);
+    if (outcome.ok) await signOutLocal();
+    return outcome;
   }, [signOutLocal]);
 
   const value = useMemo<AuthContextValue>(
