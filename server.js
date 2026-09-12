@@ -2264,12 +2264,25 @@ app.post('/api/generate-meal', generateLimiter, optionalSession, async (req, res
       isPro = sessionUser?.pro === 1;
     }
 
+    // ── Meal swap is Pro-only. It returns early (below) before the usage
+    // counters further down are ever incremented, so it cannot be folded into
+    // the free/trial quota block below — that block only checks whether quota
+    // looks unused, it doesn't consume any, which would let an unlimited
+    // number of swap calls each pass the check. Hard-require Pro instead.
+    if (swap_meal_type && !isPro) {
+      return res.status(402).json({
+        error: 'pro_required',
+        message: 'Meal swaps are a Pro feature. Upgrade to swap meals.',
+        upgrade_url: '/pricing.html'
+      });
+    }
+
     // ── Quota check (read-only) — credits/trial state are only *consumed* later,
     // after the plan passes validation (see below).
     const ip = clientIp(req);
     let anonUsage = null;
     let trialLocalDate = null;
-    if (!swap_meal_type && !isPro) {
+    if (!isPro) {
       if (session) {
         // ── Logged-in free users: 30-day daily trial, 1 plan per local calendar day ──
         if (weekStart) {
