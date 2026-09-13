@@ -2,6 +2,13 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    // Lets plan-swap.ts import plan.ts as './plan.ts' (explicit extension),
+    // which mobile/tests/*.test.mjs need: Node's native TS execution
+    // (node --test on raw .ts, no bundler) requires full specifiers for
+    // relative imports, unlike Metro. Safe here specifically because noEmit
+    // is already true (expo/tsconfig.base) - tsc never emits, Metro/Babel do
+    // the real transpilation, so this only affects type-checking/tooling.
+    "allowImportingTsExtensions": true,
     "paths": {
       "@/*": [
         "./src/*"

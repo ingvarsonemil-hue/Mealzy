@@ -143,6 +143,13 @@ export type WeekPlan = {
   planId?: string;
   days: PlanDay[];
   weeklyTotals: WeekWeeklyTotals;
+  /**
+   * "<date>:<slot>" keys already used for this plan's one-time meal swap
+   * (routes/mealSwap.js's slotKeyFor). Present at the plan JSON's root
+   * (db.js's commitMealSwap / db.getRecentPlans), same object weeklyTotals
+   * lives on. Empty array, never undefined, when the plan carries none.
+   */
+  swappedSlots: string[];
 };
 
 // ── Coercion helpers ────────────────────────────────────────────────────────
@@ -272,6 +279,7 @@ export function toWeekPlan(raw: unknown): WeekPlan | null {
     weekStart: raw.weekStart,
     days: raw.days.map(toDay),
     weeklyTotals: toWeeklyTotals(raw.weeklyTotals),
+    swappedSlots: strArray(raw.swappedSlots),
   };
   if (typeof raw.planId === 'string' && raw.planId.length > 0) week.planId = raw.planId;
   return week;
@@ -451,3 +459,11 @@ export function classifyGenerateOutcome(res: { status: number; data: unknown }):
 
   return { kind: 'terminal', message: 'Something went wrong. Please try again later.' };
 }
+
+// ── Small shared helpers exported for plan-swap.ts ──────────────────────────
+//
+// plan.ts was at 556 lines with the swap classifiers inline (over the
+// project's 500-line-file limit), so that logic now lives in its own
+// plan-swap.ts, reusing these rather than duplicating them.
+
+export { isRecord, toMeal, toDay, errorCode };

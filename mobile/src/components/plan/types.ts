@@ -36,6 +36,11 @@ export type PlanMealViewModel = {
    * ingredient-overlap signal is sent). Always undefined for real data.
    */
   usesIngredientsElsewhere?: boolean;
+  /**
+   * True once this slot has used its one-time swap (WeekPlan.swappedSlots).
+   * The swap affordance is hidden once true - a slot only ever swaps once.
+   */
+  swapped: boolean;
 };
 
 export type PlanDayViewModel = {

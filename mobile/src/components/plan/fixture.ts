@@ -31,6 +31,7 @@ export const planCurrentViewModelFixture: PlanCurrentViewModel = {
         estimatedCost: 2.4,
         calories: 420,
         proteinGrams: 21,
+        swapped: false,
       },
       {
         id: 'lunch',
@@ -41,6 +42,7 @@ export const planCurrentViewModelFixture: PlanCurrentViewModel = {
         calories: 510,
         proteinGrams: 34,
         usesIngredientsElsewhere: true,
+        swapped: false,
       },
       {
         id: 'dinner',
@@ -50,6 +52,7 @@ export const planCurrentViewModelFixture: PlanCurrentViewModel = {
         estimatedCost: 6.1,
         calories: 620,
         proteinGrams: 27,
+        swapped: false,
       },
     ],
   },

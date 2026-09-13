@@ -5,9 +5,11 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, useColorScheme } 
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/lib/auth-context';
 import { currentWeekStart, weekDateRange, type SavedWeekResult, type WeekPlan } from '@/lib/plan';
-import { fetchSavedWeek, generateWeek } from '@/lib/plan-api';
+import { fetchSavedWeek, generateWeek, fetchSwapAlternatives, commitMealSwap } from '@/lib/plan-api';
+import { parseMealId, type SwapAlternative } from '@/lib/plan-swap';
 import { PlanCurrentView } from '@/components/plan/PlanCurrentView';
 import { toPlanCurrentViewModel } from '@/components/plan/plan-current-adapter';
+import { SwapAlternativesSheet, type SwapSheetState } from '@/components/plan/SwapAlternativesSheet';
 
 type ScreenState =
   | { s: 'loading' }
@@ -38,8 +40,10 @@ export default function PlanScreen() {
 
   const [state, setState] = useState<ScreenState>({ s: 'loading' });
   const [refreshing, setRefreshing] = useState(false);
+  const [swapState, setSwapState] = useState<SwapSheetState>({ s: 'closed' });
 
   const inFlight = useRef(false);
+  const swapInFlight = useRef(false);
   const abort = useRef<AbortController | null>(null);
   const mounted = useRef(true);
 
@@ -152,30 +156,161 @@ export default function PlanScreen() {
     }
   }, [loadCurrentWeek]);
 
+  // Silent (no pull-spinner) equivalent of onRefresh, used after a 409 tells
+  // us another device/tab already committed a swap for this slot - the
+  // locally-held plan is stale and must be replaced with the server's own
+  // current state, never patched around.
+  const refetchWeek = useCallback(async (): Promise<void> => {
+    const r = await loadCurrentWeek();
+    if (mounted.current && r.kind === 'found') setState({ s: 'existing_plan', week: r.week });
+  }, [loadCurrentWeek]);
+
+  // Core of the swap flow's "generate alternatives" step - shared by the
+  // affordance tap and the sheet's own "Try again" retry so both paths
+  // handle every outcome identically.
+  const runSwapAlternatives = useCallback(
+    async (planId: string, date: string, slot: string): Promise<void> => {
+      if (swapInFlight.current) return;
+      swapInFlight.current = true;
+      setSwapState({ s: 'loading', date, slot });
+
+      const result = await fetchSwapAlternatives(planId, date, slot, user?.profile ?? {});
+      swapInFlight.current = false;
+      if (!mounted.current) return;
+
+      switch (result.kind) {
+        case 'ok':
+          setSwapState({ s: 'choices', date, slot, alternatives: result.alternatives });
+          break;
+        case 'pro_required':
+          setSwapState({ s: 'pro_required', message: result.message });
+          break;
+        case 'already_swapped':
+          // Another device/tab beat us to this slot since the plan loaded -
+          // the plan on screen is stale, so replace it wholesale rather than
+          // guessing at a patch.
+          void refetchWeek();
+          setSwapState({ s: 'already_swapped' });
+          break;
+        case 'busy':
+          setSwapState({ s: 'busy', date, slot });
+          break;
+        case 'error':
+        case 'network':
+          setSwapState({ s: 'error' });
+          break;
+      }
+    },
+    [user, refetchWeek],
+  );
+
+  const onSwapMeal = useCallback(
+    (mealId: string) => {
+      if (state.s !== 'existing_plan' || !state.week.planId) return;
+      const parsed = parseMealId(mealId);
+      if (!parsed) return;
+      const day = state.week.days.find((d) => d.date === parsed.date);
+      const meal = day?.meals[parsed.mealIndex];
+      if (!day || !meal) return;
+      void runSwapAlternatives(state.week.planId, day.date, meal.type);
+    },
+    [state, runSwapAlternatives],
+  );
+
+  const onRetrySwap = useCallback(
+    (date: string, slot: string) => {
+      if (state.s !== 'existing_plan' || !state.week.planId) return;
+      void runSwapAlternatives(state.week.planId, date, slot);
+    },
+    [state, runSwapAlternatives],
+  );
+
+  const onCloseSwap = useCallback(() => setSwapState({ s: 'closed' }), []);
+
+  const onSelectAlternative = useCallback(
+    (alt: SwapAlternative) => {
+      if (state.s !== 'existing_plan' || !state.week.planId) return;
+      if (swapState.s !== 'choices') return;
+      const { date, slot } = swapState;
+      const planId = state.week.planId;
+
+      setSwapState({ s: 'committing', date, slot });
+      void (async () => {
+        const result = await commitMealSwap(planId, date, slot, alt.raw);
+        if (!mounted.current) return;
+
+        switch (result.kind) {
+          case 'ok':
+            // Replace this one day with the server's recomputed version -
+            // never splice the chosen alternative in ourselves, since only
+            // the server recomputed this day's totals. weeklyTotals (and the
+            // grocery/purchase total derived from it) is deliberately left
+            // untouched: the backend does not recompute those on a swap, so
+            // this screen must never imply it did.
+            setState((current) => {
+              if (current.s !== 'existing_plan') return current;
+              const dayIndex = current.week.days.findIndex((d) => d.date === date);
+              if (dayIndex === -1) return current;
+              const days = current.week.days.slice();
+              days[dayIndex] = result.day;
+              const key = `${date}:${slot}`;
+              const swappedSlots = current.week.swappedSlots.includes(key)
+                ? current.week.swappedSlots
+                : [...current.week.swappedSlots, key];
+              return { s: 'existing_plan', week: { ...current.week, days, swappedSlots } };
+            });
+            setSwapState({ s: 'closed' });
+            break;
+          case 'already_swapped':
+            void refetchWeek();
+            setSwapState({ s: 'already_swapped' });
+            break;
+          case 'pro_required':
+            setSwapState({ s: 'pro_required', message: result.message });
+            break;
+          case 'error':
+          case 'network':
+            setSwapState({ s: 'error' });
+            break;
+        }
+      })();
+    },
+    [state, swapState, refetchWeek],
+  );
+
   if (state.s === 'existing_plan') {
     return (
-      <PlanCurrentView
-        viewModel={toPlanCurrentViewModel(state.week)}
-        onOpenMeal={(mealId) => {
-          // mealId is `${date}-${mealIndex}` from plan-current-adapter.ts;
-          // date itself contains dashes, so split on the last one. Meal
-          // Detail re-loads the week itself from just these two values -
-          // no recipe content travels through navigation.
-          const lastDash = mealId.lastIndexOf('-');
-          const date = mealId.slice(0, lastDash);
-          const mealIndex = mealId.slice(lastDash + 1);
-          router.push({ pathname: '/meal-detail', params: { date, mealIndex } });
-        }}
-        onOpenGroceries={() => router.navigate('/shop')}
-        onGenerateNextWeek={() => {
-          // "Next week" generation does not exist yet - the app only
-          // supports generating the current week (onGenerate above).
-          // Isolated placeholder so wiring it up later only touches this
-          // handler, never PlanCurrentView.
-        }}
-        refreshing={refreshing}
-        onRefresh={onRefresh}
-      />
+      <>
+        <PlanCurrentView
+          viewModel={toPlanCurrentViewModel(state.week)}
+          onOpenMeal={(mealId) => {
+            // mealId is `${date}-${mealIndex}` from plan-current-adapter.ts;
+            // date itself contains dashes, so split on the last one. Meal
+            // Detail re-loads the week itself from just these two values -
+            // no recipe content travels through navigation.
+            const lastDash = mealId.lastIndexOf('-');
+            const date = mealId.slice(0, lastDash);
+            const mealIndex = mealId.slice(lastDash + 1);
+            router.push({ pathname: '/meal-detail', params: { date, mealIndex } });
+          }}
+          onOpenGroceries={() => router.navigate('/shop')}
+          onGenerateNextWeek={() => {
+            // "Next week" generation does not exist yet - the app only
+            // supports generating the current week (onGenerate above).
+            // Isolated placeholder so wiring it up later only touches this
+            // handler, never PlanCurrentView.
+          }}
+          onSwapMeal={state.week.planId ? onSwapMeal : undefined}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />
+        <SwapAlternativesSheet
+          state={swapState}
+          onSelect={onSelectAlternative}
+          onRetry={onRetrySwap}
+          onClose={onCloseSwap}
+        />
+      </>
     );
   }
 

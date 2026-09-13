@@ -7,14 +7,21 @@ import type { PlanMealViewModel } from './types';
 type MealRowProps = {
   meal: PlanMealViewModel;
   onPress: () => void;
+  /** Omit to hide the swap affordance entirely (e.g. no planId to swap against). */
+  onSwap?: () => void;
 };
 
 /**
  * One editorial meal row: text only, no image slot (locked design). The
  * whole row is tappable; `onPress` may be a safe placeholder until the real
  * Meal Detail route exists.
+ *
+ * The swap affordance is a plain text button, matching this row's
+ * text-only, no-icon design rather than introducing an icon glyph the app
+ * has nowhere else. Hidden once `meal.swapped` is true - a slot only ever
+ * swaps once.
  */
-export function MealRow({ meal, onPress }: MealRowProps) {
+export function MealRow({ meal, onPress, onSwap }: MealRowProps) {
   const costParts: string[] = [];
   if (meal.durationMinutes !== undefined) costParts.push(`${meal.durationMinutes} min`);
   if (meal.estimatedCost !== undefined) costParts.push(`~${formatMoney(meal.estimatedCost)}`);
@@ -40,6 +47,16 @@ export function MealRow({ meal, onPress }: MealRowProps) {
           <Text style={styles.note}>Uses ingredients elsewhere this week</Text>
         ) : null}
       </View>
+      {onSwap && !meal.swapped ? (
+        <Pressable
+          onPress={onSwap}
+          hitSlop={8}
+          style={({ pressed }) => [styles.swapButton, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityLabel={`Swap ${meal.type.toLowerCase()}`}>
+          <Text style={styles.swapButtonText}>Swap</Text>
+        </Pressable>
+      ) : null}
     </Pressable>
   );
 }
@@ -55,6 +72,8 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.7 },
   info: { flex: 1, justifyContent: 'center', gap: 4 },
+  swapButton: { justifyContent: 'center', paddingHorizontal: Spacing.two, alignSelf: 'center' },
+  swapButtonText: { fontSize: 13, fontWeight: '600', color: BrandColors.green },
   type: {
     fontSize: 12,
     fontWeight: '600',

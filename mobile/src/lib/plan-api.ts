@@ -19,6 +19,12 @@ import {
   type GroceryChecksResult,
   type SavedWeekResult,
 } from './plan';
+import {
+  classifySwapAlternativesResponse,
+  classifySwapCommitResponse,
+  type SwapAlternativesResult,
+  type SwapCommitResult,
+} from './plan-swap';
 
 /**
  * GET /api/plans and classify the result for the current week.
@@ -93,5 +99,49 @@ export async function setGroceryChecked(
     return classifyGroceryCheckPatchResponse(res);
   } catch {
     return false;
+  }
+}
+
+/** POST /api/plans/:planId/swap-alternatives — read/generate-only, nothing persisted. */
+export type SwapAlternativesApiResult = SwapAlternativesResult | { kind: 'network' };
+
+export async function fetchSwapAlternatives(
+  planId: string,
+  date: string,
+  slot: string,
+  profile: unknown,
+): Promise<SwapAlternativesApiResult> {
+  try {
+    const res = await apiFetch(`/api/plans/${encodeURIComponent(planId)}/swap-alternatives`, {
+      method: 'POST',
+      body: JSON.stringify({ date, slot, profile }),
+    });
+    return classifySwapAlternativesResponse(res);
+  } catch {
+    return { kind: 'network' };
+  }
+}
+
+/**
+ * POST /api/plans/:planId/swap-commit. `meal` must be the exact alternative
+ * object `fetchSwapAlternatives` returned (its `raw` field) - the backend
+ * contract requires it sent back unmodified.
+ */
+export type SwapCommitApiResult = SwapCommitResult | { kind: 'network' };
+
+export async function commitMealSwap(
+  planId: string,
+  date: string,
+  slot: string,
+  meal: unknown,
+): Promise<SwapCommitApiResult> {
+  try {
+    const res = await apiFetch(`/api/plans/${encodeURIComponent(planId)}/swap-commit`, {
+      method: 'POST',
+      body: JSON.stringify({ date, slot, meal }),
+    });
+    return classifySwapCommitResponse(res);
+  } catch {
+    return { kind: 'network' };
   }
 }

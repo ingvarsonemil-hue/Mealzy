@@ -15,6 +15,8 @@ type PlanCurrentViewProps = {
   onOpenMeal: (mealId: string) => void;
   onOpenGroceries: () => void;
   onGenerateNextWeek: () => void;
+  /** Omit to hide the swap affordance on every meal row (e.g. no planId yet). */
+  onSwapMeal?: (mealId: string) => void;
   /** Pull-to-refresh, forwarded to PlanScreenContainer. Omit to disable it. */
   refreshing?: boolean;
   onRefresh?: () => void;
@@ -36,6 +38,7 @@ export function PlanCurrentView({
   onOpenMeal,
   onOpenGroceries,
   onGenerateNextWeek,
+  onSwapMeal,
   refreshing,
   onRefresh,
 }: PlanCurrentViewProps) {
@@ -48,7 +51,12 @@ export function PlanCurrentView({
       <Text style={styles.dayHeading}>{viewModel.day.dayName}</Text>
 
       {viewModel.day.meals.map((meal) => (
-        <MealRow key={meal.id} meal={meal} onPress={() => onOpenMeal(meal.id)} />
+        <MealRow
+          key={meal.id}
+          meal={meal}
+          onPress={() => onOpenMeal(meal.id)}
+          onSwap={onSwapMeal ? () => onSwapMeal(meal.id) : undefined}
+        />
       ))}
 
       <GroceryHandoff groceries={viewModel.groceries} onPress={onOpenGroceries} />

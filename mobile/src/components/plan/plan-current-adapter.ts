@@ -28,6 +28,7 @@
  */
 
 import type { PlanDay, WeekPlan } from '@/lib/plan';
+import { isSlotSwapped } from '@/lib/plan-swap';
 import { formatDateRangeLabel, parseYmdLocal } from '@/lib/date-format';
 import type {
   BudgetViewModel,
@@ -53,7 +54,7 @@ function capitalize(s: string): string {
   return s.length === 0 ? s : s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-function toMealViewModels(day: PlanDay): PlanMealViewModel[] {
+function toMealViewModels(day: PlanDay, week: WeekPlan): PlanMealViewModel[] {
   return day.meals.map((meal, i) => ({
     id: `${day.date}-${i}`,
     type: capitalize(meal.type || 'meal'),
@@ -63,6 +64,7 @@ function toMealViewModels(day: PlanDay): PlanMealViewModel[] {
     calories: meal.calories !== undefined ? Math.round(meal.calories) : undefined,
     proteinGrams: meal.protein !== undefined ? Math.round(meal.protein) : undefined,
     // usesIngredientsElsewhere intentionally omitted: see file header.
+    swapped: isSlotSwapped(week, day.date, meal.type),
   }));
 }
 
@@ -108,7 +110,7 @@ export function toPlanCurrentViewModel(week: WeekPlan, today: Date = new Date())
 
   const dayViewModel: PlanDayViewModel = {
     dayName: day?.dayName || '',
-    meals: day ? toMealViewModels(day) : [],
+    meals: day ? toMealViewModels(day, week) : [],
   };
 
   const rangeLabel =
