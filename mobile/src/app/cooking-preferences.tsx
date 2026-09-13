@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -7,6 +8,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -63,6 +65,8 @@ export default function CookingPreferencesScreen() {
             contentContainerStyle={styles.content}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View>
             <OnboardingScreenTitle title="How do you like to cook?" body="These preferences are optional." />
 
             <View style={styles.section}>
@@ -120,6 +124,8 @@ export default function CookingPreferencesScreen() {
                 ))}
               </View>
             </View>
+            </View>
+            </TouchableWithoutFeedback>
           </ScrollView>
           <View style={styles.footer}>
             <OnboardingButton label={isEditing ? 'Save changes' : 'Continue'} onPress={submit} />

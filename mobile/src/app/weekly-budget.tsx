@@ -1,4 +1,13 @@
-import { Platform, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Keyboard,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { OnboardingButton } from '@/components/onboarding/OnboardingButton';
@@ -26,6 +35,7 @@ export default function WeeklyBudgetScreen() {
   }
   return (
     <SafeAreaView style={styles.safe}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.screen}>
         <OnboardingHeader />
         <View style={styles.content}>
@@ -58,6 +68,7 @@ export default function WeeklyBudgetScreen() {
           <OnboardingButton label={isEditing ? 'Save changes' : 'Continue'} onPress={submit} />
         </View>
       </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }

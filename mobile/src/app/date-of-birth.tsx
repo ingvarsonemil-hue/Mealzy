@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActionSheetIOS,
+  Keyboard,
   Modal,
   Platform,
   Pressable,
@@ -9,6 +10,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -72,6 +74,7 @@ export default function DateOfBirthScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.screen}>
         <OnboardingHeader />
 
@@ -101,9 +104,11 @@ export default function DateOfBirthScreen() {
                 maxLength={2}
                 value={day}
                 onChangeText={(value) => {
-                  setDay(value.replace(/\D/g, ''));
+                  const numeric = value.replace(/\D/g, '');
+                  setDay(numeric);
                   setErrors((current) => ({ ...current, day: undefined }));
-                  persist(month, value.replace(/\D/g, ''), year);
+                  persist(month, numeric, year);
+                  if (numeric.length === 2) Keyboard.dismiss();
                 }}
                 placeholder="DD"
                 placeholderTextColor={BrandColors.muted}
@@ -124,6 +129,7 @@ export default function DateOfBirthScreen() {
                   setYear(numeric);
                   setErrors((current) => ({ ...current, year: undefined }));
                   persist(month, day, numeric);
+                  if (numeric.length === 4) Keyboard.dismiss();
                 }}
                 placeholder="YYYY"
                 placeholderTextColor={BrandColors.muted}
@@ -138,6 +144,7 @@ export default function DateOfBirthScreen() {
           <OnboardingButton label="Continue" onPress={submit} />
         </View>
       </View>
+      </TouchableWithoutFeedback>
 
       <Modal visible={androidMonthOpen} transparent animationType="slide" onRequestClose={() => setAndroidMonthOpen(false)}>
         <Pressable style={styles.modalBackdrop} onPress={() => setAndroidMonthOpen(false)}>
