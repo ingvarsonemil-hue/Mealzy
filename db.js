@@ -452,6 +452,55 @@ async function getPlanById(id, userId) {
   try { return JSON.parse(row.data); } catch(e) { return null; }
 }
 
+/**
+ * Mobile meal swap (Part 2) — commits a chosen alternative into a specific
+ * day/slot of a saved week plan, AND records the slot in `swappedSlots`
+ * (["<date>:<slot>", ...] at the plan JSON's root) in the SAME single UPDATE
+ * statement, so the two can never be written out of sync.
+ *
+ * Atomicity: the UPDATE's WHERE clause re-checks "this slot is not already in
+ * swappedSlots" against the CURRENT row value at execution time (via
+ * NOT EXISTS over json_each), in the same statement that performs the write —
+ * not a separate SELECT-then-UPDATE. Two near-simultaneous commits for the
+ * same slot both race this one UPDATE; SQLite/libSQL serializes writes to the
+ * same row, so only the first to execute has its WHERE clause still match —
+ * the second re-evaluates against the now-updated row and matches nothing.
+ * This is the identical pattern already proven by reclaimStaleFreeWeekReservation
+ * above (a conditional UPDATE whose WHERE clause is the atomicity guarantee).
+ *
+ * `dayIndex`/`mealIndex` are resolved by the caller from a plain prior SELECT
+ * (see routes/mealSwap.js) — safe to use as a JSON array path here because
+ * nothing else ever inserts/removes/reorders days or meals in a saved plan;
+ * only this function ever mutates plans.data for an existing row, and it only
+ * ever replaces one day's object in place, never changing array length/order.
+ *
+ * Returns one of:
+ *   { outcome: 'committed', day: <new day object> }
+ *   { outcome: 'already_swapped' }         — the atomic guard rejected it (or,
+ *                                             vanishingly rarely, the plan row
+ *                                             vanished between the caller's
+ *                                             read and this write)
+ */
+async function commitMealSwap({ planId, userId, dayIndex, newDay, slotKey }) {
+  const dayPath = `$.days[${dayIndex}]`;
+  const n = await _writeAffected(
+    `UPDATE plans
+        SET data = json_set(
+              json_set(data, '$.swappedSlots',
+                json_insert(COALESCE(json_extract(data, '$.swappedSlots'), json('[]')), '$[#]', ?)),
+              ?, json(?)
+            )
+      WHERE id = ? AND user_id = ?
+        AND NOT EXISTS (
+          SELECT 1 FROM json_each(COALESCE(json_extract(data, '$.swappedSlots'), json('[]')))
+          WHERE value = ?
+        )`,
+    [slotKey, dayPath, JSON.stringify(newDay), planId, userId, slotKey]
+  );
+  if (n === 1) return { outcome: 'committed', day: newDay };
+  return { outcome: 'already_swapped' };
+}
+
 // ── Reset Tokens ──────────────────────────────────────────────────────────────
 
 async function createResetToken(token, userId, expiresAt) {
@@ -1280,7 +1329,7 @@ module.exports = {
   // profiles
   saveProfile, getProfile, getProfileSettings, setProfileSettings,
   // plans
-  savePlan, getRecentPlans, getLastPlanCreatedAt, getPlanById,
+  savePlan, getRecentPlans, getLastPlanCreatedAt, getPlanById, commitMealSwap,
   // share links
   saveShareLink, getShareLink, incrementShareViews,
   // reset tokens

@@ -36,6 +36,7 @@ const canonicalIngredients = require('./canonicalIngredients'); // Phase C: vali
 const generationVocabulary = require('./generationVocabulary');
 const certificationGate = require('./certificationGate');
 const { getISOWeekKey } = require('./weekKey');
+const mealConstraints = require('./mealConstraints');
 
 // Phase 3E — deterministic certification gate for WEEK-MODE generation.
 //   'off' (default / any unknown value): no certification behaviour at all —
@@ -2664,6 +2665,21 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
       isPro = sessionUser?.pro === 1;
     }
 
+    // ── Meal swap is Pro-only. It returns early (below) before the usage
+    // counters further down are ever incremented, so it cannot be folded into
+    // the free/trial quota block below — that block only checks whether quota
+    // looks unused, it doesn't consume any, which would let an unlimited
+    // number of swap calls each pass the check. Hard-require Pro instead.
+    // (Ported from main's 661b25a hotfix — this branch had diverged before
+    // that fix landed and was still missing it.)
+    if (swap_meal_type && !isPro) {
+      return res.status(402).json({
+        error: 'pro_required',
+        message: 'Meal swaps are a Pro feature. Upgrade to swap meals.',
+        upgrade_url: '/pricing.html'
+      });
+    }
+
     // ── Quota check (read-only) — credits/trial state are only *consumed* later,
     // after the plan passes validation (see below).
     const ip = clientIp(req);
@@ -2852,115 +2868,36 @@ app.post('/api/generate-meal', generateLimiter, strictOptionalSession, async (re
     const dailyBudget    = (budget / 7 * priceTierMultiplier).toFixed(2);
     const perMealBudget  = (budget / 7 / 4 * priceTierMultiplier).toFixed(2);
 
-    // ── Dietary restriction enforcement — explicit banned lists per preference ──
-    // These blocks go at the TOP of all meal plan prompts (most important instruction first).
-    const DIET_RULES = {
-      vegan:       'VEGAN — zero animal products. NEVER use: meat, fish, seafood, chicken, beef, pork, lamb, turkey, duck, eggs, milk, cheese, butter, cream, yoghurt, honey, ghee, lard, whey, gelatin. Use ONLY: vegetables, fruits, legumes, grains, nuts, seeds, plant-based oils, tofu, tempeh, seitan (if not GF), coconut milk, oat milk, soy milk, almond milk.',
-      vegetarian:  'VEGETARIAN — no meat or fish. NEVER use: chicken, beef, pork, lamb, turkey, duck, fish, salmon, tuna, shrimp, prawns, cod, sardines, anchovies, bacon, ham, sausage. Eggs and dairy are allowed.',
-      'gluten-free':'GLUTEN-FREE — no gluten. NEVER use: wheat, white flour, bread, sourdough, toast, wrap, pita, tortilla, pasta, noodles, couscous, barley, rye, seitan, soy sauce (use tamari), malt, crackers, croutons, breadcrumbs, regular oats. ALLOWED: rice, quinoa, potatoes, corn, certified GF oats, rice noodles, tamari.',
-      keto:        'KETO — max 25g total net carbs per day across all 4 meals. NEVER use: bread, pasta, rice, potatoes, corn, tortillas, wraps, noodles, couscous, sugar, honey, fruit juice, bananas, grapes, mangoes, apples, oranges, lentils, chickpeas, beans, peas, sweet potatoes, quinoa. ALLOWED: meat, fish, eggs, cheese, cream, butter, avocado, leafy greens, cauliflower, broccoli, zucchini, nuts, seeds, olive oil.',
-      halal:       'HALAL — no pork or alcohol. NEVER use: pork, bacon, ham, lard, gelatin (unless halal-certified), alcohol, wine, beer in cooking.',
-      'dairy-free':'DAIRY-FREE — no dairy. NEVER use: milk, cheese, butter, cream, yoghurt, ghee, whey, casein. Use: plant-based alternatives like coconut milk, oat milk, soy milk, vegan butter.',
-    };
-    // Special combination rules that override individual rules
-    const isVegan = dietaryPrefs.map(p=>p.toLowerCase()).includes('vegan');
-    const isKeto  = dietaryPrefs.map(p=>p.toLowerCase()).includes('keto');
-    const comboRules = (isVegan && isKeto)
-      ? '\nKETO + VEGAN COMBINATION: Use ONLY these protein sources: tofu, tempeh, edamame, hemp seeds. Use ONLY these fats: avocado, coconut oil, olive oil, nuts (almonds, walnuts, macadamia), seeds (chia, flax, sunflower). Absolutely NO eggs, dairy, fish, or meat of any kind. NO grains, legumes (except edamame/tofu/tempeh), or starchy vegetables.'
-      : '';
-    const activeDietRules = (dietaryPrefs
-      .map(p => DIET_RULES[p.toLowerCase()] || `STRICT DIETARY REQUIREMENT: User is ${p}. Every meal MUST comply.`)
-      .join('\n')) + comboRules;
-    const dietaryBlock = activeDietRules
-      ? `\n⚠️ DIETARY RULES — HIGHEST PRIORITY — THESE OVERRIDE EVERYTHING ELSE:\n${activeDietRules}\nDouble-check every ingredient against these rules before including it.\n`
-      : '';
-    const allergyBlock = allergies.length > 0
-      ? `\n⚠️ ALLERGY WARNING — NEVER include these ingredients in any form: ${allergies.join(', ')}.\n`
-      : '';
+    // ── Dietary/allergy/avoid constraint blocks, cuisine+protein variety
+    // picking, and the meal JSON schema — extracted to mealConstraints.js so
+    // this route and the mobile swap-alternatives endpoint (routes/mealSwap.js)
+    // build them identically instead of drifting across copies. Logic and
+    // output are unchanged from before the extraction.
     const clientAvoidList = capList(avoid_meals, 30, 80);
     const dislikedMeals = session ? await db.getUserDislikedMeals(session.userId) : [];
     const avoidList = Array.from(new Set([...clientAvoidList, ...dislikedMeals])).slice(0, 60);
-    const avoidBlock = avoidList.length > 0
-      ? `STRICT AVOID — do not include any of these previously rejected meals: ${avoidList.join(', ')}.`
-      : '';
-
-    const cuisineGroups = {
-      mediterranean:['Greek','Italian','Spanish','Moroccan','Turkish','Lebanese','Tunisian'],
-      asian:['Japanese','Chinese','Korean','Vietnamese','Thai','Filipino','Malaysian','Indonesian'],
-      indian:['North Indian','South Indian','Bengali','Punjabi','Goan'],
-      middleeastern:['Lebanese','Persian','Israeli','Egyptian','Jordanian'],
-      american:['American','Tex-Mex','Southern BBQ','New England','Californian'],
-      mexican:['Mexican','Oaxacan','Yucatecan','Street Food Mexican'],
-      scandinavian:['Swedish','Norwegian','Danish','Finnish'],
-      african:['Ethiopian','West African','South African','Moroccan'],
-      european:['French','German','British','Polish','Portuguese'],
-      latin:['Brazilian','Argentinian','Peruvian','Colombian']
-    };
-    const proteins = ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines','halloumi','duck','venison'];
+    const { dietaryBlock, allergyBlock, avoidBlock, isVegan, isKeto, activeDietRules } =
+      mealConstraints.buildDietaryBlocks({ dietaryPrefs, allergies, avoidList });
 
     const preferredCuisine = (normalizedSettings?.preferredCuisine ?? sanitise(profile.preferred_cuisine, 60)) || null;
-    const allCuisinesFlat = Object.values(cuisineGroups).flat();
-    // Filter protein suggestions to match dietary restrictions — prevents biasing the model with forbidden proteins
-    const proteinsByDiet = {
-      vegan:       ['tofu','lentils','chickpeas','tempeh','edamame','hemp seeds','black beans','kidney beans'],
-      vegetarian:  ['eggs','tofu','lentils','chickpeas','tempeh','halloumi','cottage cheese','greek yogurt'],
-      keto:        ['chicken','salmon','beef','shrimp','turkey','pork','lamb','cod','sardines','duck','venison','eggs','tuna'],
-      'dairy-free':['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','pork','lamb','cod','tempeh','sardines','duck','venison'],
-      halal:       ['chicken','salmon','tuna','beef','tofu','eggs','shrimp','turkey','lentils','chickpeas','lamb','cod','tempeh','sardines','duck','venison'],
-    };
-    let eligibleProteins = [...proteins];
-    for (const pref of dietaryPrefs.map(p=>p.toLowerCase())) {
-      if (proteinsByDiet[pref]) {
-        eligibleProteins = eligibleProteins.filter(p => proteinsByDiet[pref].includes(p));
-        if (eligibleProteins.length === 0) eligibleProteins = proteinsByDiet[pref]; // fallback
-      }
-    }
-    // Special keto+vegan combo: only plant-based fats/proteins
-    if (isVegan && isKeto) eligibleProteins = ['tofu','tempeh','hemp seeds','edamame'];
+    const eligibleProteins = mealConstraints.buildEligibleProteins({ dietaryPrefs, isVegan, isKeto });
 
     /** Picks a fresh cuisine/protein/seed for one day's generation, optionally
      * avoiding the previous day's cuisine so a 7-day week doesn't repeat. */
     function pickDayVariety(excludeCuisine) {
-      let todayCuisine;
-      if (preferredCuisine && cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')]) {
-        const group = cuisineGroups[preferredCuisine.toLowerCase().replace(/\s/g,'')];
-        const pool = (excludeCuisine && group.length > 1) ? group.filter(c => c !== excludeCuisine) : group;
-        todayCuisine = pool[Math.floor(Math.random() * pool.length)];
-      } else if (preferredCuisine) {
-        todayCuisine = preferredCuisine;
-      } else {
-        const pool = excludeCuisine ? allCuisinesFlat.filter(c => c !== excludeCuisine) : allCuisinesFlat;
-        todayCuisine = pool[Math.floor(Math.random() * pool.length)];
-      }
-      const todayProtein = eligibleProteins[Math.floor(Math.random() * eligibleProteins.length)];
-      const randomSeed    = Math.floor(Math.random() * 99999);
-      return { todayCuisine, todayProtein, randomSeed };
+      return mealConstraints.pickVariety({ preferredCuisine, excludeCuisine, eligibleProteins });
     }
     const { todayCuisine, todayProtein, randomSeed } = pickDayVariety(null);
 
     // ── JSON schema embedded in the prompt for reliable parsing ──────────
-    const mealSchema = `{
-  "type": "breakfast|lunch|dinner|snack",
-  "name": "string",
-  "description": "string — MUST start with a cooking method word (e.g. Grilled, Pan-seared, Slow-cooked, Roasted, Baked, Crispy, Sautéed). Format: [Method] [ingredient] with [accompaniment]. Under ${isPro ? '15' : '10'} words.",
-  "calories": number,
-  "protein": number,
-  "carbs": number,
-  "fat": number,
-  "cookTime": number,
-  "servings": 1,
-  "estimatedCost": number,
-  "ingredients": [{ "name": "string", "amount": "string (human-readable, e.g. '200g' or '2 eggs')", "amountValue": number, "amountUnit": "g|ml|count", "cost": number }],
-  "instructions": ["string"],
-  "imageKeyword": "simple English food keyword e.g. scrambled eggs"
-}`;
+    const mealSchema = mealConstraints.buildMealSchema({ mealType: 'breakfast|lunch|dinner|snack', isPro });
     // Every ingredient's amountValue/amountUnit MUST be grams for solids, milliliters
     // for liquids, or count for discrete items (eggs, slices) — never cups,
     // tablespoons, ounces, or other cooking units. Head/bunch vegetables
     // (broccoli, cauliflower, lettuce, kale) go in grams, not count. "amount"
     // stays a human-readable string for display; amountValue/amountUnit are
     // what the server actually prices.
-    const ingredientUnitRule = `Every ingredient's "amountValue"/"amountUnit" MUST use grams (g) for solids, milliliters (ml) for liquids, or count (count) for discrete items like eggs or slices — convert from cups/tbsp/oz yourself, never leave it in those units. Example: "amount": "1 cup rice" -> "amountValue": 185, "amountUnit": "g". Vegetables sold by the head or bunch (broccoli, cauliflower, lettuce, kale) MUST be given in grams, never as a "count" — e.g. "1 head broccoli" -> "amountValue": 340, "amountUnit": "g". List "salt" and "pepper" as TWO separate ingredients, each on its own line — never a single combined "salt and pepper" entry.`;
+    const ingredientUnitRule = mealConstraints.INGREDIENT_UNIT_RULE;
 
     // ═══════════════════════════════════════════════════════════════════════
     // SINGLE MEAL SWAP
@@ -4935,6 +4872,7 @@ app.post('/api/cron/purge-deleted-accounts', cronLimiter, async (req, res) => {
 // ── Recipe routes (photo import, save, list) ──────────────────────────────────
 require('./routes/recipes')(app, { anthropic, requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap });
 require('./routes/favorites')(app, { requireSession, db });
+require('./routes/mealSwap')(app, { requireSession, requireVerifiedEmail, generateLimiter, db, callAnthropicWithSpendCap, calculateMealCost, normalizeSpelling });
 
 // ── Blog routes ───────────────────────────────────────────────────────────────
 app.get('/blog', (req, res) => {
