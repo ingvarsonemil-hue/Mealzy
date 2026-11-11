@@ -1,7 +1,5 @@
 name: Cron — Weekly Digest Emails
 on:
-  schedule:
-    - cron: '0 8 * * 1'  # Monday 8:00 UTC = 9am CET
   workflow_dispatch:
 
 jobs:

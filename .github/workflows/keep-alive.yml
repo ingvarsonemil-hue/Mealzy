@@ -1,17 +1,12 @@
 # Mealzy — Render Keep-Alive
-# Pings /api/health every 9 minutes to prevent Render free tier cold starts.
-# Render spins down after 15 min of inactivity — this keeps it warm 24/7 at zero cost.
+# Pings /api/health. Render spins down after 15 min of inactivity.
 #
-# No secrets needed. Just push this file and it runs automatically.
-# To pause: comment out the schedule lines below.
+# Manual only. The project is shut down, so this no longer runs on a schedule.
+# Run it from the Actions tab if a one-off health check is ever needed.
 
 name: Keep Alive
 
 on:
-  schedule:
-    # Every 9 minutes — stays safely under Render's 15-minute spin-down threshold
-    # Cron syntax: minute hour day month weekday
-    - cron: '*/9 * * * *'
   workflow_dispatch: # Allow manual trigger from GitHub Actions tab
 
 jobs:
